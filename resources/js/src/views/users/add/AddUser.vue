@@ -357,7 +357,6 @@ import {
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref, computed, onMounted } from '@vue/composition-api'
-import { avatarText } from '@core/utils/filter'
 import vSelect from 'vue-select'
 import { useInputImageRenderer } from '@core/comp-functions/forms/form-utils'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
@@ -481,7 +480,6 @@ export default {
       resetForm,
       previewEl,
       refInputEl,
-      avatarText,
       removeImage,
       statusOptions,
       refFormObserver,

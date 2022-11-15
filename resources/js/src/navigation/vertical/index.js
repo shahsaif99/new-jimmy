@@ -10,119 +10,89 @@ export default [
   {
     header: 'Pages',
   },
-  //   {
-  //     title: 'Leads',
-  //     route: 'leads',
-  //     icon: 'TrelloIcon',
-  //     action: 'leads-view',
-  //     resource: 'all',
-  //   },
-  //   {
-  //     title: 'Partners',
-  //     icon: 'UsersIcon',
-  //     action: 'reports-view',
-  //     resource: 'all',
-  //     children: [
-  //       {
-  //         title: 'Prospects',
-  //         route: 'prospects',
-  //         action: 'prospects-view',
-  //         resource: 'all',
-  //       },
-  //       {
-  //         title: 'Active',
-  //         route: 'prospects-active',
-  //         action: 'prospects-active-view',
-  //         resource: 'all',
-  //       },
-  //       {
-  //         title: 'Archive',
-  //         route: 'prospects-archive',
-  //         action: 'prospects-archive-view',
-  //         resource: 'all',
-  //       },
-  //     ],
-  //   },
-
-  //   {
-  //     title: 'Users',
-  //     icon: 'UsersIcon',
-  //     action: 'users-view',
-  //     resource: 'all',
-  //     children: [
-  //       {
-  //         title: 'Users',
-  //         route: 'users',
-  //         action: 'users-view',
-  //         resource: 'all',
-  //       },
-  //       {
-  //         title: 'Active',
-  //         route: 'users-active',
-  //         action: 'users-active-view',
-  //         resource: 'all',
-  //       },
-  //       {
-  //         title: 'Deactive',
-  //         route: 'users-deactive',
-  //         action: 'users-deactive-view',
-  //         resource: 'all',
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: 'Reports',
-  //     route: '#',
-  //     icon: 'PieChartIcon',
-  //     action: 'reports-view',
-  //     resource: 'all',
-  //   },
-  //   {
-  //     title: 'Calendar',
-  //     route: '#',
-  //     icon: 'CalendarIcon',
-  //     action: 'calendar-view',
-  //     resource: 'all',
-  //   },
-  //   {
-  //     title: 'Email',
-  //     route: '#',
-  //     icon: 'MailIcon',
-  //     action: 'email-view',
-  //     resource: 'all',
-  //   },
-  //   {
-  //     title: 'Chat',
-  //     route: '#',
-  //     icon: 'MessageSquareIcon',
-  //     action: 'chat-view',
-  //     resource: 'all',
-  //   },
-  //   {
-  //     title: 'Tasks',
-  //     route: '#',
-  //     icon: 'SlidersIcon',
-  //     action: 'tasks-view',
-  //     resource: 'all',
-  //   },
   {
-    header: 'My Account',
-    action: 'my-account-view',
+    title: 'Employee',
     resource: 'all',
-  },
-  {
-    title: 'My Profile',
-    route: 'account',
-    icon: 'UserIcon',
-    action: 'my-profile-view',
-    resource: 'all',
+    icon: 'UsersIcon',
+    action: 'employee',
+    children: [
+      {
+        title: 'Employee Overview',
+        route: 'employeeoverview',
+        icon: 'UserIcon',
+        action: 'employee',
+        resource: 'all',
+      },
+      {
+        title: 'Competence overview',
+        route: 'competenceoverview',
+        icon: 'UserIcon',
+        action: 'employee',
+        resource: 'all',
+      },
+    ],
   },
 
   {
-    title: 'Change Password',
-    route: 'account-password',
-    icon: 'LockIcon',
-    action: 'password-view',
+    title: 'Document center',
+    icon: 'UsersIcon',
     resource: 'all',
+    action: 'document-center',
+    children: [
+      {
+        title: 'Document center',
+        route: 'documentcenter',
+        icon: 'UserIcon',
+        action: 'document-center',
+        resource: 'all',
+      },
+      {
+        title: 'Handbooks',
+        route: 'handbooks',
+        icon: 'UserIcon',
+        action: 'document-center',
+        resource: 'all',
+      },
+    ],
   },
+
+  {
+    title: 'Equipment Control',
+    icon: 'UsersIcon',
+    action: 'equipment-view',
+    resource: 'all',
+    children: [
+      {
+        title: 'Overview',
+        route: 'equipmentoverview',
+        icon: 'UserIcon',
+        action: 'equipment-view',
+        resource: 'all',
+      },
+      {
+        title: 'Personal equipment',
+        route: 'personalequipment',
+        icon: 'UserIcon',
+        action: 'equipment-view',
+        resource: 'all',
+      },
+    ],
+  },
+
+  {
+    title: 'Projects',
+    icon: 'UsersIcon',
+    action: 'overview-view',
+    resource: 'all',
+    children: [
+      {
+        title: 'Overview',
+        route: 'projectoverview',
+        action: 'overview-view',
+        icon: 'UserIcon',
+        resource: 'all',
+      },
+    ],
+  },
+
 ]

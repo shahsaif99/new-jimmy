@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import { isUserLoggedIn, isCustomerLoggedIn } from '@/auth/utils'
+// eslint-disable-next-line import/no-cycle
+import { isUserLoggedIn } from '@/auth/utils'
 import { canNavigate } from '@/libs/acl/routeProtection'
 
 // customer routes

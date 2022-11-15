@@ -1,32 +1,73 @@
+<!-- eslint-disable vue/no-parsing-error -->
 <template>
-  <div />
+  <b-card>
+    <h2>
+      Information board
+    </h2>
+    <b-row>
+      <b-col
+        cols="12"
+        md="12"
+      >
+        <div class="d-flex align-items-center justify-content-end">
+          <b-button
+            variant="primary"
+            class="mb-1"
+          >
+            <span class="text-nowrap">Add new</span>
+          </b-button>
+        </div>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col
+        xl="12"
+        sm="12"
+      >
 
+        <b-table
+          striped
+          ref="refListTable"
+          class="position-relative"
+          :items="StaticData"
+          :fields="tableColumns"
+          primary-key="id"
+          show-empty
+          empty-text="No matching records found"
+          :sort-desc.sync="isSortDirDesc"
+        />
+      </b-col>
+      <b-col
+        cols="12"
+        sm="6"
+        class="d-flex align-items-center justify-content-center justify-content-sm-end"
+      />
+    </b-row>
+  </b-card>
 </template>
 
+
 <script>
-import {
-  BRow, BCol, BCard, BButton, BFormSelect, BFormSelectOption,
-} from 'bootstrap-vue'
-import useJwt from '@/auth/jwt/useJwt'
-import DatePicker from 'vue2-datepicker'
-import 'vue2-datepicker/index.css'
-import useDashboard from '@/composables/dashboard'
 import useLeads from '@/composables/leads'
-import useUsers from '@/composables/users'
-import { onMounted, ref, watch } from '@vue/composition-api'
+import { onMounted, ref } from '@vue/composition-api'
+import {
+  BCard, BTable, VBTooltip, BButton, BRow, BCol,
+} from 'bootstrap-vue'
 
 
 export default {
   components: {
+    BCard,
+    BTable,
+    BButton,
+    BRow,
+    BCol,
 
   },
+  directives: {
+    'b-tooltip': VBTooltip,
+  },
   setup() {
-    const {
-      statistics,
-      isDataFetched,
-      fetchStatistics,
-    } = useDashboard()
-
     const {
       sortBy,
       filters,
@@ -38,113 +79,88 @@ export default {
       searchQuery,
       currentPage,
       totalRecords,
-      tableColumns,
       refListTable,
       isSortDirDesc,
       perPageOptions,
     } = useLeads()
-    const user = JSON.parse(useJwt.getUserData())
-    const date = new Date()
-    const year = date.getFullYear()
     const isAddLeadActive = ref(false)
 
-    const makeShortcuts = ref([
-      { text: 'Today', onClick: () => [new Date(), new Date()] },
-      {
-        text: 'Yesterday',
-        onClick: () => [new Date(Date.now() - 3600 * 1000 * 24), new Date()],
-      },
-      {
-        text: 'Last Week',
-        onClick: () => [new Date(Date.now() - 7 * 24 * 3600 * 1000), new Date()],
-      },
-      {
-        text: 'Monthly',
-        onClick: () => [new Date(Date.now() - 30 * 24 * 3600 * 1000), new Date()],
-      },
-      {
-        text: 'Yearly',
-        onClick: () => [new Date(Date.now() - 365 * 24 * 3600 * 1000), new Date()],
-      },
-    ])
-
-
-    const dashboardFilters = ref({
-      period: [new Date(Date.now() - 30 * 24 * 3600 * 1000), new Date()],
-      partner: 'all',
-    })
-    const monthlySales = ref({
-      series: {},
-      chartOptions: {
-        xaxis: {
-          categories: [],
-        },
-      },
-    })
-
-    const weeklyLeads = ref({
-      series: {},
-      chartOptions: {
-        xaxis: {
-          categories: [],
-        },
-      },
-    })
-
     onMounted(async () => {
-      await fetchStatistics()
+      fetchLeads()
     })
 
+    const tableColumns = [
+      { key: 'Information' },
+      { key: 'Author' },
+      { key: 'Given' },
+    ]
 
-    // watch(statistics, () => {
-    //   if (isDataFetched.value) {
-    //     monthlySales.value.series = [
-    //       {
-    //         name: 'Settled',
-    //         data: [10, 20, 30, 50, 40, 60],
-    //       },
-    //     ]
-    //     monthlySales.value.chartOptions.xaxis.categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-    //     // Weekly Leads
-    //     weeklyLeads.value.series = [
-    //       {
-    //         name: 'Leads',
-    //         data: [10, 5, 8, 4, 6, 12, 10],
-    //       },
-    //     ]
-    //     weeklyLeads.value.chartOptions.xaxis.categories = ['12 Oct', '13 Oct', '14 Oct', '15 Oct', '16 Oct', '17 Oct', '18 Oct']
-    //   }
-    // })
+    const StaticData = [
+      {
+        Information: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form,', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: ' Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+      {
+        Information: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. ', Author: 'Ola Normann', Given: '00.00.000',
+      },
+    ]
 
     return {
-      year,
-      user,
       leads,
       sortBy,
       filters,
       perPage,
       dataMeta,
       fetchLeads,
-      statistics,
       searchQuery,
       currentPage,
       refetchData,
-      weeklyLeads,
-      monthlySales,
       totalRecords,
-      makeShortcuts,
       tableColumns,
       refListTable,
-      isDataFetched,
       isSortDirDesc,
       perPageOptions,
       isAddLeadActive,
-      dashboardFilters,
+      StaticData,
     }
   },
 }
 </script>
-<style lang="scss">
-@import '~@core/scss/vue/libs/vue-select.scss';
-</style>

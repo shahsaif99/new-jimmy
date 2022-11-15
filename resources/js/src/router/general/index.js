@@ -28,6 +28,126 @@ const routes = [
     },
   },
   {
+    path: 'employeeoverview',
+    name: 'employeeoverview',
+    component: () => import('@/views/employeeoverview/Employeeoverview.vue'),
+    meta: {
+      pageTitle: 'Employee Overview',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'employee',
+      breadcrumb: [
+        {
+          text: 'Employee',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'competenceoverview',
+    name: 'competenceoverview',
+    component: () => import('@/views/employeeoverview/Competenceoverview.vue'),
+    meta: {
+      pageTitle: 'Competence Overview',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'employee',
+      breadcrumb: [
+        {
+          text: 'Employee',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'documentcenter',
+    name: 'documentcenter',
+    component: () => import('@/views/documentcenter/DocumentCenter.vue'),
+    meta: {
+      pageTitle: 'Document Center',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'documentcenter',
+      breadcrumb: [
+        {
+          text: 'Document Center',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'handbooks',
+    name: 'handbooks',
+    component: () => import('@/views/documentcenter/Handbooks.vue'),
+    meta: {
+      pageTitle: 'Handbooks',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'documentcenter',
+      breadcrumb: [
+        {
+          text: 'Handbooks',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'equipmentoverview',
+    name: 'equipmentoverview',
+    component: () => import('@/views/equipment/Overview.vue'),
+    meta: {
+      pageTitle: 'Overview',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'equipment-view',
+      breadcrumb: [
+        {
+          text: 'Equipment Control',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'personalequipment',
+    name: 'personalequipment',
+    component: () => import('@/views/equipment/Personalequipment.vue'),
+    meta: {
+      pageTitle: 'Personal Equipment',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'equipment-view',
+      breadcrumb: [
+        {
+          text: 'Equipment Control',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'projectoverview',
+    name: 'projectoverview',
+    component: () => import('@/views/overview/Overview.vue'),
+    meta: {
+      pageTitle: 'Overview',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'overview-view',
+      breadcrumb: [
+        {
+          text: 'Overview',
+          active: true,
+        },
+      ],
+    },
+
+  },
+  {
     path: 'password-reset/:token/:email',
     name: 'password-reset',
     props: true,
