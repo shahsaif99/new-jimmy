@@ -46,9 +46,9 @@
               <b-button
                 variant="primary"
                 class="mb-0 mt-2"
-                @click="$router.push('addequipment')"
+                @click="$router.push('addloan')"
               >
-                <span class="text-nowrap">Add new Equipment</span>
+                <span class="text-nowrap">Add new Loan</span>
               </b-button>
             </div>
           </b-col>
@@ -63,9 +63,9 @@
         <b-table
           striped
           ref="refListTable"
-          class="position-relative"
-          :items="StaticData"
+          class="position-relative mr-1"
           responsive
+          :items="StaticData"
           :fields="Columns"
           primary-key="id"
           :sort-by.sync="sortBy"
@@ -170,22 +170,8 @@ export default {
       perPageOptions,
     } = useProspects()
 
-
-    // onMounted(() => {
-    //   fetchSupervisorsList()
-    //   fetchGroupsList()
-    //   fetchProjectsList()
-    // })
-    // watch(() => root.$route.meta.status, async status => {
-    //   filters.status = status
-    //   fetchStudents()
-    // }, {
-    //   immediate: true,
-    // })
-
     const isExportActive = ref(false)
     const filterKey = ref(0)
-
 
     const filterUpdate = filterQuery => {
       Object.assign(filters, filterQuery)
@@ -210,45 +196,36 @@ export default {
           }
         })
     }
+
     const StaticData = [
       {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
+        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
       },
       {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
+        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
       },
       {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
+        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
       },
       {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
+        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
       },
       {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
+        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
       },
       {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
+        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
       },
       {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
+        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
       },
     ]
     const Columns = [
-      { label: 'Name', field: 'Name' },
-      { label: 'Category', field: 'Category' },
-      { label: 'Serial Number', field: 'SerialNumber' },
-      { label: 'Valid Until', field: 'ValidUntil' },
-      { label: 'Certificate Number', field: 'CertificateNo' },
+      { label: 'Lending Date', field: 'LendingDate' },
+      { label: 'Returned Date', field: 'ReturnedDate' },
       { label: 'Loaned To', field: 'LoanedTo' },
       { label: 'Project', field: 'Project' },
-      { label: 'Lending History', field: 'LendingHistory' },
-      { label: 'Attachments', field: 'Attachments' },
+      { label: 'Registered By', field: 'RegisteredBy' },
       { label: 'Edit', field: 'Edit' },
     ]
     return {
@@ -277,12 +254,13 @@ export default {
   },
 }
 </script>
-<style lang="scss" scoped>
-    .per-page-selector {
-        width: 90px;
-    }
-</style>
+  <style lang="scss" scoped>
+      .per-page-selector {
+          width: 90px;
+      }
+  </style>
 
-<style lang="scss">
-    @import '~@core/scss/vue/libs/vue-select.scss';
-</style>
+  <style lang="scss">
+      @import '~@core/scss/vue/libs/vue-select.scss';
+  </style>
+

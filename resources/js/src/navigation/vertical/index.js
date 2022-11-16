@@ -35,21 +35,21 @@ export default [
 
   {
     title: 'Document center',
-    icon: 'UsersIcon',
+    icon: 'FolderIcon',
     resource: 'all',
     action: 'document-center',
     children: [
       {
         title: 'Document center',
         route: 'documentcenter',
-        icon: 'UserIcon',
+        icon: 'FolderIcon',
         action: 'document-center',
         resource: 'all',
       },
       {
         title: 'Handbooks',
         route: 'handbooks',
-        icon: 'UserIcon',
+        icon: 'FolderIcon',
         action: 'document-center',
         resource: 'all',
       },
@@ -58,21 +58,28 @@ export default [
 
   {
     title: 'Equipment Control',
-    icon: 'UsersIcon',
+    icon: 'BriefcaseIcon',
     action: 'equipment-view',
     resource: 'all',
     children: [
       {
         title: 'Overview',
         route: 'equipmentoverview',
-        icon: 'UserIcon',
+        icon: 'BriefcaseIcon',
         action: 'equipment-view',
         resource: 'all',
       },
       {
         title: 'Personal equipment',
         route: 'personalequipment',
-        icon: 'UserIcon',
+        icon: 'BriefcaseIcon',
+        action: 'equipment-view',
+        resource: 'all',
+      },
+      {
+        title: 'Lending History',
+        route: 'lendinghistory',
+        icon: 'BriefcaseIcon',
         action: 'equipment-view',
         resource: 'all',
       },
@@ -81,7 +88,7 @@ export default [
 
   {
     title: 'Projects',
-    icon: 'UsersIcon',
+    icon: 'InboxIcon',
     action: 'overview-view',
     resource: 'all',
     children: [
@@ -89,7 +96,7 @@ export default [
         title: 'Overview',
         route: 'projectoverview',
         action: 'overview-view',
-        icon: 'UserIcon',
+        icon: 'InboxIcon',
         resource: 'all',
       },
     ],

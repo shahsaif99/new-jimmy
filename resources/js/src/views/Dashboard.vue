@@ -13,6 +13,7 @@
           <b-button
             variant="primary"
             class="mb-1"
+            @click="$router.push('addinformation')"
           >
             <span class="text-nowrap">Add new</span>
           </b-button>

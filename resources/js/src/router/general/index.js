@@ -28,6 +28,24 @@ const routes = [
     },
   },
   {
+    path: 'addinformation',
+    name: 'addinformation',
+    component: () => import('@/views/AddDashboardInformation.vue'),
+    meta: {
+      pageTitle: 'Add Information',
+      layout: 'vertical',
+      auth: true,
+      resource: 'all',
+      action: 'dashboard-view',
+      breadcrumb: [
+        {
+          text: 'Dashboard',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
     path: 'employeeoverview',
     name: 'employeeoverview',
     component: () => import('@/views/employeeoverview/Employeeoverview.vue'),
@@ -89,7 +107,7 @@ const routes = [
       action: 'documentcenter',
       breadcrumb: [
         {
-          text: 'Handbooks',
+          text: 'Document Center',
           active: true,
         },
       ],
@@ -101,6 +119,40 @@ const routes = [
     component: () => import('@/views/equipment/Overview.vue'),
     meta: {
       pageTitle: 'Overview',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'equipment-view',
+      breadcrumb: [
+        {
+          text: 'Equipment Control',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'lendinghistory',
+    name: 'lendinghistory',
+    component: () => import('@/views/equipment/Lendinghistory.vue'),
+    meta: {
+      pageTitle: 'Lending History',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'equipment-view',
+      breadcrumb: [
+        {
+          text: 'Equipment Control',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'addloan',
+    name: 'addloan',
+    component: () => import('@/views/equipment/Addloan.vue'),
+    meta: {
+      pageTitle: 'Add New Loan',
       layout: 'vertical',
       resource: 'all',
       action: 'equipment-view',
@@ -140,7 +192,24 @@ const routes = [
       action: 'overview-view',
       breadcrumb: [
         {
-          text: 'Overview',
+          text: 'Projects',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'addequipment',
+    name: 'addequipment',
+    component: () => import('@/views/equipment/AddEquipment.vue'),
+    meta: {
+      pageTitle: 'Add Equipment',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'equipment-view',
+      breadcrumb: [
+        {
+          text: 'Equipment Control',
           active: true,
         },
       ],
