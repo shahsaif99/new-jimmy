@@ -55,9 +55,7 @@
           </b-col>
         </b-row>
         <b-row>
-          <b-col
-            cols="6"
-          >
+          <b-col>
             <div class="d-flex align-items-center justify-content-end">
               <b-button
                 variant="primary"

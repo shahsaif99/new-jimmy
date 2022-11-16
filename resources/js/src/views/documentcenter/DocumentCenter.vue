@@ -30,13 +30,13 @@
           <div class="d-flex align-items-center justify-content-end">
             <b-button
               variant="primary"
-              class="mr-2 px-5"
+              class="mr-2 px-5 mt-2"
             >
               <span class="text-nowrap">Add</span>
             </b-button>
             <b-button
               variant="primary"
-              class="px-5"
+              class="px-5 mt-2"
             >
               <span class="text-nowrap">Edit</span>
             </b-button>

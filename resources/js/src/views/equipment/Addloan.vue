@@ -85,15 +85,13 @@
           </b-col>
         </b-row>
         <b-row>
-          <b-col
-            cols="6"
-          >
+          <b-col>
             <div class="d-flex align-items-center justify-content-end">
               <b-button
                 variant="primary"
                 class="mr-2 px-5 mt-2"
               >
-                <span class="text-nowrap">Submit</span>
+                <span class="text-nowrap">Add</span>
               </b-button>
             </div>
           </b-col>

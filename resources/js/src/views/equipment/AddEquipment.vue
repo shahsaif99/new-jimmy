@@ -12,9 +12,7 @@
             cols="6"
             md="6"
           >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
+            <div class="d-flex align-items-center justify-content-end">
               <b-form-input
                 v-model="FormData.Name"
                 class="d-inline-block mr-1 md-2 mt-3"
@@ -26,9 +24,7 @@
             cols="6"
             md="6"
           >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
+            <div class="d-flex align-items-center justify-content-end">
               <b-form-input
                 v-model="FormData.SerialNumber"
                 class="d-inline-block mr-1 md-2 mt-3"
@@ -42,9 +38,7 @@
             cols="6"
             md="6"
           >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
+            <div class="d-flex align-items-center justify-content-end">
               <b-form-input
                 v-model="FormData.Supplier"
                 class="d-inline-block mr-1 md-2 mt-3"
@@ -56,9 +50,7 @@
             cols="6"
             md="6"
           >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
+            <div class="d-flex align-items-center justify-content-end">
               <b-form-input
                 v-model="FormData.Category"
                 class="d-inline-block mr-1 md-2 mt-3"
@@ -72,9 +64,7 @@
             cols="6"
             md="6"
           >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
+            <div class="d-flex align-items-center justify-content-end">
               <b-form-input
                 v-model="FormData.Supplier"
                 class="d-inline-block mr-1 md-2 mt-3"
@@ -86,9 +76,7 @@
             cols="6"
             md="6"
           >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
+            <div class="d-flex align-items-center justify-content-end">
               <b-form-input
                 v-model="FormData.Category"
                 class="d-inline-block mr-1 md-2 mt-3"
@@ -105,37 +93,44 @@
             <h2 class="mt-3 mr-1 md-2">
               Files
             </h2>
-            <b-table
-              striped
-              ref="refListTable"
-              class="position-relative mt-1"
-              :items="StaticData"
-              :fields="tableColumns"
-              primary-key="id"
-              show-empty
-              empty-text="No matching records found"
-              :sort-desc.sync="isSortDirDesc"
-            />
+            <b-overlay
+              id="overlay-background"
+              :show="busy"
+              variant="transparent"
+              rounded="sm"
+            >
+              <b-table
+                striped
+                ref="refListTable"
+                class="position-relative"
+                :items="StaticData"
+                responsive
+                :fields="Columns"
+                primary-key="id"
+                :sort-by.sync="sortBy"
+                show-empty
+                empty-text="No matching records found"
+                :sort-desc.sync="isSortDirDesc"
+              />
+            </b-overlay>
           </b-col>
         </b-row>
-        <b-row class="align-items-end match-height">
-          <b-col
-            cols="12"
-          >
-            <div class="d-flex align-items-center justify-content-end">
-              <b-button
-                variant="primary"
-                class="mr-2 px-5 mt-2"
-              >
-                <span class="text-nowrap">Upload</span>
-              </b-button>
-              <b-button
-                variant="primary"
-                class="px-5 mt-2"
-              >
-                <span class="text-nowrap">Delete</span>
-              </b-button>
-            </div>
+        <b-row>
+          <b-col>
+            <b-button
+              variant="primary"
+              class="mt-2 w-100"
+            >
+              <span class="text-nowrap">Upload</span>
+            </b-button>
+          </b-col>
+          <b-col>
+            <b-button
+              variant="primary"
+              class="mt-2 w-100"
+            >
+              <span class="text-nowrap">Delete</span>
+            </b-button>
           </b-col>
         </b-row>
       </div>
@@ -151,6 +146,7 @@ import {
   BFormInput,
   BTable,
   BButton,
+  BOverlay,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import useProspects from '@/composables/prospects'
@@ -164,6 +160,7 @@ export default {
     BFormInput,
     BTable,
     BButton,
+    BOverlay,
   },
   setup() {
     const {
@@ -220,11 +217,11 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-    .per-page-selector {
-        width: 90px;
-    }
+.per-page-selector {
+width: 90px;
+}
 </style>
 
 <style lang="scss">
-    @import '~@core/scss/vue/libs/vue-select.scss';
+@import '~@core/scss/vue/libs/vue-select.scss';
 </style>
