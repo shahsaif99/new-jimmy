@@ -4,46 +4,26 @@
     <h2>
       Information board
     </h2>
-    <b-row>
-      <b-col
-        cols="12"
-        md="12"
+    <b-overlay
+        id="overlay-background"
+        :show="busy"
+        variant="transparent"
+        rounded="sm"
       >
-        <div class="d-flex align-items-center justify-content-end">
-          <b-button
-            variant="primary"
-            class="mb-1"
-            @click="$router.push('addinformation')"
-          >
-            <span class="text-nowrap">Add new</span>
-          </b-button>
-        </div>
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-col
-        xl="12"
-        sm="12"
-      >
-
         <b-table
           striped
           ref="refListTable"
           class="position-relative"
           :items="StaticData"
-          :fields="tableColumns"
+          responsive
+          :fields="Columns"
           primary-key="id"
+          :sort-by.sync="sortBy"
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
         />
-      </b-col>
-      <b-col
-        cols="12"
-        sm="6"
-        class="d-flex align-items-center justify-content-center justify-content-sm-end"
-      />
-    </b-row>
+      </b-overlay>
   </b-card>
 </template>
 
