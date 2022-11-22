@@ -54,21 +54,21 @@
         <b-table
           ref="refListTable"
           class="position-relative"
-          :items="StaticData"
+          :items="staticData"
           responsive
-          :fields="tableColumns"
+          :fields="fields"
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
         >
-          <template #cell(id)="data">
+          <template #cell(id)="staticData">
             <b-link
-              :to="{ name: 'admin-student-profile', params: { id: data.item.id }}"
+              :to="{ name: 'admin-student-profile', params: { id: staticData.projectNumber }}"
               class="font-weight-bold"
             >
-              {{ data.item.id }}
+              {{ staticData.projectNumber }}
             </b-link>
           </template> -->
 
@@ -166,12 +166,13 @@ import {
   BCol,
   BTable,
   BOverlay,
+  BLink,
   BFormInput,
   BPagination,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
-import useProspects from '@/composables/prospects'
+import useProjects from '@/composables/project'
 
 export default {
   components: {
@@ -180,7 +181,7 @@ export default {
     BRow,
     BCard,
     BTable,
-
+    BLink,
     vSelect,
     BOverlay,
     BFormInput,
@@ -202,9 +203,11 @@ export default {
       refListTable,
       deleteStudent,
       isSortDirDesc,
+      fields,
+      staticData,
       fetchStudents,
       perPageOptions,
-    } = useProspects()
+    } = useProjects()
 
 
     // onMounted(() => {
@@ -245,67 +248,6 @@ export default {
           }
         })
     }
-    const StaticData = [
-      {
-        ProjectNumber: 101, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-      {
-        ProjectNumber: 1001, ProjectName: 'Hello', StartDate: '17-01-2001', EndDate: '20-08-2001', Could: 'Client',
-      },
-    ]
-
-    const tableColumns = [
-      { label: 'Project Number', field: 'ProjectNumber' },
-      { label: 'Project Name', field: 'ProjectName' },
-      { label: 'Start Date', field: 'StartDate' },
-      { label: 'End Date', field: 'EndDate' },
-      { label: 'Could', field: 'Could' },
-    ]
     return {
       busy,
       sortBy,
@@ -320,14 +262,14 @@ export default {
       searchQuery,
       currentPage,
       filterUpdate,
-      tableColumns,
+      fields,
       totalRecords,
       refListTable,
       isSortDirDesc,
       confirmDelete,
       perPageOptions,
       isExportActive,
-      StaticData,
+      staticData,
     }
   },
 }

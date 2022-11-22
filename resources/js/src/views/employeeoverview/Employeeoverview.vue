@@ -68,8 +68,8 @@
         <b-table
           ref="refListTable"
           class="position-relative"
-          :fields="Columns"
-          :items="StaticData"
+          :fields="columns"
+          :items="staticData"
           responsive
           primary-key="id"
           :sort-by.sync="sortBy"
@@ -77,7 +77,7 @@
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
         >
-          <template #cell(avatar)="StaticData">
+          <template #cell(avatar)="staticData">
             <b-media vertical-align="center">
               <template #aside>
                 <!-- <b-avatar
@@ -90,24 +90,24 @@
               <b-link
                 class="font-weight-bold d-block text-nowrap"
               >
-                {{ StaticData.name }}
+                {{ staticData.name }}
               </b-link>
               <!-- <small class="text-muted">@{{ data.item.email }}</small> -->
             </b-media>
           </template>
           <!-- Column: Status -->
-          <template #cell(status)="StaticData">
+          <template #cell(status)="staticData">
             <div>
               <b-form-checkbox
-                :checked="StaticData.status"
+                :checked="staticData.status"
                 class="custom-control-success"
                 name="check-button"
-                @change="onChangeStatus(StaticData.id, StaticData.statuss)"
+                @change="onChangeStatus(staticData.id, staticData.status)"
                 switch
               />
             </div>
           </template>
-          <template #cell(actions)="StaticData">
+          <template #cell(actions)="staticData">
             <b-dropdown
               variant="link"
               no-caret
@@ -126,7 +126,7 @@
                 <span class="align-middle ml-50">Edit</span>
               </b-dropdown-item>
               <b-dropdown-item
-                @click="confirmDelete(StaticData.id)"
+                @click="confirmDelete(staticData.id)"
               >
                 <feather-icon
                   icon="TrashIcon"
@@ -194,7 +194,7 @@ import {
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
-import useProspects from '@/composables/prospects'
+import useEmployee from '@/composables/employee'
 // eslint-disable-next-line import/no-cycle
 import useJwt from '@/auth/jwt/useJwt'
 import addEmployee from './addEmployee.vue'
@@ -239,7 +239,9 @@ export default {
       isSortDirDesc,
       fetchStudents,
       perPageOptions,
-    } = useProspects()
+      staticData,
+      columns,
+    } = useEmployee()
 
 
     // onMounted(() => {
@@ -284,52 +286,6 @@ export default {
           }
         })
     }
-    const StaticData = ref([
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-      },
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-      },
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-      },
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-      },
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-      },
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-      },
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 1, jobDescription: 'Welder',
-      },
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-      },
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-      },
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 1, jobDescription: 'Welder',
-      },
-      {
-        name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 1, jobDescription: 'Welder',
-      },
-    ])
-
-    const Columns = [
-      { key: 'name' },
-      { key: 'email' },
-      { key: 'phone' },
-      { key: 'dateOfEmployement' },
-      { key: 'endDate' },
-      { key: 'status' },
-      { key: 'jobDescription' },
-      { key: 'actions' },
-    ]
     return {
       busy,
       sortBy,
@@ -344,14 +300,14 @@ export default {
       searchQuery,
       currentPage,
       filterUpdate,
-      Columns,
+      columns,
       totalRecords,
       refListTable,
       isSortDirDesc,
       confirmDelete,
       perPageOptions,
       isExportActive,
-      StaticData,
+      staticData,
       addEmployeeActive,
       editEmployeeActive,
       localStorageData,
