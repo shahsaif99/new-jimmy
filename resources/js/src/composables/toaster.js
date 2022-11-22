@@ -1,4 +1,3 @@
-
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 import { createToastInterface } from 'vue-toastification'
 import '@core/scss/vue/libs/toastification.scss'

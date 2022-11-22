@@ -36,52 +36,42 @@ export default function useDashboard() {
     { key: 'given' },
   ]
 
+  const documentFields = [
+    { key: 'nameOfPerson' },
+    { key: 'category' },
+    { key: 'validUntil' },
+    { key: 'show' },
+  ]
 
+  const documentData = [
+    {
+      nameOfPerson: 'Ola Normann', category: 'Varme arbeider', validUntil: '17-05-2001', show: 'File',
+    },
+    {
+      nameOfPerson: 'Ola Normann', category: 'Varme arbeider', validUntil: '17-05-2001', show: 'File',
+    },
+    {
+      nameOfPerson: 'Ola Normann', category: 'Varme arbeider', validUntil: '17-05-2001', show: 'File',
+    },
+    {
+      nameOfPerson: 'Ola Normann', category: 'Varme arbeider', validUntil: '17-05-2001', show: 'File',
+    },
+    {
+      nameOfPerson: 'Ola Normann', category: 'Varme arbeider', validUntil: '17-05-2001', show: 'File',
+    },
+  ]
   const staticData = [
     {
-      information: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s ', author: 'Ola Normann', given: '00.00.000',
+      information: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.  ', author: 'Ola Normann', given: '00.00.000',
     },
     {
-      information: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. ', author: 'Ola Normann', given: '00.00.000',
+      information: 'Contrary to popular belief, Lorem Ipsum is not simply random text.  ', author: 'Ola Normann', given: '00.00.000',
     },
     {
-      information: 'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form,', author: 'Ola Normann', given: '00.00.000',
+      information: 'There are many variations of passages of Lorem Ipsum available,', author: 'Ola Normann', given: '00.00.000',
     },
     {
-      information: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: ' Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: 'All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: 'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: 'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: 'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: 'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: 'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. ', author: 'Ola Normann', given: '00.00.000',
-    },
-    {
-      information: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. ', author: 'Ola Normann', given: '00.00.000',
+      information: 'The standard chunk of Lorem Ipsum used since the 1500s ', author: 'Ola Normann', given: '00.00.000',
     },
   ]
   const dataMeta = computed(() => {
@@ -110,5 +100,7 @@ export default function useDashboard() {
     columns,
     dataMeta,
     staticData,
+    documentData,
+    documentFields,
   }
 }

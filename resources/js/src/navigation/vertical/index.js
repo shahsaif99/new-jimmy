@@ -39,13 +39,13 @@ export default [
     resource: 'all',
     action: 'document-center',
     children: [
-      {
-        title: 'Document center',
-        route: 'documentcenter',
-        icon: 'FolderIcon',
-        action: 'document-center',
-        resource: 'all',
-      },
+      // {
+      //   title: 'Document center',
+      //   route: 'documentcenter',
+      //   icon: 'FolderIcon',
+      //   action: 'document-center',
+      //   resource: 'all',
+      // },
       {
         title: 'Handbooks',
         route: 'handbooks',
