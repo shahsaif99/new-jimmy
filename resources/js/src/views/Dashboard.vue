@@ -67,7 +67,6 @@
           rounded="sm"
         >
           <b-table
-            striped
             ref="refListTable"
             class="position-relative"
             :items="staticData"
@@ -193,7 +192,6 @@
           rounded="sm"
         >
           <b-table
-            striped
             ref="refListTable"
             class="position-relative mt-2"
             :items="documentData"
