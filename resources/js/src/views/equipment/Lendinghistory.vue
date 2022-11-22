@@ -66,8 +66,8 @@
           ref="refListTable"
           class="position-relative mr-1"
           responsive
-          :items="StaticData"
-          :fields="Columns"
+          :items="staticData"
+          :fields="columns"
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
@@ -136,7 +136,7 @@ import {
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
-import useProspects from '@/composables/prospects'
+import useEquipment from '@/composables/equipment'
 import Addloan from './Addloan.vue'
 
 export default {
@@ -171,7 +171,9 @@ export default {
       isSortDirDesc,
       fetchStudents,
       perPageOptions,
-    } = useProspects()
+      staticData,
+      columns,
+    } = useEquipment()
 
     const isExportActive = ref(false)
     const filterKey = ref(0)
@@ -202,37 +204,7 @@ export default {
         })
     }
 
-    const StaticData = [
-      {
-        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
-      },
-      {
-        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
-      },
-      {
-        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
-      },
-      {
-        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
-      },
-      {
-        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
-      },
-      {
-        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
-      },
-      {
-        LendingDate: '21-02-1997', ReturnedDate: '22-03-1999', LoanedTo: 'John', Project: 'Fast', RegisteredBy: 'Denny', Edit: 'Yes',
-      },
-    ]
-    const Columns = [
-      { label: 'Lending Date', field: 'LendingDate' },
-      { label: 'Returned Date', field: 'ReturnedDate' },
-      { label: 'Loaned To', field: 'LoanedTo' },
-      { label: 'Project', field: 'Project' },
-      { label: 'Registered By', field: 'RegisteredBy' },
-      { label: 'Edit', field: 'Edit' },
-    ]
+
     return {
       busy,
       sortBy,
@@ -247,14 +219,14 @@ export default {
       searchQuery,
       currentPage,
       filterUpdate,
-      Columns,
+      columns,
       totalRecords,
       refListTable,
       isSortDirDesc,
       confirmDelete,
       perPageOptions,
       isExportActive,
-      StaticData,
+      staticData,
       isLendingActive,
     }
   },

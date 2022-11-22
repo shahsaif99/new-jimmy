@@ -65,9 +65,9 @@
         <b-table
           ref="refListTable"
           class="position-relative"
-          :items="StaticData"
+          :items="staticData1"
           responsive
-          :fields="Columns"
+          :fields="fields"
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
@@ -136,7 +136,7 @@ import {
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
-import useProspects from '@/composables/prospects'
+import useEquipment from '@/composables/equipment'
 import AddEquipment from './AddEquipment.vue'
 
 export default {
@@ -166,12 +166,14 @@ export default {
       searchQuery,
       currentPage,
       totalRecords,
+      staticData1,
+      fields,
       refListTable,
       deleteStudent,
       isSortDirDesc,
       fetchStudents,
       perPageOptions,
-    } = useProspects()
+    } = useEquipment()
 
 
     // onMounted(() => {
@@ -213,47 +215,7 @@ export default {
           }
         })
     }
-    const StaticData = [
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-      {
-        Name: 'Hammad', Category: 'Manometer', SerialNumber: 204989, ValidUntil: '11/25/2022', CertificateNo: 202104449, LoanedTo: 'Jin', LendingHistory: 'Legg til / avslutt', Attachments: 'Two', Edit: 'Yes',
-      },
-    ]
-    const Columns = [
-      { label: 'Name', field: 'Name' },
-      { label: 'Category', field: 'Category' },
-      { label: 'Serial Number', field: 'SerialNumber' },
-      { label: 'Valid Until', field: 'ValidUntil' },
-      { label: 'Certificate Number', field: 'CertificateNo' },
-      { label: 'Loaned To', field: 'LoanedTo' },
-      { label: 'Project', field: 'Project' },
-      { label: 'Lending History', field: 'LendingHistory' },
-      { label: 'Attachments', field: 'Attachments' },
-      { label: 'Edit', field: 'Edit' },
-    ]
+
     return {
       busy,
       sortBy,
@@ -268,14 +230,14 @@ export default {
       searchQuery,
       currentPage,
       filterUpdate,
-      Columns,
+      fields,
       totalRecords,
       refListTable,
       isSortDirDesc,
       confirmDelete,
       perPageOptions,
       isExportActive,
-      StaticData,
+      staticData1,
       isEquipmentActive,
     }
   },
