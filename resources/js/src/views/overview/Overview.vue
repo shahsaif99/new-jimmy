@@ -52,7 +52,6 @@
         rounded="sm"
       >
         <b-table
-          striped
           ref="refListTable"
           class="position-relative"
           :items="StaticData"

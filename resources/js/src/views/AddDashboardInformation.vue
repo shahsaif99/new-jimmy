@@ -1,74 +1,112 @@
 <template>
-  <div>
-    <b-card>
-      <div>
-        <div>
-          <h2 class="mt-2">
-            Add New Information
-          </h2>
-        </div>
-        <b-row>
-          <b-col
-            cols="12"
-            md="12"
-          >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
-              <b-form-textarea
-                v-model="FormData.Inforamtion"
-                class="d-inline-block mr-1 md-2 mt-3 lg"
-                placeholder="Information"
-                required
-              />
-            </div>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col
-            cols="6"
-            md="6"
-          >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
-              <b-form-input
-                v-model="FormData.Author"
-                class="d-inline-block mr-1 md-2 mt-3"
-                placeholder="Author"
-              />
-            </div>
-          </b-col>
-          <b-col
-            cols="6"
-            md="6"
-          >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
-              <b-form-input
-                v-model="FormData.Given"
-                class="d-inline-block mr-1 md-2 mt-3"
-                placeholder="Given"
-              />
-            </div>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col>
-            <div class="d-flex align-items-center justify-content-end">
-              <b-button
-                variant="primary"
-                class="mr-2 px-5 mt-2"
+  <b-modal
+    cancel-variant="outline-secondary"
+    centered
+    :hide-footer="true"
+    title="Add new Item"
+    size="lg"
+    class="modal-is-dashboard-active"
+    id="is-dashboard-active"
+    @close="$emit('update:is-dashboard-active', false)"
+    :visible="isDashboardActive"
+    @hide="$emit('update:is-dashboard-active', false)"
+  >
+    <div>
+      <b-card>
+        <validation-observer
+          ref="refFormObserver"
+        >
+          <div>
+            <b-row>
+              <b-col
+                cols="12"
+                md="12"
               >
-                <span class="text-nowrap">Submit</span>
-              </b-button>
-            </div>
-          </b-col>
-        </b-row>
-      </div>
-    </b-card>
-  </div>
+                <validation-provider
+                  #default="validationContext"
+                  name="Information"
+                  rules="required"
+                >
+                  <b-form-group
+                    label="Information"
+                    label-for="information"
+                  >
+                    <b-form-textarea
+                      v-model="formData.information"
+                      placeholder="Information"
+                      :state="getValidationState(validationContext)"
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col
+                cols="6"
+                md="6"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  name="Author"
+                  rules="required"
+                >
+                  <b-form-group
+                    label="Author"
+                    label-for="author"
+                    class="mt-2"
+                  >
+                    <b-form-input
+                      v-model="formData.author"
+                      placeholder="Author"
+                      :state="getValidationState(validationContext)"
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group></validation-provider></b-col>
+              <b-col
+                cols="6"
+                md="6"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  name="Given"
+                  rules="required"
+                >
+                  <b-form-group
+                    label="Given"
+                    label-for="given"
+                    class="mt-2"
+                  >
+                    <b-form-input
+                      v-model="formData.given"
+                      placeholder="Given"
+                      :state="getValidationState(validationContext)"
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col>
+                <div class="d-flex align-items-center justify-content-end">
+                  <b-button
+                    variant="primary"
+                    class="mr-2 px-5 mt-2"
+                  >
+                    <span class="text-nowrap">Submit</span>
+                  </b-button>
+                </div>
+              </b-col>
+            </b-row>
+          </div></validation-observer></b-card></div>
+  </b-modal>
 </template>
 
 <script>
@@ -79,9 +117,14 @@ import {
   BFormInput,
   BButton,
   BFormTextarea,
+  BFormGroup,
+  BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import useProspects from '@/composables/prospects'
+import { required } from '@validations'
+import formValidation from '@core/comp-functions/forms/form-validation'
+import { ValidationProvider, ValidationObserver } from 'vee-validate'
 
 export default {
   components: {
@@ -92,6 +135,20 @@ export default {
     BFormInput,
     BFormTextarea,
     BButton,
+    ValidationProvider,
+    ValidationObserver,
+    BFormGroup,
+    BFormInvalidFeedback,
+  },
+  model: {
+    prop: 'isDashboardActive',
+    event: 'update:is-dashboard-active',
+  },
+  props: {
+    isDashboardActive: {
+      type: Boolean,
+      required: true,
+    },
   },
   setup() {
     const {
@@ -110,11 +167,16 @@ export default {
       isSortDirDesc,
       perPageOptions,
     } = useProspects()
-    const FormData = ref(
+
+    const {
+      refFormObserver, getValidationState, resetForm,
+    } = formValidation()
+
+    const formData = ref(
       {
-        Inforamtion: '',
-        Author: '',
-        Given: '',
+        inforamtion: '',
+        author: '',
+        given: '',
       },
     )
     return {
@@ -132,7 +194,11 @@ export default {
       refListTable,
       isSortDirDesc,
       perPageOptions,
-      FormData,
+      formData,
+      refFormObserver,
+      getValidationState,
+      required,
+      resetForm,
     }
   },
 }

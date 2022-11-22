@@ -63,6 +63,23 @@ const routes = [
     },
   },
   {
+    path: 'addemployee',
+    name: 'addemployee',
+    component: () => import('@/views/employeeoverview/addEmployee.vue'),
+    meta: {
+      pageTitle: 'Add Employee',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'employee',
+      breadcrumb: [
+        {
+          text: 'Employee',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
     path: 'competenceoverview',
     name: 'competenceoverview',
     component: () => import('@/views/employeeoverview/Competenceoverview.vue'),

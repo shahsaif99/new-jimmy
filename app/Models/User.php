@@ -36,7 +36,7 @@ class User extends Authenticatable
 
     protected $guard_name = 'sanctum';
 
-    protected $appends = ['name','role_name','avatar_url'];
+    protected $appends = ['name','avatar_url'];
 
      /**
      * The attributes that should be cast to native types.

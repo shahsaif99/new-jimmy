@@ -1,9 +1,26 @@
 <template>
   <div>
     <b-card>
-      <h2>
-        Equipments overview
-      </h2>
+      <div class="mb-2">
+        <b-row>
+          <b-col>
+            <div
+              class="d-flex align-items-center justify-content-end"
+            >
+              <b-button
+                variant="primary"
+                @click="isEquipmentActive=true"
+              >
+                <span class="text-nowrap">Add new</span>
+              </b-button>
+              <AddEquipment
+                :is-equipment-active.sync="isEquipmentActive"
+                v-if="isEquipmentActive"
+              />
+            </div>
+          </b-col>
+        </b-row>
+      </div>
       <div class="m-2">
         <b-row>
           <b-col
@@ -37,22 +54,7 @@
             </div>
           </b-col>
         </b-row>
-        <b-row>
-          <b-col
-            cols="0"
-            md="0"
-          >
-            <div class="d-flex align-items-center justify-content-end">
-              <b-button
-                variant="primary"
-                class="mb-0 mt-2"
-                @click="$router.push('addequipment')"
-              >
-                <span class="text-nowrap">Add new Equipment</span>
-              </b-button>
-            </div>
-          </b-col>
-        </b-row>
+
       </div>
       <b-overlay
         id="overlay-background"
@@ -61,7 +63,6 @@
         rounded="sm"
       >
         <b-table
-          striped
           ref="refListTable"
           class="position-relative"
           :items="StaticData"
@@ -136,6 +137,7 @@ import {
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useProspects from '@/composables/prospects'
+import AddEquipment from './AddEquipment.vue'
 
 export default {
   components: {
@@ -149,6 +151,7 @@ export default {
     BOverlay,
     BFormInput,
     BPagination,
+    AddEquipment,
   },
   setup(_, { root }) {
     const {
@@ -185,7 +188,7 @@ export default {
 
     const isExportActive = ref(false)
     const filterKey = ref(0)
-
+    const isEquipmentActive = ref(false)
 
     const filterUpdate = filterQuery => {
       Object.assign(filters, filterQuery)
@@ -273,6 +276,7 @@ export default {
       perPageOptions,
       isExportActive,
       StaticData,
+      isEquipmentActive,
     }
   },
 }

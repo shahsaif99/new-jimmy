@@ -1,9 +1,26 @@
 <template>
   <div>
     <b-card>
-      <h2>
-        Equipments overview
-      </h2>
+      <div class="mb-2">
+        <b-row>
+          <b-col>
+            <div
+              class="d-flex align-items-center justify-content-end"
+            >
+              <b-button
+                variant="primary"
+                @click="isLendingActive=true"
+              >
+                <span class="text-nowrap">Add new</span>
+              </b-button>
+              <Addloan
+                :is-lending-active.sync="isLendingActive"
+                v-if="isLendingActive"
+              />
+            </div>
+          </b-col>
+        </b-row>
+      </div>
       <div class="m-2">
         <b-row>
           <b-col
@@ -37,22 +54,7 @@
             </div>
           </b-col>
         </b-row>
-        <b-row>
-          <b-col
-            cols="0"
-            md="0"
-          >
-            <div class="d-flex align-items-center justify-content-end">
-              <b-button
-                variant="primary"
-                class="mb-0 mt-2"
-                @click="$router.push('addloan')"
-              >
-                <span class="text-nowrap">Add new Loan</span>
-              </b-button>
-            </div>
-          </b-col>
-        </b-row>
+
       </div>
       <b-overlay
         id="overlay-background"
@@ -61,7 +63,6 @@
         rounded="sm"
       >
         <b-table
-          striped
           ref="refListTable"
           class="position-relative mr-1"
           responsive
@@ -136,6 +137,7 @@ import {
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useProspects from '@/composables/prospects'
+import Addloan from './Addloan.vue'
 
 export default {
   components: {
@@ -149,6 +151,7 @@ export default {
     BOverlay,
     BFormInput,
     BPagination,
+    Addloan,
   },
   setup(_, { root }) {
     const {
@@ -172,6 +175,8 @@ export default {
 
     const isExportActive = ref(false)
     const filterKey = ref(0)
+
+    const isLendingActive = ref(false)
 
     const filterUpdate = filterQuery => {
       Object.assign(filters, filterQuery)
@@ -250,6 +255,7 @@ export default {
       perPageOptions,
       isExportActive,
       StaticData,
+      isLendingActive,
     }
   },
 }
