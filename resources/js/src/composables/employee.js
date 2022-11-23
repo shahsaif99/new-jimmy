@@ -192,6 +192,11 @@ export default function useEmployee() {
     { key: 'jobDescription' },
     { key: 'actions' },
   ]
+  const competenceColumns = [
+    { key: 'name' },
+    { key: 'completedDate' },
+    { key: 'validUntil' },
+  ]
   const updateOrder = async data => {
     errors.value = ''
     try {
@@ -267,6 +272,7 @@ export default function useEmployee() {
     storeOrderDetails,
     updateOrderStatus,
     staticData,
+    competenceColumns,
     columns,
   }
 }

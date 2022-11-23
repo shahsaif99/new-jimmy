@@ -67,7 +67,7 @@
           class="position-relative"
           responsive
           primary-key="id"
-          :fields="columns"
+          :fields="competenceColumns"
           :sort-by.sync="sortBy"
           show-empty
           empty-text="No matching records found"
@@ -135,7 +135,7 @@ import {
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
-import useProspects from '@/composables/prospects'
+import useEmployee from '@/composables/employee'
 import AddCompetence from './addCompetence.vue'
 
 export default {
@@ -163,6 +163,7 @@ export default {
       dataMeta,
       refetchData,
       searchQuery,
+      competenceColumns,
       currentPage,
       totalRecords,
       refListTable,
@@ -170,7 +171,7 @@ export default {
       isSortDirDesc,
       fetchStudents,
       perPageOptions,
-    } = useProspects()
+    } = useEmployee()
 
 
     // onMounted(() => {
@@ -212,11 +213,6 @@ export default {
           }
         })
     }
-    const columns = [
-      { key: 'name' },
-      { key: 'completedDate' },
-      { key: 'validUntil' },
-    ]
     return {
       busy,
       sortBy,
@@ -231,7 +227,7 @@ export default {
       searchQuery,
       currentPage,
       filterUpdate,
-      columns,
+      competenceColumns,
       totalRecords,
       refListTable,
       isSortDirDesc,

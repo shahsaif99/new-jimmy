@@ -54,7 +54,6 @@
                 class="d-inline-block mr-1 md-2"
                 placeholder="Search..."
               />
-
             </div>
           </b-col>
         </b-row>
