@@ -1,5 +1,9 @@
 <template>
   <div>
+    <editLoan
+      :edit-loan-active.sync="editLoanActive"
+      v-if="editLoanActive"
+    />
     <b-card>
       <div class="mb-2">
         <b-row>
@@ -73,7 +77,36 @@
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
-        />
+        >
+          <template #cell(actions)="staticData">
+            <b-dropdown
+              variant="link"
+              no-caret
+            >
+              <template #button-content>
+                <feather-icon
+                  icon="MoreVerticalIcon"
+                  size="16"
+                  class="align-middle text-body"
+                />
+              </template>
+              <b-dropdown-item
+                @click="editLoanActive=true"
+              >
+                <feather-icon icon="EditIcon" />
+                <span class="align-middle ml-50">Edit</span>
+              </b-dropdown-item>
+              <b-dropdown-item
+                @click="confirmDelete(staticData.id)"
+              >
+                <feather-icon
+                  icon="TrashIcon"
+                />
+                <span class="align-middle ml-50">Delete</span>
+              </b-dropdown-item>
+            </b-dropdown>
+          </template>
+        </b-table>
       </b-overlay>
       <div class="mx-2 mb-2">
         <b-row>
@@ -133,11 +166,14 @@ import {
   BFormInput,
   BPagination,
   BButton,
+  BDropdown,
+  BDropdownItem,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useEquipment from '@/composables/equipment'
 import Addloan from './Addloan.vue'
+import editLoan from './editLoan.vue'
 
 export default {
   components: {
@@ -152,6 +188,9 @@ export default {
     BFormInput,
     BPagination,
     Addloan,
+    BDropdown,
+    BDropdownItem,
+    editLoan,
   },
   setup(_, { root }) {
     const {
@@ -179,7 +218,7 @@ export default {
     const filterKey = ref(0)
 
     const isLendingActive = ref(false)
-
+    const editLoanActive = ref(false)
     const filterUpdate = filterQuery => {
       Object.assign(filters, filterQuery)
     }
@@ -228,6 +267,7 @@ export default {
       isExportActive,
       staticData,
       isLendingActive,
+      editLoanActive,
     }
   },
 }

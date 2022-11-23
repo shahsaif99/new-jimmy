@@ -3,13 +3,13 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Equipment"
+    title="Edit Lending History"
     size="lg"
-    class="modal-is-equipment-active"
-    id="is-equipment-active"
-    @close="$emit('update:is-equipment-active', false)"
-    :visible="isEquipmentActive"
-    @hide="$emit('update:is-equipment-active', false)"
+    class="modal-edit-loan-active"
+    id="edit-loan-active"
+    @close="$emit('update:edit-loan-active', false)"
+    :visible="editLoanActive"
+    @hide="$emit('update:edit-loan-active', false)"
   >
     <div>
       <b-card>
@@ -24,140 +24,41 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Name"
+                  name="Lending Date"
                   rules="required"
                 >
                   <b-form-group
-                    label="Name"
-                    label-for="oname"
-                  >
-                    <b-form-input
-                      v-model="formData.name"
-                      placeholder="Name"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider></b-col>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Serial Number"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Serial Number"
-                    label-for="serialno"
-                  >
-                    <b-form-input
-                      v-model="formData.serialNumber"
-                      placeholder="Serial Number"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider></b-col>
-            </b-row>
-            <b-row>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Supplier"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Supplier"
-                    label-for="supplier"
-                    class="mt-1"
-                  >
-                    <b-form-input
-                      v-model="formData.supplier"
-                      placeholder="Supplier"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider></b-col>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Category"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Category"
-                    label-for="category"
-                    class="mt-1"
-                  >
-                    <b-form-input
-                      v-model="formData.category"
-                      placeholder="Category"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider></b-col>
-            </b-row>
-            <b-row>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Certificate Number"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Certificate Number"
-                    label-for="certificateNumber"
-                    class="mt-1"
-                  >
-                    <b-form-input
-                      v-model="formData.certificateNo"
-                      placeholder="Certificate Number"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider></b-col>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Valid Until"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Valid Until"
-                    label-for="validUntil"
-                    class="mt-1"
+                    label="Lending Date"
+                    label-for="lendingdate"
                   >
                     <b-form-input
                       type="date"
-                      v-model="formData.validUntil"
-                      placeholder="Valid Until"
+                      v-model="formData.lendingDate"
+                      placeholder="Lending Date"
+                      :state="getValidationState(validationContext)"
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider></b-col>
+              <b-col
+                cols="6"
+                md="6"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  name="Returned Date"
+                  rules="required"
+                >
+                  <b-form-group
+                    label="Returned Date"
+                    label-for="returneddate"
+                  >
+                    <b-form-input
+                      type="date"
+                      v-model="formData.returnedDate"
+                      placeholder="Returned Date"
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback>
@@ -168,59 +69,97 @@
             </b-row>
             <b-row>
               <b-col
-                xl="12"
-                sm="12"
+                cols="6"
+                md="6"
               >
-                <h2 class="mt-2 mr-1 md-2">
-                  Files
-                </h2>
+                <validation-provider
+                  #default="validationContext"
+                  name="Loaned to"
+                  rules="required"
+                >
+                  <b-form-group
+                    label="Loaned To"
+                    label-for="loanedto"
+                    class="mt-2"
+                  >
+                    <b-form-input
+                      v-model="formData.loanedTo"
+                      placeholder="Loaned To"
+                      :state="getValidationState(validationContext)"
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider>
+              </b-col>
+              <b-col
+                cols="6"
+                md="6"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  name="Project"
+                  rules="required"
+                >
+                  <b-form-group
+                    label="Project"
+                    label-for="project"
+                    class="mt-2"
+                  >
+                    <b-form-input
+                      v-model="formData.project"
+                      placeholder="Project"
+                      :state="getValidationState(validationContext)"
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider>
               </b-col>
             </b-row>
             <b-row>
               <b-col
-                cols="12"
-                md="12"
+                cols="6"
+                md="6"
               >
-                <b-form-group
-                  label="Add Documents/Images"
-                  label-for="files"
-                  class="mt-2"
+                <validation-provider
+                  #default="validationContext"
+                  name="Registered by"
+                  rules="required"
                 >
-                  <b-form-file multiple>
-                    <template
-                      slot="file-name"
-                      slot-scope="{ names }"
-                    >
-                      <b-badge variant="primary">
-                        {{ names[0] }}
-                      </b-badge>
-                      <b-badge
-                        v-if="names.length > 1"
-                        variant="primary"
-                      >
-                        + {{ names.length - 1 }} More files
-                      </b-badge>
-                    </template>
-                  </b-form-file>
-                </b-form-group>
-              </b-col>
+                  <b-form-group
+                    label="Registered By"
+                    label-for="registeredby"
+                    class="mt-2"
+                  >
+                    <b-form-input
+                      v-model="formData.rgisteredBy"
+                      placeholder="Registered By"
+                      :state="getValidationState(validationContext)"
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider></b-col>
             </b-row>
             <b-row>
               <b-col>
-                <div
-                  class="d-flex align-items-center justify-content-end"
-                >
+                <div class="d-flex align-items-center justify-content-end">
                   <b-button
                     variant="primary"
-                    @click="formSubmitted"
+                    class="mr-2 px-5 mt-2"
                   >
-                    <span class="text-nowrap">Submit</span>
+                    <span class="text-nowrap">Add</span>
                   </b-button>
                 </div>
               </b-col>
             </b-row>
           </div>
-        </validation-observer></b-card>
+        </validation-observer>
+      </b-card>
     </div>
   </b-modal>
 </template>
@@ -232,14 +171,12 @@ import {
   BCol,
   BFormInput,
   BButton,
-  BFormInvalidFeedback,
   BFormGroup,
-  BBadge,
-  BFormFile,
+  BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import useProspects from '@/composables/prospects'
-import { required, alphaNum } from '@validations'
+import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 
@@ -247,23 +184,21 @@ export default {
   components: {
     // Export,
     BCol,
+    BFormInvalidFeedback,
     BRow,
     BCard,
     BFormInput,
     BButton,
+    BFormGroup,
     ValidationProvider,
     ValidationObserver,
-    BFormInvalidFeedback,
-    BFormGroup,
-    BBadge,
-    BFormFile,
   },
   model: {
-    prop: 'isEquipmentActive',
-    event: 'update:is-equipment-active',
+    prop: 'editLoanActive',
+    event: 'update:edit-loan-active',
   },
   props: {
-    isEquipmentActive: {
+    editLoanActive: {
       type: Boolean,
       required: true,
     },
@@ -287,25 +222,17 @@ export default {
     } = useProspects()
     const formData = ref(
       {
-        name: '',
-        serialNumber: '',
-        supplier: '',
-        category: '',
-        certificateNo: '',
-        validUntil: '',
+        lendingDate: '',
+        returnedDate: '',
+        loanedTo: '',
+        project: '',
+        registeredBy: '',
       },
     )
     const {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
-
-    const tableColumns = [
-      { key: 'title' },
-      { key: 'created' },
-      { key: 'view' },
-      { key: 'file' },
-    ]
     return {
       busy,
       sortBy,
@@ -317,28 +244,26 @@ export default {
       refetchData,
       searchQuery,
       currentPage,
-      formData,
       totalRecords,
       refListTable,
       isSortDirDesc,
       perPageOptions,
-      FormData,
-      tableColumns,
+      formData,
       required,
-      alphaNum,
       refFormObserver,
-      getValidationState,
       resetForm,
+      getValidationState,
     }
   },
 }
 </script>
-<style lang="scss" scoped>
-.per-page-selector {
-width: 90px;
-}
-</style>
+    <style lang="scss" scoped>
+        .per-page-selector {
+            width: 90px;
+        }
+    </style>
 
-<style lang="scss">
-@import '~@core/scss/vue/libs/vue-select.scss';
-</style>
+    <style lang="scss">
+        @import '~@core/scss/vue/libs/vue-select.scss';
+    </style>
+

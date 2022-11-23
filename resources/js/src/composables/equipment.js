@@ -171,25 +171,25 @@ export default function useProspects() {
 
   const staticData = [
     {
-      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny', edit: 'Yes',
+      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny',
     },
     {
-      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny', edit: 'Yes',
+      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny',
     },
     {
-      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny', edit: 'Yes',
+      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny',
     },
     {
-      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny', edit: 'Yes',
+      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny',
     },
     {
-      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny', edit: 'Yes',
+      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny',
     },
     {
-      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny', edit: 'Yes',
+      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny',
     },
     {
-      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny', edit: 'Yes',
+      lendingDate: '21-02-1997', returnedDate: '22-03-1999', loanedTo: 'John', project: 'Fast', registeredBy: 'Denny',
     },
   ]
   const columns = [
@@ -198,7 +198,7 @@ export default function useProspects() {
     { key: 'loanedTo' },
     { key: 'project' },
     { key: 'registeredBy' },
-    { key: 'edit' },
+    { key: 'actions' },
   ]
 
   const deleteOrder = async id => {
@@ -227,31 +227,31 @@ export default function useProspects() {
 
   const staticData1 = [
     {
-      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', lendingHistory: 'Legg til / avslutt', attachments: 'Two', edit: 'Yes',
+      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', project: 'Hello', lendingHistory: 'Legg til / avslutt', attachments: 'Two',
     },
     {
-      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', lendingHistory: 'Legg til / avslutt', attachments: 'Two', edit: 'Yes',
+      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', project: 'Hello', lendingHistory: 'Legg til / avslutt', attachments: 'Two',
     },
     {
-      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', lendingHistory: 'Legg til / avslutt', attachments: 'Two', edit: 'Yes',
+      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', project: 'Hello', lendingHistory: 'Legg til / avslutt', attachments: 'Two',
     },
     {
-      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', lendingHistory: 'Legg til / avslutt', attachments: 'Two', edit: 'Yes',
+      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', project: 'Hello', lendingHistory: 'Legg til / avslutt', attachments: 'Two',
     },
     {
-      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', lendingHistory: 'Legg til / avslutt', attachments: 'Two', edit: 'Yes',
+      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', project: 'Hello', lendingHistory: 'Legg til / avslutt', attachments: 'Two',
     },
     {
-      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', lendingHistory: 'Legg til / avslutt', attachments: 'Two', edit: 'Yes',
+      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', project: 'Hello', lendingHistory: 'Legg til / avslutt', attachments: 'Two',
     },
     {
-      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', lendingHistory: 'Legg til / avslutt', attachments: 'Two', edit: 'Yes',
+      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', project: 'Hello', lendingHistory: 'Legg til / avslutt', attachments: 'Two',
     },
     {
-      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', lendingHistory: 'Legg til / avslutt', attachments: 'Two', edit: 'Yes',
+      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', project: 'Hello', lendingHistory: 'Legg til / avslutt', attachments: 'Two',
     },
     {
-      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', lendingHistory: 'Legg til / avslutt', attachments: 'Two', edit: 'Yes',
+      name: 'Hammad', category: 'Manometer', serialNumber: 204989, validUntil: '11/25/2022', certificateNo: 202104449, loanedTo: 'Jin', project: 'Hello', lendingHistory: 'Legg til / avslutt', attachments: 'Two',
     },
   ]
   const fields = [
@@ -264,7 +264,7 @@ export default function useProspects() {
     { key: 'project' },
     { key: 'lendingHistory' },
     { key: 'attachments' },
-    { key: 'edit' },
+    { key: 'actions' },
   ]
 
   watch([currentPage, searchQuery], () => {

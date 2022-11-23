@@ -193,57 +193,65 @@ export default function useProjects() {
     return 'primary'
   }
 
+  const attachmentFields = [
+    { key: 'name' },
+    { key: 'attachment' },
+  ]
+  const attachmentData = [
+    { name: 'hello.png', attachment: 'hello' },
+    { name: 'hello.png', attachment: 'hello' },
+  ]
   const staticData = [
     {
-      projectNumber: 101, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 101, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
     {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', could: 'Client',
+      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
     },
   ]
 
@@ -252,7 +260,8 @@ export default function useProjects() {
     { key: 'projectName' },
     { key: 'startDate' },
     { key: 'endDate' },
-    { key: 'could' },
+    { key: 'customer' },
+    { key: 'actions' },
   ]
 
   watch([currentPage, searchQuery], () => {
@@ -284,6 +293,8 @@ export default function useProjects() {
     updateOrderStatus,
     staticData,
     fields,
+    attachmentFields,
+    attachmentData,
   }
 }
 

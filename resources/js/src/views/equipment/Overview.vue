@@ -1,5 +1,9 @@
 <template>
   <div>
+    <editEquipment
+      :edit-equipment-active.sync="editEquipmentActive"
+      v-if="editEquipmentActive"
+    />
     <b-card>
       <div class="mb-2">
         <b-row>
@@ -73,7 +77,36 @@
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
-        />
+        >
+          <template #cell(actions)="staticData1">
+            <b-dropdown
+              variant="link"
+              no-caret
+            >
+              <template #button-content>
+                <feather-icon
+                  icon="MoreVerticalIcon"
+                  size="16"
+                  class="align-middle text-body"
+                />
+              </template>
+              <b-dropdown-item
+                @click="editEquipmentActive=true"
+              >
+                <feather-icon icon="EditIcon" />
+                <span class="align-middle ml-50">Edit</span>
+              </b-dropdown-item>
+              <b-dropdown-item
+                @click="confirmDelete(staticData1.id)"
+              >
+                <feather-icon
+                  icon="TrashIcon"
+                />
+                <span class="align-middle ml-50">Delete</span>
+              </b-dropdown-item>
+            </b-dropdown>
+          </template>
+        </b-table>
       </b-overlay>
       <div class="mx-2 mb-2">
         <b-row>
@@ -133,11 +166,14 @@ import {
   BFormInput,
   BPagination,
   BButton,
+  BDropdown,
+  BDropdownItem,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useEquipment from '@/composables/equipment'
 import AddEquipment from './AddEquipment.vue'
+import editEquipment from './editEquipment.vue'
 
 export default {
   components: {
@@ -152,6 +188,9 @@ export default {
     BFormInput,
     BPagination,
     AddEquipment,
+    BDropdown,
+    BDropdownItem,
+    editEquipment,
   },
   setup(_, { root }) {
     const {
@@ -191,7 +230,6 @@ export default {
     const isExportActive = ref(false)
     const filterKey = ref(0)
     const isEquipmentActive = ref(false)
-
     const filterUpdate = filterQuery => {
       Object.assign(filters, filterQuery)
     }
@@ -200,6 +238,7 @@ export default {
       Object.keys(filters).forEach(index => { filters[index] = null })
       filterKey.value += 1
     }
+    const editEquipmentActive = ref(false)
     const confirmDelete = async id => {
       root.$bvModal
         .msgBoxConfirm('Please confirm that you want to delete student and all of linked data.', {
@@ -239,6 +278,7 @@ export default {
       isExportActive,
       staticData1,
       isEquipmentActive,
+      editEquipmentActive,
     }
   },
 }

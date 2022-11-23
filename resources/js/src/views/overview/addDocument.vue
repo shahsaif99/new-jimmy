@@ -3,13 +3,13 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Competence"
+    title="Add Document"
     size="lg"
-    class="modal-is-competence-active"
-    id="is-competence-active"
-    @close="$emit('update:is-competence-active', false)"
-    :visible="isCompetenceActive"
-    @hide="$emit('update:is-competence-active', false)"
+    class="modal-add-document-active"
+    id="add-document-active"
+    @close="$emit('update:add-document-active', false)"
+    :visible="addDocumentActive"
+    @hide="$emit('update:add-document-active', false)"
   >
     <div>
       <b-card>
@@ -27,92 +27,14 @@
                 rules="required"
               >
                 <b-form-group
-                  label="Select Employees"
-                  label-for="selectemployees"
+                  label="Select Project"
+                  label-for="selectprojects"
                 >
                   <v-select
                     v-model="selected"
                     :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                    multiple
-                    label="title"
-                    :options="option"
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
-          </b-row>
-          <b-row>
-            <b-col
-              cols="12"
-              md="12"
-            >
-              <validation-provider
-                #default="validationContext"
-                name="Name of Course"
-                rules="required"
-              >
-                <b-form-group
-                  label="Name of Course"
-                  label-for="name"
-                >
-                  <b-form-input
-                    v-model="formData.cource_title"
-                    placeholder="Name of Course"
-                    :state="getValidationState(validationContext)"
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
-          </b-row>
-          <b-row>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
-                name="Completed Date"
-                rules="required"
-              >
-                <b-form-group
-                  label="Completed"
-                  label-for="completed"
-                  class="mt-2"
-                >
-                  <b-form-input
-                    type="date"
-                    v-model="formData.completed"
-                    placeholder="00.00.0000"
-                    :state="getValidationState(validationContext)"
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
-                name="Valid Until Date"
-                rules="required"
-              >
-                <b-form-group
-                  label="Valid Until"
-                  label-for="validUntil"
-                  class="mt-2"
-                >
-                  <b-form-input
-                    type="date"
-                    v-model="formData.validUntil"
-                    placeholder="00.00.0000"
-                    :state="getValidationState(validationContext)"
+                    label="Project"
+                    :options="projectNames"
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
@@ -126,7 +48,7 @@
               md="12"
             >
               <b-form-group
-                label="Select Files/Images"
+                label="Add Documents/Images"
                 label-for="files"
                 class="mt-2"
               >
@@ -147,7 +69,6 @@
                   </template>
                 </b-form-file>
               </b-form-group>
-
             </b-col>
           </b-row>
           <div class="mb-2">
@@ -176,7 +97,6 @@ import {
   BCard,
   BRow,
   BCol,
-  BFormInput,
   BButton,
   BFormGroup,
   BFormInvalidFeedback,
@@ -196,7 +116,6 @@ export default {
     BCol,
     BRow,
     BCard,
-    BFormInput,
     BButton,
     BFormGroup,
     ValidationProvider,
@@ -207,11 +126,11 @@ export default {
     BBadge,
   },
   model: {
-    prop: 'isCompetenceActive',
-    event: 'update:is-competence-active',
+    prop: 'addDocumentActive',
+    event: 'update:add-document-active',
   },
   props: {
-    isCompetenceActive: {
+    addDocumentActive: {
       type: Boolean,
       required: true,
     },
@@ -233,8 +152,8 @@ export default {
       isSortDirDesc,
       perPageOptions,
     } = useProspects()
-
-    const option = ['John', 'David', 'Messi', 'Ronaldo', 'Pedri', 'Tom']
+    const selected = ref('')
+    const projectNames = ['ReactJS', 'CRM', 'Python Flask Project', 'ASP .net desktop Application', 'C++ Heavy Application', 'Vue js and Laravel']
     const formData = ref(
       {
         course_title: '',
@@ -255,10 +174,11 @@ export default {
       perPage,
       prospects,
       dataMeta,
-      option,
+      projectNames,
       refetchData,
       searchQuery,
       currentPage,
+      selected,
       totalRecords,
       refListTable,
       isSortDirDesc,
@@ -272,13 +192,13 @@ export default {
   },
 }
 </script>
-  <style lang="scss" scoped>
-  .per-page-selector {
-  width: 90px;
-  }
-  </style>
+    <style lang="scss" scoped>
+    .per-page-selector {
+    width: 90px;
+    }
+    </style>
 
-  <style lang="scss">
-  @import '~@core/scss/vue/libs/vue-select.scss';
-  </style>
+    <style lang="scss">
+    @import '~@core/scss/vue/libs/vue-select.scss';
+    </style>
 

@@ -3,13 +3,13 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Competence"
+    title="Edit Project"
     size="lg"
-    class="modal-is-competence-active"
-    id="is-competence-active"
-    @close="$emit('update:is-competence-active', false)"
-    :visible="isCompetenceActive"
-    @hide="$emit('update:is-competence-active', false)"
+    class="modal-edit-project-active"
+    id="edit-project-active"
+    @close="$emit('update:edit-project-active', false)"
+    :visible="editProjectActive"
+    @hide="$emit('update:edit-project-active', false)"
   >
     <div>
       <b-card>
@@ -18,48 +18,44 @@
         >
           <b-row>
             <b-col
-              cols="12"
-              md="12"
+              cols="6"
+              md="6"
             >
               <validation-provider
                 #default="validationContext"
-                name="Select Employees"
+                name="Project Number"
                 rules="required"
               >
                 <b-form-group
-                  label="Select Employees"
-                  label-for="selectemployees"
+                  label="Project Number"
+                  label-for="projectnumber"
                 >
-                  <v-select
-                    v-model="selected"
-                    :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                    multiple
-                    label="title"
-                    :options="option"
+                  <b-form-input
+                    v-model="formData.project_number"
+                    placeholder="Project Number"
+                    :state="getValidationState(validationContext)"
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
                   </b-form-invalid-feedback>
                 </b-form-group>
               </validation-provider></b-col>
-          </b-row>
-          <b-row>
             <b-col
-              cols="12"
-              md="12"
+              cols="6"
+              md="6"
             >
               <validation-provider
                 #default="validationContext"
-                name="Name of Course"
+                name="Project Name"
                 rules="required"
               >
                 <b-form-group
-                  label="Name of Course"
-                  label-for="name"
+                  label="Project Name"
+                  label-for="projectname"
                 >
                   <b-form-input
-                    v-model="formData.cource_title"
-                    placeholder="Name of Course"
+                    v-model="formData.project_name"
+                    placeholder="Project name"
                     :state="getValidationState(validationContext)"
                   />
                   <b-form-invalid-feedback>
@@ -75,17 +71,16 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Completed Date"
+                name="Start Date"
                 rules="required"
               >
                 <b-form-group
-                  label="Completed"
-                  label-for="completed"
-                  class="mt-2"
+                  label="Start Date"
+                  label-for="startdate"
                 >
                   <b-form-input
                     type="date"
-                    v-model="formData.completed"
+                    v-model="formData.start_date"
                     placeholder="00.00.0000"
                     :state="getValidationState(validationContext)"
                   />
@@ -100,17 +95,16 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Valid Until Date"
+                name="End Date"
                 rules="required"
               >
                 <b-form-group
-                  label="Valid Until"
-                  label-for="validUntil"
-                  class="mt-2"
+                  label="End Date"
+                  label-for="enddate"
                 >
                   <b-form-input
                     type="date"
-                    v-model="formData.validUntil"
+                    v-model="formData.end_date"
                     placeholder="00.00.0000"
                     :state="getValidationState(validationContext)"
                   />
@@ -119,6 +113,48 @@
                   </b-form-invalid-feedback>
                 </b-form-group>
               </validation-provider></b-col>
+          </b-row>
+          <b-row>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                name="Customer"
+                rules="required"
+              >
+                <b-form-group
+                  label="Customer"
+                  label-for="customer"
+                >
+                  <b-form-input
+                    v-model="formData.customer"
+                    placeholder="Customer"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col>
+              <b-table
+                ref="refListTable"
+                class="position-relative mt-2"
+                :items="attachmentData"
+                responsive
+                :fields="attachmentFields"
+                primary-key="id"
+                :sort-by.sync="sortBy"
+                show-empty
+                empty-text="No matching records found"
+                :sort-desc.sync="isSortDirDesc"
+              />
+            </b-col>
           </b-row>
           <b-row>
             <b-col
@@ -126,7 +162,7 @@
               md="12"
             >
               <b-form-group
-                label="Select Files/Images"
+                label="Add Documents/Images"
                 label-for="files"
                 class="mt-2"
               >
@@ -180,13 +216,14 @@ import {
   BButton,
   BFormGroup,
   BFormInvalidFeedback,
+  BTable,
   BFormFile,
   BBadge,
+
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
-import useProspects from '@/composables/prospects'
+import useProjects from '@/composables/project'
 import { required } from '@validations'
-import vSelect from 'vue-select'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 
@@ -202,16 +239,16 @@ export default {
     ValidationProvider,
     ValidationObserver,
     BFormInvalidFeedback,
-    vSelect,
+    BTable,
     BFormFile,
     BBadge,
   },
   model: {
-    prop: 'isCompetenceActive',
-    event: 'update:is-competence-active',
+    prop: 'editProjectActive',
+    event: 'update:edit-project-active',
   },
   props: {
-    isCompetenceActive: {
+    editProjectActive: {
       type: Boolean,
       required: true,
     },
@@ -232,20 +269,23 @@ export default {
       refListTable,
       isSortDirDesc,
       perPageOptions,
-    } = useProspects()
+      attachmentFields,
+      attachmentData,
+    } = useProjects()
 
     const option = ['John', 'David', 'Messi', 'Ronaldo', 'Pedri', 'Tom']
     const formData = ref(
       {
-        course_title: '',
-        completed: '',
-        validUntil: '',
+        project_number: '101',
+        project_name: 'Hello',
+        start_date: '17-01-2001',
+        end_date: '20-08-2001',
+        customer: 'Client',
       },
     )
     const {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
-
 
     return {
       busy,
@@ -268,17 +308,19 @@ export default {
       refFormObserver,
       getValidationState,
       resetForm,
+      attachmentFields,
+      attachmentData,
     }
   },
 }
 </script>
-  <style lang="scss" scoped>
-  .per-page-selector {
-  width: 90px;
-  }
-  </style>
+      <style lang="scss" scoped>
+      .per-page-selector {
+      width: 90px;
+      }
+      </style>
 
-  <style lang="scss">
-  @import '~@core/scss/vue/libs/vue-select.scss';
-  </style>
+      <style lang="scss">
+      @import '~@core/scss/vue/libs/vue-select.scss';
+      </style>
 

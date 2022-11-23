@@ -3,13 +3,13 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Equipment"
+    title="Edit Equipment"
     size="lg"
-    class="modal-is-equipment-active"
-    id="is-equipment-active"
-    @close="$emit('update:is-equipment-active', false)"
-    :visible="isEquipmentActive"
-    @hide="$emit('update:is-equipment-active', false)"
+    class="modal-edit-equipment-active"
+    id="edit-equipment-active"
+    @close="$emit('update:edit-equipment-active', false)"
+    :visible="editEquipmentActive"
+    @hide="$emit('update:edit-equipment-active', false)"
   >
     <div>
       <b-card>
@@ -259,11 +259,11 @@ export default {
     BFormFile,
   },
   model: {
-    prop: 'isEquipmentActive',
-    event: 'update:is-equipment-active',
+    prop: 'editEquipmentActive',
+    event: 'update:edit-equipment-active',
   },
   props: {
-    isEquipmentActive: {
+    editEquipmentActive: {
       type: Boolean,
       required: true,
     },
@@ -299,13 +299,6 @@ export default {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
-
-    const tableColumns = [
-      { key: 'title' },
-      { key: 'created' },
-      { key: 'view' },
-      { key: 'file' },
-    ]
     return {
       busy,
       sortBy,
@@ -323,7 +316,6 @@ export default {
       isSortDirDesc,
       perPageOptions,
       FormData,
-      tableColumns,
       required,
       alphaNum,
       refFormObserver,
@@ -333,12 +325,13 @@ export default {
   },
 }
 </script>
-<style lang="scss" scoped>
-.per-page-selector {
-width: 90px;
-}
-</style>
+  <style lang="scss" scoped>
+  .per-page-selector {
+  width: 90px;
+  }
+  </style>
 
-<style lang="scss">
-@import '~@core/scss/vue/libs/vue-select.scss';
-</style>
+  <style lang="scss">
+  @import '~@core/scss/vue/libs/vue-select.scss';
+  </style>
+
