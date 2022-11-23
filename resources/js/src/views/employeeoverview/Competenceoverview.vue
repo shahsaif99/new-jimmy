@@ -1,5 +1,9 @@
 <template>
   <div>
+    <editCompetence
+      :edit-competence-active.sync="editCompetenceActive"
+      v-if="editCompetenceActive"
+    />
     <b-card>
       <div class="mb-2">
         <b-row>
@@ -84,6 +88,7 @@
                   class="pb-50 "
                 >
                   <span class="font-weight-bold">{{ course.title }}</span>
+
                 </th>
                 <th class="pb-50 text-center">
                   <span class="font-weight-bold">{{ course.completed_date }}</span>
@@ -93,6 +98,34 @@
                 </th>
                 <th class="pb-50 text-center">
                   <span class="font-weight-bold">{{ course.file }}</span>
+                </th>
+                <th class="pb-50 text-center">
+                  <b-dropdown
+                    variant="link"
+                    no-caret
+                  >
+                    <template #button-content>
+                      <feather-icon
+                        icon="MoreVerticalIcon"
+                        size="16"
+                        class="align-middle text-body"
+                      />
+                    </template>
+                    <b-dropdown-item
+                      @click="editCompetenceActive=true"
+                    >
+                      <feather-icon icon="EditIcon" />
+                      <span class="align-middle ml-50">Edit</span>
+                    </b-dropdown-item>
+                    <b-dropdown-item
+                      @click="confirmDelete(staticData.id)"
+                    >
+                      <feather-icon
+                        icon="TrashIcon"
+                      />
+                      <span class="align-middle ml-50">Delete</span>
+                    </b-dropdown-item>
+                  </b-dropdown>
                 </th>
               </tr>
             </table>
@@ -157,12 +190,16 @@ import {
   BFormInput,
   BPagination,
   BButton,
+  BDropdown,
+  BDropdownItem,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useCompetence from '@/composables/competence'
 // eslint-disable-next-line import/no-cycle
 import useJwt from '@/auth/jwt/useJwt'
+import editCompetence from './editCompetence.vue'
+// eslint-disable-next-line import/no-cycle
 import AddCompetence from './addCompetence.vue'
 
 export default {
@@ -178,6 +215,9 @@ export default {
     BFormInput,
     BPagination,
     AddCompetence,
+    BDropdown,
+    BDropdownItem,
+    editCompetence,
   },
   setup(_, { root }) {
     const {
@@ -213,7 +253,7 @@ export default {
     // }, {
     //   immediate: true,
     // })
-
+    const editCompetenceActive = ref(false)
     const isExportActive = ref(false)
     const filterKey = ref(0)
     const isCompetenceActive = ref(false)
@@ -266,6 +306,7 @@ export default {
       isCompetenceActive,
       localStorageData,
       employeeCompetences,
+      editCompetenceActive,
     }
   },
 }

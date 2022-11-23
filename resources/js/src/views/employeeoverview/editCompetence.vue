@@ -5,11 +5,11 @@
     :hide-footer="true"
     title="Add Competence"
     size="lg"
-    class="modal-is-competence-active"
-    id="is-competence-active"
-    @close="$emit('update:is-competence-active', false)"
-    :visible="isCompetenceActive"
-    @hide="$emit('update:is-competence-active', false)"
+    class="modal-edit-competence-active"
+    id="edit-competence-active"
+    @close="$emit('update:edit-competence-active', false)"
+    :visible="editCompetenceActive"
+    @hide="$emit('update:edit-competence-active', false)"
   >
     <div>
       <b-card>
@@ -206,11 +206,11 @@ export default {
     BBadge,
   },
   model: {
-    prop: 'isCompetenceActive',
-    event: 'update:is-competence-active',
+    prop: 'editCompetenceActive',
+    event: 'update:edit-competence-active',
   },
   props: {
-    isCompetenceActive: {
+    editCompetenceActive: {
       type: Boolean,
       required: true,
     },
@@ -272,13 +272,13 @@ export default {
   },
 }
 </script>
-  <style lang="scss" scoped>
-  .per-page-selector {
-  width: 90px;
-  }
-  </style>
+    <style lang="scss" scoped>
+    .per-page-selector {
+    width: 90px;
+    }
+    </style>
 
-  <style lang="scss">
-  @import '~@core/scss/vue/libs/vue-select.scss';
-  </style>
+    <style lang="scss">
+    @import '~@core/scss/vue/libs/vue-select.scss';
+    </style>
 

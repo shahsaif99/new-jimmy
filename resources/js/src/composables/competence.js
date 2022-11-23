@@ -150,6 +150,7 @@ export default function useCompetence() {
     { key: 'completedDate' },
     { key: 'validUntil' },
     { key: 'file' },
+    { key: 'actions' },
   ]
   const updateOrder = async data => {
     errors.value = ''
