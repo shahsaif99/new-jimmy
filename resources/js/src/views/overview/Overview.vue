@@ -14,13 +14,15 @@
           cols="auto"
         >
           <div class="d-flex align-items-center justify-content-end">
-            <b-button
-              variant="primary"
-              class="mr-2 px-5 mt-2"
-              @click="addProjectActive=true"
-            >
-              <span class="text-nowrap">Add Project</span>
-            </b-button>
+            <div v-if="localStorageData.role=='admin'">
+              <b-button
+                variant="primary"
+                class="mr-2 px-5 mt-2"
+                @click="addProjectActive=true"
+              >
+                <span class="text-nowrap">Add Project</span>
+              </b-button>
+            </div>
             <addProject
               :add-project-active.sync="addProjectActive"
               v-if="addProjectActive"
@@ -195,6 +197,8 @@ import {
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useProjects from '@/composables/project'
+// eslint-disable-next-line import/no-cycle
+import useJwt from '@/auth/jwt/useJwt'
 import addProject from './addProject.vue'
 import addDocument from './addDocument.vue'
 import editProject from './editProject.vue'
@@ -268,6 +272,7 @@ export default {
       Object.keys(filters).forEach(index => { filters[index] = null })
       filterKey.value += 1
     }
+    const localStorageData = JSON.parse(useJwt.getUserData())
     const confirmDelete = async id => {
       root.$bvModal
         .msgBoxConfirm('Please confirm that you want to delete student and all of linked data.', {
@@ -307,6 +312,7 @@ export default {
       addProjectActive,
       addDocumentActive,
       editProjectActive,
+      localStorageData,
     }
   },
 }

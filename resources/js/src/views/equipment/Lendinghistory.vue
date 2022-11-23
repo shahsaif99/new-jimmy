@@ -8,19 +8,21 @@
       <div class="mb-2">
         <b-row>
           <b-col>
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
-              <b-button
-                variant="primary"
-                @click="isLendingActive=true"
+            <div v-if="localStorageData.role=='admin'">
+              <div
+                class="d-flex align-items-center justify-content-end"
               >
-                <span class="text-nowrap">Add new</span>
-              </b-button>
-              <Addloan
-                :is-lending-active.sync="isLendingActive"
-                v-if="isLendingActive"
-              />
+                <b-button
+                  variant="primary"
+                  @click="isLendingActive=true"
+                >
+                  <span class="text-nowrap">Add new</span>
+                </b-button>
+                <addloan
+                  :is-lending-active.sync="isLendingActive"
+                  v-if="isLendingActive"
+                />
+              </div>
             </div>
           </b-col>
         </b-row>
@@ -170,9 +172,11 @@ import {
   BDropdownItem,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
+// eslint-disable-next-line import/no-cycle
+import useJwt from '@/auth/jwt/useJwt'
 import vSelect from 'vue-select'
 import useEquipment from '@/composables/equipment'
-import Addloan from './Addloan.vue'
+import addloan from './addloan.vue'
 import editLoan from './editLoan.vue'
 
 export default {
@@ -187,7 +191,7 @@ export default {
     BOverlay,
     BFormInput,
     BPagination,
-    Addloan,
+    addloan,
     BDropdown,
     BDropdownItem,
     editLoan,
@@ -227,6 +231,7 @@ export default {
       Object.keys(filters).forEach(index => { filters[index] = null })
       filterKey.value += 1
     }
+    const localStorageData = JSON.parse(useJwt.getUserData())
     const confirmDelete = async id => {
       root.$bvModal
         .msgBoxConfirm('Please confirm that you want to delete student and all of linked data.', {
@@ -268,6 +273,7 @@ export default {
       staticData,
       isLendingActive,
       editLoanActive,
+      localStorageData,
     }
   },
 }

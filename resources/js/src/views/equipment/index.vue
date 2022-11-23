@@ -8,19 +8,21 @@
       <div class="mb-2">
         <b-row>
           <b-col>
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
-              <b-button
-                variant="primary"
-                @click="isEquipmentActive=true"
+            <div v-if="localStorageData.role=='admin'">
+              <div
+                class="d-flex align-items-center justify-content-end"
               >
-                <span class="text-nowrap">Add new</span>
-              </b-button>
-              <AddEquipment
-                :is-equipment-active.sync="isEquipmentActive"
-                v-if="isEquipmentActive"
-              />
+                <b-button
+                  variant="primary"
+                  @click="isEquipmentActive=true"
+                >
+                  <span class="text-nowrap">Add new</span>
+                </b-button>
+                <addEquipment
+                  :is-equipment-active.sync="isEquipmentActive"
+                  v-if="isEquipmentActive"
+                />
+              </div>
             </div>
           </b-col>
         </b-row>
@@ -171,9 +173,12 @@ import {
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
+// eslint-disable-next-line import/no-cycle
+import useJwt from '@/auth/jwt/useJwt'
 import useEquipment from '@/composables/equipment'
-import AddEquipment from './AddEquipment.vue'
+import addEquipment from './addEquipment.vue'
 import editEquipment from './editEquipment.vue'
+
 
 export default {
   components: {
@@ -187,7 +192,7 @@ export default {
     BOverlay,
     BFormInput,
     BPagination,
-    AddEquipment,
+    addEquipment,
     BDropdown,
     BDropdownItem,
     editEquipment,
@@ -233,7 +238,7 @@ export default {
     const filterUpdate = filterQuery => {
       Object.assign(filters, filterQuery)
     }
-
+    const localStorageData = JSON.parse(useJwt.getUserData())
     const resetFilter = () => {
       Object.keys(filters).forEach(index => { filters[index] = null })
       filterKey.value += 1
@@ -279,6 +284,7 @@ export default {
       staticData1,
       isEquipmentActive,
       editEquipmentActive,
+      localStorageData,
     }
   },
 }

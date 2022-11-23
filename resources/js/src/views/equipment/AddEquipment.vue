@@ -184,7 +184,7 @@
                 <b-form-group
                   label="Add Documents/Images"
                   label-for="files"
-                  class="mt-2"
+                  class="mt-1"
                 >
                   <b-form-file multiple>
                     <template

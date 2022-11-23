@@ -6,25 +6,27 @@
         <h2 class="mb-2">
           Information board
         </h2>
-        <div class="mb-2">
-          <b-row>
-            <b-col>
-              <div
-                class="d-flex align-items-center justify-content-end"
-              >
-                <b-button
-                  variant="primary"
-                  @click="isDashboardActive=true"
+        <div v-if="localStorageData.role=='admin'">
+          <div class="mb-2">
+            <b-row>
+              <b-col>
+                <div
+                  class="d-flex align-items-center justify-content-end"
                 >
-                  <span class="text-nowrap">Add new</span>
-                </b-button>
-                <AddDashboardInformation
-                  :is-dashboard-active.sync="isDashboardActive"
-                  v-if="isDashboardActive"
-                />
-              </div>
-            </b-col>
-          </b-row>
+                  <b-button
+                    variant="primary"
+                    @click="isDashboardActive=true"
+                  >
+                    <span class="text-nowrap">Add new</span>
+                  </b-button>
+                  <AddDashboardInformation
+                    :is-dashboard-active.sync="isDashboardActive"
+                    v-if="isDashboardActive"
+                  />
+                </div>
+              </b-col>
+            </b-row>
+          </div>
         </div>
         <div class="mb-2">
           <b-row>
@@ -257,12 +259,13 @@
 <script>
 import { ref } from '@vue/composition-api'
 import {
-  BCard, BTable, VBTooltip, BButton, BRow, BCol, BFormInput, BPagination,
+  BCard, BTable, VBTooltip, BButton, BRow, BCol, BFormInput, BPagination, BOverlay,
 } from 'bootstrap-vue'
 import useDashboard from '@/composables/dashboard'
 import vSelect from 'vue-select'
+// eslint-disable-next-line import/no-cycle
+import useJwt from '@/auth/jwt/useJwt'
 import AddDashboardInformation from './AddDashboardInformation.vue'
-
 
 export default {
   components: {
@@ -275,6 +278,7 @@ export default {
     vSelect,
     BPagination,
     AddDashboardInformation,
+    BOverlay,
   },
   directives: {
     'b-tooltip': VBTooltip,
@@ -282,6 +286,7 @@ export default {
   setup() {
     const {
       searchQuery,
+      busy,
       sortBy,
       isSortDirDesc,
       refListTable,
@@ -298,6 +303,7 @@ export default {
     } = useDashboard()
     const isAddLeadActive = ref(false)
 
+    const localStorageData = JSON.parse(useJwt.getUserData())
 
     const isDashboardActive = ref(false)
 
@@ -315,10 +321,12 @@ export default {
       perPageOptions,
       isAddLeadActive,
       staticData,
+      busy,
       isDashboardActive,
       respResult,
       documentFields,
       documentData,
+      localStorageData,
     }
   },
 }

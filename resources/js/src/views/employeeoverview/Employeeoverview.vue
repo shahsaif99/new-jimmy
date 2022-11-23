@@ -8,19 +8,21 @@
       <div class="mb-2">
         <b-row>
           <b-col>
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
-              <b-button
-                variant="primary"
-                @click="addEmployeeActive=true"
+            <div v-if="localStorageData.role=='admin'">
+              <div
+                class="d-flex align-items-center justify-content-end"
               >
-                <span class="text-nowrap">Add new</span>
-              </b-button>
-              <addEmployee
-                :add-employee-active.sync="addEmployeeActive"
-                v-if="addEmployeeActive"
-              />
+                <b-button
+                  variant="primary"
+                  @click="addEmployeeActive=true"
+                >
+                  <span class="text-nowrap">Add new</span>
+                </b-button>
+                <addEmployee
+                  :add-employee-active.sync="addEmployeeActive"
+                  v-if="addEmployeeActive"
+                />
+              </div>
             </div>
           </b-col>
         </b-row>
@@ -242,19 +244,6 @@ export default {
       columns,
     } = useEmployee()
 
-
-    // onMounted(() => {
-    //   fetchSupervisorsList()
-    //   fetchGroupsList()
-    //   fetchProjectsList()
-    // })
-    // watch(() => root.$route.meta.status, async status => {
-    //   filters.status = status
-    //   fetchStudents()
-    // }, {
-    //   immediate: true,
-    // })
-
     const isExportActive = ref(false)
     const filterKey = ref(0)
     const addEmployeeActive = ref(false)
@@ -264,8 +253,7 @@ export default {
       Object.assign(filters, filterQuery)
     }
 
-    const localStorageData = useJwt.getUserData()
-
+    const localStorageData = JSON.parse(useJwt.getUserData())
     const resetFilter = () => {
       Object.keys(filters).forEach(index => { filters[index] = null })
       filterKey.value += 1

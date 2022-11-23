@@ -66,13 +66,38 @@
           ref="refListTable"
           class="position-relative"
           responsive
+          :items="employeeCompetences"
           primary-key="id"
           :fields="competenceColumns"
           :sort-by.sync="sortBy"
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
-        />
+        >
+          <template #row-details="row">
+            <table class="w-100">
+              <tr
+                v-for="(course, key) in row.item.courses"
+                :key="key"
+              >
+                <th
+                  class="pb-50 "
+                >
+                  <span class="font-weight-bold">{{ course.title }}</span>
+                </th>
+                <th class="pb-50 text-center">
+                  <span class="font-weight-bold">{{ course.completed_date }}</span>
+                </th>
+                <th class="pb-50 text-center">
+                  <span class="font-weight-bold">{{ course.valid_until }}</span>
+                </th>
+                <th class="pb-50 text-center">
+                  <span class="font-weight-bold">{{ course.file }}</span>
+                </th>
+              </tr>
+            </table>
+          </template>
+        </b-table>
       </b-overlay>
       <div class="mx-2 mb-2">
         <b-row>
@@ -135,7 +160,9 @@ import {
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import vSelect from 'vue-select'
-import useEmployee from '@/composables/employee'
+import useCompetence from '@/composables/competence'
+// eslint-disable-next-line import/no-cycle
+import useJwt from '@/auth/jwt/useJwt'
 import AddCompetence from './addCompetence.vue'
 
 export default {
@@ -164,6 +191,7 @@ export default {
       refetchData,
       searchQuery,
       competenceColumns,
+      employeeCompetences,
       currentPage,
       totalRecords,
       refListTable,
@@ -171,7 +199,7 @@ export default {
       isSortDirDesc,
       fetchStudents,
       perPageOptions,
-    } = useEmployee()
+    } = useCompetence()
 
 
     // onMounted(() => {
@@ -193,6 +221,7 @@ export default {
     const filterUpdate = filterQuery => {
       Object.assign(filters, filterQuery)
     }
+    const localStorageData = JSON.parse(useJwt.getUserData())
 
     const resetFilter = () => {
       Object.keys(filters).forEach(index => { filters[index] = null })
@@ -235,15 +264,35 @@ export default {
       perPageOptions,
       isExportActive,
       isCompetenceActive,
+      localStorageData,
+      employeeCompetences,
     }
   },
 }
 </script>
-  <style lang="scss" scoped>
-      .per-page-selector {
-          width: 90px;
-      }
-  </style>
+<style lang="scss">
+.per-page-selector {
+    width: 90px;
+}
+.b-table-has-details{
+  background-color: #ababab !important;
+  color: #fff;
+}
+table.inner {
+display: inline-table;
+width: auto;
+border: 1px solid blue;
+}
+td {
+border: 1px dotted gray;
+}
+td.r {
+text-align: right;
+}
+td.l {
+text-align: left;
+}
+</style>
 
   <style lang="scss">
       @import '~@core/scss/vue/libs/vue-select.scss';

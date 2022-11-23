@@ -14,20 +14,19 @@ export default [
     title: 'Employee',
     resource: 'all',
     icon: 'UsersIcon',
-    action: 'employee',
     children: [
       {
         title: 'Employee Overview',
         route: 'employeeoverview',
         icon: 'UserIcon',
-        action: 'employee',
+        action: 'employee-overview',
         resource: 'all',
       },
       {
         title: 'Competence overview',
         route: 'competenceoverview',
         icon: 'UserIcon',
-        action: 'employee',
+        action: 'competence-overview',
         resource: 'all',
       },
     ],

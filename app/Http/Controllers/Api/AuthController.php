@@ -68,7 +68,8 @@ class AuthController extends Controller
                         'password-view',
                         'my-account-view',
                         'overview-view',
-                        'employee',
+                        'employee-overview',
+                        'competence-overview',
                         'document-center',
                         'equipment-view'
                     ],
@@ -82,6 +83,10 @@ class AuthController extends Controller
                         'my-profile-view',
                         'password-view',
                         'my-account-view',
+                        'overview-view',
+                        'competence-overview',
+                        'document-center',
+                        'equipment-view'
                     ],
                 ];
                 break;

@@ -4,19 +4,21 @@
       <div class="mb-2">
         <b-row>
           <b-col>
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
-              <b-button
-                variant="primary"
-                @click="addHandbooksActive=true"
+            <div v-if="localStorageData.role=='admin'">
+              <div
+                class="d-flex align-items-center justify-content-end"
               >
-                <span class="text-nowrap">Add new</span>
-              </b-button>
-              <addHandbooks
-                :add-handbooks-active.sync="addHandbooksActive"
-                v-if="addHandbooksActive"
-              />
+                <b-button
+                  variant="primary"
+                  @click="addHandbooksActive=true"
+                >
+                  <span class="text-nowrap">Add new</span>
+                </b-button>
+                <addHandbooks
+                  :add-handbooks-active.sync="addHandbooksActive"
+                  v-if="addHandbooksActive"
+                />
+              </div>
             </div>
           </b-col>
         </b-row>
@@ -122,12 +124,15 @@
 
 <script>
 import {
-  BButton, BCard, BCol, BRow, BFormInput, BTable, BPagination,
+  BButton, BCard, BCol, BRow, BFormInput, BTable, BPagination, BOverlay,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import useProspects from '@/composables/prospects'
 import vSelect from 'vue-select'
+// eslint-disable-next-line import/no-cycle
+import useJwt from '@/auth/jwt/useJwt'
 import addHandbooks from './addHandbooks.vue'
+
 
 export default {
   components: {
@@ -138,6 +143,7 @@ export default {
     BButton,
     addHandbooks,
     BFormInput,
+    BOverlay,
     vSelect,
     BTable,
     BPagination,
@@ -171,6 +177,7 @@ export default {
       Object.assign(filters, filterQuery)
     }
 
+    const localStorageData = JSON.parse(useJwt.getUserData())
 
     const resetFilter = () => {
       Object.keys(filters).forEach(index => { filters[index] = null })
@@ -225,6 +232,7 @@ export default {
       perPageOptions,
       isExportActive,
       addHandbooksActive,
+      localStorageData,
     }
   },
 }

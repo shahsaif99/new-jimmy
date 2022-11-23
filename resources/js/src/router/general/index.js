@@ -70,7 +70,7 @@ const routes = [
       pageTitle: 'Add Employee',
       layout: 'vertical',
       resource: 'all',
-      action: 'employee',
+      action: 'employee-overview',
       breadcrumb: [
         {
           text: 'Employee',
@@ -82,12 +82,12 @@ const routes = [
   {
     path: 'competenceoverview',
     name: 'competenceoverview',
-    component: () => import('@/views/employeeoverview/Competenceoverview.vue'),
+    component: () => import('@/views/employeeoverview/competenceOverview.vue'),
     meta: {
       pageTitle: 'Competence Overview',
       layout: 'vertical',
       resource: 'all',
-      action: 'employee',
+      action: 'competence-overview',
       breadcrumb: [
         {
           text: 'Employee',
@@ -133,7 +133,7 @@ const routes = [
   {
     path: 'equipmentoverview',
     name: 'equipmentoverview',
-    component: () => import('@/views/equipment/Overview.vue'),
+    component: () => import('@/views/equipment/index.vue'),
     meta: {
       pageTitle: 'Overview',
       layout: 'vertical',
@@ -150,7 +150,7 @@ const routes = [
   {
     path: 'lendinghistory',
     name: 'lendinghistory',
-    component: () => import('@/views/equipment/Lendinghistory.vue'),
+    component: () => import('@/views/equipment/lendinghistory.vue'),
     meta: {
       pageTitle: 'Lending History',
       layout: 'vertical',
@@ -164,23 +164,23 @@ const routes = [
       ],
     },
   },
-  {
-    path: 'addloan',
-    name: 'addloan',
-    component: () => import('@/views/equipment/Addloan.vue'),
-    meta: {
-      pageTitle: 'Add New Loan',
-      layout: 'vertical',
-      resource: 'all',
-      action: 'equipment-view',
-      breadcrumb: [
-        {
-          text: 'Equipment Control',
-          active: true,
-        },
-      ],
-    },
-  },
+  // {
+  //   path: 'addloan',
+  //   name: 'addloan',
+  //   component: () => import('@/views/equipment/Addloan.vue'),
+  //   meta: {
+  //     pageTitle: 'Add New Loan',
+  //     layout: 'vertical',
+  //     resource: 'all',
+  //     action: 'equipment-view',
+  //     breadcrumb: [
+  //       {
+  //         text: 'Equipment Control',
+  //         active: true,
+  //       },
+  //     ],
+  //   },
+  // },
   {
     path: 'personalequipment',
     name: 'personalequipment',
@@ -215,24 +215,24 @@ const routes = [
       ],
     },
   },
-  {
-    path: 'addequipment',
-    name: 'addequipment',
-    component: () => import('@/views/equipment/AddEquipment.vue'),
-    meta: {
-      pageTitle: 'Add Equipment',
-      layout: 'vertical',
-      resource: 'all',
-      action: 'equipment-view',
-      breadcrumb: [
-        {
-          text: 'Equipment Control',
-          active: true,
-        },
-      ],
-    },
+  // {
+  //   path: 'addequipment',
+  //   name: 'addequipment',
+  //   component: () => import('@/views/equipment/AddEquipment.vue'),
+  //   meta: {
+  //     pageTitle: 'Add Equipment',
+  //     layout: 'vertical',
+  //     resource: 'all',
+  //     action: 'equipment-view',
+  //     breadcrumb: [
+  //       {
+  //         text: 'Equipment Control',
+  //         active: true,
+  //       },
+  //     ],
+  //   },
 
-  },
+  // },
   {
     path: 'password-reset/:token/:email',
     name: 'password-reset',

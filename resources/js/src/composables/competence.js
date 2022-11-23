@@ -3,7 +3,7 @@ import { computed, ref, watch } from '@vue/composition-api'
 import route from 'ziggy-js'
 import toaster from './toaster'
 
-export default function useEmployee() {
+export default function useCompetence() {
   const busy = ref(false)
   const respResult = ref(null)
   const prospects = ref([])
@@ -145,52 +145,11 @@ export default function useEmployee() {
       busy.value = false
     }
   }
-
-  const staticData = ref([
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-    },
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-    },
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-    },
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-    },
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-    },
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-    },
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 1, jobDescription: 'Welder',
-    },
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-    },
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 0, jobDescription: 'Welder',
-    },
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 1, jobDescription: 'Welder',
-    },
-    {
-      name: 'Ola Normann', email: 'ola.norman@norman.no', phone: '47 99 88 77 66', dateOfEmployement: '2/12/2015', endDate: '2/12/2015', status: 1, jobDescription: 'Welder',
-    },
-  ])
-
-  const columns = [
+  const competenceColumns = [
     { key: 'name' },
-    { key: 'email' },
-    { key: 'phone' },
-    { key: 'dateOfEmployement' },
-    { key: 'endDate' },
-    { key: 'status' },
-    { key: 'jobDescription' },
-    { key: 'actions' },
+    { key: 'completedDate' },
+    { key: 'validUntil' },
+    { key: 'file' },
   ]
   const updateOrder = async data => {
     errors.value = ''
@@ -213,6 +172,69 @@ export default function useEmployee() {
       busy.value = false
     }
   }
+
+  const employeeCompetences = ref([
+    {
+      name: 'Employee 1',
+      _showDetails: true,
+      courses: [
+        {
+          title: 'Course 1',
+          completed_date: '12-12-2020',
+          valid_until: '12-12-2020',
+          file: 'file.pdf',
+        },
+        {
+          title: 'Course 2',
+          completed_date: '12-12-2020',
+          valid_until: '12-12-2020',
+          file: 'file.pdf',
+        },
+        {
+          title: 'Course 3',
+          completed_date: '12-12-2020',
+          valid_until: '12-12-2020',
+          file: 'file.pdf',
+        },
+        {
+          title: 'Course 4',
+          completed_date: '12-12-2020',
+          valid_until: '12-12-2020',
+          file: 'file.pdf',
+        },
+      ],
+    },
+    {
+      name: 'Employee 2',
+      _showDetails: true,
+      courses: [
+        {
+          title: 'Course 1',
+          completed_date: '12-12-2020',
+          valid_until: '12-12-2020',
+          file: 'file.pdf',
+        },
+        {
+          title: 'Course 2',
+          completed_date: '12-12-2020',
+          valid_until: '12-12-2020',
+          file: 'file.pdf',
+        },
+        {
+          title: 'Course 3',
+          completed_date: '12-12-2020',
+          valid_until: '12-12-2020',
+          file: 'file.pdf',
+        },
+        {
+          title: 'Course 4',
+          completed_date: '12-12-2020',
+          valid_until: '12-12-2020',
+          file: 'file.pdf',
+        },
+      ],
+    },
+  ])
 
   const deleteOrder = async id => {
     try {
@@ -266,8 +288,7 @@ export default function useEmployee() {
     resolveOrderStatus,
     storeOrderDetails,
     updateOrderStatus,
-    staticData,
-    columns,
+    competenceColumns,
+    employeeCompetences,
   }
 }
-
