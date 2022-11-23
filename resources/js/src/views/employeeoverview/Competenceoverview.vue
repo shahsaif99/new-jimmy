@@ -64,7 +64,7 @@
       >
         <b-table
           ref="refListTable"
-          class="position-relative"
+          class="position-relative competence-table"
           responsive
           :items="employeeCompetences"
           primary-key="id"
@@ -270,7 +270,7 @@ export default {
   },
 }
 </script>
-<style lang="scss">
+<style>
 .per-page-selector {
     width: 90px;
 }
@@ -278,20 +278,20 @@ export default {
   background-color: #ababab !important;
   color: #fff;
 }
-table.inner {
+.competence-table table.inner {
 display: inline-table;
 width: auto;
 border: 1px solid blue;
 }
-td {
+.competence-table td {
 border: 1px dotted gray;
 }
-td.r {
+/* .competence-table td.r {
 text-align: right;
 }
 td.l {
 text-align: left;
-}
+} */
 </style>
 
   <style lang="scss">
