@@ -45,6 +45,7 @@
 <script>
 import { BTabs, BTab } from 'bootstrap-vue'
 import { onMounted, ref, watch } from '@vue/composition-api'
+// eslint-disable-next-line import/no-cycle
 import useAccount from '@/composables/account'
 import AccountSettingGeneral from './AccountSettingGeneral.vue'
 import AccountSettingPassword from './AccountSettingPassword.vue'
@@ -74,6 +75,7 @@ export default {
       }
     }
 
+    // eslint-disable-next-line no-unused-vars
     watch(() => root.$route.meta.tab, async status => {
       activeTab()
     }, {

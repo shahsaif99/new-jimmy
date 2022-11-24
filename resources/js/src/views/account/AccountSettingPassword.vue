@@ -182,7 +182,7 @@ import {
 } from 'bootstrap-vue'
 import Ripple from 'vue-ripple-directive'
 import {
-  ref, computed, watch, watchEffect,
+  ref, computed, watch,
 } from '@vue/composition-api'
 import useAccount from '@/composables/account'
 import { togglePasswordVisibility } from '@core/mixins/ui/forms'

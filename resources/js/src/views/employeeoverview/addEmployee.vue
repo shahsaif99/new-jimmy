@@ -203,7 +203,7 @@
                       v-model="phonenumber"
                       type="number"
                       :state="errors.length > 0 ? false:null"
-                      placeholder="Enter Phone"
+                      placeholder="Enter Phone Number"
                     />
                     <small class="text-danger">{{ errors[0] }}</small>
                   </validation-provider>

@@ -13,6 +13,19 @@ export default function useAccount() {
     const response = await axios.get(route('account'))
     accountData.value = response.data.data
   }
+  const userData = ref(
+    {
+      name: 'olo',
+      employee_number: 4545,
+      address: 'London',
+      post_address: 'London',
+      post_code: 75300,
+      date_of_birth: '17-02-2001',
+      gender: 'Male',
+      phone_number: 4545564,
+      email: 'ol@gmail.com',
+    },
+  )
   const updatePassword = async formData => {
     try {
       busy.value = true
@@ -50,5 +63,6 @@ export default function useAccount() {
     fetchAccount,
     updateGeneral,
     updatePassword,
+    userData,
   }
 }
