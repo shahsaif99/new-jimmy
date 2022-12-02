@@ -259,7 +259,7 @@ export default function useProspects() {
     { key: 'category' },
     { key: 'serialNumber' },
     { key: 'validUntil' },
-    { key: 'certificateNumber' },
+    { key: 'certificateNo' },
     { key: 'loanedTo' },
     { key: 'project' },
     { key: 'lendingHistory' },
