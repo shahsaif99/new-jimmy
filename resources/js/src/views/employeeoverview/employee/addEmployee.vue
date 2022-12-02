@@ -10,6 +10,7 @@
     @close="$emit('update:add-employee-active', false)"
     :visible="addEmployeeActive"
     @hide="$emit('update:add-customer-active', false)"
+    @change="$emit('update:add-customer-active', false)"
   >
     <div>
       <form-wizard
@@ -163,7 +164,7 @@
                   </validation-provider>
                 </b-form-group>
               </b-col>
-              <b-col col="6">
+              <b-col md="6">
                 <b-form-group
                   label="Sex"
                   label-for="sex"
