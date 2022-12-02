@@ -265,7 +265,7 @@ import useDashboard from '@/composables/dashboard'
 import vSelect from 'vue-select'
 // eslint-disable-next-line import/no-cycle
 import useJwt from '@/auth/jwt/useJwt'
-import AddDashboardInformation from './AddDashboardInformation.vue'
+import AddDashboardInformation from './components/AddNewInformation.vue'
 
 export default {
   components: {

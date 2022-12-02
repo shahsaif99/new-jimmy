@@ -28,24 +28,6 @@ const routes = [
     },
   },
   {
-    path: 'addinformation',
-    name: 'addinformation',
-    component: () => import('@/views/AddDashboardInformation.vue'),
-    meta: {
-      pageTitle: 'Add Information',
-      layout: 'vertical',
-      auth: true,
-      resource: 'all',
-      action: 'dashboard-view',
-      breadcrumb: [
-        {
-          text: 'Dashboard',
-          active: true,
-        },
-      ],
-    },
-  },
-  {
     path: 'employeeoverview',
     name: 'employeeoverview',
     component: () => import('@/views/employeeoverview/Employeeoverview.vue'),
