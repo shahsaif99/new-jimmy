@@ -9,7 +9,7 @@
     id="edit-new-employee"
     @close="$emit('update:edit-employee-active', false)"
     :visible="editEmployeeActive"
-    @hide="$emit('update:edit-customer-active', false)"
+    @hide="$emit('update:edit-employee-active', false)"
   >
     <div>
       <form-wizard

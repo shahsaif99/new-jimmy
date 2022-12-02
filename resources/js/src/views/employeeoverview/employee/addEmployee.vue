@@ -9,8 +9,8 @@
     id="add-new-employee"
     @close="$emit('update:add-employee-active', false)"
     :visible="addEmployeeActive"
-    @hide="$emit('update:add-customer-active', false)"
-    @change="$emit('update:add-customer-active', false)"
+    @hide="$emit('update:add-employee-active', false)"
+    @change="$emit('update:add-employee-active', false)"
   >
     <div>
       <form-wizard
