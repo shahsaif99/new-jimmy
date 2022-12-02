@@ -12,9 +12,13 @@
     @hide="$emit('update:is-equipment-active', false)"
   >
     <div>
-      <b-card>
-        <validation-observer
-          ref="refFormObserver"
+      <validation-observer
+        ref="refFormObserver"
+        #default="{ handleSubmit }"
+      >
+        <b-form
+          @submit.prevent="handleSubmit(onSubmit)"
+          @reset.prevent="resetForm"
         >
           <div>
             <b-row>
@@ -211,8 +215,9 @@
                   class="d-flex align-items-center justify-content-end"
                 >
                   <b-button
+                    class="mt-1"
                     variant="primary"
-                    @click="formSubmitted"
+                    type="submit"
                   >
                     <span class="text-nowrap">Submit</span>
                   </b-button>
@@ -220,16 +225,16 @@
               </b-col>
             </b-row>
           </div>
-        </validation-observer></b-card>
+        </b-form></validation-observer>
     </div>
   </b-modal>
 </template>
 
 <script>
 import {
-  BCard,
   BRow,
   BCol,
+  BForm,
   BFormInput,
   BButton,
   BFormInvalidFeedback,
@@ -248,7 +253,7 @@ export default {
     // Export,
     BCol,
     BRow,
-    BCard,
+    BForm,
     BFormInput,
     BButton,
     ValidationProvider,
@@ -299,6 +304,9 @@ export default {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
+    const onSubmit = async () => {
+    //   await updateGeneral(formData.value)
+    }
 
     const tableColumns = [
       { key: 'title' },
@@ -319,6 +327,7 @@ export default {
       currentPage,
       formData,
       totalRecords,
+      onSubmit,
       refListTable,
       isSortDirDesc,
       perPageOptions,

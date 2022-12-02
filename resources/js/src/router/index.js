@@ -8,7 +8,10 @@ import { canNavigate } from '@/libs/acl/routeProtection'
 import AccountRoutes from './account'
 import generalRoutes from './general'
 import usersRoutes from './users'
-
+import projectRoutes from './project'
+import equipmentRoutes from './equipment'
+import employeeRoutes from './employee'
+import documentRoutes from './document'
 // routes
 
 Vue.use(Router)
@@ -30,7 +33,11 @@ const router = new Router({
       },
       children: [
         ...usersRoutes,
+        ...employeeRoutes,
         ...AccountRoutes,
+        ...documentRoutes,
+        ...projectRoutes,
+        ...equipmentRoutes,
         ...generalRoutes,
       ],
     },

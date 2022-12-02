@@ -5,16 +5,20 @@
     :hide-footer="true"
     title="Add Competence"
     size="lg"
-    class="modal-edit-competence-active"
-    id="edit-competence-active"
-    @close="$emit('update:edit-competence-active', false)"
-    :visible="editCompetenceActive"
-    @hide="$emit('update:edit-competence-active', false)"
+    class="modal-is-competence-active"
+    id="is-competence-active"
+    @close="$emit('update:is-competence-active', false)"
+    :visible="isCompetenceActive"
+    @hide="$emit('update:is-competence-active', false)"
   >
     <div>
-      <b-card>
-        <validation-observer
-          ref="refFormObserver"
+      <validation-observer
+        ref="refFormObserver"
+        #default="{ handleSubmit }"
+      >
+        <b-form
+          @submit.prevent="handleSubmit(onSubmit)"
+          @reset.prevent="resetForm"
         >
           <b-row>
             <b-col
@@ -159,6 +163,7 @@
                   <b-button
                     variant="primary"
                     class="mt-1"
+                    type="submit"
                   >
                     <span class="text-nowrap">Submit</span>
                   </b-button>
@@ -166,13 +171,12 @@
               </b-col>
             </b-row>
           </div>
-        </validation-observer></b-card></div>
+        </b-form></validation-observer></div>
   </b-modal>
 </template>
 
 <script>
 import {
-  BCard,
   BRow,
   BCol,
   BFormInput,
@@ -180,6 +184,7 @@ import {
   BFormGroup,
   BFormInvalidFeedback,
   BFormFile,
+  BForm,
   BBadge,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
@@ -194,7 +199,7 @@ export default {
     // Export,
     BCol,
     BRow,
-    BCard,
+    BForm,
     BFormInput,
     BButton,
     BFormGroup,
@@ -206,11 +211,11 @@ export default {
     BBadge,
   },
   model: {
-    prop: 'editCompetenceActive',
-    event: 'update:edit-competence-active',
+    prop: 'isCompetenceActive',
+    event: 'update:is-competence-active',
   },
   props: {
-    editCompetenceActive: {
+    isCompetenceActive: {
       type: Boolean,
       required: true,
     },
@@ -245,6 +250,9 @@ export default {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
+    const onSubmit = async () => {
+    //   await updateGeneral(formData.value)
+    }
 
     return {
       busy,
@@ -263,6 +271,7 @@ export default {
       isSortDirDesc,
       perPageOptions,
       formData,
+      onSubmit,
       required,
       refFormObserver,
       getValidationState,
@@ -272,13 +281,13 @@ export default {
   },
 }
 </script>
-    <style lang="scss" scoped>
-    .per-page-selector {
-    width: 90px;
-    }
-    </style>
+  <style lang="scss" scoped>
+  .per-page-selector {
+  width: 90px;
+  }
+  </style>
 
-    <style lang="scss">
-    @import '~@core/scss/vue/libs/vue-select.scss';
-    </style>
+  <style lang="scss">
+  @import '~@core/scss/vue/libs/vue-select.scss';
+  </style>
 

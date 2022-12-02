@@ -21,7 +21,7 @@
         <span class="font-weight-bold">General</span>
       </template>
 
-      <account-setting-general :account-data="accountData" />
+      <account-setting-general />
     </b-tab>
 
 

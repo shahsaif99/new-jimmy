@@ -86,7 +86,7 @@
                       >
                         <b-form-input
                           id="address"
-                          v-model="address"
+                          v-model="userData.address"
                           type="text"
                           :state="getValidationState(validationContext)"
                           placeholder="Enter Address"
@@ -132,7 +132,7 @@
                       >
                         <b-form-input
                           id="postCode"
-                          v-model="post_code"
+                          v-model="userData.post_code"
                           type="number"
                           :state="getValidationState(validationContext)"
                           placeholder="Enter post code"
@@ -177,7 +177,7 @@
                       >
                         <v-select
                           id="gender"
-                          v-model="gender"
+                          v-model="userData.gender"
                           :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
                           :options="options"
                           :selectable="option => ! option.value.includes('select_value')"
@@ -321,7 +321,7 @@ import {
 } from 'bootstrap-vue'
 import Ripple from 'vue-ripple-directive'
 import { useInputImageRenderer } from '@core/comp-functions/forms/form-utils'
-import { ref, watchEffect } from '@vue/composition-api'
+import { ref } from '@vue/composition-api'
 import useAccount from '@/composables/account'
 import { required, alphaNum, email } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
@@ -350,12 +350,6 @@ export default {
   directives: {
     Ripple,
   },
-  props: {
-    accountData: {
-      type: Object,
-      default: () => {},
-    },
-  },
   data() {
     return {
       required,
@@ -365,22 +359,24 @@ export default {
       profileFile: null,
     }
   },
-  setup(props) {
+  setup() {
+    const {
+      updateGeneral,
+      busy,
+      userData,
+    } = useAccount()
+
     const refInputEl = ref(null)
     const previewEl = ref(null)
-    const userData = ref({})
 
-    watchEffect(() => {
-      userData.value = props.accountData
-    })
+    // watchEffect(() => {
+    //   userData.value = props.accountData
+    // })
 
     const removeImage = () => {
       userData.value.avatar = ''
     }
-    const {
-      updateGeneral,
-      busy,
-    } = useAccount()
+
     const { inputImageRenderer } = useInputImageRenderer(refInputEl, base64 => {
       userData.value.avatar_url = base64
       userData.value.avatar_new = base64
@@ -413,3 +409,7 @@ export default {
   },
 }
 </script>
+
+<style lang="scss">
+    @import '~@core/scss/vue/libs/vue-select.scss';
+</style>

@@ -12,9 +12,13 @@
     @hide="$emit('update:is-lending-active', false)"
   >
     <div>
-      <b-card>
-        <validation-observer
-          ref="refFormObserver"
+      <validation-observer
+        ref="refFormObserver"
+        #default="{ handleSubmit }"
+      >
+        <b-form
+          @submit.prevent="handleSubmit(onSubmit)"
+          @reset.prevent="resetForm"
         >
           <div>
             <b-row>
@@ -150,7 +154,8 @@
                 <div class="d-flex align-items-center justify-content-end">
                   <b-button
                     variant="primary"
-                    class="mr-2 px-5 mt-2"
+                    class="px-5 mt-2"
+                    type="submit"
                   >
                     <span class="text-nowrap">Add</span>
                   </b-button>
@@ -158,17 +163,16 @@
               </b-col>
             </b-row>
           </div>
-        </validation-observer>
-      </b-card>
+        </b-form></validation-observer>
     </div>
   </b-modal>
 </template>
 
 <script>
 import {
-  BCard,
   BRow,
   BCol,
+  BForm,
   BFormInput,
   BButton,
   BFormGroup,
@@ -184,14 +188,14 @@ export default {
   components: {
     // Export,
     BCol,
-    BFormInvalidFeedback,
     BRow,
-    BCard,
+    BForm,
     BFormInput,
     BButton,
     BFormGroup,
     ValidationProvider,
     ValidationObserver,
+    BFormInvalidFeedback,
   },
   model: {
     prop: 'isLendingActive',
@@ -233,6 +237,10 @@ export default {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
+
+    const onSubmit = async () => {
+    //   await updateGeneral(formData.value)
+    }
     return {
       busy,
       sortBy,
@@ -250,6 +258,7 @@ export default {
       perPageOptions,
       formData,
       required,
+      onSubmit,
       refFormObserver,
       resetForm,
       getValidationState,

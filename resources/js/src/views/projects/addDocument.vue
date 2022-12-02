@@ -12,9 +12,13 @@
     @hide="$emit('update:add-document-active', false)"
   >
     <div>
-      <b-card>
-        <validation-observer
-          ref="refFormObserver"
+      <validation-observer
+        ref="refFormObserver"
+        #default="{ handleSubmit }"
+      >
+        <b-form
+          @submit.prevent="handleSubmit(onSubmit)"
+          @reset.prevent="resetForm"
         >
           <b-row>
             <b-col
@@ -80,7 +84,7 @@
                   <b-button
                     variant="primary"
                     class="mt-1"
-                    @click="formSubmitted"
+                    type="submit"
                   >
                     <span class="text-nowrap">Submit</span>
                   </b-button>
@@ -88,15 +92,16 @@
               </b-col>
             </b-row>
           </div>
-        </validation-observer></b-card></div>
+        </b-form></validation-observer>
+    </div>
   </b-modal>
 </template>
 
 <script>
 import {
-  BCard,
   BRow,
   BCol,
+  BForm,
   BButton,
   BFormGroup,
   BFormInvalidFeedback,
@@ -115,7 +120,7 @@ export default {
     // Export,
     BCol,
     BRow,
-    BCard,
+    BForm,
     BButton,
     BFormGroup,
     ValidationProvider,
@@ -165,6 +170,9 @@ export default {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
+    const onSubmit = async () => {
+    //   await updateGeneral(formData.value)
+    }
 
     return {
       busy,
@@ -185,6 +193,7 @@ export default {
       perPageOptions,
       formData,
       required,
+      onSubmit,
       refFormObserver,
       getValidationState,
       resetForm,
