@@ -237,14 +237,14 @@ export default {
     const onSubmit = async () => {
       await login(loginData)
       if (responseStatus.value.status === 200) {
-        const { userData, permissions, token } = responseStatus.value.data
+        const { userData, abilities, token } = responseStatus.value.data
         useJwt.setToken(token)
         useJwt.setUserData(JSON.stringify(userData))
-        localStorage.setItem('abilities', JSON.stringify(permissions.abilities))
+        localStorage.setItem('abilities', JSON.stringify(abilities))
         root.$ability.update([
           {
             subject: 'all',
-            action: permissions.abilities,
+            action: abilities,
           },
         ])
         root.$router.replace({ name: 'dashboard' })
@@ -253,7 +253,7 @@ export default {
               component: ToastificationContent,
               position: 'top-right',
               props: {
-                title: `Welcome ${userData.name}`,
+                title: `Welcome ${userData.first_name}`,
                 icon: 'CoffeeIcon',
                 variant: 'success',
                 text: 'You have successfully logged in.',

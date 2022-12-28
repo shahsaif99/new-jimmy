@@ -2,17 +2,61 @@
 const routes = [
 
   {
-    path: 'users',
+    path: 'users/all',
     name: 'users',
     component: () => import('@/views/users/Index.vue'),
     meta: {
-      pageTitle: 'Users',
+      pageTitle: 'Users - All',
       resource: 'all',
-      action: 'manage-users',
+      action: 'users-view',
       auth: true,
       breadcrumb: [
         {
           text: 'Users',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'users/active',
+    name: 'users-active',
+    component: () => import('@/views/users/Index.vue'),
+    meta: {
+      pageTitle: 'Users - Active',
+      resource: 'all',
+      action: 'users-active-view',
+      auth: true,
+      status: 1,
+      breadcrumb: [
+        {
+          text: 'Users',
+          active: false,
+        },
+        {
+          text: 'Users Active',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'users/deactive',
+    name: 'users-deactive',
+    component: () => import('@/views/users/Index.vue'),
+    meta: {
+      pageTitle: 'Users - Deactive',
+      resource: 'all',
+      action: 'users-deactive-view',
+      auth: true,
+      status: 0,
+      breadcrumb: [
+        {
+          text: 'Users',
+          active: false,
+        },
+        {
+          text: 'Users Deactive',
           active: true,
         },
       ],
@@ -25,7 +69,7 @@ const routes = [
     meta: {
       pageTitle: 'Add User',
       resource: 'all',
-      action: 'manage-users',
+      action: 'users-add',
       auth: true,
       breadcrumb: [
         {
@@ -50,7 +94,7 @@ const routes = [
     meta: {
       pageTitle: 'Edit User',
       resource: 'all',
-      action: 'manage-users',
+      action: 'users-edit',
       auth: true,
       breadcrumb: [
         {

@@ -1,14 +1,51 @@
 <template>
   <div>
-    <Export
+    <!-- <Export
       :is-export-active.sync="isExportActive"
       :filters="filters"
       export-url="/export/users"
-    />
+    /> -->
+    <b-row>
+      <b-col
+        cols="12"
+        md="3"
+        v-for="(userStat, index) in usersStats"
+        :key="index"
+      >
+        <b-card
+          no-body
+          class="mb-0"
+        >
+          <b-card-body>
+            <div class="d-flex justify-content-between">
+              <span>Total {{ userStat.records }} users</span>
+              <b-avatar-group
+                class="mt-2 pt-50"
+              >
+                <b-avatar
+                  v-for="user in userStat.users"
+                  :key="user.avatar"
+                  v-b-tooltip.hover.bottom="user.name"
+                  :src="user.avatar_url"
+                  class="pull-up"
+                />
+              </b-avatar-group>
 
+            </div>
+            <div class="d-flex justify-content-between align-items-end mt-1 pt-25">
+              <div class="role-heading">
+                <h4 class="fw-bolder">
+                  {{ userStat.role }}
+                </h4>
+              </div>
+            </div>
+          </b-card-body>
+        </b-card>
+      </b-col>
+    </b-row>
     <b-card
       no-body
-      class="mb-0"
+      class="mb-0 mt-2"
     >
       <div class="m-2">
         <b-row>
@@ -27,7 +64,7 @@
             <label>entries</label>
             <b-button
               class="d-inline-block ml-1"
-              v-if="$can('manage-users', 'all')"
+              v-if="$can('users-add', 'all')"
               variant="primary"
               @click="$router.push({ name: 'users-add' })"
             >
@@ -47,13 +84,15 @@
                 class="d-inline-block mr-1"
                 placeholder="Search..."
               />
-              <b-button
-                class="d-inline-block ml-1"
-                variant="primary"
-                @click="isExportActive = true"
-              >
-                <span class="text-nowrap">Export</span>
-              </b-button>
+              <v-select
+                placeholder="Select Role"
+                v-model="roleFilter"
+                :options="roles"
+                label="name"
+                :reduce="role => role.value"
+                input-id="role"
+                class="invoice-filter-select"
+              />
             </div>
           </b-col>
         </b-row>
@@ -78,7 +117,22 @@
           :sort-desc.sync="isSortDirDesc"
         >
           <template #cell(avatar)="data">
-            <b-avatar :src="data.item.avatar" />
+            <b-media vertical-align="center">
+              <template #aside>
+                <b-avatar
+                  size="32"
+                  :src="data.item.avatar_url"
+                  :text="avatarText(data.item.name)"
+                  variant="light-success"
+                />
+              </template>
+              <b-link
+                class="font-weight-bold d-block text-nowrap"
+              >
+                {{ data.item.name }}
+              </b-link>
+              <!-- <small class="text-muted">@{{ data.item.email }}</small> -->
+            </b-media>
           </template>
           <!-- Column: Status -->
           <template #cell(status)="data">
@@ -93,18 +147,17 @@
             </div>
           </template>
 
-          <template #cell(roles.0.name)="data">
+          <template #cell(role_name)="data">
             <div
               class="text-nowrap"
-              v-if="data.item.roles && data.item.roles.length > 0"
             >
               <feather-icon
-                :icon="resolveUserRoleIcon(data.item.roles[0].name)"
+                :icon="resolveUserRoleIcon(data.item.role_name)"
                 size="18"
                 class="mr-50"
-                :class="`text-${resolveUserRoleVariant(data.item.roles[0].name)}`"
+                :class="`text-${resolveUserRoleVariant(data.item.role_name)}`"
               />
-              <span class="align-text-top text-capitalize">{{ data.item.roles[0].name }}</span>
+              <span class="align-text-top text-capitalize">{{ data.item.role_name }}</span>
             </div>
           </template>
 
@@ -124,7 +177,7 @@
               </template>
               <b-dropdown-item
                 @click="$router.push({ name: 'users-edit', params: { id: data.item.id } })"
-                v-if="$can('manage-users', 'all')"
+                v-if="$can('users-edit', 'all')"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Edit</span>
@@ -132,7 +185,7 @@
 
               <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
-                v-if="$can('manage-users', 'all')"
+                v-if="$can('users-delete', 'all')"
               >
                 <feather-icon
                   icon="TrashIcon"
@@ -195,32 +248,39 @@
 </template>
 
 <script>
-import { ref, onMounted } from '@vue/composition-api'
 import {
-  BAvatar, BButton, BCard, BCol, BDropdown,
-  BDropdownItem, BFormCheckbox, BFormInput, BOverlay, BPagination, BRow, BTable,
+  BAvatar, BButton, BCard, BCol, BDropdown, BCardBody, BAvatarGroup,
+  BDropdownItem, BFormCheckbox, BFormInput, BOverlay, BPagination, BRow, BTable, BMedia, BLink, VBTooltip,
 } from 'bootstrap-vue'
 import vSelect from 'vue-select'
 import route from 'ziggy-js'
+import { avatarText } from '@core/utils/filter'
 import useUsers from '@/composables/users'
-import Export from '../Export.vue'
+import { ref, watch, onMounted } from '@vue/composition-api'
+
 
 export default {
   components: {
-    Export,
-    BOverlay,
-    BCard,
     BRow,
     BCol,
-    BFormInput,
-    BButton,
+    BLink,
+    BCard,
     BTable,
-    BDropdown,
-    BDropdownItem,
-    BPagination,
-    BFormCheckbox,
+    BMedia,
     BAvatar,
+    BButton,
     vSelect,
+    BCardBody,
+    BOverlay,
+    BDropdown,
+    BFormInput,
+    BPagination,
+    BAvatarGroup,
+    BDropdownItem,
+    BFormCheckbox,
+  },
+  directives: {
+    'b-tooltip': VBTooltip,
   },
   setup(_, context) {
     const {
@@ -229,29 +289,53 @@ export default {
       users,
       sortBy,
       perPage,
+      filters,
       dataMeta,
       fetchUsers,
       respResult,
-      currentPage,
-      searchQuery,
       deleteUser,
+      usersStats,
+      searchQuery,
       totalRecords,
+      currentPage,
       refListTable,
       tableColumns,
       isSortDirDesc,
       perPageOptions,
+      fetchUsersStats,
       updateUserStatus,
       resolveUserRoleIcon,
       resolveUserRoleVariant,
     } = useUsers()
 
-
+    const roleFilter = ref(null)
     onMounted(() => {
-      fetchUsers()
+      fetchUsersStats()
     })
 
+    const roles = ref([
+      {
+        name: 'Partner',
+        value: 'partner',
+      },
+      {
+        name: 'Broker',
+        value: 'broker',
+      },
+      {
+        name: 'BDM',
+        value: 'bdm',
+      },
+    ])
+
     const isExportActive = ref(false)
-    const filters = ref({})
+    watch(() => context.root.$route.meta.status, async status => {
+      filters.status = status
+      fetchUsers()
+    }, {
+      immediate: true,
+    })
+
 
     // onChangeStatus
     const onChangeStatus = (id, status) => {
@@ -272,6 +356,11 @@ export default {
       updateUserStatus(payload)
       // update user status by axios
     }
+
+    watch(roleFilter, async role => {
+      filters.role = role
+      fetchUsers()
+    })
 
 
     const deleteUserConfirmed = async id => {
@@ -300,11 +389,15 @@ export default {
       user,
       route,
       users,
+      roles,
       sortBy,
       perPage,
       filters,
       dataMeta,
+      roleFilter,
       fetchUsers,
+      usersStats,
+      avatarText,
       searchQuery,
       currentPage,
       tableColumns,
@@ -322,12 +415,23 @@ export default {
 }
 </script>
 
-  <style lang="scss" scoped>
-  .per-page-selector {
-    width: 90px;
-  }
-  </style>
+<style lang="scss" scoped>
+.per-page-selector {
+  width: 90px;
+}
+.invoice-filter-select {
+  min-width: 190px;
 
-  <style lang="scss">
-  @import '~@core/scss/vue/libs/vue-select.scss';
-  </style>
+  ::v-deep .vs__selected-options {
+    flex-wrap: nowrap;
+  }
+
+  ::v-deep .vs__selected {
+    width: 100px;
+  }
+}
+</style>
+
+<style lang="scss">
+@import '~@core/scss/vue/libs/vue-select.scss';
+</style>

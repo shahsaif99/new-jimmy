@@ -18,7 +18,7 @@ const routes = [
       layout: 'vertical',
       auth: true,
       resource: 'all',
-      action: 'dashboard-view',
+      action: 'dashboard',
       breadcrumb: [
         {
           text: 'Dashboard',

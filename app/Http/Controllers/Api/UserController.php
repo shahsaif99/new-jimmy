@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exports\UsersExport;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\UserStoreRequest;
-use App\Http\Requests\UserUpdateRequest;
-use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Traits\Upload;
+use App\Exports\UsersExport;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Http\Requests\UserStoreRequest;
+use App\Http\Requests\UserUpdateRequest;
 
 class UserController extends Controller
 {
@@ -20,8 +20,8 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-
         $users = User::query()
+            ->with('roles:id,name')
             ->search($request->q)
             ->applyFilters($request)
             ->when($request->perPage, function ($query, $perPage) {
@@ -43,16 +43,19 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
+        // upload base64 image
         if ($request->avatar) {
             $avatar = Upload::uploadBase64AvatarAndResize($request->avatar);
             $data['avatar'] = $avatar;
         }
-        $user = User::create($data);
 
-        return response()->json([
-            'message' => 'User successfully created.',
-            'data' => $user,
-        ], 200);
+        $user = User::create($data);
+        // $user->assignRole($request->role);
+
+        $user->givePermissionTo($request->permissions);
+
+
+        return response()->json(['message' => 'User successfully created.'], 200);
     }
 
     /**
@@ -63,7 +66,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return new UserResource($user);
+        return new UserResource($user->load('roles'));
     }
 
     /**
@@ -75,15 +78,20 @@ class UserController extends Controller
      */
     public function update(UserUpdateRequest $request, User $user)
     {
-        $data = $request->validated();
+        $user->update($request->validated());
+
+        $data = $request->except(['password','password_confirmation']);
+
+        if($request->filled('password')){
+           $data = array_merge($data, $request->only(['password','password_confirmation']));
+        }
         if ($request->avatar_new) {
-            if ($user->avatar) {
-                \Storage::delete($user->avatar);
-            }
             $avatar = Upload::uploadBase64AvatarAndResize($request->avatar_new);
             $data['avatar'] = $avatar;
         }
         $user->update($data);
+        // $user->syncRoles($request->roles);
+        $user->givePermissionTo($request->permissions);
 
         return response()->json(['message' => 'User successfully updated.'], 200);
     }
@@ -97,18 +105,16 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        if ($user->avatar) {
-            \Storage::disk('public')->delete($user->avatar);
-        }
+
         return response()->json([
             'message' => 'User successfully deleted.',
         ], 200);
     }
 
-    public function export(Request $request)
-    {
-        return (new UsersExport($request))->download('users.' . $request->extension, ucwords($request->extension));
-    }
+    // public function export(Request $request)
+    // {
+    //     return (new UsersExport($request))->download('users.'.$request->extension, ucwords($request->extension));
+    // }
 
     // update user status
     public function updateStatus(Request $request)
@@ -118,26 +124,6 @@ class UserController extends Controller
         $user->save();
 
         return response()->json(['message' => 'User status successfully updated.'], 200);
-    }
-
-    public function usersStats()
-    {
-        // $users = User::all()
-        // ->groupBy('role')
-        // ->toArray();
-
-        $users =  User::all()
-            ->groupBy('role_name')
-            ->map(function($users, $role) {
-                return [
-                    'role'    => $role,
-                    'records' => $users->count(),
-                    'users'    => $users
-                ];
-            })
-            ->values();
-
-        return $users;
     }
 
 }

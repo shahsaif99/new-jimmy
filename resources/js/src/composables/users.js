@@ -1,7 +1,5 @@
 import axios from '@axios'
-import {
-  computed, ref, watch, reactive,
-} from '@vue/composition-api'
+import { computed, ref, watch } from '@vue/composition-api'
 // Notification
 import route from 'ziggy-js'
 import toaster from './toaster'
@@ -14,21 +12,19 @@ export default function useUsers() {
   const refListTable = ref(null)
   // Table Handlers
   const tableColumns = [
-    { key: 'avatar', sortable: false, label: 'Name' },
-    // { key: 'name', sortable: true },
+    { key: 'id', sortable: false },
+    { key: 'avatar', sortable: false },
+    { key: 'name', sortable: true },
     { key: 'email', sortable: true },
-    { key: 'phone', sortable: true },
-    { key: 'role_name', sortable: true },
+    { key: 'mobile', sortable: true },
+    { key: 'roles.0.name', sortable: true, label: 'Role' },
     { key: 'status', sortable: true },
     { key: 'actions' },
   ]
-  const filters = reactive({
-    status: null,
-    role: null,
-  })
+  const usersStats = ref([])
   const users = ref([])
   const roleUsers = ref([])
-  const usersStats = ref([])
+  const roleUsersById = ref([])
   const perPage = ref(10)
   const totalRecords = ref(0)
   const currentPage = ref(1)
@@ -36,6 +32,8 @@ export default function useUsers() {
   const searchQuery = ref('')
   const sortBy = ref('id')
   const isSortDirDesc = ref(true)
+  const roleFilter = ref(null)
+  const statusFilter = ref(null)
   const userId = ref(null)
   const user = ref({})
   const errors = ref({})
@@ -97,7 +95,6 @@ export default function useUsers() {
       respResult.value = response
       toast.success(response.data.message)
     } catch (e) {
-      console.log(e)
       if (e.response.status === 422) {
         toast.error(e.response.data.message)
       }
@@ -125,27 +122,29 @@ export default function useUsers() {
       })
   }
 
-  const fetchUsers = async () => {
-    busy.value = true
-    try {
-      const response = await axios.get(route('users.index'), {
-        params: {
-          q: searchQuery.value,
-          perPage: perPage.value,
-          page: currentPage.value,
-          sortBy: sortBy.value,
-          sortDesc: isSortDirDesc.value,
-          ...filters,
-        },
+
+  const fetchUsers = () => {
+    axios.get(route('users.index'), {
+      params: {
+        q: searchQuery.value,
+        perPage: perPage.value,
+        page: currentPage.value,
+        sortBy: sortBy.value,
+        sortDesc: isSortDirDesc.value,
+        role: roleFilter.value,
+        status: statusFilter.value,
+        userId: userId.value,
+      },
+    })
+      .then(response => {
+        users.value = response.data.data
+        const { total } = response.data.meta
+        totalRecords.value = total
       })
-      const { total } = response.data.meta
-      users.value = response.data.data
-      totalRecords.value = total
-    } catch (e) {
-      toast.error(e.response.data.message)
-    } finally {
-      busy.value = false
-    }
+      .catch(error => {
+        console.log(error)
+        // toast.error('Error fetching employee list')
+      })
   }
 
   const fetchUsersStats = async () => {
@@ -160,73 +159,50 @@ export default function useUsers() {
     }
   }
 
-  const fetchUsersByRole = async role => {
-    busy.value = true
-    try {
-      const response = await axios.get(route('users.index'), {
-        params: {
-          role,
-        },
-      })
-      roleUsers.value = response.data.data
-    } catch (e) {
-      toast.error(e.response.data.message)
-    } finally {
-      busy.value = false
-    }
-  }
-
-
   const resolveUserRoleVariant = role => {
     if (role === 'Admin') return 'danger'
-    if (role === 'BDM') return 'success'
-    if (role === 'Broker') return 'warning'
-    if (role === 'Partner') return 'primary'
-    return 'info'
+    return 'primary'
   }
 
   const resolveUserRoleIcon = role => {
-    if (role === 'Admin') return 'SlackIcon'
-    if (role === 'BDM') return 'SettingsIcon'
-    if (role === 'Broker') return 'UserIcon'
-    if (role === 'Partner') return 'ServerIcon'
+    if (role === 'Employee') return 'DatabaseIcon'
+    if (role === 'User') return 'UserIcon'
+    if (role === 'Admin') return 'ServerIcon'
     return 'UserIcon'
   }
-
-  watch([currentPage, perPage, searchQuery, filters], () => {
+  watch([currentPage, perPage, searchQuery], () => {
     fetchUsers()
   })
 
   return {
-    user,
-    busy,
-    users,
     errors,
-    getUser,
-    userId,
-    sortBy,
-    perPage,
-    filters,
-    dataMeta,
-    respResult,
-    roleUsers,
-    storeUser,
-    usersStats,
-    fetchUsers,
-    deleteUser,
-    refetchData,
-    updateUser,
-    currentPage,
-    searchQuery,
-    refListTable,
-    totalRecords,
-    tableColumns,
-    isSortDirDesc,
-    perPageOptions,
-    fetchUsersStats,
-    fetchUsersByRole,
     updateUserStatus,
-    resolveUserRoleIcon,
+    roleUsersById,
+    roleUsers,
+    userId,
+    busy,
+    respResult,
+    storeUser,
+    fetchUsers,
+    tableColumns,
+    perPage,
+    currentPage,
+    totalRecords,
+    dataMeta,
+    perPageOptions,
+    searchQuery,
+    sortBy,
+    isSortDirDesc,
+    usersStats,
+    refListTable,
     resolveUserRoleVariant,
+    resolveUserRoleIcon,
+    refetchData,
+    getUser,
+    updateUser,
+    user,
+    users,
+    deleteUser,
+    fetchUsersStats,
   }
 }

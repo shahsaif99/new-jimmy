@@ -8,12 +8,15 @@
         <template #aside>
           <b-avatar
             ref="previewEl"
-            :src="userData.avatar"
+            :src="userData.avatar_url"
             :text="avatarText(userData.name)"
             size="90px"
             rounded
           />
         </template>
+        <h4 class="mb-1">
+          {{ userData.name }} - <span class="align-text-top text-capitalize">{{ userData.role_name }}</span>
+        </h4>
         <div class="d-flex flex-wrap">
           <b-button
             variant="primary"
@@ -25,7 +28,7 @@
               class="d-none"
               @input="inputImageRenderer"
             >
-            <span class="d-none d-sm-inline">Browse</span>
+            <span class="d-none d-sm-inline">Update</span>
             <feather-icon
               icon="EditIcon"
               class="d-inline d-sm-none"
@@ -56,11 +59,15 @@
           rounded="sm"
           opacity="0.20"
         >
+
+          <!-- User Info: Input Fields -->
           <b-form
             @submit.prevent="handleSubmit(onSubmit)"
             @reset.prevent="resetForm"
           >
             <b-row>
+
+              <!-- Field: Username -->
               <b-col
                 cols="12"
                 md="4"
@@ -77,7 +84,6 @@
                       placeholder="First Name"
                       id="first_name"
                       v-model="userData.first_name"
-                      autofocus
                       :state="getValidationState(validationContext)"
                       trim
                     />
@@ -105,7 +111,6 @@
                     <b-form-input
                       id="last_name"
                       v-model="userData.last_name"
-                      autofocus
                       :state="getValidationState(validationContext)"
                       trim
                       placeholder="Last Name"
@@ -222,7 +227,7 @@
                       v-model="userData.role"
                       :options="roles"
                       label="name"
-                      :reduce="role => role.name"
+                      :reduce="role => role.value"
                       :clearable="false"
                       input-id="role"
                     />
@@ -233,8 +238,6 @@
                 </validation-provider>
               </b-col>
 
-              <!-- Field: Email -->
-
               <b-col
                 cols="12"
                 md="4"
@@ -242,7 +245,7 @@
                 <validation-provider
                   #default="validationContext"
                   name="Password"
-                  rules="required|min:6"
+                  rules="min:6"
                 >
                   <b-form-group
                     label="Password"
@@ -287,7 +290,7 @@
                 <validation-provider
                   #default="validationContext"
                   name="Confirm Password"
-                  rules="required|confirmed:Password"
+                  rules="confirmed:Password"
                 >
                   <b-form-group
                     label="Confirm Password"
@@ -318,67 +321,6 @@
                 </validation-provider>
               </b-col>
             </b-row>
-            <b-card
-              no-body
-              class="border mt-1"
-            >
-              <b-card-header class="p-1">
-                <b-card-title class="font-medium-2">
-                  <feather-icon
-                    icon="LockIcon"
-                    size="18"
-                  />
-                  <span class="align-middle ml-50">Permission</span>
-                </b-card-title>
-              </b-card-header>
-              <!-- <b-table
-                striped
-                responsive
-                class="mb-0"
-                :fields="['name']"
-                :items="permissions"
-              >
-                <template #cell(name)="data">
-                  <b-form-checkbox
-                    :value-field="data.item.id"
-                    :name="`permissions-${data.item.id}`"
-                    :id="`permissions-${data.item.id}`"
-                    v-model="userData.permissions[data.item.id]"
-                  >
-                    {{ data.item.name }}
-                  </b-form-checkbox>
-                </template>
-              </b-table> -->
-
-              <!-- <ul>
-                <li
-                  v-for="(permission, index) in permissions"
-                  :key="index"
-                >
-                  <b-form-checkbox
-                    :value="permission.id"
-                    :name="`permissions-${permission.id}`"
-                    :id="`permissions-${permission.id}`"
-                    v-model="userData.permissions[permission.id]"
-                  >
-                    {{ permission.name }}
-                  </b-form-checkbox>
-                </li>
-              </ul> -->
-
-              <b-form-group>
-                <b-form-checkbox-group
-                  id="flavors"
-                  v-model="userData.permissions"
-                  :options="permissions"
-                  name="flavors"
-                  value-field="id"
-                  text-field="name"
-                  class="ml-4"
-                  stacked
-                />
-              </b-form-group>
-            </b-card>
             <div class="d-flex mt-2">
               <b-button
                 variant="primary"
@@ -413,117 +355,111 @@ import {
   BFormGroup,
   BFormInput,
   BForm,
-  BTable,
   BOverlay,
-  BFormCheckbox,
-  BCardHeader,
-  BCardTitle,
   BInputGroup,
-  BFormCheckboxGroup,
   BInputGroupAppend,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
-import { ref, computed, onMounted } from '@vue/composition-api'
+import {
+  ref, computed, onMounted, watch,
+} from '@vue/composition-api'
 import { avatarText } from '@core/utils/filter'
 import vSelect from 'vue-select'
 import { useInputImageRenderer } from '@core/comp-functions/forms/form-utils'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import formValidation from '@core/comp-functions/forms/form-validation'
-import useUsers from '@/composables/users'
-import usePermissions from '@/composables/permissions'
 import {
   required, alphaNum, email, min,
 } from '@validations'
 import { togglePasswordVisibility } from '@core/mixins/ui/forms'
-import useRoles from '@/composables/roles'
+import useUsers from '@/composables/users'
 
 
 export default {
   components: {
-    BButton,
-    BMedia,
-    BOverlay,
-    BAvatar,
-    BCardHeader,
-    BInputGroupAppend,
+    BCol,
     BRow,
     BCard,
-    BCol,
-    BFormCheckboxGroup,
-    BTable,
-    BFormCheckbox,
-    BFormInvalidFeedback,
-    BFormGroup,
-    BFormInput,
+    BMedia,
     BForm,
+    BAvatar,
+    BButton,
     vSelect,
-    BCardTitle,
+    BOverlay,
+    BFormGroup,
     BInputGroup,
+    BFormInput,
+    BInputGroupAppend,
     ValidationProvider,
     ValidationObserver,
+    BFormInvalidFeedback,
   },
   mixins: [togglePasswordVisibility],
-  setup(props, { emit }) {
-    const blankUserData = {
-      first_name: '',
-      last_name: '',
-      email: '',
-      phone: '',
-      status: '',
-      password: '',
-      password_confirmation: '',
-      role: '',
-      avatar: '',
-      permissions: [],
+  data() {
+    return {
+      required,
+      min,
+      alphaNum,
+      email,
     }
-
-    const userData = ref(JSON.parse(JSON.stringify(blankUserData)))
-
-
+  },
+  props: {
+    id: {
+      type: Number,
+      required: true,
+    },
+  },
+  setup(props) {
     const statusOptions = [
-      { label: 'Active', value: 1 },
-      { label: 'Inactive', value: 0 },
+      { label: 'Active', value: true },
+      { label: 'Inactive', value: false },
     ]
     const {
-      storeUser,
-      respResult,
       busy,
+      user,
+      getUser,
+      updateUser,
     } = useUsers()
 
-    const {
-      roles,
-      fetchRoles,
-    } = useRoles()
+    const roles = ref([
+      {
+        name: 'Partner',
+        value: 'partner',
+      },
+      {
+        name: 'Broker',
+        value: 'broker',
+      },
+      {
+        name: 'BDM',
+        value: 'bdm',
+      },
+    ])
+    const userData = ref({})
 
 
-    const { permissions, fetchPermissionsList } = usePermissions()
-
-    const toggleAll = checked => {
-      userData.value.permissions = checked ? permissions.value.slice() : []
-    }
+    watch(user, () => {
+      userData.value = user.value
+      userData.value = {
+        ...userData.value,
+        password: '',
+        password_confirmation: '',
+      }
+    })
+    // remove index from role
 
     const resetuserData = () => {
-      userData.value = JSON.parse(JSON.stringify(blankUserData))
+      userData.value = JSON.parse(JSON.stringify(user.value))
     }
 
     const passwordFieldType = ref(null)
     const passwordToggleIcon = computed(() => (passwordFieldType.value === 'password' ? 'EyeIcon' : 'EyeOffIcon'))
-
+    // removing roles pagination
     onMounted(() => {
-      fetchRoles()
-      fetchPermissionsList()
+      getUser(props.id)
     })
 
-    // const permissionsData = ref([
-    //   {
-    //     id: 1,
-    //     name: 'test',
-    //   },
-    //   {
-    //     id: 2,
-    //     name: 'test',
-    //   },
-    // ])
+
     // generate random password with special characters
 
     const generatePassword = () => {
@@ -533,11 +469,8 @@ export default {
     }
 
     const onSubmit = async () => {
-      await storeUser(userData.value)
-      if (respResult.value.status === 200) {
-        emit('refetch-data')
-        emit('update:is-add-new-user-sidebar-active', false)
-      }
+      console.log(userData.value)
+      await updateUser(userData.value)
     }
     const { refFormObserver, getValidationState, resetForm } = formValidation(resetuserData)
 
@@ -549,17 +482,14 @@ export default {
     const previewEl = ref(null)
 
     const { inputImageRenderer } = useInputImageRenderer(refInputEl, base64 => {
-      userData.value.avatar = base64
+    //   userData.value.avatar = base64
+      userData.value.avatar_url = base64
+      userData.value.avatar_new = base64
     })
 
     return {
-      required,
-      min,
-      alphaNum,
-      email,
       busy,
       roles,
-      toggleAll,
       userData,
       onSubmit,
       resetForm,
@@ -567,7 +497,6 @@ export default {
       refInputEl,
       avatarText,
       removeImage,
-      permissions,
       statusOptions,
       refFormObserver,
       generatePassword,

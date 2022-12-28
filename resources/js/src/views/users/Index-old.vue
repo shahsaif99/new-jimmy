@@ -27,7 +27,7 @@
             <label>entries</label>
             <b-button
               class="d-inline-block ml-1"
-              v-if="$can('manage-users', 'all')"
+              v-if="$can('users-add', 'all')"
               variant="primary"
               @click="$router.push({ name: 'users-add' })"
             >
@@ -124,7 +124,7 @@
               </template>
               <b-dropdown-item
                 @click="$router.push({ name: 'users-edit', params: { id: data.item.id } })"
-                v-if="$can('manage-users', 'all')"
+                v-if="$can('users-edit', 'all')"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Edit</span>
@@ -132,7 +132,7 @@
 
               <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
-                v-if="$can('manage-users', 'all')"
+                v-if="$can('users-delete', 'all')"
               >
                 <feather-icon
                   icon="TrashIcon"
@@ -195,7 +195,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from '@vue/composition-api'
+import { ref } from '@vue/composition-api'
 import {
   BAvatar, BButton, BCard, BCol, BDropdown,
   BDropdownItem, BFormCheckbox, BFormInput, BOverlay, BPagination, BRow, BTable,
@@ -224,34 +224,33 @@ export default {
   },
   setup(_, context) {
     const {
+      fetchUsers,
+      perPage,
+      currentPage,
+      totalRecords,
+      dataMeta,
+      perPageOptions,
+      searchQuery,
+      sortBy,
+      isSortDirDesc,
+      refListTable,
+      resolveUserRoleVariant,
+      resolveUserRoleIcon,
+      deleteUser,
+      tableColumns,
       busy,
       user,
       users,
-      sortBy,
-      perPage,
-      dataMeta,
-      fetchUsers,
       respResult,
-      currentPage,
-      searchQuery,
-      deleteUser,
-      totalRecords,
-      refListTable,
-      tableColumns,
-      isSortDirDesc,
-      perPageOptions,
       updateUserStatus,
-      resolveUserRoleIcon,
-      resolveUserRoleVariant,
     } = useUsers()
 
 
-    onMounted(() => {
-      fetchUsers()
-    })
+    fetchUsers()
 
     const isExportActive = ref(false)
     const filters = ref({})
+
 
     // onChangeStatus
     const onChangeStatus = (id, status) => {
@@ -322,12 +321,12 @@ export default {
 }
 </script>
 
-  <style lang="scss" scoped>
-  .per-page-selector {
-    width: 90px;
-  }
-  </style>
+<style lang="scss" scoped>
+.per-page-selector {
+  width: 90px;
+}
+</style>
 
-  <style lang="scss">
-  @import '~@core/scss/vue/libs/vue-select.scss';
-  </style>
+<style lang="scss">
+@import '~@core/scss/vue/libs/vue-select.scss';
+</style>

@@ -32,7 +32,6 @@ class UserStoreRequest extends FormRequest
             'email' => ['required', 'email', 'max:100', 'unique:users'],
             'phone' => ['nullable', 'max:30'],
             'status' => ['required'],
-            'role' => ['required', new Enum(UserRole::class)],
             'password' => ['required', 'string', 'confirmed', Password::min(6)
             ->letters()
             ->numbers()

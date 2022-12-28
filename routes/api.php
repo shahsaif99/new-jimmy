@@ -2,10 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\RolesController;
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\PermissionsController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 
@@ -27,11 +28,13 @@ Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name(
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('/users/status/{id}', [UserController::class, 'updateStatus'])->name('users.status');
+    Route::get('/users/stats', [UserController::class, 'usersStats'])->name('users.stats');
 
-    // Route::apiResources([
-    //     'users' => UserController::class,
-    //     'leads' => LeadController::class,
-    // ]);
+    Route::apiResources([
+        'users' => UserController::class,
+        'roles' => RolesController::class,
+        'permissions' => PermissionsController::class,
+    ]);
 
     Route::get('/dashboard/statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
     Route::get('/account', [AccountController::class, 'account'])->name('account');

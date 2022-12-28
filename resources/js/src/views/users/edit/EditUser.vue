@@ -8,14 +8,14 @@
         <template #aside>
           <b-avatar
             ref="previewEl"
-            :src="userData.avatar_url"
+            :src="userData.avatar"
             :text="avatarText(userData.name)"
             size="90px"
             rounded
           />
         </template>
         <h4 class="mb-1">
-          {{ userData.name }} - <span class="align-text-top text-capitalize">{{ userData.role_name }}</span>
+          {{ userData.name }}
         </h4>
         <div class="d-flex flex-wrap">
           <b-button
@@ -84,6 +84,7 @@
                       placeholder="First Name"
                       id="first_name"
                       v-model="userData.first_name"
+                      autofocus
                       :state="getValidationState(validationContext)"
                       trim
                     />
@@ -111,6 +112,7 @@
                     <b-form-input
                       id="last_name"
                       v-model="userData.last_name"
+                      autofocus
                       :state="getValidationState(validationContext)"
                       trim
                       placeholder="Last Name"
@@ -224,10 +226,10 @@
                   >
                     <v-select
                       placeholder="Select Role"
-                      v-model="userData.role"
+                      v-model="userData.roles"
                       :options="roles"
                       label="name"
-                      :reduce="role => role.value"
+                      :reduce="role => role.name"
                       :clearable="false"
                       input-id="role"
                     />
@@ -237,6 +239,8 @@
                   </b-form-group>
                 </validation-provider>
               </b-col>
+
+              <!-- Field: Email -->
 
               <b-col
                 cols="12"
@@ -373,6 +377,7 @@ import {
 } from '@validations'
 import { togglePasswordVisibility } from '@core/mixins/ui/forms'
 import useUsers from '@/composables/users'
+import useRoles from '@/composables/roles'
 
 
 export default {
@@ -415,26 +420,17 @@ export default {
       { label: 'Inactive', value: false },
     ]
     const {
+      updateUser,
       busy,
       user,
       getUser,
-      updateUser,
     } = useUsers()
 
-    const roles = ref([
-      {
-        name: 'Partner',
-        value: 'partner',
-      },
-      {
-        name: 'Broker',
-        value: 'broker',
-      },
-      {
-        name: 'BDM',
-        value: 'bdm',
-      },
-    ])
+    const {
+      perPage,
+      roles,
+      fetchRoles,
+    } = useRoles()
     const userData = ref({})
 
 
@@ -444,6 +440,7 @@ export default {
         ...userData.value,
         password: '',
         password_confirmation: '',
+        roles: userData.value.roles.map(role => role.name),
       }
     })
     // remove index from role
@@ -455,7 +452,9 @@ export default {
     const passwordFieldType = ref(null)
     const passwordToggleIcon = computed(() => (passwordFieldType.value === 'password' ? 'EyeIcon' : 'EyeOffIcon'))
     // removing roles pagination
+    perPage.value = null
     onMounted(() => {
+      fetchRoles()
       getUser(props.id)
     })
 
@@ -482,9 +481,7 @@ export default {
     const previewEl = ref(null)
 
     const { inputImageRenderer } = useInputImageRenderer(refInputEl, base64 => {
-    //   userData.value.avatar = base64
-      userData.value.avatar_url = base64
-      userData.value.avatar_new = base64
+      userData.value.avatar = base64
     })
 
     return {

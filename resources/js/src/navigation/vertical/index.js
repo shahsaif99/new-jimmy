@@ -4,7 +4,7 @@ export default [
     title: 'Dashboard',
     route: 'dashboard',
     icon: 'HomeIcon',
-    action: 'dashboard-view',
+    action: 'dashboard',
     resource: 'all',
   },
   {
@@ -88,14 +88,39 @@ export default [
   {
     title: 'Projects',
     icon: 'InboxIcon',
-    action: 'overview-view',
+    action: 'manage-projects',
     resource: 'all',
     children: [
       {
         title: 'Overview',
         route: 'projectoverview',
-        action: 'overview-view',
         icon: 'InboxIcon',
+      },
+    ],
+  },
+
+  {
+    title: 'Authentication',
+    icon: 'SettingsIcon',
+    action: 'authentication',
+    resource: 'all',
+    children: [
+      {
+        title: 'Users',
+        route: 'users',
+        action: 'manage-users',
+        resource: 'all',
+      },
+      {
+        title: 'Roles',
+        route: 'roles',
+        action: 'manage-roles',
+        resource: 'all',
+      },
+      {
+        title: 'Permissions',
+        route: 'permissions',
+        action: 'manage-permissions',
         resource: 'all',
       },
     ],

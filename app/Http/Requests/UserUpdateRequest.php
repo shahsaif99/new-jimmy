@@ -33,7 +33,6 @@ class UserUpdateRequest extends FormRequest
             'phone' => ['nullable', 'max:30'],
             'status' => ['required'],
             'avatar_new' => ['nullable'],
-            'role' => ['required', new Enum(UserRole::class)],
             'password' => ['nullable', 'string', 'confirmed', Password::min(6)
             ->letters()
             ->numbers()

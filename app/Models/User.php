@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use App\Enums\UserRole;
-use App\Enums\UserStatus;
 use Illuminate\Http\Request;
+use Plank\Mediable\Mediable;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Traits\HasRoles;
 use App\Notifications\UserPasswordReset;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles, Mediable;
 
     /**
      * The attributes that are mass assignable.
@@ -30,23 +29,11 @@ class User extends Authenticatable
         'phone',
         'status',
         'avatar',
-        'last_login',
-        'role',
     ];
 
     protected $guard_name = 'sanctum';
 
     protected $appends = ['name','avatar_url'];
-
-     /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'status' => 'boolean',
-    ];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -56,6 +43,16 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'status' => 'boolean',
     ];
 
     public function scopeSearch($query, $queryString)
@@ -77,17 +74,16 @@ class User extends Authenticatable
         return \Carbon\Carbon::parse($value)->format('d-m-Y');
     }
 
-
     public function setPasswordAttribute($password)
     {
         $this->attributes['password'] = Hash::make($password);
     }
 
-    // get user avatar from media library
-    public function getAvatarUrlAttribute($value)
-    {
-        return '/storage/'.$this->avatar;
-    }
+     // get user avatar from media library
+     public function getAvatarUrlAttribute($value)
+     {
+         return '/storage/'.$this->avatar;
+     }
 
     /**
      * Send the password reset notification.
@@ -109,9 +105,25 @@ class User extends Authenticatable
         return "{$this->first_name} {$this->last_name}";
     }
 
+    /**
+     * Get all of the students for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'company_id');
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'company_id');
+    }
+
     public function scopeApplyFilters($query, Request $request)
     {
         $user = auth()->user();
+        $isCompany = $user->hasRole('Company');
         $query
         ->when($request->sortDesc, function ($query, $sortDesc) {
             $query->orderByDesc('id');
@@ -120,13 +132,13 @@ class User extends Authenticatable
             $query->where('user_id', $userId);
         })
         ->when($request->role, function ($query, $role) {
-            $query->whereRole($role);
+            $query->role($role);
         })
-        ->when(in_array($request->status,[0,1]), function ($query) use($request) {
-            if(!is_null($request->status)){
-                $query->where('status', $request->status);
-            }
+        ->when($isCompany, function ($query) {
+            $query
+                ->whereBelongsTo(auth()->user());
         })
+
         ->when($request->sortBy, function ($query, $sortBy) {
             $query->orderBy($sortBy);
         }, function ($query) {
@@ -139,11 +151,10 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function bdm()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'bdm_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
-
 
     protected static function booted()
     {

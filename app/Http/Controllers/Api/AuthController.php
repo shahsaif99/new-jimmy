@@ -18,20 +18,36 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'The provided credentials are incorrect.'], 403);
         }
-        if (!$user->status) {
-            return response()->json(['message' => 'Your account is deactive, please contact site administrator.'], 403);
-        }
 
-        $token = $user->createToken('PortalToken')->plainTextToken;
-        $userData = $user->only(['name', 'avatar', 'id', 'avatar_url', 'role', 'package_id']);
+        if ($user->isDeactive()) {
+            return response()->json([
+                'message' => 'Account is deactivated, Please contact admin for further assistance.',
+            ], 403);
+        }
+        $token = $user->createToken('AdminPortalToken')->plainTextToken;
+
+        $role = $user->getRoleNames()[0];
+        $permissions = $this->getAllPermissions($user);
+
+        $userData = array_merge($user->only(['id', 'first_name', 'last_name']), ['role' => $role]);
+
         return response()->json([
+            'status' => true,
             'token' => $token,
             'userData' => $userData,
-            'permissions' => $this->userRolePermissions($user->role),
+            'abilities' => $permissions,
         ]);
+    }
+
+    public function getAllPermissions($user)
+    {
+        return $user->getAllPermissions()
+            ->flatten()
+            ->pluck('name')
+            ->toArray();
     }
 
     public function logout(Request $request)

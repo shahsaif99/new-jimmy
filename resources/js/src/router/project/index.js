@@ -7,7 +7,7 @@ const routes = [
       pageTitle: 'Overview',
       layout: 'vertical',
       resource: 'all',
-      action: 'overview-view',
+      action: 'manage-projects',
       breadcrumb: [
         {
           text: 'Projects',

@@ -12,6 +12,8 @@ import projectRoutes from './project'
 import equipmentRoutes from './equipment'
 import employeeRoutes from './employee'
 import documentRoutes from './document'
+import rolesRoutes from './roles'
+import permissionsRoutes from './permissions'
 // routes
 
 Vue.use(Router)
@@ -38,6 +40,8 @@ const router = new Router({
         ...documentRoutes,
         ...projectRoutes,
         ...equipmentRoutes,
+        ...rolesRoutes,
+        ...permissionsRoutes,
         ...generalRoutes,
       ],
     },

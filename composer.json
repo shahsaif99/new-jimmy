@@ -14,7 +14,9 @@
         "laravel/tinker": "^2.7",
         "laravel/ui": "^3.4",
         "maatwebsite/excel": "^3.1",
+        "plank/laravel-mediable": "^5.7",
         "psr/simple-cache": "^1.0",
+        "spatie/laravel-permission": "^5.7",
         "tightenco/ziggy": "^1.4"
     },
     "require-dev": {
