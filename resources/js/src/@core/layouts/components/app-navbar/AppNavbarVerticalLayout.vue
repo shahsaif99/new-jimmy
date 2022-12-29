@@ -23,6 +23,7 @@
     </div>
 
     <b-navbar-nav class="nav align-items-center ml-auto">
+      <!-- <locale /> -->
       <!-- <search-bar /> -->
       <!-- <notification-dropdown /> -->
       <user-dropdown />
@@ -40,11 +41,12 @@ import {
 import DarkToggler from './components/DarkToggler.vue'
 // import NotificationDropdown from './components/NotificationDropdown.vue'
 import UserDropdown from './components/UserDropdown.vue'
+import Locale from './components/Locale.vue'
 
 export default {
   components: {
     BLink,
-
+    Locale,
     // Navbar Components
     BNavbarNav,
     // SearchBar,

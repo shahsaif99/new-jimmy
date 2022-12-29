@@ -5,11 +5,11 @@
     :hide-footer="true"
     title="Add Document"
     size="lg"
-    class="modal-add-document-active"
-    id="add-document-active"
-    @close="$emit('update:add-document-active', false)"
-    :visible="addDocumentActive"
-    @hide="$emit('update:add-document-active', false)"
+    class="modal-is-add-document-active"
+    id="is-add-document-active"
+    @close="$emit('update:is-add-document-active', false)"
+    :visible="isAddDocumentActive"
+    @hide="$emit('update:is-add-document-active', false)"
   >
     <div>
       <validation-observer
@@ -27,20 +27,21 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Select Employees"
+                name="Select Project"
                 rules="required"
               >
                 <b-form-group
                   label="Select Project"
-                  label-for="selectprojects"
                 >
                   <v-select
-                    v-model="selected"
+                    v-model="projectId"
                     :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                    label="Project"
-                    :options="projectNames"
+                    :options="projects"
+                    label="name"
+                    :reduce="project => project.id"
+                    :state="getValidationState(validationContext)"
                   />
-                  <b-form-invalid-feedback>
+                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
                     {{ validationContext.errors[0] }}
                   </b-form-invalid-feedback>
                 </b-form-group>
@@ -51,27 +52,41 @@
               cols="12"
               md="12"
             >
+
               <b-form-group
                 label="Add Documents/Images"
                 label-for="files"
                 class="mt-2"
               >
-                <b-form-file multiple>
-                  <template
-                    slot="file-name"
-                    slot-scope="{ names }"
+                <validation-provider
+                  #default="validationContext"
+                  name="Files"
+                  rules="required"
+                >
+                  <b-form-file
+                    multiple
+                    :state="getValidationState(validationContext)"
+                    v-model="files"
                   >
-                    <b-badge variant="primary">
-                      {{ names[0] }}
-                    </b-badge>
-                    <b-badge
-                      v-if="names.length > 1"
-                      variant="primary"
+                    <template
+                      slot="file-name"
+                      slot-scope="{ names }"
                     >
-                      + {{ names.length - 1 }} More files
-                    </b-badge>
-                  </template>
-                </b-form-file>
+                      <b-badge variant="primary">
+                        {{ names[0] }}
+                      </b-badge>
+                      <b-badge
+                        v-if="names.length > 1"
+                        variant="primary"
+                      >
+                        + {{ names.length - 1 }} More files
+                      </b-badge>
+                    </template>
+                  </b-form-file>
+                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </validation-provider>
               </b-form-group>
             </b-col>
           </b-row>
@@ -92,7 +107,8 @@
               </b-col>
             </b-row>
           </div>
-        </b-form></validation-observer>
+        </b-form>
+      </validation-observer>
     </div>
   </b-modal>
 </template>
@@ -108,12 +124,12 @@ import {
   BFormFile,
   BBadge,
 } from 'bootstrap-vue'
-import { ref } from '@vue/composition-api'
-import useProspects from '@/composables/prospects'
+import { ref, onMounted } from '@vue/composition-api'
 import { required } from '@validations'
 import vSelect from 'vue-select'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
+import useProjects from '@/composables/projects'
 
 export default {
   components: {
@@ -131,72 +147,57 @@ export default {
     BBadge,
   },
   model: {
-    prop: 'addDocumentActive',
-    event: 'update:add-document-active',
+    prop: 'isAddDocumentActive',
+    event: 'update:is-add-document-active',
   },
   props: {
-    addDocumentActive: {
+    isAddDocumentActive: {
       type: Boolean,
       required: true,
     },
   },
-  setup() {
+  setup(_, { emit }) {
     const {
-      busy,
-      sortBy,
-      filters,
-      perPage,
-      student,
-      prospects,
-      dataMeta,
-      refetchData,
-      searchQuery,
-      currentPage,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
-    } = useProspects()
-    const selected = ref('')
-    const projectNames = ['ReactJS', 'CRM', 'Python Flask Project', 'ASP .net desktop Application', 'C++ Heavy Application', 'Vue js and Laravel']
-    const formData = ref(
-      {
-        course_title: '',
-        completed: '',
-        validUntil: '',
-      },
-    )
+      projects,
+      respResult,
+      uploadDocument,
+      fetchProjects,
+    } = useProjects()
+    const projectId = ref('')
+    const files = ref([])
+
+    onMounted(() => {
+      fetchProjects()
+    })
+
+    const onSubmit = async () => {
+      const formData = new FormData()
+      console.log(files.value)
+      for (let index = 0; index < files.value.length; index++) {
+        formData.append('files[]', files.value[index])
+      }
+      await uploadDocument(formData, projectId.value)
+      if (respResult.value.status === 200) {
+        emit('refetch-data')
+        emit('update:is-add-document-active', false)
+      }
+    }
+
     const {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
-    const onSubmit = async () => {
-    //   await updateGeneral(formData.value)
-    }
 
     return {
-      busy,
-      sortBy,
-      filters,
-      student,
-      perPage,
-      prospects,
-      dataMeta,
-      projectNames,
-      refetchData,
-      searchQuery,
-      currentPage,
-      selected,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
-      formData,
+      files,
+      projectId,
       required,
       onSubmit,
+      projects,
+      resetForm,
+      fetchProjects,
       refFormObserver,
       getValidationState,
-      resetForm,
     }
   },
 }

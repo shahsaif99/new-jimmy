@@ -20,7 +20,6 @@ class UserSeeder extends Seeder
             'last_name' => 'Galaxy',
             'email' => 'superadmin@admin.com',
             'email_verified_at' => now(),
-            'role' => 'superadmin',
             'password' =>'password'
         ]);
 

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use Hash;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -18,7 +18,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        if (! $user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'The provided credentials are incorrect.'], 403);
         }
 
@@ -29,10 +29,10 @@ class AuthController extends Controller
         }
         $token = $user->createToken('AdminPortalToken')->plainTextToken;
 
-        $role = $user->getRoleNames()[0];
         $permissions = $this->getAllPermissions($user);
+        $role = $user->getRoleNames()[0];
 
-        $userData = array_merge($user->only(['id', 'first_name', 'last_name']), ['role' => $role]);
+        $userData = array_merge($user->only(['id', 'first_name', 'last_name','name']), ['role' => $role]);
 
         return response()->json([
             'status' => true,

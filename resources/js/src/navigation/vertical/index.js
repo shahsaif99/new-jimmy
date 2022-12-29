@@ -1,5 +1,4 @@
 export default [
-
   {
     title: 'Dashboard',
     route: 'dashboard',
@@ -23,10 +22,10 @@ export default [
         resource: 'all',
       },
       {
-        title: 'Competence overview',
+        title: 'Competence',
         route: 'competenceoverview',
         icon: 'UserIcon',
-        action: 'competence-overview',
+        action: 'manage-competence',
         resource: 'all',
       },
     ],
@@ -84,21 +83,13 @@ export default [
       },
     ],
   },
-
   {
     title: 'Projects',
     icon: 'InboxIcon',
-    action: 'manage-projects',
+    action: 'projects-listings',
     resource: 'all',
-    children: [
-      {
-        title: 'Overview',
-        route: 'projectoverview',
-        icon: 'InboxIcon',
-      },
-    ],
+    route: 'projects',
   },
-
   {
     title: 'Authentication',
     icon: 'SettingsIcon',

@@ -6,8 +6,8 @@ import toaster from './toaster'
 export default function useProjects() {
   const busy = ref(false)
   const respResult = ref(null)
-  const prospects = ref([])
-  const order = ref(null)
+  const projects = ref([])
+  const project = ref(null)
   const errors = ref({})
   const toast = toaster()
   const perPage = ref(10)
@@ -21,9 +21,10 @@ export default function useProjects() {
 
   const tableColumns = [
     { key: 'id', sortable: false },
-    { key: 'title', sortable: true },
-    { key: 'created_at', sortable: false },
-    { key: 'status', sortable: false },
+    { key: 'name', sortable: true },
+    { key: 'start_date', sortable: false },
+    { key: 'end_date', sortable: false },
+    { key: 'customer', sortable: false },
     { key: 'actions' },
   ]
 
@@ -37,10 +38,10 @@ export default function useProjects() {
     }
   })
 
-  const fetchOrders = async () => {
+  const fetchProjects = async () => {
     try {
       busy.value = true
-      const response = await axios.get(route('orders.index'), {
+      const response = await axios.get(route('projects.index'), {
         params: {
           q: searchQuery.value,
           perPage: perPage.value,
@@ -49,7 +50,7 @@ export default function useProjects() {
           sortDesc: isSortDirDesc.value,
         },
       })
-      prospects.value = response.data.data
+      projects.value = response.data.data
       if (response.data.meta) {
         const { total } = response.data.meta
         totalRecords.value = total
@@ -67,10 +68,10 @@ export default function useProjects() {
     }
   }
 
-  const getOrder = async id => {
+  const getProject = async id => {
     try {
-      const response = await axios.get(route('orders.show', { id }))
-      order.value = response.data.data
+      const response = await axios.get(route('projects.show', { id }))
+      project.value = response.data.data
     } catch (error) {
       if (error.message === 'Network Error') {
         toast.error(error.message)
@@ -85,11 +86,11 @@ export default function useProjects() {
   }
 
 
-  const storeOrder = async data => {
+  const storeProject = async data => {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.post(route('orders.store'), data)
+      const response = await axios.post(route('projects.store'), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -107,11 +108,12 @@ export default function useProjects() {
     }
   }
 
-  const storeOrderDetails = async (id, data) => {
+
+  const updateProject = async data => {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.post(route('orders.store.details', id), data)
+      const response = await axios.put(route('projects.update', data.id), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -129,32 +131,16 @@ export default function useProjects() {
     }
   }
 
-
-  const updateOrderStatus = async orderData => {
-    try {
-      busy.value = true
-      const response = await axios.post(route('orders.status', orderData.id), orderData)
-      respResult.value = response
-      toast.success(response.data.message)
-    } catch (e) {
-      console.log(e)
-      if (e.response.status === 422) {
-        toast.error(e.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
-
-
-  const updateOrder = async data => {
+  const uploadDocument = async (data, id) => {
+    console.log(data)
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.put(route('orders.update', data.id), data)
+      const response = await axios.post(route('projects.upload.documents', id), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
+      console.log(error)
       if (error.message === 'Network Error') {
         toast.error(error.message)
       } else {
@@ -169,10 +155,10 @@ export default function useProjects() {
     }
   }
 
-  const deleteOrder = async id => {
+  const deleteProject = async id => {
     try {
       busy.value = true
-      const response = await axios.delete(route('orders.destroy', id))
+      const response = await axios.delete(route('projects.destroy', id))
       toast.success(response.data.message)
       respResult.value = response
     } catch (error) {
@@ -186,7 +172,7 @@ export default function useProjects() {
       busy.value = false
     }
   }
-  const resolveOrderStatus = status => {
+  const resolveProjectstatus = status => {
     if (status === 'Pending') {
       return 'warning'
     } if (status === 'Complete Information') { return 'danger' }
@@ -201,71 +187,8 @@ export default function useProjects() {
     { name: 'hello.png', attachment: 'hello' },
     { name: 'hello.png', attachment: 'hello' },
   ]
-  const staticData = [
-    {
-      projectNumber: 101, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-    {
-      projectNumber: 1001, projectName: 'Hello', startDate: '17-01-2001', endDate: '20-08-2001', customer: 'Client',
-    },
-  ]
-
-  const fields = [
-    { key: 'projectNumber' },
-    { key: 'projectName' },
-    { key: 'startDate' },
-    { key: 'endDate' },
-    { key: 'customer' },
-    { key: 'actions' },
-  ]
-
   watch([currentPage, searchQuery], () => {
-    fetchOrders()
+    fetchProjects()
   })
 
   return {
@@ -273,28 +196,25 @@ export default function useProjects() {
     sortBy,
     errors,
     perPage,
-    order,
+    project,
     dataMeta,
-    prospects,
-    storeOrder,
-    getOrder,
+    projects,
+    getProject,
     respResult,
-    updateOrder,
-    fetchOrders,
     currentPage,
     searchQuery,
     totalRecords,
     tableColumns,
-    deleteOrder,
+    deleteProject,
     isSortDirDesc,
+    updateProject,
+    fetchProjects,
+    storeProject,
     perPageOptions,
-    resolveOrderStatus,
-    storeOrderDetails,
-    updateOrderStatus,
-    staticData,
-    fields,
-    attachmentFields,
     attachmentData,
+    uploadDocument,
+    attachmentFields,
+    resolveProjectstatus,
   }
 }
 

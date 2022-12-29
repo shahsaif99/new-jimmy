@@ -1,13 +1,13 @@
 const routes = [
   {
-    path: 'projectoverview',
-    name: 'projectoverview',
+    path: 'projects',
+    name: 'projects',
     component: () => import('@/views/projects/Index.vue'),
     meta: {
-      pageTitle: 'Overview',
+      pageTitle: 'Projects',
       layout: 'vertical',
       resource: 'all',
-      action: 'manage-projects',
+      action: 'projects-listings',
       breadcrumb: [
         {
           text: 'Projects',

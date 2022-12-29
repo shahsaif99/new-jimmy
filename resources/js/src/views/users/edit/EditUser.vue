@@ -182,36 +182,10 @@
               </b-col>
 
               <!-- Field: Status -->
-              <b-col
-                cols="12"
-                md="4"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Status"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Status"
-                    :state="getValidationState(validationContext)"
-                  >
-                    <v-select
-                      placeholder="Status"
-                      v-model="userData.status"
-                      :options="statusOptions"
-                      :reduce="status => status.value"
-                      :clearable="false"
-                      input-id="title"
-                    />
-                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
+
 
               <!-- Field: Role -->
-              <b-col
+              <!-- <b-col
                 cols="12"
                 md="4"
               >
@@ -238,7 +212,7 @@
                     </b-form-invalid-feedback>
                   </b-form-group>
                 </validation-provider>
-              </b-col>
+              </b-col> -->
 
               <!-- Field: Email -->
 
@@ -324,7 +298,76 @@
                   </b-form-group>
                 </validation-provider>
               </b-col>
+              <b-col
+                cols="12"
+                md="4"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  name="Status"
+                  rules="required"
+                >
+                  <b-form-group
+                    label="Status"
+                    :state="getValidationState(validationContext)"
+                  >
+                    <v-select
+                      placeholder="Status"
+                      v-model="userData.status"
+                      :options="statusOptions"
+                      :reduce="status => status.value"
+                      :clearable="false"
+                      input-id="title"
+                    />
+                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider>
+              </b-col>
             </b-row>
+            <b-card
+              class="border mt-1"
+            >
+              <b-card-title class="mb-1">
+                User Role Permissions
+              </b-card-title>
+              <validation-provider
+                #default="validationContext"
+                name="Role"
+                rules="required"
+              >
+                <b-form-group
+                  label="Role"
+                  :state="getValidationState(validationContext)"
+                >
+                  <b-form-radio-group
+                    v-model="userData.role"
+                    value-field="name"
+                    text-field="name"
+                    :options="roles"
+                    name="radio-options"
+                    @change="selectRole"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+
+              <b-form-group label="Permissions">
+                <b-form-checkbox-group
+                  id="flavors"
+                  v-model="userData.permissions"
+                  :options="permissions"
+                  name="flavors"
+                  value-field="id"
+                  text-field="name"
+                  stacked
+                />
+              </b-form-group>
+            </b-card>
             <div class="d-flex mt-2">
               <b-button
                 variant="primary"
@@ -350,17 +393,20 @@
 
 <script>
 import {
-  BCard,
-  BButton,
-  BMedia,
-  BAvatar,
   BRow,
   BCol,
+  BForm,
+  BCard,
+  BMedia,
+  BAvatar,
+  BButton,
+  BOverlay,
   BFormGroup,
   BFormInput,
-  BForm,
-  BOverlay,
   BInputGroup,
+  BCardTitle,
+  BFormRadioGroup,
+  BFormCheckboxGroup,
   BInputGroupAppend,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
@@ -373,41 +419,37 @@ import { useInputImageRenderer } from '@core/comp-functions/forms/form-utils'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import {
-  required, alphaNum, email, min,
+  required, email, min,
 } from '@validations'
 import { togglePasswordVisibility } from '@core/mixins/ui/forms'
 import useUsers from '@/composables/users'
 import useRoles from '@/composables/roles'
+import usePermissions from '@/composables/permissions'
 
 
 export default {
   components: {
-    BCol,
     BRow,
     BCard,
-    BMedia,
+    BCol,
     BForm,
-    BAvatar,
+    BMedia,
     BButton,
     vSelect,
+    BAvatar,
     BOverlay,
+    BCardTitle,
     BFormGroup,
-    BInputGroup,
     BFormInput,
+    BInputGroup,
+    BFormRadioGroup,
+    BFormCheckboxGroup,
     BInputGroupAppend,
     ValidationProvider,
     ValidationObserver,
     BFormInvalidFeedback,
   },
   mixins: [togglePasswordVisibility],
-  data() {
-    return {
-      required,
-      min,
-      alphaNum,
-      email,
-    }
-  },
   props: {
     id: {
       type: Number,
@@ -431,8 +473,11 @@ export default {
       roles,
       fetchRoles,
     } = useRoles()
-    const userData = ref({})
 
+    const { permissions, fetchPermissionsList } = usePermissions()
+
+
+    const userData = ref({})
 
     watch(user, () => {
       userData.value = user.value
@@ -440,9 +485,15 @@ export default {
         ...userData.value,
         password: '',
         password_confirmation: '',
-        roles: userData.value.roles.map(role => role.name),
+        roles: userData.value.roles.find(role => role.name).name,
       }
     })
+
+    const selectRole = role => {
+      const roleItem = roles.value.find(item => role === item.name)
+      userData.value.permissions = roleItem.permissions.map(item => item.id)
+    }
+
     // remove index from role
 
     const resetuserData = () => {
@@ -453,9 +504,20 @@ export default {
     const passwordToggleIcon = computed(() => (passwordFieldType.value === 'password' ? 'EyeIcon' : 'EyeOffIcon'))
     // removing roles pagination
     perPage.value = null
-    onMounted(() => {
-      fetchRoles()
-      getUser(props.id)
+    onMounted(async () => {
+      await getUser(props.id)
+      await fetchRoles()
+      await fetchPermissionsList()
+      userData.value = user.value
+
+      const userRole = userData.value.roles.find(role => role.name).name
+      userData.value = {
+        ...userData.value,
+        password: '',
+        password_confirmation: '',
+        role: userRole,
+      }
+      selectRole(userRole)
     })
 
 
@@ -486,13 +548,18 @@ export default {
 
     return {
       busy,
+      min,
+      email,
       roles,
+      required,
       userData,
       onSubmit,
       resetForm,
       previewEl,
+      permissions,
       refInputEl,
       avatarText,
+      selectRole,
       removeImage,
       statusOptions,
       refFormObserver,

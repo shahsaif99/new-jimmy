@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RolesController;
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\PermissionsController;
 use App\Http\Controllers\Api\ResetPasswordController;
@@ -29,11 +30,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('/users/status/{id}', [UserController::class, 'updateStatus'])->name('users.status');
     Route::get('/users/stats', [UserController::class, 'usersStats'])->name('users.stats');
+    Route::post('/projects/documents/upload/{project}', [ProjectController::class, 'uploadDocuments'])->name('projects.upload.documents');
 
     Route::apiResources([
         'users' => UserController::class,
         'roles' => RolesController::class,
         'permissions' => PermissionsController::class,
+        'projects' => ProjectController::class,
     ]);
 
     Route::get('/dashboard/statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');

@@ -3,13 +3,13 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Project"
+    title="Edit Project"
     size="lg"
-    class="modal-add-project-active"
-    id="add-project-active"
-    @close="$emit('update:add-project-active', false)"
-    :visible="addProjectActive"
-    @hide="$emit('update:add-project-active', false)"
+    class="modal-edit-project-active"
+    id="edit-project-active"
+    @close="$emit('update:is-edit-project-active', false)"
+    :visible="isEditProjectActive"
+    @hide="$emit('update:is-edit-project-active', false)"
   >
     <div>
       <validation-observer
@@ -27,29 +27,6 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Project Number"
-                rules="required"
-              >
-                <b-form-group
-                  label="Project Number"
-                  label-for="projectnumber"
-                >
-                  <b-form-input
-                    v-model="formData.project_number"
-                    placeholder="Project Number"
-                    :state="getValidationState(validationContext)"
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
                 name="Project Name"
                 rules="required"
               >
@@ -58,17 +35,20 @@
                   label-for="projectname"
                 >
                   <b-form-input
-                    v-model="formData.project_name"
-                    placeholder="Project name"
-                    :state="getValidationState(validationContext)"
+                    v-model="formData.name"
+                    placeholder="Project Name"
+                    :state="
+                      getValidationState(
+                        validationContext
+                      )
+                    "
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
                   </b-form-invalid-feedback>
                 </b-form-group>
-              </validation-provider></b-col>
-          </b-row>
-          <b-row>
+              </validation-provider>
+            </b-col>
             <b-col
               cols="6"
               md="6"
@@ -85,8 +65,11 @@
                   <b-form-input
                     type="date"
                     v-model="formData.start_date"
-                    placeholder="00.00.0000"
-                    :state="getValidationState(validationContext)"
+                    :state="
+                      getValidationState(
+                        validationContext
+                      )
+                    "
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
@@ -109,16 +92,17 @@
                   <b-form-input
                     type="date"
                     v-model="formData.end_date"
-                    placeholder="00.00.0000"
-                    :state="getValidationState(validationContext)"
+                    :state="
+                      getValidationState(
+                        validationContext
+                      )
+                    "
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
                   </b-form-invalid-feedback>
                 </b-form-group>
               </validation-provider></b-col>
-          </b-row>
-          <b-row>
             <b-col
               cols="6"
               md="6"
@@ -135,7 +119,11 @@
                   <b-form-input
                     v-model="formData.customer"
                     placeholder="Customer"
-                    :state="getValidationState(validationContext)"
+                    :state="
+                      getValidationState(
+                        validationContext
+                      )
+                    "
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
@@ -147,21 +135,20 @@
           <div class="mb-2">
             <b-row>
               <b-col>
-                <div
-                  class="d-flex align-items-center justify-content-end"
-                >
+                <div class="d-flex align-items-center justify-content-end">
                   <b-button
                     variant="primary"
                     class="mt-1"
                     type="submit"
                   >
-                    <span class="text-nowrap">Submit</span>
+                    <span class="text-nowrap">Update</span>
                   </b-button>
                 </div>
               </b-col>
             </b-row>
           </div>
-        </b-form></validation-observer>
+        </b-form>
+      </validation-observer>
     </div>
   </b-modal>
 </template>
@@ -175,17 +162,15 @@ import {
   BButton,
   BFormGroup,
   BFormInvalidFeedback,
-
 } from 'bootstrap-vue'
-import { ref } from '@vue/composition-api'
-import useProspects from '@/composables/prospects'
+import { ref, onMounted } from '@vue/composition-api'
+import useProjects from '@/composables/projects'
 import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 
 export default {
   components: {
-    // Export,
     BCol,
     BRow,
     BForm,
@@ -197,84 +182,75 @@ export default {
     BFormInvalidFeedback,
   },
   model: {
-    prop: 'addProjectActive',
-    event: 'update:add-project-active',
+    prop: 'isEditProjectActive',
+    event: 'update:is-edit-project-active',
   },
   props: {
-    addProjectActive: {
+    isEditProjectActive: {
       type: Boolean,
       required: true,
     },
+    project: {
+      type: Object,
+      required: true,
+    },
   },
-  setup() {
+  setup(props, { emit }) {
+    const initialState = {
+      name: '',
+      start_date: '',
+      end_date: '',
+      customer: '',
+    }
+
+    const formData = ref({ })
     const {
       busy,
-      sortBy,
-      filters,
-      perPage,
-      student,
-      prospects,
-      dataMeta,
-      refetchData,
-      searchQuery,
-      currentPage,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
-    } = useProspects()
+      respResult,
+      updateProject,
+    } = useProjects()
 
-    const option = ['John', 'David', 'Messi', 'Ronaldo', 'Pedri', 'Tom']
-    const formData = ref(
-      {
-        project_number: '',
-        project_name: '',
-        start_date: '',
-        end_date: '',
-        customer: '',
-      },
-    )
-    const {
-      refFormObserver, getValidationState, resetForm,
-    } = formValidation()
+    onMounted(() => {
+      if (props.project) {
+        formData.value = { ...props.project }
+      }
+    })
+
+    const resetForm = () => {
+
+    }
+
 
     const onSubmit = async () => {
-    //   await updateGeneral(formData.value)
+      await updateProject(formData.value)
+      if (respResult.value.status === 200) {
+        emit('refetch-data')
+        emit('update:is-edit-project-active', false)
+      }
     }
+    const {
+      refFormObserver, getValidationState,
+    } = formValidation()
 
     return {
       busy,
-      sortBy,
-      filters,
-      student,
-      perPage,
-      prospects,
-      dataMeta,
-      option,
-      refetchData,
-      searchQuery,
-      currentPage,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
       formData,
       required,
       onSubmit,
+      resetForm,
       refFormObserver,
       getValidationState,
-      resetForm,
     }
   },
 }
 </script>
-    <style lang="scss" scoped>
-    .per-page-selector {
-    width: 90px;
-    }
-    </style>
+  <style lang="scss" scoped>
+  .per-page-selector {
+      width: 90px;
+  }
+  </style>
 
-    <style lang="scss">
-    @import '~@core/scss/vue/libs/vue-select.scss';
-    </style>
+  <style lang="scss">
+  @import "~@core/scss/vue/libs/vue-select.scss";
+  </style>
 

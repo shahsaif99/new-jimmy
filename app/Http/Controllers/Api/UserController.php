@@ -50,9 +50,12 @@ class UserController extends Controller
         }
 
         $user = User::create($data);
-        // $user->assignRole($request->role);
-
-        $user->givePermissionTo($request->permissions);
+        if($request->role){
+            $user->assignRole($request->role);
+        }
+        if($request->permissions){
+            $user->givePermissionTo($request->permissions);
+        }
 
 
         return response()->json(['message' => 'User successfully created.'], 200);
@@ -66,7 +69,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return new UserResource($user->load('roles'));
+        return new UserResource($user->load('roles.permissions'));
     }
 
     /**
@@ -90,8 +93,12 @@ class UserController extends Controller
             $data['avatar'] = $avatar;
         }
         $user->update($data);
-        // $user->syncRoles($request->roles);
-        $user->givePermissionTo($request->permissions);
+        if($request->role){
+            $user->syncRoles($request->role);
+        }
+        if($request->permissions){
+            $user->syncPermissions($request->permissions);
+        }
 
         return response()->json(['message' => 'User successfully updated.'], 200);
     }
