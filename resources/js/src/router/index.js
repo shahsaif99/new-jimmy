@@ -9,7 +9,7 @@ import AccountRoutes from './account'
 import generalRoutes from './general'
 import usersRoutes from './users'
 import projectRoutes from './project'
-import equipmentRoutes from './equipment'
+import equipmentsRoutes from './equipments'
 import employeeRoutes from './employee'
 import documentRoutes from './document'
 import rolesRoutes from './roles'
@@ -39,8 +39,8 @@ const router = new Router({
         ...AccountRoutes,
         ...documentRoutes,
         ...projectRoutes,
-        ...equipmentRoutes,
         ...rolesRoutes,
+        ...equipmentsRoutes,
         ...permissionsRoutes,
         ...generalRoutes,
       ],

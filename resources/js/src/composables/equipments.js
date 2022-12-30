@@ -3,11 +3,11 @@ import { computed, ref, watch } from '@vue/composition-api'
 import route from 'ziggy-js'
 import toaster from './toaster'
 
-export default function useProjects() {
+export default function useEquipments() {
   const busy = ref(false)
   const respResult = ref(null)
-  const projects = ref([])
-  const project = ref(null)
+  const equipments = ref([])
+  const equipment = ref(null)
   const errors = ref({})
   const toast = toaster()
   const perPage = ref(10)
@@ -22,9 +22,13 @@ export default function useProjects() {
   const tableColumns = [
     { key: 'id', sortable: false },
     { key: 'name', sortable: true },
-    { key: 'start_date', sortable: false },
-    { key: 'end_date', sortable: false },
-    { key: 'customer', sortable: false },
+    { key: 'serial_number', sortable: false },
+    { key: 'supplier', sortable: false },
+    { key: 'category', sortable: false },
+    { key: 'certificate_number', sortable: false },
+    { key: 'valid_until', sortable: false },
+    { key: 'project.name', sortable: false, label: 'Project' },
+    { key: 'created_at', sortable: false },
     { key: 'actions' },
   ]
 
@@ -38,10 +42,10 @@ export default function useProjects() {
     }
   })
 
-  const fetchProjects = async () => {
+  const fetchEquipments = async () => {
     try {
       busy.value = true
-      const response = await axios.get(route('projects.index'), {
+      const response = await axios.get(route('equipments.index'), {
         params: {
           q: searchQuery.value,
           perPage: perPage.value,
@@ -50,7 +54,7 @@ export default function useProjects() {
           sortDesc: isSortDirDesc.value,
         },
       })
-      projects.value = response.data.data
+      equipments.value = response.data.data
       if (response.data.meta) {
         const { total } = response.data.meta
         totalRecords.value = total
@@ -68,10 +72,10 @@ export default function useProjects() {
     }
   }
 
-  const getProject = async id => {
+  const getEquipment = async id => {
     try {
-      const response = await axios.get(route('projects.show', { id }))
-      project.value = response.data.data
+      const response = await axios.get(route('equipments.show', { id }))
+      equipment.value = response.data.data
     } catch (error) {
       if (error.message === 'Network Error') {
         toast.error(error.message)
@@ -86,11 +90,11 @@ export default function useProjects() {
   }
 
 
-  const storeProject = async data => {
+  const storeEquipment = async data => {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.post(route('projects.store'), data)
+      const response = await axios.post(route('equipments.store'), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -109,11 +113,11 @@ export default function useProjects() {
   }
 
 
-  const updateProject = async data => {
+  const updateEquipment = async data => {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.put(route('projects.update', data.id), data)
+      const response = await axios.put(route('equipments.update', data.id), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -131,34 +135,10 @@ export default function useProjects() {
     }
   }
 
-  const uploadDocument = async (data, id) => {
-    console.log(data)
-    errors.value = ''
+  const deleteEquipment = async id => {
     try {
       busy.value = true
-      const response = await axios.post(route('projects.upload.documents', id), data)
-      respResult.value = response
-      toast.success(response.data.message)
-    } catch (error) {
-      console.log(error)
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        if (error.response.status === 422) {
-          errors.value = error.response.data.errors
-        }
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
-
-  const deleteProject = async id => {
-    try {
-      busy.value = true
-      const response = await axios.delete(route('projects.destroy', id))
+      const response = await axios.delete(route('equipments.destroy', id))
       toast.success(response.data.message)
       respResult.value = response
     } catch (error) {
@@ -172,22 +152,22 @@ export default function useProjects() {
       busy.value = false
     }
   }
-  const resolveProjectstatus = status => {
+  const resolveEquipmentstatus = status => {
     if (status === 'Pending') {
       return 'warning'
     } if (status === 'Complete Information') { return 'danger' }
     return 'primary'
   }
 
-  const fetchProjectsList = async (searchString = '') => {
+  const fetchPermissionsList = async (searchString = '') => {
     busy.value = true
     try {
-      const response = await axios.get(route('projects.index'), {
+      const response = await axios.get(route('equipments.index'), {
         params: {
           q: searchString,
         },
       })
-      projects.value = response.data.data
+      equipments.value = response.data.data
     } catch (e) {
       toast.error(e.response.data.message)
     } finally {
@@ -195,17 +175,8 @@ export default function useProjects() {
     }
   }
 
-
-  const attachmentFields = [
-    { key: 'name' },
-    { key: 'attachment' },
-  ]
-  const attachmentData = [
-    { name: 'hello.png', attachment: 'hello' },
-    { name: 'hello.png', attachment: 'hello' },
-  ]
-  watch([currentPage, searchQuery], () => {
-    fetchProjects()
+  watch([currentPage, searchQuery, perPage], () => {
+    fetchEquipments()
   })
 
   return {
@@ -213,26 +184,23 @@ export default function useProjects() {
     sortBy,
     errors,
     perPage,
-    project,
+    equipment,
     dataMeta,
-    projects,
-    getProject,
+    equipments,
+    storeEquipment,
+    getEquipment,
     respResult,
+    updateEquipment,
+    fetchEquipments,
     currentPage,
     searchQuery,
     totalRecords,
     tableColumns,
-    deleteProject,
+    deleteEquipment,
     isSortDirDesc,
-    updateProject,
-    fetchProjects,
-    storeProject,
     perPageOptions,
-    attachmentData,
-    uploadDocument,
-    attachmentFields,
-    fetchProjectsList,
-    resolveProjectstatus,
+    fetchPermissionsList,
+    resolveEquipmentstatus,
   }
 }
 

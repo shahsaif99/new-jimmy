@@ -5,11 +5,11 @@
     :hide-footer="true"
     title="Add Equipment"
     size="lg"
-    class="modal-is-equipment-active"
-    id="is-equipment-active"
-    @close="$emit('update:is-equipment-active', false)"
-    :visible="isEquipmentActive"
-    @hide="$emit('update:is-equipment-active', false)"
+    class="modal-is-edit-equipment-active"
+    id="is-edit-equipment-active"
+    @close="$emit('update:is-edit-equipment-active', false)"
+    :visible="isEditEquipmentActive"
+    @hide="$emit('update:is-edit-equipment-active', false)"
   >
     <div>
       <validation-observer
@@ -59,7 +59,7 @@
                     label-for="serialno"
                   >
                     <b-form-input
-                      v-model="formData.serialNumber"
+                      v-model="formData.serial_number"
                       placeholder="Serial Number"
                       :state="getValidationState(validationContext)"
                     />
@@ -77,7 +77,6 @@
                 <validation-provider
                   #default="validationContext"
                   name="Supplier"
-                  rules="required"
                 >
                   <b-form-group
                     label="Supplier"
@@ -89,11 +88,12 @@
                       placeholder="Supplier"
                       :state="getValidationState(validationContext)"
                     />
-                    <b-form-invalid-feedback>
+                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
                       {{ validationContext.errors[0] }}
                     </b-form-invalid-feedback>
                   </b-form-group>
-                </validation-provider></b-col>
+                </validation-provider>
+              </b-col>
               <b-col
                 cols="6"
                 md="6"
@@ -101,7 +101,6 @@
                 <validation-provider
                   #default="validationContext"
                   name="Category"
-                  rules="required"
                 >
                   <b-form-group
                     label="Category"
@@ -117,7 +116,8 @@
                       {{ validationContext.errors[0] }}
                     </b-form-invalid-feedback>
                   </b-form-group>
-                </validation-provider></b-col>
+                </validation-provider>
+              </b-col>
             </b-row>
             <b-row>
               <b-col
@@ -127,7 +127,7 @@
                 <validation-provider
                   #default="validationContext"
                   name="Certificate Number"
-                  rules="required"
+                  rules="required|"
                 >
                   <b-form-group
                     label="Certificate Number"
@@ -135,7 +135,7 @@
                     class="mt-1"
                   >
                     <b-form-input
-                      v-model="formData.certificateNo"
+                      v-model="formData.certificate_number"
                       placeholder="Certificate Number"
                       :state="getValidationState(validationContext)"
                     />
@@ -143,7 +143,8 @@
                       {{ validationContext.errors[0] }}
                     </b-form-invalid-feedback>
                   </b-form-group>
-                </validation-provider></b-col>
+                </validation-provider>
+              </b-col>
               <b-col
                 cols="6"
                 md="6"
@@ -160,7 +161,7 @@
                   >
                     <b-form-input
                       type="date"
-                      v-model="formData.validUntil"
+                      v-model="formData.valid_until"
                       placeholder="Valid Until"
                       :state="getValidationState(validationContext)"
                     />
@@ -168,7 +169,54 @@
                       {{ validationContext.errors[0] }}
                     </b-form-invalid-feedback>
                   </b-form-group>
-                </validation-provider></b-col>
+                </validation-provider>
+              </b-col>
+              <b-col sm="12">
+                <ValidationProvider
+                  #default="validationContext"
+                  name="Project"
+                >
+                  <b-form-group
+                    label="Select Project"
+                    label-for="project"
+                    :state="getValidationState(validationContext)"
+                  >
+                    <v-select
+                      v-model="formData.project"
+                      class="w-full"
+                      placeholder="Type here to search projects"
+                      :options="projects"
+                      :close-on-select="true"
+                      :select-on-tab="true"
+                      :clearable="false"
+                      input-id="project"
+                      :filterable="false"
+                      label="name"
+                      @search="onSearch"
+                      :state="getValidationState(validationContext)"
+                    >
+                      <template slot="no-options">
+                        type to search projects..
+                      </template>
+                      <template
+                        slot="option"
+                        slot-scope="option"
+                      >
+                        {{ option.name }}
+                      </template>
+                      <template
+                        slot="selected-option"
+                        slot-scope="option"
+                      >
+                        {{ option.name }}
+                      </template>
+                    </v-select>
+                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </ValidationProvider>
+              </b-col>
             </b-row>
             <b-row>
               <b-col
@@ -190,7 +238,10 @@
                   label-for="files"
                   class="mt-1"
                 >
-                  <b-form-file multiple>
+                  <b-form-file
+                    multiple
+                    v-model="files"
+                  >
                     <template
                       slot="file-name"
                       slot-scope="{ names }"
@@ -219,13 +270,14 @@
                     variant="primary"
                     type="submit"
                   >
-                    <span class="text-nowrap">Submit</span>
+                    <span class="text-nowrap">Create Equipment</span>
                   </b-button>
                 </div>
               </b-col>
             </b-row>
           </div>
-        </b-form></validation-observer>
+        </b-form>
+      </validation-observer>
     </div>
   </b-modal>
 </template>
@@ -235,45 +287,52 @@ import {
   BRow,
   BCol,
   BForm,
-  BFormInput,
-  BButton,
-  BFormInvalidFeedback,
-  BFormGroup,
   BBadge,
+  BButton,
   BFormFile,
+  BFormInput,
+  BFormGroup,
+  BFormInvalidFeedback,
 } from 'bootstrap-vue'
-import { ref } from '@vue/composition-api'
-import useProspects from '@/composables/prospects'
+import { ref, onMounted } from '@vue/composition-api'
 import { required, alphaNum } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
+import useEquipments from '@/composables/equipments'
+import useProjects from '@/composables/projects'
+import debounce from 'lodash/debounce'
+import vSelect from 'vue-select'
 
 export default {
   components: {
-    // Export,
     BCol,
     BRow,
     BForm,
-    BFormInput,
+    BBadge,
     BButton,
+    vSelect,
+    BFormFile,
+    BFormInput,
+    BFormGroup,
     ValidationProvider,
     ValidationObserver,
     BFormInvalidFeedback,
-    BFormGroup,
-    BBadge,
-    BFormFile,
   },
   model: {
-    prop: 'isEquipmentActive',
-    event: 'update:is-equipment-active',
+    prop: 'isEditEquipmentActive',
+    event: 'update:is-edit-equipment-active',
   },
   props: {
-    isEquipmentActive: {
+    isEditEquipmentActive: {
       type: Boolean,
       required: true,
     },
+    equipment: {
+      type: Object,
+      required: true,
+    },
   },
-  setup() {
+  setup(props, { emit }) {
     const {
       busy,
       sortBy,
@@ -282,72 +341,103 @@ export default {
       student,
       prospects,
       dataMeta,
+      respResult,
       refetchData,
       searchQuery,
       currentPage,
       totalRecords,
       refListTable,
       isSortDirDesc,
+      updateEquipment,
       perPageOptions,
-    } = useProspects()
-    const formData = ref(
-      {
-        name: '',
-        serialNumber: '',
-        supplier: '',
-        category: '',
-        certificateNo: '',
-        validUntil: '',
-      },
-    )
+    } = useEquipments()
+
+    const { fetchProjectsList, projects } = useProjects()
+
+    const fetchAsynProjects = debounce(async (loading, name) => {
+      if (!name.length) {
+        projects.value = []
+        return
+      }
+      fetchProjectsList(name)
+      loading(false)
+    }, 350)
+
+    const formData = ref()
+    const files = ref([])
+
+    onMounted(() => {
+      if (props.equipment) {
+        console.log(props.equipment)
+        formData.value = { ...props.equipment }
+      }
+    })
+
+    const onSearch = (name, loading) => {
+      if (!name.length) {
+        projects.value = []
+        return
+      }
+      loading(true)
+      fetchAsynProjects(loading, name, this)
+    }
+
     const {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
+
     const onSubmit = async () => {
-    //   await updateGeneral(formData.value)
+      const formNewData = new FormData()
+      for (let index = 0; index < files.value.length; index++) {
+        formNewData.append('files[]', files.value[index])
+      }
+
+      formNewData.append('name', formData.value.name)
+      formNewData.append('project_id', formData.value.project.id)
+      formNewData.append('serial_number', formData.value.serial_number)
+      formNewData.append('supplier', formData.value.supplier)
+      formNewData.append('category', formData.value.category)
+      formNewData.append('certificate_number', formData.value.certificate_number)
+      formNewData.append('valid_until', formData.value.valid_until)
+      await updateEquipment(formNewData)
+      if (respResult.value.status === 200) {
+        emit('refetch-data')
+        emit('update:is-edit-equipment-active', false)
+      }
     }
 
-    const tableColumns = [
-      { key: 'title' },
-      { key: 'created' },
-      { key: 'view' },
-      { key: 'file' },
-    ]
     return {
       busy,
+      files,
       sortBy,
       filters,
       student,
       perPage,
-      prospects,
       dataMeta,
+      formData,
+      projects,
+      onSubmit,
+      required,
+      alphaNum,
+      onSearch,
+      prospects,
+      resetForm,
       refetchData,
       searchQuery,
       currentPage,
-      formData,
       totalRecords,
-      onSubmit,
       refListTable,
       isSortDirDesc,
       perPageOptions,
-      FormData,
-      tableColumns,
-      required,
-      alphaNum,
       refFormObserver,
       getValidationState,
-      resetForm,
     }
   },
 }
 </script>
-<style lang="scss" scoped>
-.per-page-selector {
-width: 90px;
-}
-</style>
 
-<style lang="scss">
-@import '~@core/scss/vue/libs/vue-select.scss';
-</style>
+  <style lang="scss">
+    @import '@core/scss/vue/libs/vue-select.scss';
+    </style>
+

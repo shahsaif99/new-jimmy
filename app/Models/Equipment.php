@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Project extends Model
+class Equipment extends Model
 {
     use HasFactory, Mediable;
 
@@ -19,9 +19,12 @@ class Project extends Model
      */
     protected $fillable = [
         'name',
-        'start_date',
-        'end_date',
-        'customer',
+        'serial_number',
+        'supplier',
+        'category',
+        'certificate_number',
+        'valid_until',
+        'project_id',
         'user_id',
     ];
 
@@ -37,7 +40,8 @@ class Project extends Model
     {
         return $query
             ->where('name', 'like', '%'.$queryString.'%')
-            ->OrWhere('customer', 'like', '%'.$queryString.'%');
+            ->OrWhere('certificate_number', 'like', '%'.$queryString.'%')
+            ->OrWhere('serial_number', 'like', '%'.$queryString.'%');
     }
 
 
@@ -59,7 +63,15 @@ class Project extends Model
         });
     }
 
-
+       /**
+     * Get the project that owns the Project
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
 
     protected static function booted()
     {

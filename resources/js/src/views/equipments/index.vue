@@ -1,32 +1,20 @@
 <template>
   <div>
-    <editLoan
-      :edit-loan-active.sync="editLoanActive"
-      v-if="editLoanActive"
+    <EditEquipment
+      :is-edit-equipment-active.sync="isEditEquipmentActive"
+      v-if="isEditEquipmentActive"
+      :equipment="equipment"
+      @refetch-data="fetchEquipments"
     />
-    <b-card>
-      <div class="mb-2">
-        <b-row>
-          <b-col>
-            <div v-if="localStorageData.role=='admin'">
-              <div
-                class="d-flex align-items-center justify-content-end"
-              >
-                <b-button
-                  variant="primary"
-                  @click="isLendingActive=true"
-                >
-                  <span class="text-nowrap">Add new</span>
-                </b-button>
-                <addloan
-                  :is-lending-active.sync="isLendingActive"
-                  v-if="isLendingActive"
-                />
-              </div>
-            </div>
-          </b-col>
-        </b-row>
-      </div>
+    <CreateEquipment
+      :is-add-equipment-active.sync="isAddEquipmentActive"
+      v-if="isAddEquipmentActive"
+      @refetch-data="fetchEquipments"
+    />
+    <b-card
+      no-body
+      class="mb-0"
+    >
       <div class="m-2">
         <b-row>
           <b-col
@@ -43,6 +31,14 @@
               class="per-page-selector d-inline-block mx-50"
             />
             <label>entries</label>
+            <b-button
+              variant="primary"
+              v-if="$can('equipments-add', 'all')"
+              @click="isAddEquipmentActive = true"
+              class="ml-2"
+            >
+              <span class="text-nowrap">Add New Equipment</span>
+            </b-button>
           </b-col>
           <b-col
             cols="12"
@@ -60,7 +56,6 @@
             </div>
           </b-col>
         </b-row>
-
       </div>
       <b-overlay
         id="overlay-background"
@@ -70,17 +65,17 @@
       >
         <b-table
           ref="refListTable"
-          class="position-relative mr-1"
+          class="position-relative"
+          :items="equipments"
           responsive
-          :items="staticData"
-          :fields="columns"
+          :fields="tableColumns"
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
         >
-          <template #cell(actions)="staticData">
+          <template #cell(actions)="data">
             <b-dropdown
               variant="link"
               no-caret
@@ -93,13 +88,13 @@
                 />
               </template>
               <b-dropdown-item
-                @click="editLoanActive=true"
+                @click="edditEquipment(data.item)"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Edit</span>
               </b-dropdown-item>
               <b-dropdown-item
-                @click="confirmDelete(staticData.id)"
+                @click="confirmDelete(data.item.id)"
               >
                 <feather-icon
                   icon="TrashIcon"
@@ -171,13 +166,13 @@ import {
   BDropdown,
   BDropdownItem,
 } from 'bootstrap-vue'
-import { ref } from '@vue/composition-api'
-// eslint-disable-next-line import/no-cycle
-import useJwt from '@/auth/jwt/useJwt'
+import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
-import useEquipment from '@/composables/equipment'
-import addloan from './addloan.vue'
-import editLoan from './editLoan.vue'
+// eslint-disable-next-line import/no-cycle
+import useEquipments from '@/composables/equipments'
+import CreateEquipment from './Create.vue'
+import EditEquipment from './Edit.vue'
+
 
 export default {
   components: {
@@ -191,10 +186,10 @@ export default {
     BOverlay,
     BFormInput,
     BPagination,
-    addloan,
     BDropdown,
     BDropdownItem,
-    editLoan,
+    EditEquipment,
+    CreateEquipment,
   },
   setup(_, { root }) {
     const {
@@ -205,45 +200,52 @@ export default {
       student,
       prospects,
       dataMeta,
+      equipments,
+      respResult,
       refetchData,
       searchQuery,
       currentPage,
+      tableColumns,
       totalRecords,
       refListTable,
-      deleteStudent,
       isSortDirDesc,
-      fetchStudents,
       perPageOptions,
-      staticData,
-      columns,
-    } = useEquipment()
+      deleteEquipment,
+      fetchEquipments,
+    } = useEquipments()
+
+
+    onMounted(() => {
+      fetchEquipments()
+    })
 
     const isExportActive = ref(false)
-    const filterKey = ref(0)
+    const isAddEquipmentActive = ref(false)
+    const isEditEquipmentActive = ref(false)
 
-    const isLendingActive = ref(false)
-    const editLoanActive = ref(false)
-    const filterUpdate = filterQuery => {
-      Object.assign(filters, filterQuery)
+    const equipment = ref({})
+    const deleteConfirmed = async id => {
+      await deleteEquipment(id)
+      if (respResult.value.status === 200) {
+        fetchEquipments()
+      }
     }
 
-    const resetFilter = () => {
-      Object.keys(filters).forEach(index => { filters[index] = null })
-      filterKey.value += 1
+    const edditEquipment = item => {
+      equipment.value = item
+      isEditEquipmentActive.value = true
     }
-    const localStorageData = JSON.parse(useJwt.getUserData())
+
+
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete student and all of linked data.', {
+        .msgBoxConfirm('Please confirm that you want to delete equipment.', {
           title: 'Please Confirm',
           size: 'sm',
         })
         .then(value => {
           if (value) {
-            deleteStudent(id)
-
-
-            fetchStudents()
+            deleteConfirmed(id)
           }
         })
     }
@@ -257,34 +259,33 @@ export default {
       perPage,
       prospects,
       dataMeta,
-      filterKey,
-      resetFilter,
+      equipment,
       refetchData,
       searchQuery,
+      equipments,
       currentPage,
-      filterUpdate,
-      columns,
+      tableColumns,
       totalRecords,
       refListTable,
       isSortDirDesc,
+      edditEquipment,
       confirmDelete,
       perPageOptions,
       isExportActive,
-      staticData,
-      isLendingActive,
-      editLoanActive,
-      localStorageData,
+      fetchEquipments,
+      deleteEquipment,
+      isAddEquipmentActive,
+      isEditEquipmentActive,
     }
   },
 }
 </script>
-  <style lang="scss" scoped>
-      .per-page-selector {
-          width: 90px;
-      }
-  </style>
+<style lang="scss" scoped>
+    .per-page-selector {
+        width: 90px;
+    }
+</style>
 
-  <style lang="scss">
-      @import '~@core/scss/vue/libs/vue-select.scss';
-  </style>
-
+<style lang="scss">
+    @import '~@core/scss/vue/libs/vue-select.scss';
+</style>

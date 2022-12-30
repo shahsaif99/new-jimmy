@@ -1,26 +1,26 @@
 <template>
   <div>
-    <editEquipment
-      :edit-equipment-active.sync="editEquipmentActive"
-      v-if="editEquipmentActive"
+    <editLoan
+      :edit-loan-active.sync="editLoanActive"
+      v-if="editLoanActive"
     />
     <b-card>
       <div class="mb-2">
         <b-row>
           <b-col>
-            <div v-if="localStorageData.role=='admin'">
+            <div>
               <div
                 class="d-flex align-items-center justify-content-end"
               >
                 <b-button
                   variant="primary"
-                  @click="isEquipmentActive=true"
+                  @click="isLendingActive=true"
                 >
                   <span class="text-nowrap">Add new</span>
                 </b-button>
-                <addEquipment
-                  :is-equipment-active.sync="isEquipmentActive"
-                  v-if="isEquipmentActive"
+                <addloan
+                  :is-lending-active.sync="isLendingActive"
+                  v-if="isLendingActive"
                 />
               </div>
             </div>
@@ -70,17 +70,17 @@
       >
         <b-table
           ref="refListTable"
-          class="position-relative"
-          :items="staticData1"
+          class="position-relative mr-1"
           responsive
-          :fields="fields"
+          :items="staticData"
+          :fields="columns"
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
         >
-          <template #cell(actions)="staticData1">
+          <template #cell(actions)="staticData">
             <b-dropdown
               variant="link"
               no-caret
@@ -93,13 +93,13 @@
                 />
               </template>
               <b-dropdown-item
-                @click="editEquipmentActive=true"
+                @click="editLoanActive=true"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Edit</span>
               </b-dropdown-item>
               <b-dropdown-item
-                @click="confirmDelete(staticData1.id)"
+                @click="confirmDelete(staticData.id)"
               >
                 <feather-icon
                   icon="TrashIcon"
@@ -172,13 +172,12 @@ import {
   BDropdownItem,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
-import vSelect from 'vue-select'
 // eslint-disable-next-line import/no-cycle
 import useJwt from '@/auth/jwt/useJwt'
+import vSelect from 'vue-select'
 import useEquipment from '@/composables/equipment'
-import addEquipment from './addEquipment.vue'
-import editEquipment from './editEquipment.vue'
-
+import addloan from './addloan.vue'
+import editLoan from './editLoan.vue'
 
 export default {
   components: {
@@ -192,10 +191,10 @@ export default {
     BOverlay,
     BFormInput,
     BPagination,
-    addEquipment,
+    addloan,
     BDropdown,
     BDropdownItem,
-    editEquipment,
+    editLoan,
   },
   setup(_, { root }) {
     const {
@@ -210,40 +209,29 @@ export default {
       searchQuery,
       currentPage,
       totalRecords,
-      staticData1,
-      fields,
       refListTable,
       deleteStudent,
       isSortDirDesc,
       fetchStudents,
       perPageOptions,
+      staticData,
+      columns,
     } = useEquipment()
-
-
-    // onMounted(() => {
-    //   fetchSupervisorsList()
-    //   fetchGroupsList()
-    //   fetchProjectsList()
-    // })
-    // watch(() => root.$route.meta.status, async status => {
-    //   filters.status = status
-    //   fetchStudents()
-    // }, {
-    //   immediate: true,
-    // })
 
     const isExportActive = ref(false)
     const filterKey = ref(0)
-    const isEquipmentActive = ref(false)
+
+    const isLendingActive = ref(false)
+    const editLoanActive = ref(false)
     const filterUpdate = filterQuery => {
       Object.assign(filters, filterQuery)
     }
-    const localStorageData = JSON.parse(useJwt.getUserData())
+
     const resetFilter = () => {
       Object.keys(filters).forEach(index => { filters[index] = null })
       filterKey.value += 1
     }
-    const editEquipmentActive = ref(false)
+    const localStorageData = JSON.parse(useJwt.getUserData())
     const confirmDelete = async id => {
       root.$bvModal
         .msgBoxConfirm('Please confirm that you want to delete student and all of linked data.', {
@@ -260,6 +248,7 @@ export default {
         })
     }
 
+
     return {
       busy,
       sortBy,
@@ -274,27 +263,28 @@ export default {
       searchQuery,
       currentPage,
       filterUpdate,
-      fields,
+      columns,
       totalRecords,
       refListTable,
       isSortDirDesc,
       confirmDelete,
       perPageOptions,
       isExportActive,
-      staticData1,
-      isEquipmentActive,
-      editEquipmentActive,
+      staticData,
+      isLendingActive,
+      editLoanActive,
       localStorageData,
     }
   },
 }
 </script>
-<style lang="scss" scoped>
-    .per-page-selector {
-        width: 90px;
-    }
-</style>
+  <style lang="scss" scoped>
+      .per-page-selector {
+          width: 90px;
+      }
+  </style>
 
-<style lang="scss">
-    @import '~@core/scss/vue/libs/vue-select.scss';
-</style>
+  <style lang="scss">
+      @import '~@core/scss/vue/libs/vue-select.scss';
+  </style>
+

@@ -53,35 +53,19 @@ export default [
       },
     ],
   },
-
   {
-    title: 'Equipment Control',
+    title: 'Equipments',
     icon: 'BriefcaseIcon',
-    action: 'equipment-view',
+    action: 'equipments-listing',
     resource: 'all',
-    children: [
-      {
-        title: 'Overview',
-        route: 'equipmentoverview',
-        icon: 'BriefcaseIcon',
-        action: 'equipment-view',
-        resource: 'all',
-      },
-      {
-        title: 'Personal equipment',
-        route: 'personalequipment',
-        icon: 'BriefcaseIcon',
-        action: 'equipment-view',
-        resource: 'all',
-      },
-      {
-        title: 'Lending History',
-        route: 'lendinghistory',
-        icon: 'BriefcaseIcon',
-        action: 'equipment-view',
-        resource: 'all',
-      },
-    ],
+    route: 'equipments',
+  },
+  {
+    title: 'Lending History',
+    icon: 'InboxIcon',
+    action: 'lending-history',
+    resource: 'all',
+    route: 'lending',
   },
   {
     title: 'Projects',
