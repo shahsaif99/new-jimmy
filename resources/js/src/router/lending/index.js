@@ -1,7 +1,7 @@
 const routes = [
   {
-    path: 'lendinghistory',
-    name: 'lendinghistory',
+    path: 'lending-history',
+    name: 'lending-history',
     component: () => import('@/views/lending/Index.vue'),
     meta: {
       pageTitle: 'Lending History',

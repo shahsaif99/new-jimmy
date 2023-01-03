@@ -175,7 +175,7 @@ import { ref } from '@vue/composition-api'
 // eslint-disable-next-line import/no-cycle
 import useJwt from '@/auth/jwt/useJwt'
 import vSelect from 'vue-select'
-import useEquipment from '@/composables/equipment'
+import useEquipment from '@/composables/equipments'
 import addloan from './addloan.vue'
 import editLoan from './editLoan.vue'
 
