@@ -65,7 +65,7 @@ export default [
     icon: 'InboxIcon',
     action: 'lendings-history',
     resource: 'all',
-    route: 'lending',
+    route: 'lending-history',
   },
   {
     title: 'Projects',
