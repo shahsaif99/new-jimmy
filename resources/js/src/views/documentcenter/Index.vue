@@ -98,8 +98,6 @@
 </template>
 
 <script>
-import useLeads from '@/composables/leads'
-import { onMounted, ref } from '@vue/composition-api'
 import {
   BCard, VBTooltip, BFormInput, BRow, BCol, BButton, BTable,
 } from 'bootstrap-vue'
@@ -120,27 +118,6 @@ export default {
   },
 
   setup() {
-    const {
-      sortBy,
-      filters,
-      perPage,
-      leads,
-      dataMeta,
-      refetchData,
-      fetchLeads,
-      searchQuery,
-      currentPage,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
-    } = useLeads()
-    const isAddLeadActive = ref(false)
-
-    onMounted(async () => {
-      fetchLeads()
-    })
-
     const StaticData = [
       {
         name: 'Bedrift',
@@ -181,20 +158,6 @@ export default {
     ]
 
     return {
-      leads,
-      sortBy,
-      filters,
-      perPage,
-      dataMeta,
-      fetchLeads,
-      searchQuery,
-      currentPage,
-      refetchData,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
-      isAddLeadActive,
       StaticData,
     }
   },

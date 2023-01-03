@@ -6,7 +6,7 @@
         <h2 class="mb-2">
           Information board
         </h2>
-        <div v-if="localStorageData.role=='admin'">
+        <div>
           <div class="mb-2">
             <b-row>
               <b-col>

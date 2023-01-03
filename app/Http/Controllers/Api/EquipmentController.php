@@ -20,7 +20,7 @@ class EquipmentController extends Controller
     public function index(Request $request)
     {
         $equipments = Equipment::query()
-            ->with('project:id,name')
+            ->with('project:id,name', 'media')
             ->search($request->q)
             ->applyFilters($request)
             ->when($request->perPage, function ($query, $perPage) {
@@ -46,6 +46,8 @@ class EquipmentController extends Controller
         if ($request->hasFile('files')) {
             $this->uploadDocuments($request, $equipment);
         }
+
+
 
         return response()->json([
             'message' => 'Equipment successfully created.',
@@ -75,13 +77,13 @@ class EquipmentController extends Controller
     {
         $equipment->update($request->validated());
 
-        if ($request->hasFile('files')) {
-            if ($equipment->media->count() > 0) {
-                $equipment->media->each(function ($media) {
-                    $media->delete();
-                });
-            }
-        }
+        // if ($request->hasFile('files')) {
+        //     if ($equipment->media->count() > 0) {
+        //         $equipment->media->each(function ($media) {
+        //             $media->delete();
+        //         });
+        //     }
+        // }
 
         if ($request->hasFile('files')) {
             $this->uploadDocuments($request, $equipment);

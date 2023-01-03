@@ -12,6 +12,7 @@ import projectRoutes from './project'
 import equipmentsRoutes from './equipments'
 import employeeRoutes from './employee'
 import documentRoutes from './document'
+import competenceRoutes from './competence'
 import rolesRoutes from './roles'
 import permissionsRoutes from './permissions'
 // routes
@@ -42,6 +43,7 @@ const router = new Router({
         ...rolesRoutes,
         ...equipmentsRoutes,
         ...permissionsRoutes,
+        ...competenceRoutes,
         ...generalRoutes,
       ],
     },

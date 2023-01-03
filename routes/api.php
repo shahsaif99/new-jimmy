@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EquipmentController;
+use App\Http\Controllers\Api\CompetenceController;
 use App\Http\Controllers\Api\PermissionsController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\ForgotPasswordController;
@@ -39,6 +40,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'permissions' => PermissionsController::class,
         'projects' => ProjectController::class,
         'equipments' => EquipmentController::class,
+        'competences' => CompetenceController::class,
     ]);
 
     Route::get('/dashboard/statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');

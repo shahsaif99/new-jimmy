@@ -7,7 +7,7 @@ const routes = [
       pageTitle: 'Equipments',
       layout: 'vertical',
       resource: 'all',
-      action: 'equipments-view',
+      action: 'equipment-view',
       breadcrumb: [
         {
           text: 'Equipments',
@@ -16,6 +16,7 @@ const routes = [
       ],
     },
   },
+
 
 ]
 

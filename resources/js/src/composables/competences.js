@@ -3,11 +3,11 @@ import { computed, ref, watch } from '@vue/composition-api'
 import route from 'ziggy-js'
 import toaster from './toaster'
 
-export default function useLeads() {
+export default function useCompetences() {
   const busy = ref(false)
   const respResult = ref(null)
-  const leads = ref([])
-  const order = ref(null)
+  const competences = ref([])
+  const competence = ref(null)
   const errors = ref({})
   const toast = toaster()
   const perPage = ref(10)
@@ -21,11 +21,9 @@ export default function useLeads() {
 
   const tableColumns = [
     { key: 'name', sortable: true },
-    { key: 'email', sortable: true },
-    { key: 'created_at', sortable: false, label: 'Date added' },
-    { key: 'status', sortable: false },
-    { key: 'broker.name', sortable: false, label: 'Broker' },
-    { key: 'amount_currency', sortable: false, label: 'amount' },
+    { key: 'completed_date', sortable: false },
+    { key: 'valid_until', sortable: false },
+    // { key: 'file', sortable: false },
     { key: 'actions' },
   ]
 
@@ -39,10 +37,10 @@ export default function useLeads() {
     }
   })
 
-  const fetchLeads = async () => {
+  const fetchCompetences = async () => {
     try {
       busy.value = true
-      const response = await axios.get(route('leads.index'), {
+      const response = await axios.get(route('competences.index'), {
         params: {
           q: searchQuery.value,
           perPage: perPage.value,
@@ -51,7 +49,7 @@ export default function useLeads() {
           sortDesc: isSortDirDesc.value,
         },
       })
-      leads.value = response.data.data
+      competences.value = response.data.data
       if (response.data.meta) {
         const { total } = response.data.meta
         totalRecords.value = total
@@ -69,225 +67,171 @@ export default function useLeads() {
     }
   }
 
-  const fetchKanBanLeads = async () => {
+  const getCompetence = async id => {
+    try {
+      const response = await axios.get(route('competences.show', { id }))
+      competence.value = response.data.data
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        if (error.response.status === 422) {
+          errors.value = error.response.data.errors
+        }
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    }
+  }
+
+
+  const storeCompetence = async data => {
+    errors.value = ''
     try {
       busy.value = true
-      const response = await axios.get(route('leads.kanban'), {
+      const response = await axios.post(route('competences.store'), data)
+      respResult.value = response
+      toast.success(response.data.message)
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        if (error.response.status === 422) {
+          errors.value = error.response.data.errors
+        }
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+
+
+  const updateCompetence = async data => {
+    errors.value = ''
+    try {
+      busy.value = true
+      const response = await axios.put(route('competences.update', data.id), data)
+      respResult.value = response
+      toast.success(response.data.message)
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        if (error.response.status === 422) {
+          errors.value = error.response.data.errors
+        }
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+
+  const uploadDocument = async (data, id) => {
+    console.log(data)
+    errors.value = ''
+    try {
+      busy.value = true
+      const response = await axios.post(route('competences.upload.documents', id), data)
+      respResult.value = response
+      toast.success(response.data.message)
+    } catch (error) {
+      console.log(error)
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        if (error.response.status === 422) {
+          errors.value = error.response.data.errors
+        }
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+
+  const deleteCompetence = async id => {
+    try {
+      busy.value = true
+      const response = await axios.delete(route('competences.destroy', id))
+      toast.success(response.data.message)
+      respResult.value = response
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+  const resolveCompetencestatus = status => {
+    if (status === 'Pending') {
+      return 'warning'
+    } if (status === 'Complete Information') { return 'danger' }
+    return 'primary'
+  }
+
+  const fetchCompetencesList = async (searchString = '') => {
+    busy.value = true
+    try {
+      const response = await axios.get(route('competences.index'), {
         params: {
+          q: searchString,
         },
       })
-      leads.value = response.data.data
-      console.log(leads.value)
-      if (response.data.meta) {
-        const { total } = response.data.meta
-        totalRecords.value = total
-      }
-    } catch (error) {
-      console.log(error)
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
-
-  const getLead = async id => {
-    try {
-      const response = await axios.get(route('leads.show', { id }))
-      order.value = response.data.data
-    } catch (error) {
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        if (error.response.status === 422) {
-          errors.value = error.response.data.errors
-        }
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
-    }
-  }
-
-  const assignBroker = async data => {
-    errors.value = ''
-    try {
-      busy.value = true
-      const response = await axios.post(route('leads.assign.broker'), data)
-      respResult.value = response
-      toast.success(response.data.message)
-    } catch (error) {
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        if (error.response.status === 422) {
-          errors.value = error.response.data.errors
-        }
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
+      competences.value = response.data.data
+    } catch (e) {
+      toast.error(e.response.data.message)
     } finally {
       busy.value = false
     }
   }
 
 
-  const storeLead = async data => {
-    errors.value = ''
-    try {
-      busy.value = true
-      const response = await axios.post(route('leads.store'), data)
-      respResult.value = response
-      toast.success(response.data.message)
-    } catch (error) {
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        if (error.response.status === 422) {
-          errors.value = error.response.data.errors
-        }
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
-
-  const storeOrderDetails = async (id, data) => {
-    errors.value = ''
-    try {
-      busy.value = true
-      const response = await axios.post(route('leads.store.details', id), data)
-      respResult.value = response
-      toast.success(response.data.message)
-    } catch (error) {
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        if (error.response.status === 422) {
-          errors.value = error.response.data.errors
-        }
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
-
-  const updateLead = async data => {
-    errors.value = ''
-    try {
-      busy.value = true
-      const response = await axios.put(route('leads.update', data.id), data)
-      respResult.value = response
-      toast.success(response.data.message)
-    } catch (error) {
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        if (error.response.status === 422) {
-          errors.value = error.response.data.errors
-        }
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
-
-  const updateKanban = async (leadId, status) => {
-    errors.value = ''
-    try {
-      busy.value = true
-      const response = await axios.post(route('leads.kanban.update', leadId), { status })
-      respResult.value = response
-      toast.success(response.data.message)
-    } catch (error) {
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        if (error.response.status === 422) {
-          errors.value = error.response.data.errors
-        }
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
-
-
-  const deleteLead = async id => {
-    try {
-      busy.value = true
-      const response = await axios.delete(route('leads.destroy', id))
-      toast.success(response.data.message)
-      respResult.value = response
-    } catch (error) {
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
-  const resolvePayDayStatus = leadStatus => {
-    if (leadStatus === 'lead') { return '- 4 days' }
-    if (leadStatus === 'application') { return '- 3 days' }
-    if (leadStatus === 'submitted') { return '- 2 days' }
-    if (leadStatus === 'approved') { return '- tomorrow' }
-    if (leadStatus === 'settled') { return '- today' }
-    return ''
-  }
-
-  const resolveLeadStatus = leadStatus => {
-    if (leadStatus === 'lead') { return 'danger' }
-    if (leadStatus === 'application') { return 'warning' }
-    if (leadStatus === 'submitted') { return 'info' }
-    if (leadStatus === 'approved') { return 'primary' }
-    if (leadStatus === 'settled') { return 'success' }
-    return ''
-  }
-
+  const attachmentFields = [
+    { key: 'name' },
+    { key: 'attachment' },
+  ]
+  const attachmentData = [
+    { name: 'hello.png', attachment: 'hello' },
+    { name: 'hello.png', attachment: 'hello' },
+  ]
   watch([currentPage, searchQuery], () => {
-    fetchLeads()
+    fetchCompetences()
   })
 
   return {
     busy,
     sortBy,
     errors,
-    order,
-    leads,
     perPage,
+    competence,
     dataMeta,
-    storeLead,
-    getLead,
+    competences,
+    getCompetence,
     respResult,
-    updateLead,
-    fetchLeads,
     currentPage,
-    updateKanban,
-    deleteLead,
-    assignBroker,
     searchQuery,
     totalRecords,
     tableColumns,
+    deleteCompetence,
     isSortDirDesc,
+    updateCompetence,
+    fetchCompetences,
+    storeCompetence,
     perPageOptions,
-    fetchKanBanLeads,
-    resolvePayDayStatus,
-    storeOrderDetails,
-    resolveLeadStatus,
+    attachmentData,
+    uploadDocument,
+    attachmentFields,
+    fetchCompetencesList,
+    resolveCompetencestatus,
   }
 }
+

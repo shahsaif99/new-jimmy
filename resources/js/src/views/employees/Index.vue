@@ -1,32 +1,14 @@
 <template>
   <div>
-    <editEmployee
+    <EditEmployee
       :edit-employee-active.sync="editEmployeeActive"
       v-if="editEmployeeActive"
     />
+    <AddEmployee
+      :add-employee-active.sync="addEmployeeActive"
+      v-if="addEmployeeActive"
+    />
     <b-card>
-      <div class="mb-2">
-        <b-row>
-          <b-col>
-            <div v-if="localStorageData.role=='admin'">
-              <div
-                class="d-flex align-items-center justify-content-end"
-              >
-                <b-button
-                  variant="primary"
-                  @click="addEmployeeActive=true"
-                >
-                  <span class="text-nowrap">Add new</span>
-                </b-button>
-                <addEmployee
-                  :add-employee-active.sync="addEmployeeActive"
-                  v-if="addEmployeeActive"
-                />
-              </div>
-            </div>
-          </b-col>
-        </b-row>
-      </div>
       <div class="mb-2">
         <b-row>
           <b-col
@@ -43,6 +25,15 @@
               class="per-page-selector d-inline-block mx-50"
             />
             <label>entries</label>
+
+            <b-button
+              class="d-inline-block ml-1"
+              v-if="$can('employee-add', 'all')"
+              variant="primary"
+              @click="$router.push({ name: 'employee-add' })"
+            >
+              <span class="text-nowrap">Add Employee</span>
+            </b-button>
           </b-col>
           <b-col
             cols="12"
@@ -69,50 +60,34 @@
         <b-table
           ref="refListTable"
           class="position-relative"
-          :fields="columns"
-          :items="staticData"
+          :items="users"
           responsive
+          :fields="employeeTableColumns"
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
         >
-          <template #cell(avatar)="staticData">
-            <b-media vertical-align="center">
-              <template #aside>
-                <!-- <b-avatar
-                  size="32"
-                  :src="StaticData.avatar_url"
-                  :text="avatarText(StaticData.name)"
-                  variant="light-success"
-                /> -->
-              </template>
-              <b-link
-                class="font-weight-bold d-block text-nowrap"
-              >
-                {{ staticData.name }}
-              </b-link>
-              <!-- <small class="text-muted">@{{ data.item.email }}</small> -->
-            </b-media>
-          </template>
-          <!-- Column: Status -->
-          <template #cell(status)="staticData">
+          <template #cell(status)="data">
             <div>
               <b-form-checkbox
-                :checked="staticData.status"
+                :checked="data.item.status"
                 class="custom-control-success"
                 name="check-button"
-                @change="onChangeStatus(staticData.id, staticData.status)"
+                @change="onChangeStatus(data.item.id, data.item.status)"
                 switch
               />
             </div>
           </template>
-          <template #cell(actions)="staticData">
+
+          <!-- Column: Actions -->
+          <template #cell(actions)="data">
             <b-dropdown
               variant="link"
               no-caret
             >
+
               <template #button-content>
                 <feather-icon
                   icon="MoreVerticalIcon"
@@ -121,19 +96,23 @@
                 />
               </template>
               <b-dropdown-item
-                @click="editEmployeeActive=true"
+                @click="$router.push({ name: 'employee-edit', params: { id: data.item.id } })"
+                v-if="$can('employee-edit', 'all')"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Edit</span>
               </b-dropdown-item>
+
               <b-dropdown-item
-                @click="confirmDelete(staticData.id)"
+                @click="confirmDelete(data.item.id)"
+                v-if="$can('employee-delete', 'all')"
               >
                 <feather-icon
                   icon="TrashIcon"
                 />
                 <span class="align-middle ml-50">Delete</span>
               </b-dropdown-item>
+
             </b-dropdown>
           </template>
 
@@ -191,26 +170,23 @@
 <script>
 import {
   BButton, BCard, BCol, BDropdown,
-  BDropdownItem, BFormCheckbox, BFormInput, BOverlay, BPagination, BRow, BTable, BMedia, BLink,
+  BDropdownItem, BFormCheckbox, BFormInput, BOverlay, BPagination, BRow, BTable,
 } from 'bootstrap-vue'
-import { ref } from '@vue/composition-api'
+import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
-import useEmployee from '@/composables/employee'
+import useUsers from '@/composables/users'
 // eslint-disable-next-line import/no-cycle
 import useJwt from '@/auth/jwt/useJwt'
-import addEmployee from './addEmployee.vue'
-import editEmployee from './editEmployee.vue'
+import AddEmployee from './add/Add.vue'
+import EditEmployee from './edit/Edit.vue'
 
 
 export default {
   components: {
-    // Export,
     BRow,
     BCol,
-    BLink,
     BCard,
     BTable,
-    BMedia,
     BButton,
     vSelect,
     BOverlay,
@@ -219,85 +195,103 @@ export default {
     BPagination,
     BDropdownItem,
     BFormCheckbox,
-    addEmployee,
-    editEmployee,
+    AddEmployee,
+    EditEmployee,
   },
   setup(_, { root }) {
     const {
       busy,
+      users,
       sortBy,
       filters,
       perPage,
-      student,
-      prospects,
       dataMeta,
+      respResult,
       refetchData,
       searchQuery,
+      deleteUser,
+      fetchUsers,
       currentPage,
       totalRecords,
       refListTable,
-      deleteStudent,
       isSortDirDesc,
-      fetchStudents,
       perPageOptions,
-      staticData,
-      columns,
-    } = useEmployee()
+      updateUserStatus,
+      employeeTableColumns,
+    } = useUsers()
 
     const isExportActive = ref(false)
     const filterKey = ref(0)
     const addEmployeeActive = ref(false)
     const editEmployeeActive = ref(false)
 
-    const filterUpdate = filterQuery => {
-      Object.assign(filters, filterQuery)
+    onMounted(() => {
+      filters.role = 'Employee'
+      fetchUsers()
+    })
+
+    // onChangeStatus
+    const onChangeStatus = (id, status) => {
+      const newStatus = status ? 0 : 1
+      const userStatus = users.value.find(_user => _user.id === id)
+      // userStatus.status = newStatus
+      root.$bvToast.toast(`Employee ${userStatus.name} status changed to ${newStatus ? 'Active' : 'Inactive'}`, {
+        title: 'Success',
+        variant: 'success',
+        solid: true,
+        autoHideDelay: 8000,
+      })
+
+      const payload = {
+        id,
+        status: newStatus,
+      }
+      updateUserStatus(payload)
+      // update user status by axios
     }
 
-    const localStorageData = JSON.parse(useJwt.getUserData())
-    const resetFilter = () => {
-      Object.keys(filters).forEach(index => { filters[index] = null })
-      filterKey.value += 1
+
+    const deleteUserConfirmed = async id => {
+      await deleteUser(id)
+      if (respResult.value.status === 200) {
+        fetchUsers()
+      }
     }
+
+
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete student and all of linked data.', {
+        .msgBoxConfirm('Please confirm that you want to delete employee.', {
           title: 'Please Confirm',
           size: 'sm',
         })
         .then(value => {
           if (value) {
-            deleteStudent(id)
-
-
-            fetchStudents()
+            deleteUserConfirmed(id)
           }
         })
     }
     return {
       busy,
       sortBy,
+      users,
       filters,
-      student,
       perPage,
-      prospects,
       dataMeta,
       filterKey,
-      resetFilter,
       refetchData,
       searchQuery,
       currentPage,
-      filterUpdate,
-      columns,
       totalRecords,
       refListTable,
       isSortDirDesc,
       confirmDelete,
+      onChangeStatus,
       perPageOptions,
       isExportActive,
-      staticData,
       addEmployeeActive,
       editEmployeeActive,
-      localStorageData,
+      employeeTableColumns,
     }
   },
 }

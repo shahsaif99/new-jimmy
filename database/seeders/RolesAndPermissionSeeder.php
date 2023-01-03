@@ -20,8 +20,9 @@ class RolesAndPermissionSeeder extends Seeder
 
         $arrayOfPermissionNames = [
             'manage-permissions', 'manage-roles', 'projects-listings', 'dashboard',
-            'authentication', 'manage-users', 'manage-competence', 'document-center', 'equipments-listing',
-            'documentcenter', 'projects-add-documents', 'projects-add','lending-listings','equipments-add'
+            'authentication', 'manage-users', 'document-center', 'equipments-listings','employees-listings',
+            'documentcenter', 'projects-add-documents', 'projects-add','lending-listings','equipment-add','equipments-edit','equipments-delete',
+            'competence-listings','employee-delete','employee-edit','employee-add','my-profile-view','password-view','competence-add'
         ];
 
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {
@@ -32,10 +33,22 @@ class RolesAndPermissionSeeder extends Seeder
 
         $role1 = Role::create(['name' => 'Admin','guard_name' => 'sanctum']);
         $role2 = Role::create(['name' => 'Employee','guard_name' => 'sanctum']);
-        $role3 = Role::create(['name' => 'User','guard_name' => 'sanctum']);
+        // $role3 = Role::create(['name' => 'User','guard_name' => 'sanctum']);
 
         foreach ($permissions as $permission) {
             $role1->givePermissionTo($permission['name']);
+        }
+
+        $employeePermissionsArray = [
+            'projects-listings', 'dashboard',
+            'authentication', 'document-center', 'equipment-listings','employees-listings',
+            'documentcenter', 'projects-add-documents', 'lending-listings',
+            'competence-listings','my-profile-view','password-view'
+        ];
+
+
+        foreach ($employeePermissionsArray as $permission2) {
+            $role2->givePermissionTo($permission2);
         }
 
 

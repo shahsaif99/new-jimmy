@@ -29,6 +29,17 @@ class User extends Authenticatable
         'phone',
         'status',
         'avatar',
+        'address',
+        'post_address',
+        'postal_code',
+        'gender',
+        'citizen_country',
+        'position_percentage',
+        'employee_number',
+        'employement_date',
+        'end_date',
+        'dob',
+        'description',
     ];
 
     protected $guard_name = 'sanctum';
@@ -159,8 +170,18 @@ class User extends Authenticatable
     protected static function booted()
     {
         static::deleting(function ($item) {
-            // $item->students()->delete();
+            $item->competences()->delete();
             // $item->applications()->delete();
         });
+    }
+
+    /**
+     * Get all of the comments for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function competences()
+    {
+        return $this->hasMany(UsersCompetence::class, 'user_id');
     }
 }

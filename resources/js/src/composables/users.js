@@ -1,5 +1,7 @@
 import axios from '@axios'
-import { computed, ref, watch } from '@vue/composition-api'
+import {
+  computed, ref, watch, reactive,
+} from '@vue/composition-api'
 // Notification
 import route from 'ziggy-js'
 import toaster from './toaster'
@@ -21,6 +23,17 @@ export default function useUsers() {
     { key: 'status', sortable: true },
     { key: 'actions' },
   ]
+
+  const employeeTableColumns = [
+    { key: 'id', sortable: false },
+    { key: 'name' },
+    { key: 'email' },
+    { key: 'phone' },
+    { key: 'employement_date' },
+    { key: 'end_date' },
+    { key: 'status' },
+    { key: 'actions' },
+  ]
   const usersStats = ref([])
   const users = ref([])
   const roleUsers = ref([])
@@ -32,11 +45,12 @@ export default function useUsers() {
   const searchQuery = ref('')
   const sortBy = ref('id')
   const isSortDirDesc = ref(true)
-  const roleFilter = ref(null)
-  const statusFilter = ref(null)
   const userId = ref(null)
   const user = ref({})
   const errors = ref({})
+  const filters = reactive({
+    role: '',
+  })
 
   const dataMeta = computed(() => {
     const localItemsCount = refListTable.value ? refListTable.value.localItems.length : 0
@@ -64,11 +78,6 @@ export default function useUsers() {
     } finally {
       busy.value = false
     }
-  }
-
-  const getUser = async id => {
-    const response = await axios.get(route('users.show', id))
-    user.value = response.data.data
   }
 
 
@@ -123,29 +132,33 @@ export default function useUsers() {
   }
 
 
-  const fetchUsers = () => {
-    axios.get(route('users.index'), {
-      params: {
-        q: searchQuery.value,
-        perPage: perPage.value,
-        page: currentPage.value,
-        sortBy: sortBy.value,
-        sortDesc: isSortDirDesc.value,
-        role: roleFilter.value,
-        status: statusFilter.value,
-        userId: userId.value,
-      },
-    })
-      .then(response => {
-        users.value = response.data.data
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(route('users.index'), {
+        params: {
+          q: searchQuery.value,
+          perPage: perPage.value,
+          page: currentPage.value,
+          sortBy: sortBy.value,
+          sortDesc: isSortDirDesc.value,
+          ...filters,
+        },
+      })
+      users.value = response.data.data
+      if (response.data.meta) {
         const { total } = response.data.meta
         totalRecords.value = total
-      })
-      .catch(error => {
-        console.log(error)
-        // toast.error('Error fetching employee list')
-      })
+      }
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    }
   }
+
 
   const fetchUsersStats = async () => {
     busy.value = true
@@ -158,6 +171,43 @@ export default function useUsers() {
       busy.value = false
     }
   }
+
+
+  const getUser = async id => {
+    try {
+      busy.value = true
+      const response = await axios.get(route('users.show', id))
+      user.value = response.data.data
+      respResult.value = response
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+
+  const fetchUsersList = async (searchString = '') => {
+    busy.value = true
+    try {
+      const response = await axios.get(route('users.index'), {
+        params: {
+          q: searchString,
+          ...filters,
+        },
+      })
+      users.value = response.data.data
+    } catch (e) {
+      toast.error(e.response.data.message)
+    } finally {
+      busy.value = false
+    }
+  }
+
 
   const resolveUserRoleVariant = role => {
     if (role === 'Admin') return 'danger'
@@ -175,34 +225,37 @@ export default function useUsers() {
   })
 
   return {
-    errors,
-    updateUserStatus,
-    roleUsersById,
-    roleUsers,
-    userId,
-    busy,
-    respResult,
-    storeUser,
-    fetchUsers,
-    tableColumns,
-    perPage,
-    currentPage,
-    totalRecords,
-    dataMeta,
-    perPageOptions,
-    searchQuery,
-    sortBy,
-    isSortDirDesc,
-    usersStats,
-    refListTable,
-    resolveUserRoleVariant,
-    resolveUserRoleIcon,
-    refetchData,
-    getUser,
-    updateUser,
     user,
+    busy,
     users,
+    errors,
+    sortBy,
+    userId,
+    getUser,
+    filters,
+    perPage,
+    dataMeta,
+    storeUser,
+    roleUsers,
+    respResult,
+    fetchUsers,
     deleteUser,
+    searchQuery,
+    usersStats,
+    updateUser,
+    currentPage,
+    refetchData,
+    totalRecords,
+    refListTable,
+    tableColumns,
+    roleUsersById,
+    isSortDirDesc,
+    perPageOptions,
+    fetchUsersList,
     fetchUsersStats,
+    updateUserStatus,
+    resolveUserRoleIcon,
+    employeeTableColumns,
+    resolveUserRoleVariant,
   }
 }

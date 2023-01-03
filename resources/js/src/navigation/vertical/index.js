@@ -15,17 +15,17 @@ export default [
     icon: 'UsersIcon',
     children: [
       {
-        title: 'Employee Overview',
-        route: 'employeeoverview',
+        title: 'Employees',
+        route: 'employees',
         icon: 'UserIcon',
-        action: 'employee-overview',
+        action: 'employees-listings',
         resource: 'all',
       },
       {
         title: 'Competence',
-        route: 'competenceoverview',
+        route: 'competence',
         icon: 'UserIcon',
-        action: 'manage-competence',
+        action: 'competence-listings',
         resource: 'all',
       },
     ],
@@ -56,7 +56,7 @@ export default [
   {
     title: 'Equipments',
     icon: 'BriefcaseIcon',
-    action: 'equipments-listing',
+    action: 'equipments-listings',
     resource: 'all',
     route: 'equipments',
   },

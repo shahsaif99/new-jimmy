@@ -11,6 +11,12 @@
       v-if="isAddEquipmentActive"
       @refetch-data="fetchEquipments"
     />
+    <ViewEquipment
+      :is-equipment-details-active.sync="isEquipmentDetailsActive"
+      :equipment="equipment"
+      v-if="isEquipmentDetailsActive"
+      @refetch-data="fetchEquipments"
+    />
     <b-card
       no-body
       class="mb-0"
@@ -33,7 +39,7 @@
             <label>entries</label>
             <b-button
               variant="primary"
-              v-if="$can('equipments-add', 'all')"
+              v-if="$can('equipment-add', 'all')"
               @click="isAddEquipmentActive = true"
               class="ml-2"
             >
@@ -74,6 +80,8 @@
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
+          @row-clicked="viewEquipment"
+          tbody-tr-class="item-row"
         >
           <template #cell(actions)="data">
             <b-dropdown
@@ -89,12 +97,14 @@
               </template>
               <b-dropdown-item
                 @click="edditEquipment(data.item)"
+                v-if="$can('equipment-delete', 'all')"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Edit</span>
               </b-dropdown-item>
               <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
+                v-if="$can('equipment-delete', 'all')"
               >
                 <feather-icon
                   icon="TrashIcon"
@@ -172,6 +182,7 @@ import vSelect from 'vue-select'
 import useEquipments from '@/composables/equipments'
 import CreateEquipment from './Create.vue'
 import EditEquipment from './Edit.vue'
+import ViewEquipment from './View.vue'
 
 
 export default {
@@ -189,6 +200,7 @@ export default {
     BDropdown,
     BDropdownItem,
     EditEquipment,
+    ViewEquipment,
     CreateEquipment,
   },
   setup(_, { root }) {
@@ -222,8 +234,9 @@ export default {
     const isExportActive = ref(false)
     const isAddEquipmentActive = ref(false)
     const isEditEquipmentActive = ref(false)
-
+    const isEquipmentDetailsActive = ref(false)
     const equipment = ref({})
+
     const deleteConfirmed = async id => {
       await deleteEquipment(id)
       if (respResult.value.status === 200) {
@@ -234,6 +247,11 @@ export default {
     const edditEquipment = item => {
       equipment.value = item
       isEditEquipmentActive.value = true
+    }
+
+    const viewEquipment = data => {
+      isEquipmentDetailsActive.value = true
+      equipment.value = data
     }
 
 
@@ -268,6 +286,7 @@ export default {
       totalRecords,
       refListTable,
       isSortDirDesc,
+      viewEquipment,
       edditEquipment,
       confirmDelete,
       perPageOptions,
@@ -276,14 +295,18 @@ export default {
       deleteEquipment,
       isAddEquipmentActive,
       isEditEquipmentActive,
+      isEquipmentDetailsActive,
     }
   },
 }
 </script>
-<style lang="scss" scoped>
+<style lang="scss" >
     .per-page-selector {
         width: 90px;
     }
+    .item-row{
+    cursor:pointer;
+}
 </style>
 
 <style lang="scss">

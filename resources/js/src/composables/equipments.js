@@ -113,14 +113,16 @@ export default function useEquipments() {
   }
 
 
-  const updateEquipment = async data => {
+  const updateEquipment = async (data, id) => {
     errors.value = ''
     try {
+      console.log(data)
       busy.value = true
-      const response = await axios.put(route('equipments.update', data.id), data)
+      const response = await axios.post(route('equipments.update', id), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
+      console.log(error)
       if (error.message === 'Network Error') {
         toast.error(error.message)
       } else {

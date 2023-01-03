@@ -1,10 +1,10 @@
 const routes = [
   {
-    path: 'employeeoverview',
-    name: 'employeeoverview',
-    component: () => import('@/views/employeeoverview/employee/Index.vue'),
+    path: 'employees',
+    name: 'employees',
+    component: () => import('@/views/employees/Index.vue'),
     meta: {
-      pageTitle: 'Employee Overview',
+      pageTitle: 'Employees',
       layout: 'vertical',
       resource: 'all',
       action: 'employee',
@@ -17,17 +17,47 @@ const routes = [
     },
   },
   {
-    path: 'competenceoverview',
-    name: 'competenceoverview',
-    component: () => import('@/views/employeeoverview/competence/Index.vue'),
+    path: 'employee/add',
+    name: 'employee-add',
+    component: () => import('@/views/employees/add/Add.vue'),
     meta: {
-      pageTitle: 'Competence Overview',
-      layout: 'vertical',
+      pageTitle: 'Add Employee',
       resource: 'all',
-      action: 'competence-overview',
+      action: 'employee-add',
+      auth: true,
       breadcrumb: [
         {
-          text: 'Employee',
+          text: 'Employees',
+          active: false,
+          to: { name: 'employees' },
+        },
+        {
+          text: 'Add Employee',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: 'employee/edit/:id',
+    name: 'employee-edit',
+    resource: 'all',
+    action: 'employee-edit',
+    component: () => import('@/views/employees/edit/Edit.vue'),
+    props: route => ({ id: Number(route.params.id) }),
+    meta: {
+      pageTitle: 'Edit Employee',
+      resource: 'all',
+      action: 'employee-edit',
+      auth: true,
+      breadcrumb: [
+        {
+          text: 'Employees',
+          active: false,
+          to: { name: 'employees' },
+        },
+        {
+          text: 'Edit Employee',
           active: true,
         },
       ],

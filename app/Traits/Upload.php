@@ -31,4 +31,5 @@ trait Upload
         \Storage::disk('public')->put($imageName, $image->encode());
         return $imageName;
     }
+
 }

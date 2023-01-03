@@ -31,8 +31,18 @@ class UserUpdateRequest extends FormRequest
             'last_name' => ['required', 'string', 'max:50'],
             'email' => ['required', 'email', 'max:100', 'unique:users,email,'.$this->id],
             'phone' => ['nullable', 'max:30'],
+            'address' => ['nullable', 'max:150'],
+            'post_address' => ['nullable', 'max:150'],
+            'postal_code' => ['nullable', 'max:30'],
+            'gender' => ['nullable', 'max:30'],
+            'citizen_country' => ['nullable', 'max:50'],
+            'position_percentage' => ['nullable', 'max:30'],
+            'employee_number' => ['nullable', 'max:30'],
+            'employement_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date'],
+            'dob' => ['nullable', 'date'],
+            'description' => ['nullable'],
             'status' => ['required'],
-            'avatar_new' => ['nullable'],
             'password' => ['nullable', 'string', 'confirmed', Password::min(6)
             ->letters()
             ->numbers()

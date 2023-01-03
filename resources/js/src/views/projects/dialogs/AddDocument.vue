@@ -172,7 +172,6 @@ export default {
 
     const onSubmit = async () => {
       const formData = new FormData()
-      console.log(files.value)
       for (let index = 0; index < files.value.length; index++) {
         formData.append('files[]', files.value[index])
       }

@@ -3,7 +3,7 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Equipment"
+    title="Update Equipment"
     size="lg"
     class="modal-is-edit-equipment-active"
     id="is-edit-equipment-active"
@@ -270,7 +270,7 @@
                     variant="primary"
                     type="submit"
                   >
-                    <span class="text-nowrap">Create Equipment</span>
+                    <span class="text-nowrap">Update Equipment</span>
                   </b-button>
                 </div>
               </b-col>
@@ -400,7 +400,8 @@ export default {
       formNewData.append('category', formData.value.category)
       formNewData.append('certificate_number', formData.value.certificate_number)
       formNewData.append('valid_until', formData.value.valid_until)
-      await updateEquipment(formNewData)
+      formNewData.append('_method', 'put')
+      await updateEquipment(formNewData, formData.value.id)
       if (respResult.value.status === 200) {
         emit('refetch-data')
         emit('update:is-edit-equipment-active', false)

@@ -19,6 +19,17 @@ class CreateUsersTable extends Migration
             $table->string('last_name', 50);
             $table->string('email')->unique();
             $table->string('phone', 30)->nullable();
+            $table->string('address', 150)->nullable();
+            $table->string('post_address', 150)->nullable();
+            $table->string('postal_code', 30)->nullable();
+            $table->string('gender', 30)->nullable();
+            $table->string('citizen_country', 50)->nullable();
+            $table->string('position_percentage', 30)->nullable();
+            $table->string('employee_number', 30)->nullable();
+            $table->date('employement_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->date('dob')->nullable();
+            $table->text('description')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->tinyInteger('status')->default(1);
@@ -26,7 +37,6 @@ class CreateUsersTable extends Migration
             $table->rememberToken();
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable();
-            // $table->string('role', 100)->default('superadmin');
         });
     }
 
