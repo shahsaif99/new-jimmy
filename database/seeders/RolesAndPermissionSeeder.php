@@ -21,8 +21,8 @@ class RolesAndPermissionSeeder extends Seeder
         $arrayOfPermissionNames = [
             'manage-permissions', 'manage-roles', 'projects-listings', 'dashboard',
             'authentication', 'manage-users', 'document-center', 'equipments-listings','employees-listings',
-            'documentcenter', 'projects-add-documents', 'projects-add','lending-listings','equipment-add','equipments-edit','equipments-delete',
-            'competence-listings','employee-delete','employee-edit','employee-add','my-profile-view','password-view','competence-add'
+            'documentcenter', 'projects-add-documents', 'projects-add','equipment-add','equipments-edit','equipments-delete',
+            'competence-listings','employee-delete','employee-edit','employee-add','my-profile-view','password-view','competence-add','lendings-history'
         ];
 
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {
@@ -40,9 +40,9 @@ class RolesAndPermissionSeeder extends Seeder
         }
 
         $employeePermissionsArray = [
-            'projects-listings', 'dashboard',
+            'projects-listings', 'dashboard','lendings-history',
             'authentication', 'document-center', 'equipments-listings','employees-listings',
-            'documentcenter', 'projects-add-documents', 'lending-listings',
+            'documentcenter', 'projects-add-documents',
             'competence-listings','my-profile-view','password-view'
         ];
 

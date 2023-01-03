@@ -63,7 +63,7 @@ export default [
   {
     title: 'Lending History',
     icon: 'InboxIcon',
-    action: 'lending-history',
+    action: 'lendings-history',
     resource: 'all',
     route: 'lending',
   },
