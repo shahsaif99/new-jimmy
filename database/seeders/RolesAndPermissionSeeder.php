@@ -41,7 +41,7 @@ class RolesAndPermissionSeeder extends Seeder
 
         $employeePermissionsArray = [
             'projects-listings', 'dashboard',
-            'authentication', 'document-center', 'equipment-listings','employees-listings',
+            'authentication', 'document-center', 'equipments-listings','employees-listings',
             'documentcenter', 'projects-add-documents', 'lending-listings',
             'competence-listings','my-profile-view','password-view'
         ];
