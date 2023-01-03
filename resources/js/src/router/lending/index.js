@@ -1,19 +1,20 @@
 const routes = [
-{
+  {
     path: 'lendinghistory',
     name: 'lendinghistory',
-    component: () => import('@/views/equipment/lending/Index.vue'),
+    component: () => import('@/views/lending/Index.vue'),
     meta: {
       pageTitle: 'Lending History',
       layout: 'vertical',
       resource: 'all',
-      action: 'equipment-view',
+      action: 'lendings-history',
       breadcrumb: [
         {
-          text: 'Equipment Control',
+          text: 'Lending History',
           active: true,
         },
       ],
     },
   },
 ]
+export default routes
