@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RolesController;
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\LendingController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EquipmentController;
@@ -41,6 +42,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'projects' => ProjectController::class,
         'equipments' => EquipmentController::class,
         'competences' => CompetenceController::class,
+        'lendings' => LendingController::class,
     ]);
 
     Route::get('/dashboard/statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');

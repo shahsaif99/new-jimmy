@@ -81,7 +81,6 @@
                   <b-form-group
                     label="Supplier"
                     label-for="supplier"
-                    class="mt-1"
                   >
                     <b-form-input
                       v-model="formData.supplier"
@@ -105,7 +104,6 @@
                   <b-form-group
                     label="Category"
                     label-for="category"
-                    class="mt-1"
                   >
                     <b-form-input
                       v-model="formData.category"
@@ -132,7 +130,6 @@
                   <b-form-group
                     label="Certificate Number"
                     label-for="certificateNumber"
-                    class="mt-1"
                   >
                     <b-form-input
                       v-model="formData.certificate_number"
@@ -157,7 +154,6 @@
                   <b-form-group
                     label="Valid Until"
                     label-for="validUntil"
-                    class="mt-1"
                   >
                     <b-form-input
                       type="date"
@@ -175,6 +171,7 @@
                 <ValidationProvider
                   #default="validationContext"
                   name="Project"
+                  rules="required"
                 >
                   <b-form-group
                     label="Select Project"
@@ -236,7 +233,6 @@
                 <b-form-group
                   label="Add Documents/Images"
                   label-for="files"
-                  class="mt-1"
                 >
                   <b-form-file
                     multiple
@@ -266,7 +262,6 @@
                   class="d-flex align-items-center justify-content-end"
                 >
                   <b-button
-                    class="mt-1"
                     variant="primary"
                     type="submit"
                   >

@@ -175,6 +175,7 @@
                 <ValidationProvider
                   #default="validationContext"
                   name="Project"
+                  rules="required"
                 >
                   <b-form-group
                     label="Select Project"

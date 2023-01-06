@@ -1,13 +1,15 @@
 import axios from '@axios'
-import { computed, ref, watch } from '@vue/composition-api'
+import {
+  computed, ref, watch, reactive,
+} from '@vue/composition-api'
 import route from 'ziggy-js'
 import toaster from './toaster'
 
-export default function useEquipments() {
+export default function useLendings() {
   const busy = ref(false)
   const respResult = ref(null)
-  const equipments = ref([])
-  const equipment = ref(null)
+  const lendings = ref([])
+  const lending = ref(null)
   const errors = ref({})
   const toast = toaster()
   const perPage = ref(10)
@@ -19,16 +21,17 @@ export default function useEquipments() {
   const isSortDirDesc = ref(true)
   const refListTable = ref(null)
 
+  const filters = reactive({
+    equipmentId: '',
+  })
+
   const tableColumns = [
     { key: 'id', sortable: false },
-    { key: 'name', sortable: true },
-    { key: 'serial_number', sortable: false },
-    { key: 'supplier', sortable: false },
-    { key: 'category', sortable: false },
-    { key: 'certificate_number', sortable: false },
-    { key: 'valid_until', sortable: false },
-    { key: 'project.name', sortable: false, label: 'Project' },
-    { key: 'created_at', sortable: false },
+    { key: 'lending_date', sortable: true },
+    { key: 'returned_date', sortable: false },
+    { key: 'loaned_to', sortable: false },
+    { key: 'equipment.name', sortable: false, label: 'Euipment' },
+    { key: 'registered_by.name', sortable: false, label: 'Registered By' },
     { key: 'actions' },
   ]
 
@@ -42,19 +45,20 @@ export default function useEquipments() {
     }
   })
 
-  const fetchEquipments = async () => {
+  const fetchLendings = async () => {
     try {
       busy.value = true
-      const response = await axios.get(route('equipments.index'), {
+      const response = await axios.get(route('lendings.index'), {
         params: {
           q: searchQuery.value,
           perPage: perPage.value,
           page: currentPage.value,
           sortBy: sortBy.value,
           sortDesc: isSortDirDesc.value,
+          ...filters,
         },
       })
-      equipments.value = response.data.data
+      lendings.value = response.data.data
       if (response.data.meta) {
         const { total } = response.data.meta
         totalRecords.value = total
@@ -72,10 +76,10 @@ export default function useEquipments() {
     }
   }
 
-  const getEquipment = async id => {
+  const getLending = async id => {
     try {
-      const response = await axios.get(route('equipments.show', { id }))
-      equipment.value = response.data.data
+      const response = await axios.get(route('lendings.show', { id }))
+      lending.value = response.data.data
     } catch (error) {
       if (error.message === 'Network Error') {
         toast.error(error.message)
@@ -90,11 +94,11 @@ export default function useEquipments() {
   }
 
 
-  const storeEquipment = async data => {
+  const storeLending = async data => {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.post(route('equipments.store'), data)
+      const response = await axios.post(route('lendings.store'), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -113,16 +117,14 @@ export default function useEquipments() {
   }
 
 
-  const updateEquipment = async (data, id) => {
+  const updateLending = async (data, id) => {
     errors.value = ''
     try {
-      console.log(data)
       busy.value = true
-      const response = await axios.post(route('equipments.update', id), data)
+      const response = await axios.post(route('lendings.update', id), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
-      console.log(error)
       if (error.message === 'Network Error') {
         toast.error(error.message)
       } else {
@@ -137,10 +139,10 @@ export default function useEquipments() {
     }
   }
 
-  const deleteEquipment = async id => {
+  const deleteLending = async id => {
     try {
       busy.value = true
-      const response = await axios.delete(route('equipments.destroy', id))
+      const response = await axios.delete(route('lendings.destroy', id))
       toast.success(response.data.message)
       respResult.value = response
     } catch (error) {
@@ -154,22 +156,22 @@ export default function useEquipments() {
       busy.value = false
     }
   }
-  const resolveEquipmentstatus = status => {
+  const resolveLendingstatus = status => {
     if (status === 'Pending') {
       return 'warning'
     } if (status === 'Complete Information') { return 'danger' }
     return 'primary'
   }
 
-  const fetchEquipmentsList = async (searchString = '') => {
+  const fetchLendingsList = async (searchString = '') => {
     busy.value = true
     try {
-      const response = await axios.get(route('equipments.index'), {
+      const response = await axios.get(route('lendings.index'), {
         params: {
           q: searchString,
         },
       })
-      equipments.value = response.data.data
+      lendings.value = response.data.data
     } catch (e) {
       toast.error(e.response.data.message)
     } finally {
@@ -177,8 +179,17 @@ export default function useEquipments() {
     }
   }
 
+
+  const attachmentFields = [
+    { key: 'name' },
+    { key: 'attachment' },
+  ]
+  const attachmentData = [
+    { name: 'hello.png', attachment: 'hello' },
+    { name: 'hello.png', attachment: 'hello' },
+  ]
   watch([currentPage, searchQuery, perPage], () => {
-    fetchEquipments()
+    fetchLendings()
   })
 
   return {
@@ -186,23 +197,26 @@ export default function useEquipments() {
     sortBy,
     errors,
     perPage,
-    equipment,
+    lending,
     dataMeta,
-    equipments,
-    storeEquipment,
-    getEquipment,
+    filters,
+    lendings,
+    getLending,
     respResult,
-    updateEquipment,
-    fetchEquipments,
     currentPage,
     searchQuery,
     totalRecords,
     tableColumns,
-    deleteEquipment,
+    deleteLending,
     isSortDirDesc,
+    updateLending,
+    fetchLendings,
+    storeLending,
     perPageOptions,
-    fetchEquipmentsList,
-    resolveEquipmentstatus,
+    attachmentData,
+    attachmentFields,
+    fetchLendingsList,
+    resolveLendingstatus,
   }
 }
 

@@ -3,18 +3,22 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Edit Lending History"
+    title="Add Lending History"
     size="lg"
-    class="modal-edit-loan-active"
-    id="edit-loan-active"
-    @close="$emit('update:edit-loan-active', false)"
-    :visible="editLoanActive"
-    @hide="$emit('update:edit-loan-active', false)"
+    class="modal-is-add-lending-active"
+    id="is-add-lending-active"
+    @close="$emit('update:is-add-lending-active', false)"
+    :visible="isAddLendingActive"
+    @hide="$emit('update:is-add-lending-active', false)"
   >
     <div>
-      <b-card>
-        <validation-observer
-          ref="refFormObserver"
+      <validation-observer
+        ref="refFormObserver"
+        #default="{ handleSubmit }"
+      >
+        <b-form
+          @submit.prevent="handleSubmit(onSubmit)"
+          @reset.prevent="resetForm"
         >
           <div>
             <b-row>
@@ -29,11 +33,11 @@
                 >
                   <b-form-group
                     label="Lending Date"
-                    label-for="lendingdate"
+                    label-for="lending_date"
                   >
                     <b-form-input
                       type="date"
-                      v-model="formData.lendingDate"
+                      v-model="formData.lending_date"
                       placeholder="Lending Date"
                       :state="getValidationState(validationContext)"
                     />
@@ -41,7 +45,8 @@
                       {{ validationContext.errors[0] }}
                     </b-form-invalid-feedback>
                   </b-form-group>
-                </validation-provider></b-col>
+                </validation-provider>
+              </b-col>
               <b-col
                 cols="6"
                 md="6"
@@ -53,11 +58,11 @@
                 >
                   <b-form-group
                     label="Returned Date"
-                    label-for="returneddate"
+                    label-for="returned_date"
                   >
                     <b-form-input
                       type="date"
-                      v-model="formData.returnedDate"
+                      v-model="formData.returned_date"
                       placeholder="Returned Date"
                       :state="getValidationState(validationContext)"
                     />
@@ -65,9 +70,9 @@
                       {{ validationContext.errors[0] }}
                     </b-form-invalid-feedback>
                   </b-form-group>
-                </validation-provider></b-col>
-            </b-row>
-            <b-row>
+                </validation-provider>
+              </b-col>
+
               <b-col
                 cols="6"
                 md="6"
@@ -79,11 +84,10 @@
                 >
                   <b-form-group
                     label="Loaned To"
-                    label-for="loanedto"
-                    class="mt-2"
+                    label-for="loaned_to"
                   >
                     <b-form-input
-                      v-model="formData.loanedTo"
+                      v-model="formData.loaned_to"
                       placeholder="Loaned To"
                       :state="getValidationState(validationContext)"
                     />
@@ -93,34 +97,54 @@
                   </b-form-group>
                 </validation-provider>
               </b-col>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
+              <b-col sm="6">
+                <ValidationProvider
                   #default="validationContext"
-                  name="Project"
+                  name="Equipment"
                   rules="required"
                 >
                   <b-form-group
-                    label="Project"
-                    label-for="project"
-                    class="mt-2"
+                    label="Select Equipment"
+                    label-for="equipment"
+                    :state="getValidationState(validationContext)"
                   >
-                    <b-form-input
-                      v-model="formData.project"
-                      placeholder="Project"
+                    <v-select
+                      v-model="formData.equipment"
+                      class="w-full"
+                      placeholder="Type here to search equipments"
+                      :options="equipments"
+                      :close-on-select="true"
+                      :select-on-tab="true"
+                      :clearable="true"
+                      input-id="equipment"
+                      :filterable="false"
+                      label="name"
+                      @search="onSearch"
                       :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
+                    >
+                      <template slot="no-options">
+                        type to search equipments..
+                      </template>
+                      <template
+                        slot="option"
+                        slot-scope="option"
+                      >
+                        {{ option.name }} - {{ option.serial_number }}
+                      </template>
+                      <template
+                        slot="selected-option"
+                        slot-scope="option"
+                      >
+                        {{ option.name }} - {{ option.serial_number }}
+                      </template>
+                    </v-select>
+                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
                       {{ validationContext.errors[0] }}
                     </b-form-invalid-feedback>
                   </b-form-group>
-                </validation-provider>
+                </ValidationProvider>
               </b-col>
-            </b-row>
-            <b-row>
-              <b-col
+              <!-- <b-col
                 cols="6"
                 md="6"
               >
@@ -132,7 +156,6 @@
                   <b-form-group
                     label="Registered By"
                     label-for="registeredby"
-                    class="mt-2"
                   >
                     <b-form-input
                       v-model="formData.rgisteredBy"
@@ -143,14 +166,16 @@
                       {{ validationContext.errors[0] }}
                     </b-form-invalid-feedback>
                   </b-form-group>
-                </validation-provider></b-col>
+                </validation-provider>
+              </b-col> -->
             </b-row>
             <b-row>
               <b-col>
                 <div class="d-flex align-items-center justify-content-end">
                   <b-button
                     variant="primary"
-                    class="mr-2 px-5 mt-2"
+                    class="px-5 mt-2"
+                    type="submit"
                   >
                     <span class="text-nowrap">Add</span>
                   </b-button>
@@ -158,112 +183,129 @@
               </b-col>
             </b-row>
           </div>
-        </validation-observer>
-      </b-card>
+        </b-form>
+      </validation-observer>
     </div>
   </b-modal>
 </template>
 
 <script>
 import {
-  BCard,
   BRow,
   BCol,
+  BForm,
   BFormInput,
   BButton,
   BFormGroup,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
-import { ref } from '@vue/composition-api'
-import useProspects from '@/composables/prospects'
+import { ref, onMounted } from '@vue/composition-api'
+import useEquipments from '@/composables/equipments'
+import useLendings from '@/composables/lendings'
 import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
+import debounce from 'lodash/debounce'
+import vSelect from 'vue-select'
 
 export default {
   components: {
-    // Export,
     BCol,
-    BFormInvalidFeedback,
     BRow,
-    BCard,
-    BFormInput,
+    BForm,
     BButton,
+    vSelect,
     BFormGroup,
+    BFormInput,
     ValidationProvider,
     ValidationObserver,
+    BFormInvalidFeedback,
   },
   model: {
-    prop: 'editLoanActive',
-    event: 'update:edit-loan-active',
+    prop: 'isAddLendingActive',
+    event: 'update:is-add-lending-active',
   },
   props: {
-    editLoanActive: {
+    isAddLendingActive: {
       type: Boolean,
       required: true,
     },
+    equipment: {
+      type: Object,
+      default: () => {},
+    },
   },
-  setup() {
-    const {
-      busy,
-      sortBy,
-      filters,
-      perPage,
-      student,
-      prospects,
-      dataMeta,
-      refetchData,
-      searchQuery,
-      currentPage,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
-    } = useProspects()
-    const formData = ref(
-      {
-        lendingDate: '',
-        returnedDate: '',
-        loanedTo: '',
-        project: '',
-        registeredBy: '',
-      },
-    )
+  setup(props, { emit }) {
+    const initialState = {
+      lending_date: '',
+      returned_date: '',
+      loaned_to: '',
+      equipment: '',
+    }
+    const formData = ref({ ...initialState })
+
+
     const {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
+    const { storeLending, respResult } = useLendings()
+
+    const { fetchEquipmentsList, equipments } = useEquipments()
+
+    onMounted(() => {
+      if (props.equipment) {
+        formData.value.equipment = props.equipment
+      }
+    })
+
+    const fetchAsynEquipments = debounce(async (loading, name) => {
+      if (!name.length) {
+        equipments.value = []
+        return
+      }
+      fetchEquipmentsList(name)
+      loading(false)
+    }, 350)
+
+    const onSearch = (name, loading) => {
+      if (!name.length) {
+        equipments.value = []
+        return
+      }
+      loading(true)
+      fetchAsynEquipments(loading, name, this)
+    }
+
+
+    const onSubmit = async () => {
+      const formNewData = new FormData()
+
+      formNewData.append('lending_date', formData.value.lending_date)
+      formNewData.append('returned_date', formData.value.returned_date)
+      formNewData.append('loaned_to', formData.value.loaned_to)
+      formNewData.append('equipment_id', formData.value.equipment.id)
+      //   await updateGeneral(formData.value)
+      await storeLending(formNewData)
+      if (respResult.value.status === 200) {
+        emit('refetch-data')
+        emit('update:is-add-lending-active', false)
+      }
+    }
     return {
-      busy,
-      sortBy,
-      filters,
-      student,
-      perPage,
-      prospects,
-      dataMeta,
-      refetchData,
-      searchQuery,
-      currentPage,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
       formData,
       required,
-      refFormObserver,
+      onSubmit,
       resetForm,
+      onSearch,
+      equipments,
+      refFormObserver,
       getValidationState,
+      fetchAsynEquipments,
     }
   },
 }
 </script>
-    <style lang="scss" scoped>
-        .per-page-selector {
-            width: 90px;
-        }
-    </style>
-
-    <style lang="scss">
-        @import '~@core/scss/vue/libs/vue-select.scss';
-    </style>
-
+<style lang="scss">
+  @import '@core/scss/vue/libs/vue-select.scss';
+</style>

@@ -17,6 +17,12 @@
       v-if="isEquipmentDetailsActive"
       @refetch-data="fetchEquipments"
     />
+
+    <LendingHistory
+      :is-show-lending-history-active.sync="isShowLendingHistoryActive"
+      :equipment="equipment"
+      v-if="isShowLendingHistoryActive"
+    />
     <b-card
       no-body
       class="mb-0"
@@ -96,15 +102,21 @@
                 />
               </template>
               <b-dropdown-item
-                @click="edditEquipment(data.item)"
-                v-if="$can('equipment-delete', 'all')"
+                @click="editEquipment(data.item)"
+                v-if="$can('equipments-delete', 'all')"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Edit</span>
               </b-dropdown-item>
               <b-dropdown-item
+                @click="lendingEquipment(data.item)"
+              >
+                <feather-icon icon="EditIcon" />
+                <span class="align-middle ml-50">Lending History</span>
+              </b-dropdown-item>
+              <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
-                v-if="$can('equipment-delete', 'all')"
+                v-if="$can('equipments-delete', 'all')"
               >
                 <feather-icon
                   icon="TrashIcon"
@@ -183,6 +195,7 @@ import useEquipments from '@/composables/equipments'
 import CreateEquipment from './Create.vue'
 import EditEquipment from './Edit.vue'
 import ViewEquipment from './View.vue'
+import LendingHistory from './LendingHistory.vue'
 
 
 export default {
@@ -200,6 +213,7 @@ export default {
     BDropdown,
     BDropdownItem,
     EditEquipment,
+    LendingHistory,
     ViewEquipment,
     CreateEquipment,
   },
@@ -235,6 +249,7 @@ export default {
     const isAddEquipmentActive = ref(false)
     const isEditEquipmentActive = ref(false)
     const isEquipmentDetailsActive = ref(false)
+    const isShowLendingHistoryActive = ref(false)
     const equipment = ref({})
 
     const deleteConfirmed = async id => {
@@ -244,7 +259,8 @@ export default {
       }
     }
 
-    const edditEquipment = item => {
+
+    const editEquipment = item => {
       equipment.value = item
       isEditEquipmentActive.value = true
     }
@@ -254,6 +270,11 @@ export default {
       equipment.value = data
     }
 
+
+    const lendingEquipment = data => {
+      isShowLendingHistoryActive.value = true
+      equipment.value = data
+    }
 
     const confirmDelete = async id => {
       root.$bvModal
@@ -287,15 +308,17 @@ export default {
       refListTable,
       isSortDirDesc,
       viewEquipment,
-      edditEquipment,
+      editEquipment,
       confirmDelete,
       perPageOptions,
       isExportActive,
       fetchEquipments,
       deleteEquipment,
+      lendingEquipment,
       isAddEquipmentActive,
       isEditEquipmentActive,
       isEquipmentDetailsActive,
+      isShowLendingHistoryActive,
     }
   },
 }

@@ -1,32 +1,21 @@
 <template>
   <div>
-    <editLoan
-      :edit-loan-active.sync="editLoanActive"
-      v-if="editLoanActive"
+    <EditLoan
+      :is-edit-lending-active.sync="isEditLendingActive"
+      v-if="isEditLendingActive"
+      :lending="lending"
+      @refetch-data="fetchLendings"
     />
-    <b-card>
-      <div class="mb-2">
-        <b-row>
-          <b-col>
-            <div>
-              <div
-                class="d-flex align-items-center justify-content-end"
-              >
-                <b-button
-                  variant="primary"
-                  @click="isLendingActive=true"
-                >
-                  <span class="text-nowrap">Add new</span>
-                </b-button>
-                <addloan
-                  :is-lending-active.sync="isLendingActive"
-                  v-if="isLendingActive"
-                />
-              </div>
-            </div>
-          </b-col>
-        </b-row>
-      </div>
+    <AddLoan
+      :is-add-lending-active.sync="isAddLendingActive"
+      v-if="isAddLendingActive"
+      @refetch-data="fetchLendings"
+      :equipment="equipment"
+    />
+    <b-card
+      no-body
+      class="mb-0"
+    >
       <div class="m-2">
         <b-row>
           <b-col
@@ -43,6 +32,13 @@
               class="per-page-selector d-inline-block mx-50"
             />
             <label>entries</label>
+            <b-button
+              variant="primary"
+              @click="isAddLendingActive=true"
+              class="ml-1"
+            >
+              <span class="text-nowrap">Add New Lending</span>
+            </b-button>
           </b-col>
           <b-col
             cols="12"
@@ -72,15 +68,15 @@
           ref="refListTable"
           class="position-relative mr-1"
           responsive
-          :items="staticData"
-          :fields="columns"
+          :items="lendings"
+          :fields="tableColumns"
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
         >
-          <template #cell(actions)="staticData">
+          <template #cell(actions)="data">
             <b-dropdown
               variant="link"
               no-caret
@@ -93,13 +89,13 @@
                 />
               </template>
               <b-dropdown-item
-                @click="editLoanActive=true"
+                @click="editLending(data.item)"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Edit</span>
               </b-dropdown-item>
               <b-dropdown-item
-                @click="confirmDelete(staticData.id)"
+                @click="confirmDelete(data.item.id)"
               >
                 <feather-icon
                   icon="TrashIcon"
@@ -171,13 +167,12 @@ import {
   BDropdown,
   BDropdownItem,
 } from 'bootstrap-vue'
-import { ref } from '@vue/composition-api'
+import { ref, onMounted } from '@vue/composition-api'
 // eslint-disable-next-line import/no-cycle
-import useJwt from '@/auth/jwt/useJwt'
 import vSelect from 'vue-select'
-import useEquipment from '@/composables/equipments'
-import addloan from './addloan.vue'
-import editLoan from './editLoan.vue'
+import useLendings from '@/composables/lendings'
+import AddLoan from './Create.vue'
+import EditLoan from './Edit.vue'
 
 export default {
   components: {
@@ -191,89 +186,101 @@ export default {
     BOverlay,
     BFormInput,
     BPagination,
-    addloan,
+    AddLoan,
     BDropdown,
     BDropdownItem,
-    editLoan,
+    EditLoan,
   },
-  setup(_, { root }) {
+  props: {
+    equipment: {
+      type: Object,
+      default: () => {},
+    },
+  },
+  setup(props, { root }) {
     const {
       busy,
       sortBy,
       filters,
       perPage,
-      student,
-      prospects,
+      lendings,
       dataMeta,
+      respResult,
       refetchData,
       searchQuery,
       currentPage,
       totalRecords,
       refListTable,
-      deleteStudent,
+      deleteLending,
       isSortDirDesc,
-      fetchStudents,
+      fetchLendings,
       perPageOptions,
-      staticData,
-      columns,
-    } = useEquipment()
+      tableColumns,
+    } = useLendings()
+
+    onMounted(() => {
+      if (props.equipment) {
+        filters.equipmentId = props.equipment.id
+      }
+      fetchLendings()
+    })
+
 
     const isExportActive = ref(false)
     const filterKey = ref(0)
+    const isAddLendingActive = ref(false)
+    const isEditLendingActive = ref(false)
+    const lending = ref({})
 
-    const isLendingActive = ref(false)
-    const editLoanActive = ref(false)
-    const filterUpdate = filterQuery => {
-      Object.assign(filters, filterQuery)
+    const editLending = item => {
+      lending.value = item
+      isEditLendingActive.value = true
     }
 
-    const resetFilter = () => {
-      Object.keys(filters).forEach(index => { filters[index] = null })
-      filterKey.value += 1
+
+    const deleteConfirmed = async id => {
+      await deleteLending(id)
+      if (respResult.value.status === 200) {
+        fetchLendings()
+      }
     }
-    const localStorageData = JSON.parse(useJwt.getUserData())
+
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete student and all of linked data.', {
+        .msgBoxConfirm('Please confirm that you want to delete lending.', {
           title: 'Please Confirm',
           size: 'sm',
         })
         .then(value => {
           if (value) {
-            deleteStudent(id)
-
-
-            fetchStudents()
+            deleteConfirmed(id)
           }
         })
     }
-
 
     return {
       busy,
       sortBy,
       filters,
-      student,
+      lending,
       perPage,
-      prospects,
       dataMeta,
+      lendings,
       filterKey,
-      resetFilter,
       refetchData,
       searchQuery,
       currentPage,
-      filterUpdate,
-      columns,
+      tableColumns,
+      editLending,
       totalRecords,
+      fetchLendings,
       refListTable,
       isSortDirDesc,
       confirmDelete,
       perPageOptions,
       isExportActive,
-      staticData,
-      isLendingActive,
-      editLoanActive,
-      localStorageData,
+      isAddLendingActive,
+      isEditLendingActive,
     }
   },
 }
@@ -284,7 +291,7 @@ export default {
       }
   </style>
 
-  <style lang="scss">
-      @import '~@core/scss/vue/libs/vue-select.scss';
-  </style>
+<style lang="scss">
+    @import '~@core/scss/vue/libs/vue-select.scss';
+</style>
 
