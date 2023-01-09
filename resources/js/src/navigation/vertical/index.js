@@ -21,11 +21,18 @@ export default [
         action: 'employees-listings',
         resource: 'all',
       },
+
       {
         title: 'Competence',
         route: 'competence',
         icon: 'UserIcon',
         action: 'competence-listings',
+        resource: 'all',
+      },
+      {
+        title: 'Users',
+        route: 'users',
+        action: 'manage-users',
         resource: 'all',
       },
     ],
@@ -80,12 +87,7 @@ export default [
     action: 'authentication',
     resource: 'all',
     children: [
-      {
-        title: 'Users',
-        route: 'users',
-        action: 'manage-users',
-        resource: 'all',
-      },
+
       {
         title: 'Roles',
         route: 'roles',

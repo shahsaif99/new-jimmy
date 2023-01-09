@@ -3,7 +3,7 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add new Item"
+    title="Add Information"
     size="lg"
     class="modal-is-dashboard-active"
     id="is-dashboard-active"
@@ -35,38 +35,9 @@
                 label-for="information"
               >
                 <b-form-textarea
-                  v-model="formData.information"
+                  v-model="content"
                   placeholder="Information"
-                  :state="
-                    getValidationState(
-                      validationContext
-                    )
-                  "
-                />
-                <b-form-invalid-feedback>
-                  {{ validationContext.errors[0] }}
-                </b-form-invalid-feedback>
-              </b-form-group>
-            </validation-provider>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col
-            cols="12"
-            md="12"
-          >
-            <validation-provider
-              #default="validationContext"
-              name="Author"
-              rules="required"
-            >
-              <b-form-group
-                label="Author"
-                label-for="author"
-              >
-                <b-form-input
-                  v-model="formData.author"
-                  placeholder="Author"
+                  rows="6"
                   :state="
                     getValidationState(
                       validationContext
@@ -106,13 +77,12 @@ import {
   BCol,
   BForm,
   BButton,
-  BFormInput,
   BFormGroup,
   BFormTextarea,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
-import useProspects from '@/composables/prospects'
+import useInformationBoard from '@/composables/informationBoard'
 import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
@@ -124,7 +94,6 @@ export default {
     BRow,
     BForm,
     BButton,
-    BFormInput,
     BFormGroup,
     BFormTextarea,
     ValidationProvider,
@@ -141,55 +110,32 @@ export default {
       required: true,
     },
   },
-  setup() {
+  setup(_, { emit }) {
     const {
       busy,
-      sortBy,
-      filters,
-      perPage,
-      student,
-      prospects,
-      dataMeta,
-      refetchData,
-      searchQuery,
-      currentPage,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
-    } = useProspects()
+      respResult,
+      storeInformation,
+    } = useInformationBoard()
 
     const { refFormObserver, getValidationState, resetForm } = formValidation()
 
+    const content = ref('')
 
     const onSubmit = async () => {
-    //   await updateGeneral(formData.value)
+      await storeInformation({ content: content.value })
+
+      if (respResult.value.status === 200) {
+        emit('refetch-data')
+        content.value = ''
+      }
     }
 
-    const formData = ref({
-      inforamtion: '',
-      author: '',
-      given: '',
-    })
     return {
       busy,
-      sortBy,
-      filters,
-      student,
-      perPage,
+      content,
       onSubmit,
-      prospects,
-      dataMeta,
-      refetchData,
-      searchQuery,
-      formData,
       required,
       resetForm,
-      currentPage,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
       refFormObserver,
       getValidationState,
     }

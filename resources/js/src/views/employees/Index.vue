@@ -104,6 +104,14 @@
               </b-dropdown-item>
 
               <b-dropdown-item
+                @click="$router.push({ name: 'employee-details', params: { id: data.item.id } })"
+                v-if="$can('employee-edit', 'all')"
+              >
+                <feather-icon icon="EditIcon" />
+                <span class="align-middle ml-50">Details</span>
+              </b-dropdown-item>
+
+              <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
                 v-if="$can('employee-delete', 'all')"
               >

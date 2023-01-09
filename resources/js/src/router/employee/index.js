@@ -63,6 +63,31 @@ const routes = [
       ],
     },
   },
+  {
+    path: 'employee/details/:id',
+    name: 'employee-details',
+    resource: 'all',
+    action: 'employee-details',
+    component: () => import('@/views/employees/Details.vue'),
+    props: route => ({ id: Number(route.params.id) }),
+    meta: {
+      pageTitle: 'Details Employee',
+      resource: 'all',
+      action: 'employee-details',
+      auth: true,
+      breadcrumb: [
+        {
+          text: 'Employees',
+          active: false,
+          to: { name: 'employees' },
+        },
+        {
+          text: 'Details Employee',
+          active: true,
+        },
+      ],
+    },
+  },
 ]
 
 export default routes

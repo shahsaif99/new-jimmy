@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Http\Request;
 use Plank\Mediable\Mediable;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -48,13 +49,15 @@ class Equipment extends Model
     public function scopeApplyFilters($query, Request $request)
     {
         $user = auth()->user();
-        // $isCompany = $user->hasRole('Company');
         $query
         ->when($request->sortDesc, function ($query, $sortDesc) {
             $query->orderByDesc('id');
         })
         ->when($request->userId, function ($query, $userId) {
             $query->where('user_id', $userId);
+        })
+        ->when($request->isExpiring, function ($query) {
+            $query->whereBetween('valid_until', [Carbon::now(), Carbon::now()->addMonths(3)] );
         })
         ->when($request->sortBy, function ($query, $sortBy) {
             $query->orderBy($sortBy);

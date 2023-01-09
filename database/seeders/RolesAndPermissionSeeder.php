@@ -19,9 +19,9 @@ class RolesAndPermissionSeeder extends Seeder
         //
 
         $arrayOfPermissionNames = [
-            'manage-permissions', 'manage-roles', 'projects-listings', 'dashboard',
+            'manage-permissions', 'manage-roles', 'projects-listings', 'dashboard','boardinformation-add',
             'authentication', 'manage-users', 'document-center', 'equipments-listings','employees-listings',
-            'documentcenter', 'projects-add-documents', 'projects-add','equipment-add','equipments-edit','equipments-delete',
+            'documentcenter', 'projects-add-documents', 'projects-add','equipment-add','equipments-edit','equipments-delete','employee-details',
             'competence-listings','employee-delete','employee-edit','employee-add','my-profile-view','password-view','competence-add','lendings-history'
         ];
 
@@ -33,7 +33,7 @@ class RolesAndPermissionSeeder extends Seeder
 
         $role1 = Role::create(['name' => 'Admin','guard_name' => 'sanctum']);
         $role2 = Role::create(['name' => 'Employee','guard_name' => 'sanctum']);
-        // $role3 = Role::create(['name' => 'User','guard_name' => 'sanctum']);
+        $role3 = Role::create(['name' => 'User','guard_name' => 'sanctum']);
 
         foreach ($permissions as $permission) {
             $role1->givePermissionTo($permission['name']);
@@ -42,13 +42,14 @@ class RolesAndPermissionSeeder extends Seeder
         $employeePermissionsArray = [
             'projects-listings', 'dashboard','lendings-history',
             'authentication', 'document-center', 'equipments-listings','employees-listings',
-            'documentcenter', 'projects-add-documents',
+            'documentcenter', 'projects-add-documents','employee-details',
             'competence-listings','my-profile-view','password-view'
         ];
 
 
         foreach ($employeePermissionsArray as $permission2) {
             $role2->givePermissionTo($permission2);
+            $role3->givePermissionTo($permission2);
         }
 
 
@@ -71,8 +72,17 @@ class RolesAndPermissionSeeder extends Seeder
             'password' =>'password'
         ]);
 
+        $user = User::create([
+            'first_name' => 'Sean',
+            'last_name' => 'Afrani',
+            'email' => 'user@gmail.com',
+            'email_verified_at' => now(),
+            'password' =>'password'
+        ]);
+
         $admin->assignRole($role1);
         $employee->assignRole($role2);
+        $user->assignRole($role3);
 
     }
 }

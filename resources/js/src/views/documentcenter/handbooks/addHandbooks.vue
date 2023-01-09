@@ -340,7 +340,6 @@ import {
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
-import useProspects from '@/composables/prospects'
 import { useInputImageRenderer } from '@core/comp-functions/forms/form-utils'
 import { required, alphaNum, email } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
@@ -373,23 +372,6 @@ export default {
     },
   },
   setup() {
-    const {
-      busy,
-      sortBy,
-      filters,
-      perPage,
-      student,
-      prospects,
-      dataMeta,
-      refetchData,
-      searchQuery,
-      currentPage,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
-      updateGeneral,
-    } = useProspects()
     const {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
@@ -431,7 +413,7 @@ export default {
     }
 
     const onSubmit = async () => {
-      await updateGeneral(formData.value)
+    //   await updateGeneral(formData.value)
     }
 
     const tableColumns = [
@@ -441,20 +423,6 @@ export default {
       { key: 'File' },
     ]
     return {
-      busy,
-      sortBy,
-      filters,
-      student,
-      perPage,
-      prospects,
-      dataMeta,
-      refetchData,
-      searchQuery,
-      currentPage,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      perPageOptions,
       formData,
       tableColumns,
       removeImage,

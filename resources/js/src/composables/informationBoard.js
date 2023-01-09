@@ -3,10 +3,10 @@ import { computed, ref, watch } from '@vue/composition-api'
 import route from 'ziggy-js'
 import toaster from './toaster'
 
-export default function useCompetence() {
+export default function useInformationBoard() {
   const busy = ref(false)
   const respResult = ref(null)
-  const prospects = ref([])
+  const items = ref([])
   const order = ref(null)
   const errors = ref({})
   const toast = toaster()
@@ -20,11 +20,10 @@ export default function useCompetence() {
   const refListTable = ref(null)
 
   const tableColumns = [
-    { key: 'id', sortable: false },
-    { key: 'title', sortable: true },
-    { key: 'created_at', sortable: false },
-    { key: 'status', sortable: false },
-    { key: 'actions' },
+    { key: 'content', sortable: true },
+    { key: 'user.name', sortable: true, label: 'Author' },
+    { key: 'created_at', sortable: false, label: 'Date' },
+    // { key: 'actions' },
   ]
 
 
@@ -37,10 +36,10 @@ export default function useCompetence() {
     }
   })
 
-  const fetchOrders = async () => {
+  const fetchBoardInformation = async () => {
     try {
       busy.value = true
-      const response = await axios.get(route('orders.index'), {
+      const response = await axios.get(route('boardinformation.index'), {
         params: {
           q: searchQuery.value,
           perPage: perPage.value,
@@ -49,7 +48,7 @@ export default function useCompetence() {
           sortDesc: isSortDirDesc.value,
         },
       })
-      prospects.value = response.data.data
+      items.value = response.data.data
       if (response.data.meta) {
         const { total } = response.data.meta
         totalRecords.value = total
@@ -69,7 +68,7 @@ export default function useCompetence() {
 
   const getOrder = async id => {
     try {
-      const response = await axios.get(route('orders.show', { id }))
+      const response = await axios.get(route('boardinformation.show', { id }))
       order.value = response.data.data
     } catch (error) {
       if (error.message === 'Network Error') {
@@ -85,33 +84,11 @@ export default function useCompetence() {
   }
 
 
-  const storeOrder = async data => {
+  const storeInformation = async data => {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.post(route('orders.store'), data)
-      respResult.value = response
-      toast.success(response.data.message)
-    } catch (error) {
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        if (error.response.status === 422) {
-          errors.value = error.response.data.errors
-        }
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
-
-  const storeOrderDetails = async (id, data) => {
-    errors.value = ''
-    try {
-      busy.value = true
-      const response = await axios.post(route('orders.store.details', id), data)
+      const response = await axios.post(route('boardinformation.store'), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -130,33 +107,11 @@ export default function useCompetence() {
   }
 
 
-  const updateOrderStatus = async orderData => {
-    try {
-      busy.value = true
-      const response = await axios.post(route('orders.status', orderData.id), orderData)
-      respResult.value = response
-      toast.success(response.data.message)
-    } catch (e) {
-      console.log(e)
-      if (e.response.status === 422) {
-        toast.error(e.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
-  const competenceColumns = [
-    { key: 'name' },
-    { key: 'completedDate' },
-    { key: 'validUntil' },
-    { key: 'file' },
-    { key: 'actions' },
-  ]
   const updateOrder = async data => {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.put(route('orders.update', data.id), data)
+      const response = await axios.put(route('boardinformation.update', data.id), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -174,73 +129,11 @@ export default function useCompetence() {
     }
   }
 
-  const employeeCompetences = ref([
-    {
-      name: 'Employee 1',
-      _showDetails: true,
-      courses: [
-        {
-          title: 'Course 1',
-          completed_date: '12-12-2020',
-          valid_until: '12-12-2020',
-          file: 'file.pdf',
-        },
-        {
-          title: 'Course 2',
-          completed_date: '12-12-2020',
-          valid_until: '12-12-2020',
-          file: 'file.pdf',
-        },
-        {
-          title: 'Course 3',
-          completed_date: '12-12-2020',
-          valid_until: '12-12-2020',
-          file: 'file.pdf',
-        },
-        {
-          title: 'Course 4',
-          completed_date: '12-12-2020',
-          valid_until: '12-12-2020',
-          file: 'file.pdf',
-        },
-      ],
-    },
-    {
-      name: 'Employee 2',
-      _showDetails: true,
-      courses: [
-        {
-          title: 'Course 1',
-          completed_date: '12-12-2020',
-          valid_until: '12-12-2020',
-          file: 'file.pdf',
-        },
-        {
-          title: 'Course 2',
-          completed_date: '12-12-2020',
-          valid_until: '12-12-2020',
-          file: 'file.pdf',
-        },
-        {
-          title: 'Course 3',
-          completed_date: '12-12-2020',
-          valid_until: '12-12-2020',
-          file: 'file.pdf',
-        },
-        {
-          title: 'Course 4',
-          completed_date: '12-12-2020',
-          valid_until: '12-12-2020',
-          file: 'file.pdf',
-        },
-      ],
-    },
-  ])
 
   const deleteOrder = async id => {
     try {
       busy.value = true
-      const response = await axios.delete(route('orders.destroy', id))
+      const response = await axios.delete(route('boardinformation.destroy', id))
       toast.success(response.data.message)
       respResult.value = response
     } catch (error) {
@@ -254,16 +147,15 @@ export default function useCompetence() {
       busy.value = false
     }
   }
-  const resolveOrderStatus = status => {
+  const resolveBoardtatus = status => {
     if (status === 'Pending') {
       return 'warning'
     } if (status === 'Complete Information') { return 'danger' }
     return 'primary'
   }
 
-
-  watch([currentPage, searchQuery], () => {
-    fetchOrders()
+  watch([currentPage, searchQuery, perPage], () => {
+    fetchBoardInformation()
   })
 
   return {
@@ -273,12 +165,10 @@ export default function useCompetence() {
     perPage,
     order,
     dataMeta,
-    prospects,
-    storeOrder,
+    items,
     getOrder,
     respResult,
     updateOrder,
-    fetchOrders,
     currentPage,
     searchQuery,
     totalRecords,
@@ -286,10 +176,8 @@ export default function useCompetence() {
     deleteOrder,
     isSortDirDesc,
     perPageOptions,
-    resolveOrderStatus,
-    storeOrderDetails,
-    updateOrderStatus,
-    competenceColumns,
-    employeeCompetences,
+    storeInformation,
+    resolveBoardtatus,
+    fetchBoardInformation,
   }
 }

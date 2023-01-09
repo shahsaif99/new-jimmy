@@ -127,7 +127,6 @@ import {
   BButton, BCard, BCol, BRow, BFormInput, BTable, BPagination, BOverlay,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
-import useProspects from '@/composables/prospects'
 import vSelect from 'vue-select'
 // eslint-disable-next-line import/no-cycle
 import useJwt from '@/auth/jwt/useJwt'
@@ -149,55 +148,12 @@ export default {
     BPagination,
   },
 
-  setup(_, { root }) {
-    const {
-      busy,
-      sortBy,
-      filters,
-      perPage,
-      student,
-      prospects,
-      dataMeta,
-      refetchData,
-      searchQuery,
-      currentPage,
-      totalRecords,
-      refListTable,
-      deleteStudent,
-      isSortDirDesc,
-      fetchStudents,
-      perPageOptions,
-    } = useProspects()
-
+  setup() {
     const isExportActive = ref(false)
-    const filterKey = ref(0)
     const addHandbooksActive = ref(false)
 
-    const filterUpdate = filterQuery => {
-      Object.assign(filters, filterQuery)
-    }
 
     const localStorageData = JSON.parse(useJwt.getUserData())
-
-    const resetFilter = () => {
-      Object.keys(filters).forEach(index => { filters[index] = null })
-      filterKey.value += 1
-    }
-    const confirmDelete = async id => {
-      root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete student and all of linked data.', {
-          title: 'Please Confirm',
-          size: 'sm',
-        })
-        .then(value => {
-          if (value) {
-            deleteStudent(id)
-
-
-            fetchStudents()
-          }
-        })
-    }
 
     const columns = [
       { key: 'organizationName' },
@@ -211,25 +167,7 @@ export default {
       { key: 'telephone' },
     ]
     return {
-      busy,
-      sortBy,
-      filters,
-      student,
-      perPage,
-      prospects,
-      dataMeta,
-      filterKey,
-      resetFilter,
-      refetchData,
-      searchQuery,
-      currentPage,
-      filterUpdate,
       columns,
-      totalRecords,
-      refListTable,
-      isSortDirDesc,
-      confirmDelete,
-      perPageOptions,
       isExportActive,
       addHandbooksActive,
       localStorageData,

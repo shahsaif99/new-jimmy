@@ -1,5 +1,7 @@
 import axios from '@axios'
-import { computed, ref, watch } from '@vue/composition-api'
+import {
+  computed, ref, watch, reactive,
+} from '@vue/composition-api'
 import route from 'ziggy-js'
 import toaster from './toaster'
 
@@ -18,6 +20,9 @@ export default function useEquipments() {
   const sortBy = ref('id')
   const isSortDirDesc = ref(true)
   const refListTable = ref(null)
+  const filters = reactive({
+  })
+
 
   const tableColumns = [
     { key: 'id', sortable: false },
@@ -52,6 +57,7 @@ export default function useEquipments() {
           page: currentPage.value,
           sortBy: sortBy.value,
           sortDesc: isSortDirDesc.value,
+          ...filters,
         },
       })
       equipments.value = response.data.data
@@ -185,6 +191,7 @@ export default function useEquipments() {
     busy,
     sortBy,
     errors,
+    filters,
     perPage,
     equipment,
     dataMeta,

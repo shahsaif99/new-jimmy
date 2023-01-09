@@ -27,7 +27,11 @@
       no-body
       class="mb-0"
     >
+
       <div class="m-2">
+        <b-card-title>
+          Equipments
+        </b-card-title>
         <b-row>
           <b-col
             cols="12"
@@ -186,6 +190,7 @@ import {
   BPagination,
   BButton,
   BDropdown,
+  BCardTitle,
   BDropdownItem,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
@@ -211,6 +216,7 @@ export default {
     BFormInput,
     BPagination,
     BDropdown,
+    BCardTitle,
     BDropdownItem,
     EditEquipment,
     LendingHistory,
@@ -224,7 +230,6 @@ export default {
       filters,
       perPage,
       student,
-      prospects,
       dataMeta,
       equipments,
       respResult,
@@ -296,7 +301,6 @@ export default {
       filters,
       student,
       perPage,
-      prospects,
       dataMeta,
       equipment,
       refetchData,
