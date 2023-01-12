@@ -30,7 +30,7 @@
               class="d-inline-block ml-1"
               v-if="$can('employee-add', 'all')"
               variant="primary"
-              @click="$router.push({ name: 'employee-add' })"
+              @click="$router.push({ name: 'users-add' })"
             >
               <span class="text-nowrap">Add Employee</span>
             </b-button>
@@ -96,24 +96,24 @@
                 />
               </template>
               <b-dropdown-item
-                @click="$router.push({ name: 'employee-edit', params: { id: data.item.id } })"
+                @click="$router.push({ name: 'users-edit', params: { id: data.item.id } })"
                 v-if="$can('employee-edit', 'all')"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Edit</span>
               </b-dropdown-item>
 
-              <b-dropdown-item
+              <!-- <b-dropdown-item
                 @click="$router.push({ name: 'employee-details', params: { id: data.item.id } })"
                 v-if="$can('employee-edit', 'all')"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Details</span>
-              </b-dropdown-item>
+              </b-dropdown-item> -->
 
               <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
-                v-if="$can('employee-delete', 'all')"
+                v-if="$can('users-delete', 'all')"
               >
                 <feather-icon
                   icon="TrashIcon"

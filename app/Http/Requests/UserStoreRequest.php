@@ -42,6 +42,8 @@ class UserStoreRequest extends FormRequest
             'end_date' => ['nullable', 'date'],
             'dob' => ['nullable', 'date'],
             'description' => ['nullable'],
+            'salary_type' => ['nullable', 'max:200'],
+            'holidays' => ['nullable'],
             'status' => ['required'],
             'password' => ['required', 'string', 'confirmed', Password::min(6)
             ->letters()

@@ -1,352 +1,677 @@
 <template>
   <div>
-    <b-card>
-
-
-      <!-- Media -->
-      <b-media class="mb-2">
-        <template #aside>
-          <b-avatar
-            ref="previewEl"
-            :src="userData.avatar"
-            :text="avatarText(userData.name)"
-            size="90px"
-            rounded
-          />
-        </template>
-        <div class="d-flex flex-wrap">
-          <b-button
-            variant="primary"
-            @click="$refs.refInputEl.click()"
-          >
-            <input
-              ref="refInputEl"
-              type="file"
-              class="d-none"
-              @input="inputImageRenderer"
-            >
-            <span class="d-none d-sm-inline">Browse</span>
-            <feather-icon
-              icon="EditIcon"
-              class="d-inline d-sm-none"
-            />
-          </b-button>
-          <b-button
-            variant="outline-secondary"
-            class="ml-1"
-            @click="removeImage"
-          >
-            <span class="d-none d-sm-inline">Remove</span>
-            <feather-icon
-              icon="TrashIcon"
-              class="d-inline d-sm-none"
-            />
-          </b-button>
-        </div>
-      </b-media>
-
-      <validation-observer
-        #default="{ handleSubmit }"
-        ref="refFormObserver"
+    <validation-observer
+      #default="{ handleSubmit }"
+      ref="refFormObserver"
+    >
+      <b-overlay
+        :show="busy"
+        spinner-variant="primary"
+        spinner-type="grow"
+        rounded="sm"
+        opacity="0.20"
       >
-        <b-overlay
-          :show="busy"
-          spinner-variant="primary"
-          spinner-type="grow"
-          rounded="sm"
-          opacity="0.20"
+        <b-form
+          @submit.prevent="handleSubmit(onSubmit)"
+          @reset.prevent="resetForm"
         >
-          <b-form
-            @submit.prevent="handleSubmit(onSubmit)"
-            @reset.prevent="resetForm"
-          >
-            <b-row>
-              <b-col
-                cols="12"
-                md="4"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="First Name"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="First Name"
-                  >
-                    <b-form-input
-                      placeholder="First Name"
-                      id="first_name"
-                      v-model="userData.first_name"
-                      :state="getValidationState(validationContext)"
-                      trim
-                    />
-
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-
-              <!-- Field: Full Name -->
-              <b-col
-                cols="12"
-                md="4"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Last Name"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Last Name"
-                  >
-                    <b-form-input
-                      id="last_name"
-                      v-model="userData.last_name"
-                      :state="getValidationState(validationContext)"
-                      trim
-                      placeholder="Last Name"
-                    />
-
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-
-              <!-- Field: Email -->
-              <b-col
-                cols="12"
-                md="4"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Email"
-                  rules="required|email"
-                >
-                  <b-form-group
-
-                    label="Email"
-                  >
-                    <b-form-input
-                      id="email"
-                      v-model="userData.email"
-                      :state="getValidationState(validationContext)"
-                      trim
-                      placeholder="Email"
-                    />
-
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-              <b-col
-                cols="12"
-                md="4"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Phone"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Phone"
-                  >
-                    <b-form-input
-                      id="phone"
-                      v-model="userData.phone"
-                      :state="getValidationState(validationContext)"
-                      trim
-                      placeholder="Phone"
-                    />
-
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-
-              </b-col>
-
-              <!-- Field: Status -->
-
-
-              <b-col
-                cols="12"
-                md="4"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Password"
-                  rules="required|min:6"
-                >
-                  <b-form-group
-                    label="Password"
-                  >
-                    <b-input-group
-                      class="input-group-merge"
-                      :state="getValidationState(validationContext)"
-                    >
-                      <b-form-input
-                        id="password"
-                        v-model="userData.password"
-                        :state="getValidationState(validationContext)"
-                        :type="passwordFieldType"
-                        name="password"
-                        placeholder="Password"
-                      />
-                      <b-input-group-append is-text>
-                        <feather-icon
-                          class="cursor-pointer"
-                          :icon="passwordToggleIcon"
-                          @click="togglePasswordVisibility"
-                        />
-                      </b-input-group-append>
-                      <b-input-group-append is-text>
-                        <feather-icon
-                          class="cursor-pointer"
-                          icon="RefreshCcwIcon"
-                          @click="generatePassword"
-                        />
-                      </b-input-group-append>
-                    </b-input-group>
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-              <b-col
-                cols="12"
-                md="4"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Confirm Password"
-                  rules="required|confirmed:Password"
-                >
-                  <b-form-group
-                    label="Confirm Password"
-                  >
-                    <b-input-group
-                      class="input-group-merge"
-                      :state="getValidationState(validationContext)"
-                    >
-                      <b-form-input
-                        class="form-control-merge"
-                        v-model="userData.password_confirmation"
-                        :state="getValidationState(validationContext)"
-                        :type="passwordFieldType"
-                        placeholder="Confirm Password"
-                      />
-                      <b-input-group-append is-text>
-                        <feather-icon
-                          class="cursor-pointer"
-                          :icon="passwordToggleIcon"
-                          @click="togglePasswordVisibility"
-                        />
-                      </b-input-group-append>
-                    </b-input-group>
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-              <b-col
-                cols="12"
-                md="4"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Status"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Status"
-                    :state="getValidationState(validationContext)"
-                  >
-                    <v-select
-                      placeholder="Status"
-                      v-model="userData.status"
-                      :options="statusOptions"
-                      :reduce="status => status.value"
-                      :clearable="false"
-                      input-id="title"
-                    />
-                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-            </b-row>
-
-            <b-card
-              class="border mt-1"
+          <b-row>
+            <b-col
+              cols="12"
+              md="6"
             >
-              <b-card-title class="mb-1">
-                User Role Permissions
-              </b-card-title>
-              <validation-provider
-                #default="validationContext"
-                name="Role"
-                rules="required"
-              >
-                <b-form-group
-                  label="Role"
-                  :state="getValidationState(validationContext)"
-                >
-                  <b-form-radio-group
-                    v-model="userData.role"
-                    value-field="name"
-                    text-field="name"
-                    :options="roles"
-                    name="radio-options"
-                    @change="selectRole"
-                    :state="getValidationState(validationContext)"
-                  />
-                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider>
+              <b-card>
+                <b-card-title>
+                  Details
+                </b-card-title>
 
-              <b-form-group label="Permissions">
-                <b-form-checkbox-group
-                  id="flavors"
-                  v-model="userData.permissions"
-                  :options="permissions"
-                  name="flavors"
-                  value-field="id"
-                  text-field="name"
-                  stacked
-                />
-              </b-form-group>
-            </b-card>
-            <div class="d-flex mt-2">
-              <b-button
-                variant="primary"
-                class="mr-2"
-                type="submit"
-              >
-                Create User
-              </b-button>
-              <b-button
-                type="reset"
-                variant="outline-secondary"
-              >
-                Reset
-              </b-button>
-            </div>
-          </b-form>
-        </b-overlay>
-      </validation-observer>
-    </b-card>
+                <b-row>
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="First Name"
+                      rules="required"
+                    >
+                      <b-form-group
+                        label="First Name"
+                      >
+                        <b-form-input
+                          placeholder="First Name"
+                          id="first_name"
+                          v-model="formData.first_name"
+                          :state="getValidationState(validationContext)"
+                          trim
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+
+                  <!-- Field: Full Name -->
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Last Name"
+                      rules="required"
+                    >
+                      <b-form-group
+                        label="Last Name"
+                      >
+                        <b-form-input
+                          id="last_name"
+                          v-model="formData.last_name"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Last Name"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Employee Number"
+                    >
+                      <b-form-group
+                        label="Employee Number"
+                      >
+                        <b-form-input
+                          id="employee_number"
+                          v-model="formData.employee_number"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Employee Number"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+
+                  </b-col>
+
+
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Address"
+                      rules="required"
+                    >
+                      <b-form-group
+                        label="Address"
+                      >
+                        <b-form-input
+                          id="address"
+                          v-model="formData.address"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Address"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+
+                  </b-col>
+
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Post Address"
+                    >
+                      <b-form-group
+                        label="Post Address"
+                      >
+                        <b-form-input
+                          id="post_address"
+                          v-model="formData.post_address"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Post Address"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+
+                  </b-col>
+
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Post Code"
+                    >
+                      <b-form-group
+                        label="Post Code"
+                      >
+                        <b-form-input
+                          id="postal_code"
+                          v-model="formData.postal_code"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Post Code"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+
+                  </b-col>
+
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Date of Birth"
+                    >
+                      <b-form-group
+                        label="Date of Birth"
+                      >
+                        <b-form-datepicker
+                          id="dob"
+                          v-model="formData.dob"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Date of Birth"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+
+                  </b-col>
+
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Gender"
+                      rules="required"
+                    >
+                      <b-form-group
+                        label="Gender"
+                      >
+                        <b-form-select
+                          id="gender"
+                          v-model="formData.gender"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          :options="['Male','Female']"
+                          placeholder="Gender"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+
+                  </b-col>
+
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Phone"
+                      rules="required"
+                    >
+                      <b-form-group
+                        label="Phone"
+                      >
+                        <b-form-input
+                          id="phone"
+                          v-model="formData.phone"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Phone"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+
+
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Citizen Country"
+                    >
+                      <b-form-group
+                        label="Citizen Country"
+                      >
+                        <b-form-input
+                          id="citizen_country"
+                          v-model="formData.citizen_country"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Citizen Country"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+
+                  <!-- Field: Status -->
+                  <!-- <b-col
+                      cols="12"
+                      md="6"
+                    >
+                      <validation-provider
+                        #default="validationContext"
+                        name="Status"
+                        rules="required"
+                      >
+                        <b-form-group
+                          label="Status"
+                          :state="getValidationState(validationContext)"
+                        >
+                          <v-select
+                            placeholder="Status"
+                            v-model="formData.status"
+                            :options="statusOptions"
+                            :reduce="status => status.value"
+                            :clearable="false"
+                            input-id="title"
+                          />
+                          <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                            {{ validationContext.errors[0] }}
+                          </b-form-invalid-feedback>
+                        </b-form-group>
+                      </validation-provider>
+                    </b-col> -->
+                </b-row>
+
+              </b-card>
+              <b-card>
+                <b-card-title>
+                  Login Information
+                </b-card-title>
+                <b-row>
+                  <!-- Field: Email -->
+                  <b-col
+                    cols="12"
+                    md="12"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Email"
+                      rules="required|email"
+                    >
+                      <b-form-group
+                        label="Email"
+                      >
+                        <b-form-input
+                          id="email"
+                          v-model="formData.email"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Email"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+                  <!-- Field: Role -->
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Role"
+                      rules="required"
+                    >
+                      <b-form-group
+                        label="Role"
+                        :state="getValidationState(validationContext)"
+                      >
+                        <v-select
+                          placeholder="Select Role"
+                          v-model="formData.role"
+                          :options="roles"
+                          label="name"
+                          :reduce="role => role.id"
+                          :clearable="false"
+                          input-id="role"
+                        />
+                        <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Password"
+                      rules="required|min:6"
+                    >
+                      <b-form-group
+                        label="Password"
+                      >
+                        <b-input-group
+                          class="input-group-merge"
+                          :state="getValidationState(validationContext)"
+                        >
+                          <b-form-input
+                            id="password"
+                            v-model="formData.password"
+                            :state="getValidationState(validationContext)"
+                            :type="passwordFieldType"
+                            name="password"
+                            placeholder="Password"
+                          />
+                          <b-input-group-append is-text>
+                            <feather-icon
+                              class="cursor-pointer"
+                              :icon="passwordToggleIcon"
+                              @click="togglePasswordVisibility"
+                            />
+                          </b-input-group-append>
+                          <b-input-group-append is-text>
+                            <feather-icon
+                              class="cursor-pointer"
+                              icon="RefreshCcwIcon"
+                              @click="generatePassword"
+                            />
+                          </b-input-group-append>
+                        </b-input-group>
+                        <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Confirm Password"
+                      rules="required|confirmed:Password"
+                    >
+                      <b-form-group
+                        label="Confirm Password"
+                      >
+                        <b-input-group
+                          class="input-group-merge"
+                          :state="getValidationState(validationContext)"
+                        >
+                          <b-form-input
+                            class="form-control-merge"
+                            v-model="formData.password_confirmation"
+                            :state="getValidationState(validationContext)"
+                            :type="passwordFieldType"
+                            placeholder="Confirm Password"
+                          />
+                          <b-input-group-append is-text>
+                            <feather-icon
+                              class="cursor-pointer"
+                              :icon="passwordToggleIcon"
+                              @click="togglePasswordVisibility"
+                            />
+                          </b-input-group-append>
+                        </b-input-group>
+                        <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+                </b-row>
+              </b-card>
+            </b-col>
+            <b-col
+              cols="12"
+              md="6"
+            >
+              <b-card>
+                <b-card-title>
+                  Employment Details
+                </b-card-title>
+                <b-row>
+
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Employement Date"
+                      rules="required"
+                    >
+                      <b-form-group
+                        label="Employement Date"
+                      >
+                        <b-form-datepicker
+                          id="employement_date"
+                          v-model="formData.employement_date"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Employement Date"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="End Date"
+                    >
+                      <b-form-group
+                        label="End Date"
+                      >
+                        <b-form-datepicker
+                          id="end_date"
+                          v-model="formData.end_date"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="End Date"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Salary Type"
+                      rules="required"
+                    >
+                      <b-form-group
+                        label="Salary Type"
+                      >
+                        <b-form-input
+                          id="salary_type"
+                          v-model="formData.salary_type"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Salary Type"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Holidays"
+                      rules="required"
+                    >
+                      <b-form-group
+                        label="Holidays"
+                      >
+                        <b-form-input
+                          id="holidays"
+                          v-model="formData.holidays"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          type="number"
+                          placeholder="Holidays"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+                  <b-col
+                    cols="12"
+                    md="6"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Position Percentage"
+                    >
+                      <b-form-group
+                        label="Position Percentage"
+                      >
+                        <b-form-input
+                          id="position_percentage"
+                          v-model="formData.position_percentage"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Position Percentage"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+                  <b-col
+                    cols="12"
+                    md="12"
+                  >
+                    <validation-provider
+                      #default="validationContext"
+                      name="Job Description"
+                    >
+                      <b-form-group
+                        label="Job Description"
+                      >
+                        <b-form-textarea
+                          id="description"
+                          v-model="formData.description"
+                          :state="getValidationState(validationContext)"
+                          trim
+                          placeholder="Job Description"
+                        />
+
+                        <b-form-invalid-feedback>
+                          {{ validationContext.errors[0] }}
+                        </b-form-invalid-feedback>
+                      </b-form-group>
+                    </validation-provider>
+                  </b-col>
+                </b-row>
+              </b-card>
+            </b-col>
+          </b-row>
+
+          <b-row>
+            <b-col sm="6">
+              <b-card>
+                <div class="d-flex mt-2 justify-content-end">
+                  <b-button
+                    type="reset"
+                    variant="outline-secondary"
+                  >
+                    Reset
+                  </b-button>
+                  <b-button
+                    variant="primary"
+                    class="ml-2"
+                    type="submit"
+                  >
+                    Create User
+                  </b-button>
+                </div>
+
+              </b-card>
+            </b-col>
+          </b-row>
+        </b-form>
+      </b-overlay>
+    </validation-observer>
   </div>
 
 </template>
@@ -357,27 +682,23 @@ import {
   BCol,
   BForm,
   BCard,
-  BMedia,
-  BAvatar,
   BButton,
   BOverlay,
   BFormGroup,
   BFormInput,
   BInputGroup,
   BCardTitle,
-  BFormRadioGroup,
-  BFormCheckboxGroup,
+  BFormDatepicker,
+  BFormSelect,
+  BFormTextarea,
   BInputGroupAppend,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref, computed, onMounted } from '@vue/composition-api'
-import { avatarText } from '@core/utils/filter'
 import vSelect from 'vue-select'
-import { useInputImageRenderer } from '@core/comp-functions/forms/form-utils'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import useUsers from '@/composables/users'
-import usePermissions from '@/composables/permissions'
 import {
   required, email, min,
 } from '@validations'
@@ -391,17 +712,16 @@ export default {
     BCard,
     BCol,
     BForm,
-    BMedia,
-    BButton,
     vSelect,
-    BAvatar,
+    BButton,
     BOverlay,
     BCardTitle,
     BFormGroup,
     BFormInput,
+    BFormSelect,
     BInputGroup,
-    BFormRadioGroup,
-    BFormCheckboxGroup,
+    BFormTextarea,
+    BFormDatepicker,
     BInputGroupAppend,
     ValidationProvider,
     ValidationObserver,
@@ -409,20 +729,33 @@ export default {
   },
   mixins: [togglePasswordVisibility],
   setup(props, { emit }) {
-    const blankUserData = {
+    const initialState = {
       first_name: '',
       last_name: '',
       email: '',
       phone: '',
-      status: '',
+      status: 1,
+      address: '',
+      post_address: '',
+      postal_code: '',
+      gender: '',
+      citizen_country: '',
+      position_percentage: '',
+      employee_number: '',
+      employement_date: '',
+      salary_type: '',
+      holidays: '',
+      end_date: '',
+      dob: '',
+      description: '',
       password: '',
       password_confirmation: '',
       role: '',
-      avatar: '',
-      permissions: [],
     }
 
-    const userData = ref(JSON.parse(JSON.stringify(blankUserData)))
+    const formData = ref({ ...initialState })
+
+    // const formData = ref(JSON.parse(JSON.stringify(blankFormData)))
     const statusOptions = [
       { label: 'Active', value: 1 },
       { label: 'Inactive', value: 0 },
@@ -435,55 +768,35 @@ export default {
 
     const {
       roles,
-      fetchRoles,
+      fetchRolesList,
     } = useRoles()
 
 
-    const { permissions, fetchPermissionsList } = usePermissions()
-
-
-    const resetuserData = () => {
-      userData.value = JSON.parse(JSON.stringify(blankUserData))
+    const resetformData = () => {
+      //   formData.value = JSON.parse(JSON.stringify(blankFormData))
     }
 
-    const selectRole = role => {
-      const rolePermissions = roles.value.find(item => role === item.name).permissions
-      userData.value.permissions = rolePermissions.map(item => item.id)
-    }
 
     const passwordFieldType = ref(null)
     const passwordToggleIcon = computed(() => (passwordFieldType.value === 'password' ? 'EyeIcon' : 'EyeOffIcon'))
 
     onMounted(() => {
-      fetchRoles()
-      fetchPermissionsList()
+      fetchRolesList()
     })
 
     const generatePassword = () => {
       const password = Math.random().toString(36).slice(-10)
-      userData.value.password = password
-      userData.value.password_confirmation = password
+      formData.value.password = password
+      formData.value.password_confirmation = password
     }
 
     const onSubmit = async () => {
-      await storeUser(userData.value)
+      await storeUser(formData.value)
       if (respResult.value.status === 200) {
         emit('refetch-data')
-        emit('update:is-add-new-user-sidebar-active', false)
       }
     }
-    const { refFormObserver, getValidationState, resetForm } = formValidation(resetuserData)
-
-    // remove image
-    const removeImage = () => {
-      userData.value.avatar = ''
-    }
-    const refInputEl = ref(null)
-    const previewEl = ref(null)
-
-    const { inputImageRenderer } = useInputImageRenderer(refInputEl, base64 => {
-      userData.value.avatar = base64
-    })
+    const { refFormObserver, getValidationState, resetForm } = formValidation(resetformData)
 
     return {
       min,
@@ -491,26 +804,20 @@ export default {
       busy,
       roles,
       required,
-      selectRole,
-      userData,
+      formData,
       onSubmit,
       resetForm,
-      previewEl,
-      refInputEl,
-      avatarText,
-      removeImage,
-      permissions,
       statusOptions,
       refFormObserver,
       generatePassword,
       getValidationState,
-      inputImageRenderer,
       passwordToggleIcon,
     }
   },
 }
 </script>
 
-<style lang="scss">
-@import '@core/scss/vue/libs/vue-select.scss';
-</style>
+    <style lang="scss">
+    @import '@core/scss/vue/libs/vue-select.scss';
+    </style>
+

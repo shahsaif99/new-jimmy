@@ -34,6 +34,8 @@ class AuthController extends Controller
 
         $userData = array_merge($user->only(['id', 'first_name', 'last_name','name']), ['role' => $role]);
 
+        $user->last_login_at = date('Y-m-d H:i:s');
+        $user->save();
         return response()->json([
             'status' => true,
             'token' => $token,

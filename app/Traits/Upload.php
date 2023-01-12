@@ -2,7 +2,9 @@
 
 namespace App\Traits;
 
-use Image;
+use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 
 trait Upload
 {
@@ -14,8 +16,8 @@ trait Upload
         // find substring fro replace here eg: data:image/png;base64,
         $image = str_replace($replace, '', $base64Image);
         $image = str_replace(' ', '+', $image);
-        $imageName = \Str::random(10) . '.' . $extension;
-        \Storage::disk('public')->put($imageName, base64_decode($image));
+        $imageName = Str::random(10) . '.' . $extension;
+        Storage::disk('public')->put($imageName, base64_decode($image));
         return $imageName;
     }
 
@@ -27,8 +29,8 @@ trait Upload
                 $constraints->upsize();
                 $constraints->aspectRatio();
             });
-        $imageName = \Str::random(10) . '.' . $extension;
-        \Storage::disk('public')->put($imageName, $image->encode());
+        $imageName = Str::random(10) . '.' . $extension;
+        Storage::disk('public')->put($imageName, $image->encode());
         return $imageName;
     }
 

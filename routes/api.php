@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RolesController;
+use App\Http\Controllers\Api\AbsenceController;
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\LendingController;
 use App\Http\Controllers\Api\ProjectController;
@@ -46,6 +47,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'competences' => CompetenceController::class,
         'lendings' => LendingController::class,
         'boardinformation' => BoardInformationController::class,
+        'absences' => AbsenceController::class,
     ]);
 
     Route::get('/account', [AccountController::class, 'account'])->name('account');

@@ -40,6 +40,9 @@ class User extends Authenticatable
         'end_date',
         'dob',
         'description',
+        'salary_type',
+        'holidays',
+        'last_login_at',
     ];
 
     protected $guard_name = 'sanctum';
@@ -133,23 +136,16 @@ class User extends Authenticatable
 
     public function scopeApplyFilters($query, Request $request)
     {
-        $user = auth()->user();
-        $isCompany = $user->hasRole('Company');
         $query
         ->when($request->sortDesc, function ($query, $sortDesc) {
             $query->orderByDesc('id');
         })
         ->when($request->userId, function ($query, $userId) {
-            $query->where('user_id', $userId);
+            $query->where('id', $userId);
         })
         ->when($request->role, function ($query, $role) {
             $query->role($role);
         })
-        ->when($isCompany, function ($query) {
-            $query
-                ->whereBelongsTo(auth()->user());
-        })
-
         ->when($request->sortBy, function ($query, $sortBy) {
             $query->orderBy($sortBy);
         }, function ($query) {
@@ -184,4 +180,5 @@ class User extends Authenticatable
     {
         return $this->hasMany(UsersCompetence::class, 'user_id');
     }
+
 }

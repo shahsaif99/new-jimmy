@@ -1,5 +1,7 @@
 import axios from '@axios'
-import { computed, ref, watch } from '@vue/composition-api'
+import {
+  computed, ref, watch, reactive,
+} from '@vue/composition-api'
 import route from 'ziggy-js'
 import toaster from './toaster'
 
@@ -18,6 +20,7 @@ export default function useCompetences() {
   const sortBy = ref('id')
   const isSortDirDesc = ref(true)
   const refListTable = ref(null)
+  const filters = reactive({})
 
   const tableColumns = [
     { key: 'name', sortable: true },
@@ -47,6 +50,7 @@ export default function useCompetences() {
           page: currentPage.value,
           sortBy: sortBy.value,
           sortDesc: isSortDirDesc.value,
+          ...filters,
         },
       })
       competences.value = response.data.data
@@ -212,6 +216,7 @@ export default function useCompetences() {
     sortBy,
     errors,
     perPage,
+    filters,
     competence,
     dataMeta,
     competences,

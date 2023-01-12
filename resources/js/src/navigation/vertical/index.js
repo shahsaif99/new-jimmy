@@ -39,6 +39,50 @@ export default [
   },
 
   {
+    title: 'Attendance',
+    icon: 'CalendarIcon',
+    resource: 'all',
+    action: 'document-center',
+    children: [
+    //   {
+    //     title: 'Time Registrations',
+    //     route: 'handbooks',
+    //     icon: 'FolderIcon',
+    //     action: 'document-center',
+    //     resource: 'all',
+    //   },
+      {
+        title: 'My Absense',
+        route: 'absences',
+        icon: 'FolderIcon',
+        action: 'document-center',
+        resource: 'all',
+      },
+      {
+        title: 'My Vacations',
+        route: 'handbooks',
+        icon: 'FolderIcon',
+        action: 'document-center',
+        resource: 'all',
+      },
+      {
+        title: 'Holiday Overview',
+        route: 'handbooks',
+        icon: 'FolderIcon',
+        action: 'document-center',
+        resource: 'all',
+      },
+      {
+        title: 'Absence Overview',
+        route: 'handbooks',
+        icon: 'FolderIcon',
+        action: 'document-center',
+        resource: 'all',
+      },
+    ],
+  },
+
+  {
     title: 'Document center',
     icon: 'FolderIcon',
     resource: 'all',

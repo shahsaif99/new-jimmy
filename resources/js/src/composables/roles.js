@@ -8,6 +8,7 @@ export default function useRoles() {
   const respResult = ref(null)
   const roles = ref([])
   const errors = ref({})
+  const roleData = ref({})
   const toast = toaster()
   const perPage = ref(10)
   const totalRecords = ref(0)
@@ -83,6 +84,20 @@ export default function useRoles() {
     }
   }
 
+  const getRole = async id => {
+    try {
+      const response = await axios.get(route('roles.show', { id }))
+      roleData.value = response.data.data
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    }
+  }
+
 
   const updateRole = async data => {
     errors.value = ''
@@ -125,21 +140,40 @@ export default function useRoles() {
     }
   }
 
+
+  const fetchRolesList = async (searchString = '') => {
+    busy.value = true
+    try {
+      const response = await axios.get(route('roles.index'), {
+        params: {
+          q: searchString,
+        },
+      })
+      roles.value = response.data.data
+    } catch (e) {
+      toast.error(e.response.data.message)
+    } finally {
+      busy.value = false
+    }
+  }
+
   watch([currentPage, perPage, searchQuery], () => {
     fetchRoles()
   })
 
   return {
-    searchQuery,
     busy,
     sortBy,
     roles,
     errors,
+    getRole,
     perPage,
     dataMeta,
-    currentPage,
+    roleData,
     storeRole,
     respResult,
+    searchQuery,
+    currentPage,
     deleteRole,
     updateRole,
     fetchRoles,
@@ -147,5 +181,6 @@ export default function useRoles() {
     tableColumns,
     isSortDirDesc,
     perPageOptions,
+    fetchRolesList,
   }
 }

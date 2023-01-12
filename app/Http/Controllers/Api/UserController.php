@@ -69,7 +69,8 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return new UserResource($user->load('roles.permissions'));
+
+        return new UserResource($user->load(['permissions','roles.permissions']));
     }
 
     /**
@@ -96,8 +97,8 @@ class UserController extends Controller
         if($request->role){
             $user->syncRoles($request->role);
         }
-        if($request->permissions){
-            $user->syncPermissions($request->permissions);
+        if($request->permissions_list){
+            $user->syncPermissions($request->permissions_list);
         }
 
         return response()->json(['message' => 'User successfully updated.'], 200);
@@ -131,6 +132,15 @@ class UserController extends Controller
         $user->save();
 
         return response()->json(['message' => 'User status successfully updated.'], 200);
+    }
+
+
+    public function getAllPermissions($user)
+    {
+        return $user->getAllPermissions()
+            ->flatten()
+            ->pluck('name')
+            ->toArray();
     }
 
 }

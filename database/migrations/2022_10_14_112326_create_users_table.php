@@ -30,11 +30,14 @@ class CreateUsersTable extends Migration
             $table->date('end_date')->nullable();
             $table->date('dob')->nullable();
             $table->text('description')->nullable();
+            $table->string('salary_type')->nullable();
+            $table->tinyInteger('holidays')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->string('avatar', 100)->nullable();
             $table->rememberToken();
+            $table->timestamp('last_login_at')->nullable();
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable();
         });

@@ -48,7 +48,7 @@ class Competence extends Model
             $query->orderByDesc('id');
         })
         ->when($request->userId, function ($query, $userId) {
-            $query->where('user_id', $userId);
+            $query->has('competences');
         })
         ->when($request->sortBy, function ($query, $sortBy) {
             $query->orderBy($sortBy);
@@ -64,6 +64,16 @@ class Competence extends Model
     public function employees()
     {
         return $this->belongsToMany(User::class, 'users_competences', 'competence_id', 'user_id');
+    }
+
+    /**
+     * Get all of the comments for the Competence
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'foreign_key', 'local_key');
     }
 
 

@@ -55,8 +55,8 @@
     <edit-role
       :is-edit-role-sidebar-active.sync="isEditRoleSidebarActive"
       @refetch-data="fetchRoles"
-      :role="role"
       v-if="isEditRoleSidebarActive"
+      :role-id="roleId"
     />
     <b-card
       no-body
@@ -248,9 +248,9 @@ export default {
     fetchRoles()
     const isAddNewRoleSidebarActive = ref(false)
     const isEditRoleSidebarActive = ref(false)
-    const role = ref({})
-    const editRole = dataRole => {
-      role.value = dataRole
+    const roleId = ref('')
+    const editRole = role => {
+      roleId.value = role.id
       isEditRoleSidebarActive.value = true
     }
 
@@ -281,19 +281,18 @@ export default {
     }
 
     return {
-      role,
       roles,
-      editRole,
       sortBy,
       perPage,
+      editRole,
       dataMeta,
       currentPage,
-      isSortDirDesc,
       searchQuery,
       fetchRoles,
       totalRecords,
-      confirmDelete,
+      isSortDirDesc,
       tableColumns,
+      confirmDelete,
       perPageOptions,
       isEditRoleSidebarActive,
       isAddNewRoleSidebarActive,

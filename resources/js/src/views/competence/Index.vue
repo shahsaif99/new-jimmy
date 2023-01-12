@@ -5,11 +5,13 @@
       v-if="isEditCompetenceActive"
       :competence="competence"
       @refetch-data="fetchCompetences"
+      :user-data="userData"
     />
     <add-competence
       :is-add-competence-active.sync="isAddCompetenceActive"
       v-if="isAddCompetenceActive"
       @refetch-data="fetchCompetences"
+      :user-data="userData"
     />
     <b-card
       no-body
@@ -113,7 +115,7 @@
                 </span>
               </th> -->
               <th class="pb-50 text-center">
-                <b-dropdown
+                <!-- <b-dropdown
                   variant="link"
                   no-caret
                 >
@@ -124,12 +126,12 @@
                       class="align-middle text-body"
                     />
                   </template>
-                  <!-- <b-dropdown-item
+                 - <b-dropdown-item
                     @click="editCompetenceActive=true"
                   >
                     <feather-icon icon="EditIcon" />
                     <span class="align-middle ml-50">Edit</span>
-                  </b-dropdown-item> -->
+                  </b-dropdown-item>
                   <b-dropdown-item
                     @click="confirmDelete(item.competence.id)"
                   >
@@ -138,7 +140,7 @@
                     />
                     <span class="align-middle ml-50">Delete</span>
                   </b-dropdown-item>
-                </b-dropdown>
+                </b-dropdown> -->
               </th>
             </tr>
           </table>
@@ -225,7 +227,13 @@ export default {
     EditCompetence,
     BDropdownItem,
   },
-  setup(_, { root }) {
+  props: {
+    userData: {
+      type: Object,
+      default: () => {},
+    },
+  },
+  setup(props, { root }) {
     const {
       busy,
       sortBy,
@@ -247,6 +255,9 @@ export default {
     } = useCompetences()
 
     onMounted(() => {
+      if (props.userData) {
+        filters.userId = props.userData.id
+      }
       fetchCompetences()
     })
     const isExportActive = ref(false)
@@ -280,69 +291,6 @@ export default {
         })
     }
 
-    const employeeCompetences = ref([
-      {
-        name: 'Employee 1',
-        _showDetails: true,
-        courses: [
-          {
-            title: 'Course 1',
-            completed_date: '12-12-2020',
-            valid_until: '12-12-2020',
-            file: 'file.pdf',
-          },
-          {
-            title: 'Course 2',
-            completed_date: '12-12-2020',
-            valid_until: '12-12-2020',
-            file: 'file.pdf',
-          },
-          {
-            title: 'Course 3',
-            completed_date: '12-12-2020',
-            valid_until: '12-12-2020',
-            file: 'file.pdf',
-          },
-          {
-            title: 'Course 4',
-            completed_date: '12-12-2020',
-            valid_until: '12-12-2020',
-            file: 'file.pdf',
-          },
-        ],
-      },
-      {
-        name: 'Employee 2',
-        _showDetails: true,
-        courses: [
-          {
-            title: 'Course 1',
-            completed_date: '12-12-2020',
-            valid_until: '12-12-2020',
-            file: 'file.pdf',
-          },
-          {
-            title: 'Course 2',
-            completed_date: '12-12-2020',
-            valid_until: '12-12-2020',
-            file: 'file.pdf',
-          },
-          {
-            title: 'Course 3',
-            completed_date: '12-12-2020',
-            valid_until: '12-12-2020',
-            file: 'file.pdf',
-          },
-          {
-            title: 'Course 4',
-            completed_date: '12-12-2020',
-            valid_until: '12-12-2020',
-            file: 'file.pdf',
-          },
-        ],
-      },
-    ])
-
     return {
       busy,
       sortBy,
@@ -366,7 +314,6 @@ export default {
       isAddCompetenceActive,
       isAddDocumentActive,
       isEditCompetenceActive,
-      employeeCompetences,
     }
   },
 }

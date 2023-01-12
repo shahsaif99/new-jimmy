@@ -22,21 +22,22 @@ class CompetenceController extends Controller
     {
         $competences = User::query()
         ->select('id','first_name','last_name')
+        ->has('competences')
         ->with(['competences' => ['competence' => ['media']]])
-            ->search($request->q)
-            ->applyFilters($request)
-            ->role('Employee')
-            ->when($request->perPage, function ($query, $perPage) {
-                return $query->paginate($perPage);
-            }, function ($query) {
-                return $query->get();
-            })->transform(function($item){
-                return [
-                    'name' => $item->name,
-                    '_showDetails' => true,
-                    'competences' => $item->competences,
-                ];
-            });
+        ->search($request->q)
+        ->applyFilters($request)
+        ->role('Employee')
+        ->when($request->perPage, function ($query, $perPage) {
+            return $query->paginate($perPage);
+        }, function ($query) {
+            return $query->get();
+        })->transform(function($item){
+            return [
+                'name' => $item->name,
+                '_showDetails' => true,
+                'competences' => $item->competences,
+            ];
+        });
 
         return CompetenceResource::collection($competences);
     }
@@ -99,7 +100,7 @@ class CompetenceController extends Controller
      */
     public function destroy(Competence $competence)
     {
-        $competence->delete();
+        // $competence->employees()->delete();
 
         return response()->json([
             'message' => 'Competence successfully deleted.',

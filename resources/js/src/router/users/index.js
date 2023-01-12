@@ -45,7 +45,7 @@ const routes = [
     name: 'users-edit',
     resource: 'all',
     action: 'users-edit',
-    component: () => import('@/views/users/edit/EditUser.vue'),
+    component: () => import('@/views/users/edit/Index.vue'),
     props: route => ({ id: Number(route.params.id) }),
     meta: {
       pageTitle: 'Edit User',

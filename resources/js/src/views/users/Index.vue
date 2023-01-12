@@ -127,7 +127,7 @@
                 v-if="$can('manage-users', 'all')"
               >
                 <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">Edit</span>
+                <span class="align-middle ml-50">View</span>
               </b-dropdown-item>
 
               <b-dropdown-item
@@ -185,9 +185,7 @@
                 />
               </template>
             </b-pagination>
-
           </b-col>
-
         </b-row>
       </div>
     </b-card>

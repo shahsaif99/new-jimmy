@@ -16,198 +16,206 @@
         ref="refFormObserver"
         #default="{ handleSubmit }"
       >
-        <b-form
-          @submit.prevent="handleSubmit(onSubmit)"
-          @reset.prevent="resetForm"
+        <b-overlay
+          :show="storeBusy"
+          spinner-variant="primary"
+          spinner-type="grow"
+          rounded="sm"
+          opacity="0.20"
         >
-          <b-row>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
-                name="Course Name"
-                rules="required"
-              >
-                <b-form-group
-                  label="Course Name"
-                  label-for="competencename"
-                >
-                  <b-form-input
-                    v-model="formData.name"
-                    placeholder="Course Name"
-                    :state="
-                      getValidationState(
-                        validationContext
-                      )
-                    "
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider>
-            </b-col>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
-                name="Completed Date"
-                rules="required"
-              >
-                <b-form-group
-                  label="Completed Date"
-                  label-for="startdate"
-                >
-                  <b-form-input
-                    type="date"
-                    v-model="formData.completed_date"
-                    :state="
-                      getValidationState(
-                        validationContext
-                      )
-                    "
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
-                name="Valid Until"
-                rules="required"
-              >
-                <b-form-group
-                  label="Valid Until"
-                  label-for="enddate"
-                >
-                  <b-form-input
-                    type="date"
-                    v-model="formData.valid_until"
-                    :state="
-                      getValidationState(
-                        validationContext
-                      )
-                    "
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
-            <b-col
-              cols="12"
-              md="12"
-            >
-
-              <b-form-group
-                label="Add Documents/Images"
-                label-for="files"
-                class="mt-2"
+          <b-form
+            @submit.prevent="handleSubmit(onSubmit)"
+            @reset.prevent="resetForm"
+          >
+            <b-row>
+              <b-col
+                cols="6"
+                md="6"
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Files"
+                  name="Course Name"
+                  rules="required"
                 >
-                  <b-form-file
-                    multiple
-                    :state="getValidationState(validationContext)"
-                    v-model="files"
+                  <b-form-group
+                    label="Course Name"
+                    label-for="competencename"
                   >
-                    <template
-                      slot="file-name"
-                      slot-scope="{ names }"
-                    >
-                      <b-badge variant="primary">
-                        {{ names[0] }}
-                      </b-badge>
-                      <b-badge
-                        v-if="names.length > 1"
-                        variant="primary"
-                      >
-                        + {{ names.length - 1 }} More files
-                      </b-badge>
-                    </template>
-                  </b-form-file>
-                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
+                    <b-form-input
+                      v-model="formData.name"
+                      placeholder="Course Name"
+                      :state="
+                        getValidationState(
+                          validationContext
+                        )
+                      "
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
                 </validation-provider>
-              </b-form-group>
-            </b-col>
-            <b-col sm="12">
-              <ValidationProvider
-                #default="validationContext"
-                name="Employees"
-                rules="required"
+              </b-col>
+              <b-col
+                cols="6"
+                md="6"
               >
-                <b-form-group
-                  label="Select Employee"
-                  label-for="employee"
-                  :state="getValidationState(validationContext)"
+                <validation-provider
+                  #default="validationContext"
+                  name="Completed Date"
+                  rules="required"
                 >
-                  <v-select
-                    v-model="formData.employees"
-                    class="w-full"
-                    placeholder="Type here to search employees"
-                    :options="users"
-                    multiple
-                    :close-on-select="false"
-                    :select-on-tab="true"
-                    :clearable="false"
-                    input-id="employee"
-                    :filterable="false"
-                    label="name"
-                    @search="onSearch"
+                  <b-form-group
+                    label="Completed Date"
+                    label-for="startdate"
+                  >
+                    <b-form-input
+                      type="date"
+                      v-model="formData.completed_date"
+                      :state="
+                        getValidationState(
+                          validationContext
+                        )
+                      "
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider></b-col>
+              <b-col
+                cols="6"
+                md="6"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  name="Valid Until"
+                  rules="required"
+                >
+                  <b-form-group
+                    label="Valid Until"
+                    label-for="enddate"
+                  >
+                    <b-form-input
+                      type="date"
+                      v-model="formData.valid_until"
+                      :state="
+                        getValidationState(
+                          validationContext
+                        )
+                      "
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider></b-col>
+              <b-col
+                cols="12"
+                md="12"
+              >
+
+                <b-form-group
+                  label="Add Documents/Images"
+                  label-for="files"
+                  class="mt-2"
+                >
+                  <validation-provider
+                    #default="validationContext"
+                    name="Files"
+                  >
+                    <b-form-file
+                      multiple
+                      :state="getValidationState(validationContext)"
+                      v-model="files"
+                    >
+                      <template
+                        slot="file-name"
+                        slot-scope="{ names }"
+                      >
+                        <b-badge variant="primary">
+                          {{ names[0] }}
+                        </b-badge>
+                        <b-badge
+                          v-if="names.length > 1"
+                          variant="primary"
+                        >
+                          + {{ names.length - 1 }} More files
+                        </b-badge>
+                      </template>
+                    </b-form-file>
+                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </validation-provider>
+                </b-form-group>
+              </b-col>
+              <b-col sm="12">
+                <ValidationProvider
+                  #default="validationContext"
+                  name="Employees"
+                  rules="required"
+                >
+                  <b-form-group
+                    label="Select Employee"
+                    label-for="employee"
                     :state="getValidationState(validationContext)"
                   >
-                    <template slot="no-options">
-                      type to search employees..
-                    </template>
-                    <template
-                      slot="option"
-                      slot-scope="option"
+                    <v-select
+                      v-model="formData.employees"
+                      class="w-full"
+                      placeholder="Type here to search employees"
+                      :options="users"
+                      multiple
+                      :close-on-select="false"
+                      :select-on-tab="true"
+                      :clearable="false"
+                      input-id="employee"
+                      :filterable="false"
+                      label="name"
+                      @search="onSearch"
+                      :state="getValidationState(validationContext)"
                     >
-                      {{ option.name }}
-                    </template>
-                    <template
-                      slot="selected-option"
-                      slot-scope="option"
-                    >
-                      {{ option.name }}
-                    </template>
-                  </v-select>
-                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </ValidationProvider>
-            </b-col>
-          </b-row>
-          <div class="mb-2">
-            <b-row>
-              <b-col>
-                <div class="d-flex align-items-center justify-content-end">
-                  <b-button
-                    variant="primary"
-                    class="mt-1"
-                    type="submit"
-                  >
-                    <span class="text-nowrap">Submit</span>
-                  </b-button>
-                </div>
+                      <template slot="no-options">
+                        type to search employees..
+                      </template>
+                      <template
+                        slot="option"
+                        slot-scope="option"
+                      >
+                        {{ option.name }}
+                      </template>
+                      <template
+                        slot="selected-option"
+                        slot-scope="option"
+                      >
+                        {{ option.name }}
+                      </template>
+                    </v-select>
+                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </ValidationProvider>
               </b-col>
             </b-row>
-          </div>
-        </b-form>
+            <div class="mb-2">
+              <b-row>
+                <b-col>
+                  <div class="d-flex align-items-center justify-content-end">
+                    <b-button
+                      variant="primary"
+                      class="mt-1"
+                      type="submit"
+                    >
+                      <span class="text-nowrap">Submit</span>
+                    </b-button>
+                  </div>
+                </b-col>
+              </b-row>
+            </div>
+          </b-form>
+        </b-overlay>
       </validation-observer>
     </div>
   </b-modal>
@@ -220,12 +228,13 @@ import {
   BForm,
   BBadge,
   BButton,
+  BOverlay,
   BFormFile,
   BFormInput,
   BFormGroup,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
-import { ref } from '@vue/composition-api'
+import { ref, onMounted } from '@vue/composition-api'
 import useCompetences from '@/composables/competences'
 import useUsers from '@/composables/users'
 import { required } from '@validations'
@@ -242,6 +251,7 @@ export default {
     BBadge,
     BButton,
     vSelect,
+    BOverlay,
     BFormFile,
     BFormInput,
     BFormGroup,
@@ -257,6 +267,10 @@ export default {
     isAddCompetenceActive: {
       type: Boolean,
       required: true,
+    },
+    userData: {
+      type: Object,
+      default: () => {},
     },
   },
   setup(props, { emit }) {
@@ -284,6 +298,12 @@ export default {
       filters,
       fetchUsersList,
     } = useUsers()
+
+    onMounted(() => {
+      if (props.userData) {
+        formData.value.employees = [props.userData]
+      }
+    })
 
     const fetchAsynEmployees = debounce(async (loading, name) => {
       if (!name.length) {

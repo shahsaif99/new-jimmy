@@ -14,6 +14,8 @@ import employeeRoutes from './employee'
 import documentRoutes from './document'
 import competenceRoutes from './competence'
 import lendingRoutes from './lending'
+import absenceRoutes from './absence'
+// import vacationRoutes from './vacation'
 import rolesRoutes from './roles'
 import permissionsRoutes from './permissions'
 // routes
@@ -43,9 +45,11 @@ const router = new Router({
         ...projectRoutes,
         ...lendingRoutes,
         ...rolesRoutes,
+        // ...vacationRoutes,
         ...equipmentsRoutes,
         ...permissionsRoutes,
         ...competenceRoutes,
+        ...absenceRoutes,
         ...generalRoutes,
       ],
     },

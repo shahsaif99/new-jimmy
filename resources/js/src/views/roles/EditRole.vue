@@ -148,7 +148,7 @@ import {
 } from 'bootstrap-vue'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import {
-  reactive, onMounted, ref,
+  onMounted, ref,
 } from '@vue/composition-api'
 import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
@@ -179,8 +179,8 @@ export default {
       type: Boolean,
       required: true,
     },
-    role: {
-      type: Object,
+    roleId: {
+      type: Number,
       required: true,
     },
   },
@@ -190,15 +190,16 @@ export default {
     }
   },
   setup(props, { emit }) {
-    const { busy, updateRole, respResult } = useRoles()
+    const {
+      busy, updateRole, respResult, getRole, roleData,
+    } = useRoles()
     const { permissions, fetchPermissionsList } = usePermissions()
     const selected = ref([])
 
-    const roleData = ref({})
     onMounted(async () => {
       if (props.isEditRoleSidebarActive) {
         await fetchPermissionsList()
-        roleData.value = props.role
+        await getRole(props.roleId)
         roleData.value.permissions = props.role.permissions.map(permission => permission.id)
       }
     })
