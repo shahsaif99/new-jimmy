@@ -21,6 +21,46 @@
           @reset.prevent="resetForm"
         >
           <div>
+            <b-media class="mb-2">
+              <template #aside>
+                <div
+                  class="border"
+                  :class="{'p-4': !previewImg}"
+                >
+                  <b-img
+                    v-if="previewImg"
+                    ref="previewEl"
+                    width="160"
+                    :src="previewImg"
+                    alt="Image Preview"
+                  />
+                  <span v-if="!previewImg">Image Preview</span>
+                </div>
+              </template>
+              <div class="d-flex flex-wrap">
+                <b-button
+                  variant="primary"
+                  size="sm"
+                  @click="$refs.refInputEl.click()"
+                >
+                  <input
+                    ref="refInputEl"
+                    type="file"
+                    class="d-none"
+                    @input="inputImageRenderer"
+                  >
+                  <span class="d-none d-sm-inline">Upload</span>
+                </b-button>
+                <!-- <b-button
+                  variant="outline-secondary"
+                  class="ml-1"
+                  @click="removeImage"
+                  size="sm"
+                >
+                  <span class="d-sm-inline">Remove</span>
+                </b-button> -->
+              </div>
+            </b-media>
             <b-row>
               <b-col
                 cols="6"
@@ -51,31 +91,6 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Serial Number"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Serial Number"
-                    label-for="serialno"
-                  >
-                    <b-form-input
-                      v-model="formData.serial_number"
-                      placeholder="Serial Number"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider></b-col>
-            </b-row>
-            <b-row>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
                   name="Supplier"
                 >
                   <b-form-group
@@ -93,6 +108,9 @@
                   </b-form-group>
                 </validation-provider>
               </b-col>
+
+            </b-row>
+            <b-row>
               <b-col
                 cols="6"
                 md="6"
@@ -116,6 +134,30 @@
                   </b-form-group>
                 </validation-provider>
               </b-col>
+              <b-col
+                cols="6"
+                md="6"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  name="Serial Number"
+                >
+                  <b-form-group
+                    label="Serial Number"
+                    label-for="serialno"
+                  >
+                    <b-form-input
+                      v-model="formData.serial_number"
+                      placeholder="Serial Number"
+                      :state="getValidationState(validationContext)"
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider>
+              </b-col>
+
             </b-row>
             <b-row>
               <b-col
@@ -124,16 +166,15 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Certificate Number"
-                  rules="required|"
+                  name="Certificate No."
                 >
                   <b-form-group
-                    label="Certificate Number"
+                    label="Certificate No."
                     label-for="certificateNumber"
                   >
                     <b-form-input
                       v-model="formData.certificate_number"
-                      placeholder="Certificate Number"
+                      placeholder="Certificate No."
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback>
@@ -149,7 +190,6 @@
                 <validation-provider
                   #default="validationContext"
                   name="Valid Until"
-                  rules="required"
                 >
                   <b-form-group
                     label="Valid Until"
@@ -170,11 +210,10 @@
               <b-col sm="12">
                 <ValidationProvider
                   #default="validationContext"
-                  name="Project"
-                  rules="required"
+                  name="Storage Location"
                 >
                   <b-form-group
-                    label="Select Project"
+                    label="Select Storage Location"
                     label-for="project"
                     :state="getValidationState(validationContext)"
                   >
@@ -259,7 +298,7 @@
             <b-row>
               <b-col>
                 <div
-                  class="d-flex align-items-center justify-content-end"
+                  class="d-flex align-items-center justify-content-end mt-3"
                 >
                   <b-button
                     variant="primary"
@@ -280,14 +319,16 @@
 <script>
 import {
   BRow,
+  BImg,
   BCol,
   BForm,
-  BFormInput,
-  BButton,
-  BFormInvalidFeedback,
-  BFormGroup,
+  BMedia,
   BBadge,
+  BButton,
   BFormFile,
+  BFormInput,
+  BFormGroup,
+  BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 import { required } from '@validations'
@@ -297,13 +338,16 @@ import useEquipments from '@/composables/equipments'
 import useProjects from '@/composables/projects'
 import debounce from 'lodash/debounce'
 import vSelect from 'vue-select'
+import { useInputImageRenderer } from '@core/comp-functions/forms/form-utils'
 
 export default {
   components: {
     BCol,
+    BImg,
     BRow,
     BForm,
     BBadge,
+    BMedia,
     BButton,
     vSelect,
     BFormFile,
@@ -338,6 +382,7 @@ export default {
       certificate_number: '',
       valid_until: '',
       project: '',
+      image: '',
     }
     const files = ref([])
     const { fetchProjectsList, projects } = useProjects()
@@ -380,12 +425,31 @@ export default {
       formNewData.append('category', formData.value.category)
       formNewData.append('certificate_number', formData.value.certificate_number)
       formNewData.append('valid_until', formData.value.valid_until)
+      formNewData.append('image', formData.value.image)
       await storeEquipment(formNewData)
       if (respResult.value.status === 200) {
         emit('refetch-data')
         emit('update:is-add-equipment-active', false)
       }
     }
+
+
+    const refInputEl = ref(null)
+    const previewEl = ref(null)
+    const previewImg = ref(null)
+
+    // remove image
+    const removeImage = () => {
+      previewImg.value = ''
+      formData.value.image = ''
+    }
+
+
+    const { inputImageRenderer } = useInputImageRenderer(refInputEl, base64 => {
+      formData.value.image = base64
+      previewImg.value = base64
+      console.log(previewImg.value)
+    })
 
     return {
       busy,
@@ -396,7 +460,12 @@ export default {
       required,
       onSearch,
       resetForm,
+      previewEl,
+      previewImg,
+      refInputEl,
+      removeImage,
       refFormObserver,
+      inputImageRenderer,
       getValidationState,
     }
   },

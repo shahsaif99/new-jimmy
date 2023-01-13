@@ -44,32 +44,8 @@
                       {{ validationContext.errors[0] }}
                     </b-form-invalid-feedback>
                   </b-form-group>
-                </validation-provider></b-col>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Serial Number"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Serial Number"
-                    label-for="serialno"
-                  >
-                    <b-form-input
-                      v-model="formData.serial_number"
-                      placeholder="Serial Number"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider></b-col>
-            </b-row>
-            <b-row>
+                </validation-provider>
+              </b-col>
               <b-col
                 cols="6"
                 md="6"
@@ -81,7 +57,6 @@
                   <b-form-group
                     label="Supplier"
                     label-for="supplier"
-                    class="mt-1"
                   >
                     <b-form-input
                       v-model="formData.supplier"
@@ -105,7 +80,6 @@
                   <b-form-group
                     label="Category"
                     label-for="category"
-                    class="mt-1"
                   >
                     <b-form-input
                       v-model="formData.category"
@@ -118,8 +92,29 @@
                   </b-form-group>
                 </validation-provider>
               </b-col>
-            </b-row>
-            <b-row>
+              <b-col
+                cols="6"
+                md="6"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  name="Serial Number"
+                >
+                  <b-form-group
+                    label="Serial Number"
+                    label-for="serialno"
+                  >
+                    <b-form-input
+                      v-model="formData.serial_number"
+                      placeholder="Serial Number"
+                      :state="getValidationState(validationContext)"
+                    />
+                    <b-form-invalid-feedback>
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider>
+              </b-col>
               <b-col
                 cols="6"
                 md="6"
@@ -127,12 +122,10 @@
                 <validation-provider
                   #default="validationContext"
                   name="Certificate Number"
-                  rules="required|"
                 >
                   <b-form-group
                     label="Certificate Number"
                     label-for="certificateNumber"
-                    class="mt-1"
                   >
                     <b-form-input
                       v-model="formData.certificate_number"
@@ -152,12 +145,10 @@
                 <validation-provider
                   #default="validationContext"
                   name="Valid Until"
-                  rules="required"
                 >
                   <b-form-group
                     label="Valid Until"
                     label-for="validUntil"
-                    class="mt-1"
                   >
                     <b-form-input
                       type="date"
@@ -174,11 +165,10 @@
               <b-col sm="12">
                 <ValidationProvider
                   #default="validationContext"
-                  name="Project"
-                  rules="required"
+                  name="Storage Location"
                 >
                   <b-form-group
-                    label="Select Project"
+                    label="Select Storage Location"
                     label-for="project"
                     :state="getValidationState(validationContext)"
                   >
@@ -237,7 +227,6 @@
                 <b-form-group
                   label="Add Documents/Images"
                   label-for="files"
-                  class="mt-1"
                 >
                   <b-form-file
                     multiple
@@ -267,7 +256,6 @@
                   class="d-flex align-items-center justify-content-end"
                 >
                   <b-button
-                    class="mt-1"
                     variant="primary"
                     type="submit"
                   >
@@ -393,13 +381,25 @@ export default {
         formNewData.append('files[]', files.value[index])
       }
 
+      if (formData.value.project) {
+        formNewData.append('project_id', formData.value.project.id)
+      }
       formNewData.append('name', formData.value.name)
-      formNewData.append('project_id', formData.value.project.id)
-      formNewData.append('serial_number', formData.value.serial_number)
-      formNewData.append('supplier', formData.value.supplier)
-      formNewData.append('category', formData.value.category)
-      formNewData.append('certificate_number', formData.value.certificate_number)
-      formNewData.append('valid_until', formData.value.valid_until)
+      if (formData.value.serial_number) {
+        formNewData.append('serial_number', formData.value.serial_number)
+      }
+      if (formData.value.supplier) {
+        formNewData.append('supplier', formData.value.supplier)
+      }
+      if (formData.value.category) {
+        formNewData.append('category', formData.value.category)
+      }
+      if (formData.value.certificate_number) {
+        formNewData.append('certificate_number', formData.value.certificate_number)
+      }
+      if (formData.value.valid_until) {
+        formNewData.append('valid_until', formData.value.valid_until)
+      }
       formNewData.append('_method', 'put')
       await updateEquipment(formNewData, formData.value.id)
       if (respResult.value.status === 200) {

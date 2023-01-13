@@ -24,7 +24,7 @@ class RolesAndPermissionSeeder extends Seeder
             'documentcenter', 'projects-add-documents', 'projects-add','equipment-add','equipments-edit',
             'equipments-delete','employee-details','absences-add','absences-listings','competence-listings',
             'employee-delete','employee-edit','employee-add','my-profile-view','password-view','competence-add',
-            'lendings-history','employee-status'
+            'lendings-history','employee-status','vacations-overview','absence-overview','vacations-add',
         ];
 
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {
@@ -44,8 +44,8 @@ class RolesAndPermissionSeeder extends Seeder
         $employeePermissionsArray = [
             'projects-listings', 'dashboard','lendings-history',
             'authentication', 'document-center', 'equipments-listings','employees-listings',
-            'documentcenter', 'projects-add-documents','employee-details',
-            'competence-listings','my-profile-view','password-view','absences-add','absences-listings',
+            'documentcenter', 'projects-add-documents','employee-details',,'my-absence','my-vacations',
+            'competence-listings','my-profile-view','password-view','absences-add','absences-listings','vacations-add',
         ];
 
 
@@ -71,7 +71,8 @@ class RolesAndPermissionSeeder extends Seeder
             'last_name' => 'Galaxy',
             'email' => 'employee@gmail.com',
             'email_verified_at' => now(),
-            'password' =>'password'
+            'password' =>'password',
+            'holidays' => 10
         ]);
 
         $user = User::create([
@@ -79,7 +80,8 @@ class RolesAndPermissionSeeder extends Seeder
             'last_name' => 'Afrani',
             'email' => 'user@gmail.com',
             'email_verified_at' => now(),
-            'password' =>'password'
+            'password' =>'password',
+            'holidays' => 10
         ]);
 
         $admin->assignRole($role1);

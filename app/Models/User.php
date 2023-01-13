@@ -119,20 +119,11 @@ class User extends Authenticatable
         return "{$this->first_name} {$this->last_name}";
     }
 
-    /**
-     * Get all of the students for the User
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function students()
+    public function vacations()
     {
-        return $this->hasMany(Student::class, 'company_id');
+        return $this->hasMany(Vacation::class, 'user_id');
     }
 
-    public function applications()
-    {
-        return $this->hasMany(Application::class, 'company_id');
-    }
 
     public function scopeApplyFilters($query, Request $request)
     {

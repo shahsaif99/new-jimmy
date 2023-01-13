@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Absence;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AbsenceResource;
 use App\Http\Requests\Absence\StoreRequest;
@@ -27,7 +28,7 @@ class AbsenceController extends Controller
             return $query->get();
         });
 
-    return AbsenceResource::collection($absences);
+        return AbsenceResource::collection($absences);
     }
 
     /**
@@ -52,7 +53,9 @@ class AbsenceController extends Controller
      */
     public function show(Absence $absence)
     {
-        //
+        $absence->load('user');
+
+        return new AbsenceResource($absence);
     }
 
     /**
@@ -62,9 +65,11 @@ class AbsenceController extends Controller
      * @param  \App\Models\Absence  $absence
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Absence $absence)
+    public function update(StoreRequest $request, Absence $absence)
     {
-        //
+        $absence->update($request->validated());
+
+        return response()->json(['message' => 'Absence successfully updated.'],200);
     }
 
     /**
@@ -76,5 +81,19 @@ class AbsenceController extends Controller
     public function destroy(Absence $absence)
     {
         //
+        $absence->delete();
+
+        return response()->json(['message' => 'Absence request successfully deleted.'],200);
+
+    }
+
+    public function absenceStatistics()
+    {
+        $absences = Absence::query()
+        ->select([DB::raw("SUM(days) as total_days"), 'type'])
+        ->groupBy('type')
+        ->get()->keyBy('type');
+        return AbsenceResource::collection($absences);
+
     }
 }

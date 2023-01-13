@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AbsenceController;
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\LendingController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\VacationController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EquipmentController;
 use App\Http\Controllers\Api\CompetenceController;
@@ -37,6 +38,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/users/stats', [UserController::class, 'usersStats'])->name('users.stats');
     Route::post('/projects/documents/upload/{project}', [ProjectController::class, 'uploadDocuments'])->name('projects.upload.documents');
     Route::get('/dashboard/statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
+    Route::get('/absences/statistics', [AbsenceController::class, 'absenceStatistics'])->name('absences.statistics');
+    // Route::get('/vacations/statistics', [AbsenceController::class, 'vacationstatistics'])->name('vacations.statistics');
 
     Route::apiResources([
         'users' => UserController::class,
@@ -48,6 +51,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'lendings' => LendingController::class,
         'boardinformation' => BoardInformationController::class,
         'absences' => AbsenceController::class,
+        'vacations' => VacationController::class,
     ]);
 
     Route::get('/account', [AccountController::class, 'account'])->name('account');

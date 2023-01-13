@@ -24,12 +24,12 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'project_id' => ['required'],
+            'project_id' => ['nullable'],
             'name' => ['required','max:255'],
-            'valid_until' => ['required','date'],
+            'valid_until' => ['nullable','date'],
             'supplier' => ['nullable','max:150'],
             'category' => ['nullable','max:150'],
-            'serial_number' => ['required', 'max:150'],
+            'serial_number' => ['nullable', 'max:150'],
             'certificate_number' => ['nullable','max:150'],
         ];
     }

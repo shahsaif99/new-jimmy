@@ -1,141 +1,184 @@
 <template>
-  <b-modal
-    cancel-variant="outline-secondary"
-    :hide-footer="true"
-    title="Equipment Details"
-    size="lg"
-    @close="$emit('update:is-equipment-details-active', false)"
-    :visible="isEquipmentDetailsActive"
-    @hide="$emit('update:is-equipment-details-active', false)"
-  >
-    <b-row v-if="equipmentDetailsData">
-      <b-col
-        sm="6"
-      >
-        <b-card-text class="mt-1">
-          <span class="font-weight-bolder">Name: </span> {{ equipmentDetailsData.name }}
-        </b-card-text>
-        <b-card-text class="mt-1">
-          <span class="font-weight-bolder">Serial Number: </span> {{ equipmentDetailsData.serial_number }}
-        </b-card-text>
-        <b-card-text class="mt-1">
-          <span class="font-weight-bolder">Supplier: </span> {{ equipmentDetailsData.supplier }}
-        </b-card-text>
-        <b-card-text class="mt-1">
-          <span class="font-weight-bolder">Category: </span> {{ equipmentDetailsData.category }}
-        </b-card-text>
-      </b-col>
-      <b-col
-        sm="6"
-      >
-        <b-card-text class="mt-1">
-          <span class="font-weight-bolder">Certificate Number: </span> {{ equipmentDetailsData.certificate_number }}
-        </b-card-text>
-        <b-card-text class="mt-1">
-          <span class="font-weight-bolder">Valid Until: </span> {{ equipmentDetailsData.valid_until }}
-        </b-card-text>
-        <b-card-text
-          class="mt-1"
-          v-if="equipmentDetailsData.project"
-        >
-          <span class="font-weight-bolder">Project: </span> {{ equipmentDetailsData.project.name }}
-        </b-card-text>
-      </b-col>
-    </b-row>
-    <b-row
-      class="mt-3"
-      v-if="equipmentDetailsData.media && equipmentDetailsData.media.length > 0"
+  <div>
+
+
+    <b-modal
+      cancel-variant="outline-secondary"
+      :hide-footer="true"
+      title="Equipment Details"
+      size="lg"
+      @close="$emit('update:is-equipment-details-active', false)"
+      :visible="isEquipmentDetailsActive"
+      @hide="$emit('update:is-equipment-details-active', false)"
     >
-      <b-col
-        cols="4"
-        md="4"
-        class="bequipment "
-      >
-        <h4>Files</h4>
-        <table style="width:100%">
-          <tr
-            v-for="(item, index) in equipmentDetailsData.media"
-            :key="index"
-            class="border"
+      <b-row v-if="equipmentDetailsData">
+        <b-col
+          sm="6"
+        >
+          <b-card-text class="mt-1">
+            <span class="font-weight-bolder">Name: </span> {{ equipmentDetailsData.name }}
+          </b-card-text>
+          <b-card-text class="mt-1">
+            <span class="font-weight-bolder">Category: </span> {{ equipmentDetailsData.category }}
+          </b-card-text>
+          <b-card-text class="mt-1">
+            <span class="font-weight-bolder">Certificate Number: </span> {{ equipmentDetailsData.certificate_number }}
+          </b-card-text>
+
+          <b-card-text
+            class="mt-1"
+            v-if="equipmentDetailsData.project"
           >
-            <th> {{ item.filename }}:</th>
-            <td>
-              <b-link
-                :to="`/storage/${item.directory}/${item.filename}.${item.extension}`"
-                class="font-weight-bold"
-                target="_blank"
-                download
-                v-b-tooltip.hover
-                :title="`Download ${startCase(index)}`"
-              >
-                <feather-icon
-                  icon="DownloadIcon"
-                  size="22"
-                />
-              </b-link>
-              <b-link
-                :to="`/storage/${item.directory}/${item.filename}.${item.extension}`"
-                class="font-weight-bold ml-1"
-                target="_blank"
-                v-b-tooltip.hover
-                :title="`View ${startCase(index)}`"
-              >
-                <feather-icon
-                  icon="EyeIcon"
-                  size="22"
-                />
-              </b-link>
-            </td>
-          </tr>
-        </table>
-      </b-col>
-      <b-col
-        cols="12"
-        md="12"
-        v-if="equipmentDetailsData.media && equipmentDetailsData.media.length > 0"
+            <span class="font-weight-bolder">Storage Location: </span> {{ equipmentDetailsData.project.name }}
+          </b-card-text>
+
+
+        </b-col>
+        <b-col
+          sm="6"
+        >
+          <b-card-text class="mt-1">
+            <span class="font-weight-bolder">Supplier: </span> {{ equipmentDetailsData.supplier }}
+          </b-card-text>
+          <b-card-text class="mt-1">
+            <span class="font-weight-bolder">Serial Number: </span> {{ equipmentDetailsData.serial_number }}
+          </b-card-text>
+          <b-card-text class="mt-1">
+            <span class="font-weight-bolder">Valid Until: </span> {{ equipmentDetailsData.valid_until }}
+          </b-card-text>
+        </b-col>
+      </b-row>
+      <b-row
+        class="mt-3"
       >
-        <b-button
-          @click="handleZipDownload"
-          class="mt-4 "
-          size="sm"
+        <b-col
+          cols="4"
+          md="4"
+          class="bequipment "
         >
-          <feather-icon
-            icon="DownloadIcon"
-            class="mr-50"
-          />
-          Download All Documents
-        </b-button>
-      </b-col>
-    </b-row>
-    <div class="d-flex mt-2 justify-content-between">
-      <div>
+          <h4>Files</h4>
+          <table
+            style="width:100%"
+            v-if="equipmentDetailsData.media && equipmentDetailsData.media.length > 0"
+          >
+            <tr
+              v-for="(item, index) in equipmentDetailsData.media"
+              :key="index"
+              class="border"
+            >
+              <th class="p-1">
+                {{ item.filename }}.{{ item.extension }}
+              </th>
+              <td>
+                <b-link
+                  :to="`/storage/${item.directory}/${item.filename}.${item.extension}`"
+                  class="font-weight-bold"
+                  target="_blank"
+                  download
+                  v-b-tooltip.hover
+                  :title="`Download ${startCase(index)}`"
+                >
+                  <feather-icon
+                    icon="DownloadIcon"
+                    size="22"
+                  />
+                </b-link>
+                <b-link
+                  :to="`/storage/${item.directory}/${item.filename}.${item.extension}`"
+                  class="font-weight-bold ml-1"
+                  target="_blank"
+                  v-b-tooltip.hover
+                  :title="`View ${startCase(index)}`"
+                >
+                  <feather-icon
+                    icon="EyeIcon"
+                    size="22"
+                  />
+                </b-link>
+              </td>
+            </tr>
+          </table>
+        </b-col>
+        <!-- <b-col
+          cols="12"
+          md="12"
+        >
+          <b-button
+            @click="handleZipDownload"
+            class="mt-4 "
+            size="sm"
+            v-if="equipmentDetailsData.media && equipmentDetailsData.media.length > 0"
+          >
+            <feather-icon
+              icon="DownloadIcon"
+              class="mr-50"
+            />
+            Download All Documents
+          </b-button>
+
+        </b-col> -->
+      </b-row>
+      <div class="d-flex mt-2 justify-content-between">
+        <div>
+          <b-button
+            variant="danger"
+            class="mr-2"
+            type="button"
+            size="sm"
+            @click="deleteConfirm"
+          >
+            <feather-icon
+              icon="TrashIcon"
+              class="mr-50"
+            />
+            Delete
+          </b-button>
+
+          <b-button
+            variant="primary"
+            class="mr-2"
+            size="sm"
+            type="button"
+            @click="isEditEquipmentActive = true"
+            v-if="$can('equipments-edit', 'all')"
+          >
+            Edit
+          </b-button>
+          <b-button
+            size="sm"
+            variant="primary"
+            @click="isShowLendingHistoryActive = true"
+          >
+            Show Lending History
+          </b-button>
+        </div>
         <b-button
-          variant="danger"
-          class="mr-2"
           type="button"
-          @click="deleteConfirm"
+          size="sm"
+          variant="outline-secondary"
+          @click="
+            $emit(
+              'update:is-equipment-details-active',
+              false
+            )
+          "
         >
-          <feather-icon
-            icon="TrashIcon"
-            class="mr-50"
-          />
-          Delete
+          Close
         </b-button>
       </div>
-      <b-button
-        type="button"
-        variant="outline-secondary"
-        @click="
-          $emit(
-            'update:is-equipment-details-active',
-            false
-          )
-        "
-      >
-        Close
-      </b-button>
-    </div>
-  </b-modal>
+    </b-modal>
+    <LendingHistory
+      :is-show-lending-history-active.sync="isShowLendingHistoryActive"
+      :equipment="equipmentDetailsData"
+      v-if="isShowLendingHistoryActive"
+    />
+    <EditEquipment
+      :is-edit-equipment-active.sync="isEditEquipmentActive"
+      v-if="isEditEquipmentActive"
+      :equipment="equipmentDetailsData"
+      @refetch-data="$emit('update:is-equipment-details-active', false)"
+    />
+  </div>
 </template>
 
 <script>
@@ -148,6 +191,8 @@ import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import moment from 'moment'
 import useEquipments from '@/composables/equipments'
+import LendingHistory from './LendingHistory.vue'
+import EditEquipment from './Edit.vue'
 
 export default {
   components: {
@@ -157,6 +202,8 @@ export default {
     BModal,
     BButton,
     BCardText,
+    LendingHistory,
+    EditEquipment,
   },
   model: {
     prop: 'isEquipmentDetailsActive',
@@ -188,17 +235,11 @@ export default {
     onMounted(() => {
       if (props.isEquipmentDetailsActive) {
         equipmentDetailsData.value = props.equipment
-        console.log(props.equipment)
       }
     })
+    const isShowLendingHistoryActive = ref(false)
+    const isEditEquipmentActive = ref(false)
 
-    const statuses = ref([
-      'Pending',
-      'Arrived At WareHouse',
-      'In Production',
-      'Completed',
-      'Pick Up',
-    ])
 
     const deleteConfirmed = async () => {
       await deleteEquipment(equipmentDetailsData.value.id)
@@ -247,11 +288,12 @@ export default {
       })
     }
     return {
-      statuses,
       startCase,
       deleteConfirm,
-      equipmentDetailsData,
       handleZipDownload,
+      equipmentDetailsData,
+      isEditEquipmentActive,
+      isShowLendingHistoryActive,
     }
   },
 }

@@ -16,6 +16,23 @@ const routes = [
       ],
     },
   },
+  {
+    path: 'vacations/overview',
+    name: 'vacations-overview',
+    component: () => import('@/views/vacations/Overview.vue'),
+    meta: {
+      pageTitle: 'Vacations Overview',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'vacations-overview',
+      breadcrumb: [
+        {
+          text: 'Vacations Overview',
+          active: true,
+        },
+      ],
+    },
+  },
 ]
 
 export default routes

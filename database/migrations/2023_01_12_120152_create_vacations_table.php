@@ -18,11 +18,11 @@ return new class extends Migration
             $table->date('from_date');
             $table->date('to_date');
             $table->tinyInteger('days');
-            $table->tinyInteger('status');
+            $table->string('status')->default('pending');
             $table->integer('approved_by');
-            $table->date('approved_date');
+            $table->date('approved_date')->nullable();
             $table->integer('user_id');
-            $table->text('comments');
+            $table->text('comments')->nullable();
             $table->timestamps();
         });
     }

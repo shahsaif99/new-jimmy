@@ -3,10 +3,10 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Edit Absence"
+    title="Add Absence"
     size="lg"
-    class="modal-edit-absence-active"
-    id="edit-absence-active"
+    class="modal-add-absence-active"
+    id="add-absence-active"
     @close="$emit('update:is-edit-absence-active', false)"
     :visible="isEditAbsenceActive"
     @hide="$emit('update:is-edit-absence-active', false)"
@@ -20,34 +20,97 @@
           @submit.prevent="handleSubmit(onSubmit)"
           @reset.prevent="resetForm"
         >
-          <b-row>
+          <b-form-row>
             <b-col
-              cols="6"
+              sm="12"
+              class="mb-2"
+            >
+
+              <span
+                class="align-text-top text-capitalize"
+                :class="`text-${resolveStatus(formData.status)}`"
+              >
+                <b-badge :variant="resolveStatus(formData.status)">
+                  <span>{{ formData.status }}</span>
+                </b-badge>
+              </span>
+            </b-col>
+            <b-col
+              cols="12"
               md="6"
             >
               <validation-provider
                 #default="validationContext"
-                name="Absence Name"
+                name="Absence Type"
                 rules="required"
               >
                 <b-form-group
-                  label="Absence Name"
-                  label-for="absencename"
+                  label="Absence Type"
+                  label-for="type"
                 >
-                  <b-form-input
+                  <b-form-select
+                    id="type"
                     v-model="formData.type"
-                    placeholder="Absence Name"
-                    :state="
-                      getValidationState(
-                        validationContext
-                      )
-                    "
+                    :state="getValidationState(validationContext)"
+                    trim
+                    :options="['Self-Report','Sick Child', 'Welfare Leave']"
+                    placeholder="Absence Type"
                   />
+
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
                   </b-form-invalid-feedback>
                 </b-form-group>
               </validation-provider>
+
+            </b-col>
+            <b-col sm="6">
+              <ValidationProvider
+                #default="validationContext"
+                name="Employees"
+                rules="required"
+              >
+                <b-form-group
+                  label="Select Employee"
+                  label-for="employee"
+                  :state="getValidationState(validationContext)"
+                >
+                  <v-select
+                    v-model="formData.user"
+                    class="w-full"
+                    placeholder="Type here to search employees"
+                    :options="users"
+                    :close-on-select="true"
+                    :select-on-tab="true"
+                    :clearable="false"
+                    input-id="employee"
+                    :filterable="false"
+                    :disabled="userData.role !== 'Admin'"
+                    label="name"
+                    @search="onSearch"
+                    :state="getValidationState(validationContext)"
+                  >
+                    <template slot="no-options">
+                      type to search employees..
+                    </template>
+                    <template
+                      slot="option"
+                      slot-scope="option"
+                    >
+                      {{ option.name }}
+                    </template>
+                    <template
+                      slot="selected-option"
+                      slot-scope="option"
+                    >
+                      {{ option.name }}
+                    </template>
+                  </v-select>
+                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </ValidationProvider>
             </b-col>
             <b-col
               cols="6"
@@ -55,70 +118,16 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Start Date"
+                name="From Date"
                 rules="required"
               >
                 <b-form-group
-                  label="Start Date"
+                  label="From Date"
                   label-for="startdate"
                 >
-                  <b-form-input
-                    type="date"
-                    v-model="formData.start_date"
-                    :state="
-                      getValidationState(
-                        validationContext
-                      )
-                    "
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
-                name="End Date"
-                rules="required"
-              >
-                <b-form-group
-                  label="End Date"
-                  label-for="enddate"
-                >
-                  <b-form-input
-                    type="date"
-                    v-model="formData.end_date"
-                    :state="
-                      getValidationState(
-                        validationContext
-                      )
-                    "
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
-                name="Customer"
-                rules="required"
-              >
-                <b-form-group
-                  label="Customer"
-                  label-for="customer"
-                >
-                  <b-form-input
-                    v-model="formData.customer"
-                    placeholder="Customer"
+                  <b-form-datepicker
+                    v-model="formData.from_date"
+                    @input="calculateDays"
                     :state="
                       getValidationState(
                         validationContext
@@ -131,7 +140,92 @@
                 </b-form-group>
               </validation-provider>
             </b-col>
-          </b-row>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                name="To Date"
+                rules="required"
+              >
+                <b-form-group
+                  label="To Date"
+                  label-for="to_date"
+                >
+                  <b-form-datepicker
+                    v-model="formData.to_date"
+                    @input="calculateDays"
+                    :state="
+                      getValidationState(
+                        validationContext
+                      )
+                    "
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                name="Days"
+                rules="required"
+              >
+                <b-form-group
+                  label="Days"
+                  label-for="days"
+                >
+                  <b-form-input
+                    v-model="formData.days"
+                    placeholder="Days"
+                    readonly
+                    :state="
+                      getValidationState(
+                        validationContext
+                      )
+                    "
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="12"
+            >
+              <validation-provider
+                #default="validationContext"
+                name="Comments"
+              >
+                <b-form-group
+                  label="Comments"
+                  label-for="comments"
+                >
+                  <b-form-textarea
+                    v-model="formData.comments"
+                    placeholder="Comments"
+                    :state="
+                      getValidationState(
+                        validationContext
+                      )
+                    "
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+          </b-form-row>
           <div class="mb-2">
             <b-row>
               <b-col>
@@ -158,9 +252,14 @@ import {
   BRow,
   BCol,
   BForm,
-  BFormInput,
+  BBadge,
   BButton,
+  BFormRow,
+  BFormInput,
   BFormGroup,
+  BFormSelect,
+  BFormTextarea,
+  BFormDatepicker,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
@@ -168,15 +267,26 @@ import useAbsences from '@/composables/absences'
 import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
+import debounce from 'lodash/debounce'
+import vSelect from 'vue-select'
+import useUsers from '@/composables/users'
+import useJwt from '@/auth/jwt/useJwt'
+import moment from 'moment'
 
 export default {
   components: {
     BCol,
     BRow,
     BForm,
-    BFormInput,
+    BBadge,
     BButton,
+    vSelect,
+    BFormRow,
+    BFormInput,
     BFormGroup,
+    BFormSelect,
+    BFormTextarea,
+    BFormDatepicker,
     ValidationProvider,
     ValidationObserver,
     BFormInvalidFeedback,
@@ -190,39 +300,82 @@ export default {
       type: Boolean,
       required: true,
     },
-    absence: {
-      type: Object,
+    absenceId: {
+      type: Number,
       required: true,
     },
   },
   setup(props, { emit }) {
-    const initialState = {
-      type: '',
-      from_date: '',
-      to_date: '',
-      days: '',
-      comments: '',
+    const formData = ref({})
+    // const formData = toRef(props, 'absence')
+
+    const userData = JSON.parse(useJwt.getUserData())
+
+    const calculateDays = () => {
+      if (formData.value.from_date) {
+        const day = moment(formData.value.from_date)
+        const businessDays = ref(0)
+        const endDate = formData.value.to_date
+        while (day.isSameOrBefore(endDate, 'day')) {
+          if (day.day() !== 0 && day.day() !== 6) businessDays.value += 1
+          day.add(1, 'd')
+        }
+        formData.value.days = businessDays.value
+      }
     }
 
-    const formData = ref({ })
     const {
       busy,
       respResult,
+      getAbsence,
+      absenceData,
       updateAbsence,
+      resolveStatus,
     } = useAbsences()
 
-    onMounted(() => {
-      if (props.absence) {
-        formData.value = { ...props.absence }
+    const {
+      busy: usersBusy,
+      users,
+      filters,
+      fetchUsersList,
+    } = useUsers()
+
+
+    onMounted(async () => {
+      if (props.isEditAbsenceActive) {
+        await getAbsence(props.absenceId)
+        formData.value = { ...absenceData.value }
+        if (userData.role !== 'Admin') {
+          formData.value.user = userData
+        }
       }
     })
+
 
     const resetForm = () => {
 
     }
 
+    const fetchAsynEmployees = debounce(async (loading, name) => {
+      if (!name.length) {
+        return
+      }
+      filters.role = 'Employee'
+      fetchUsersList(name)
+      loading(false)
+    }, 350)
+
+    const onSearch = (name, loading) => {
+      if (!name.length) {
+        return
+      }
+      loading(true)
+      fetchAsynEmployees(loading, name, this)
+    }
+
+
     const onSubmit = async () => {
-      await updateAbsence(formData.value)
+      await updateAbsence({ ...formData.value, ...{ user_id: formData.value.user.id } })
       if (respResult.value.status === 200) {
         emit('refetch-data')
         emit('update:is-edit-absence-active', false)
@@ -234,10 +387,16 @@ export default {
 
     return {
       busy,
+      users,
+      onSearch,
       formData,
+      userData,
       required,
       onSubmit,
+      usersBusy,
       resetForm,
+      resolveStatus,
+      calculateDays,
       refFormObserver,
       getValidationState,
     }

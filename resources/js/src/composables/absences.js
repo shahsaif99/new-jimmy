@@ -1,5 +1,7 @@
 import axios from '@axios'
-import { computed, ref, watch } from '@vue/composition-api'
+import {
+  computed, ref, watch, reactive,
+} from '@vue/composition-api'
 import route from 'ziggy-js'
 import toaster from './toaster'
 
@@ -7,8 +9,9 @@ export default function useAbsences() {
   const busy = ref(false)
   const respResult = ref(null)
   const absences = ref([])
-  const absence = ref(null)
   const errors = ref({})
+  const absenceData = ref({})
+  const absencesStats = ref({})
   const toast = toaster()
   const perPage = ref(10)
   const totalRecords = ref(0)
@@ -18,19 +21,30 @@ export default function useAbsences() {
   const sortBy = ref('id')
   const isSortDirDesc = ref(true)
   const refListTable = ref(null)
+  const filters = reactive({
+  })
 
   const tableColumns = [
-    { key: 'id', sortable: false },
     { key: 'type', sortable: true },
     { key: 'from_date', sortable: false },
     { key: 'to_date', sortable: false },
     { key: 'days', sortable: false },
     { key: 'status', sortable: false },
-    { key: 'approved_by', sortable: false },
+    { key: 'comments', sortable: false, width: 100 },
+    { key: 'approved_by.name', sortable: false, label: 'Approved By' },
     { key: 'approved_date', sortable: false },
     { key: 'actions' },
   ]
 
+  const overviewTableColumns = [
+    { key: 'user.name', sortable: true, label: 'Employee Name' },
+    { key: 'from_date', sortable: false },
+    { key: 'to_date', sortable: false },
+    { key: 'days', sortable: false },
+    { key: 'type', sortable: false },
+    { key: 'comments', sortable: false, width: 100 },
+    { key: 'actions' },
+  ]
 
   const dataMeta = computed(() => {
     const localItemsCount = refListTable.value ? refListTable.value.localItems.length : 0
@@ -51,6 +65,7 @@ export default function useAbsences() {
           page: currentPage.value,
           sortBy: sortBy.value,
           sortDesc: isSortDirDesc.value,
+          ...filters,
         },
       })
       absences.value = response.data.data
@@ -74,7 +89,8 @@ export default function useAbsences() {
   const getAbsence = async id => {
     try {
       const response = await axios.get(route('absences.show', { id }))
-      absence.value = response.data.data
+      absenceData.value = response.data.data
+      console.log(absenceData.value)
     } catch (error) {
       if (error.message === 'Network Error') {
         toast.error(error.message)
@@ -134,29 +150,6 @@ export default function useAbsences() {
     }
   }
 
-  const uploadDocument = async (data, id) => {
-    console.log(data)
-    errors.value = ''
-    try {
-      busy.value = true
-      const response = await axios.post(route('absences.upload.documents', id), data)
-      respResult.value = response
-      toast.success(response.data.message)
-    } catch (error) {
-      console.log(error)
-      if (error.message === 'Network Error') {
-        toast.error(error.message)
-      } else {
-        if (error.response.status === 422) {
-          errors.value = error.response.data.errors
-        }
-        respResult.value = error
-        toast.error(error.response.data.message)
-      }
-    } finally {
-      busy.value = false
-    }
-  }
 
   const deleteAbsence = async id => {
     try {
@@ -175,10 +168,11 @@ export default function useAbsences() {
       busy.value = false
     }
   }
-  const resolveAbsencestatus = status => {
-    if (status === 'Pending') {
+  const resolveStatus = status => {
+    if (status === 'pending') {
       return 'warning'
-    } if (status === 'Complete Information') { return 'danger' }
+    } if (status === 'approved') { return 'primary' }
+    if (status === 'declined') { return 'danger' }
     return 'primary'
   }
 
@@ -198,15 +192,23 @@ export default function useAbsences() {
     }
   }
 
+  const fetchAbsencesStats = async (searchString = '') => {
+    busy.value = true
+    try {
+      const response = await axios.get(route('absences.statistics'), {
+        params: {
+          q: searchString,
+        },
+      })
+      absencesStats.value = response.data.data
+    } catch (e) {
+      toast.error(e.response.data.message)
+    } finally {
+      busy.value = false
+    }
+  }
 
-  const attachmentFields = [
-    { key: 'name' },
-    { key: 'attachment' },
-  ]
-  const attachmentData = [
-    { name: 'hello.png', attachment: 'hello' },
-    { name: 'hello.png', attachment: 'hello' },
-  ]
+
   watch([currentPage, searchQuery], () => {
     fetchAbsences()
   })
@@ -216,26 +218,27 @@ export default function useAbsences() {
     sortBy,
     errors,
     perPage,
-    absence,
     dataMeta,
+    filters,
     absences,
     getAbsence,
     respResult,
+    absenceData,
     currentPage,
     searchQuery,
     totalRecords,
     tableColumns,
     deleteAbsence,
     isSortDirDesc,
+    absencesStats,
     updateAbsence,
     fetchAbsences,
     storeAbsence,
+    resolveStatus,
     perPageOptions,
-    attachmentData,
-    uploadDocument,
-    attachmentFields,
     fetchAbsencesList,
-    resolveAbsencestatus,
+    fetchAbsencesStats,
+    overviewTableColumns,
   }
 }
 

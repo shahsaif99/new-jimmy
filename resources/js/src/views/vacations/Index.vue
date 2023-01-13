@@ -1,41 +1,39 @@
 <template>
   <div>
-    <EditEquipment
-      :is-edit-equipment-active.sync="isEditEquipmentActive"
-      v-if="isEditEquipmentActive"
-      :equipment="equipment"
-      @refetch-data="fetchEquipments"
+    <edit-vacation
+      :is-edit-vacation-active.sync="isEditVacationActive"
+      v-if="isEditVacationActive"
+      :vacation-id="vacationId"
+      @refetch-data="fetchVacations"
     />
-    <CreateEquipment
-      :is-add-equipment-active.sync="isAddEquipmentActive"
-      v-if="isAddEquipmentActive"
-      @refetch-data="fetchEquipments"
+    <add-vacation
+      :is-add-vacation-active.sync="isAddVacationActive"
+      v-if="isAddVacationActive"
+      @refetch-data="fetchVacations"
     />
-    <ViewEquipment
-      :is-equipment-details-active.sync="isEquipmentDetailsActive"
-      :equipment="equipment"
-      v-if="isEquipmentDetailsActive"
-      @refetch-data="fetchEquipments"
-    />
-
-    <LendingHistory
-      :is-show-lending-history-active.sync="isShowLendingHistoryActive"
-      :equipment="equipment"
-      v-if="isShowLendingHistoryActive"
-    />
+    <b-row>
+      <b-col
+        cols="12"
+        md="3"
+        v-for="(stats, index) in vacationsStats"
+        :key="index"
+      >
+        <statistic-card-horizontal
+          icon="CalendarIcon"
+          :statistic="stats.type"
+          :statistic-title="`${stats.total_days} days`"
+        />
+      </b-col>
+    </b-row>
     <b-card
       no-body
-      class="mb-0"
+      class="mb-0 mt-2"
     >
-
       <div class="m-2">
-        <b-card-title>
-          Equipments
-        </b-card-title>
         <b-row>
           <b-col
             cols="12"
-            md="6"
+            md="8"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
             <label>Show</label>
@@ -49,26 +47,25 @@
             <label>entries</label>
             <b-button
               variant="primary"
-              v-if="$can('equipment-add', 'all')"
-              @click="isAddEquipmentActive = true"
-              class="ml-2"
+              @click="isAddVacationActive = true"
+              v-if="$can('vacations-add', 'all')"
+              class="ml-3"
             >
-              <span class="text-nowrap">Add New Equipment</span>
+              <span class="text-nowrap">Add Vacation</span>
             </b-button>
           </b-col>
           <b-col
             cols="12"
-            md="6"
+            md="4"
           >
             <div
               class="d-flex align-items-center justify-content-end"
             >
               <b-form-input
                 v-model="searchQuery"
-                class="d-inline-block mr-1 md-2"
+                class="d-inline-block mr-1"
                 placeholder="Search..."
               />
-
             </div>
           </b-col>
         </b-row>
@@ -82,7 +79,7 @@
         <b-table
           ref="refListTable"
           class="position-relative"
-          :items="equipments"
+          :items="vacations"
           responsive
           :fields="tableColumns"
           primary-key="id"
@@ -90,17 +87,20 @@
           show-empty
           empty-text="No matching records found"
           :sort-desc.sync="isSortDirDesc"
-          @row-clicked="viewEquipment"
-          tbody-tr-class="item-row"
         >
-          <template #cell(lending)="data">
-            <b-button
-              variant="flat-primary"
-              size="sm"
-              @click="lendingEquipment(data.item)"
+          <template #cell(status)="data">
+            <div
+              class="text-nowrap"
             >
-              Show
-            </b-button>
+              <span
+                class="align-text-top text-capitalize"
+                :class="`text-${resolveStatus(data.item.status)}`"
+              >
+                <b-badge :variant="resolveStatus(data.item.status)">
+                  <span>{{ data.item.status }}</span>
+                </b-badge>
+              </span>
+            </div>
           </template>
           <template #cell(actions)="data">
             <b-dropdown
@@ -115,21 +115,15 @@
                 />
               </template>
               <b-dropdown-item
-                @click="viewEquipment(data.item)"
-              >
-                <feather-icon icon="EyeIcon" />
-                <span class="align-middle ml-50">View</span>
-              </b-dropdown-item>
-              <b-dropdown-item
-                @click="editEquipment(data.item)"
-                v-if="$can('equipments-edit', 'all')"
+                v-if="data.item.status !== 'approved'"
+                @click="editVacation(data.item.id)"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">Edit</span>
               </b-dropdown-item>
               <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
-                v-if="$can('equipments-delete', 'all')"
+                v-if="data.item.status !== 'approved'"
               >
                 <feather-icon
                   icon="TrashIcon"
@@ -195,42 +189,37 @@ import {
   BCol,
   BTable,
   BOverlay,
-  BFormInput,
-  BPagination,
+  BBadge,
   BButton,
   BDropdown,
-  BCardTitle,
+  BFormInput,
+  BPagination,
   BDropdownItem,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
-// eslint-disable-next-line import/no-cycle
-import useEquipments from '@/composables/equipments'
-import CreateEquipment from './Create.vue'
-import EditEquipment from './Edit.vue'
-import ViewEquipment from './View.vue'
-import LendingHistory from './LendingHistory.vue'
-
+import useVacations from '@/composables/vacations'
+import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
+import AddVacation from './dialogs/AddVacation.vue'
+import EditVacation from './dialogs/EditVacation.vue'
 
 export default {
   components: {
-    // Export,
     BCol,
     BRow,
     BCard,
     BTable,
-    BButton,
+    BBadge,
     vSelect,
+    BButton,
     BOverlay,
+    BDropdown,
+    AddVacation,
     BFormInput,
     BPagination,
-    BDropdown,
-    BCardTitle,
+    EditVacation,
     BDropdownItem,
-    EditEquipment,
-    LendingHistory,
-    ViewEquipment,
-    CreateEquipment,
+    StatisticCardHorizontal,
   },
   setup(_, { root }) {
     const {
@@ -238,61 +227,50 @@ export default {
       sortBy,
       filters,
       perPage,
-      student,
+      vacations,
       dataMeta,
-      equipments,
       respResult,
       refetchData,
       searchQuery,
-      currentPage,
       tableColumns,
+      currentPage,
       totalRecords,
       refListTable,
+      deleteVacation,
+      vacationsStats,
       isSortDirDesc,
+      resolveStatus,
+      fetchVacations,
+      vacationStats,
       perPageOptions,
-      deleteEquipment,
-      fetchEquipments,
-    } = useEquipments()
+      fetchVacationsStats,
+    } = useVacations()
 
-
-    onMounted(() => {
-      fetchEquipments()
+    onMounted(async () => {
+      await fetchVacations()
+    //   await fetchVacationsStats()
     })
-
     const isExportActive = ref(false)
-    const isAddEquipmentActive = ref(false)
-    const isEditEquipmentActive = ref(false)
-    const isEquipmentDetailsActive = ref(false)
-    const isShowLendingHistoryActive = ref(false)
-    const equipment = ref({})
-
+    const isAddVacationActive = ref(false)
+    const isAddDocumentActive = ref(false)
+    const isEditVacationActive = ref(false)
+    const vacationId = ref(0)
     const deleteConfirmed = async id => {
-      await deleteEquipment(id)
+      await deleteVacation(id)
       if (respResult.value.status === 200) {
-        fetchEquipments()
+        fetchVacations()
       }
     }
 
-
-    const editEquipment = item => {
-      equipment.value = item
-      isEditEquipmentActive.value = true
+    const editVacation = id => {
+      vacationId.value = id
+      isEditVacationActive.value = true
     }
 
-    const viewEquipment = data => {
-      isEquipmentDetailsActive.value = true
-      equipment.value = data
-    }
-
-
-    const lendingEquipment = data => {
-      isShowLendingHistoryActive.value = true
-      equipment.value = data
-    }
 
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete equipment.', {
+        .msgBoxConfirm('Please confirm that you want to delete vacation.', {
           title: 'Please Confirm',
           size: 'sm',
         })
@@ -302,49 +280,42 @@ export default {
           }
         })
     }
-
-
     return {
       busy,
       sortBy,
       filters,
-      student,
       perPage,
+      vacations,
       dataMeta,
-      equipment,
+      vacationId,
       refetchData,
+      editVacation,
       searchQuery,
-      equipments,
       currentPage,
+      vacationsStats,
+      vacationStats,
       tableColumns,
       totalRecords,
       refListTable,
       isSortDirDesc,
-      viewEquipment,
-      editEquipment,
       confirmDelete,
+      resolveStatus,
       perPageOptions,
       isExportActive,
-      fetchEquipments,
-      deleteEquipment,
-      lendingEquipment,
-      isAddEquipmentActive,
-      isEditEquipmentActive,
-      isEquipmentDetailsActive,
-      isShowLendingHistoryActive,
+      fetchVacations,
+      isAddVacationActive,
+      isAddDocumentActive,
+      isEditVacationActive,
     }
   },
 }
 </script>
-<style lang="scss" >
-    .per-page-selector {
-        width: 90px;
-    }
-    .item-row{
-    cursor:pointer;
-}
-</style>
+  <style scoped>
+  .per-page-selector {
+    width: 90px;
+  }
+  </style>
 
-<style lang="scss">
-    @import '~@core/scss/vue/libs/vue-select.scss';
-</style>
+  <style lang="scss">
+  @import '~@core/scss/vue/libs/vue-select.scss';
+  </style>

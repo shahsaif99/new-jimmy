@@ -184,11 +184,6 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      required,
-    }
-  },
   setup(props, { emit }) {
     const {
       busy, updateRole, respResult, getRole, roleData,
@@ -200,7 +195,7 @@ export default {
       if (props.isEditRoleSidebarActive) {
         await fetchPermissionsList()
         await getRole(props.roleId)
-        roleData.value.permissions = props.role.permissions.map(permission => permission.id)
+        roleData.value.permissions = roleData.value.permissions.map(permission => permission.id)
       }
     })
 
@@ -225,6 +220,7 @@ export default {
 
     return {
       busy,
+      required,
       selected,
       roleData,
       onSubmit,

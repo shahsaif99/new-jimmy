@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\User;
-use App\Traits\Upload;
-use App\Exports\UsersExport;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
+use App\Http\Resources\UserResource;
+use App\Models\User;
+use App\Traits\Upload;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -50,13 +49,12 @@ class UserController extends Controller
         }
 
         $user = User::create($data);
-        if($request->role){
+        if ($request->role) {
             $user->assignRole($request->role);
         }
-        if($request->permissions){
+        if ($request->permissions) {
             $user->givePermissionTo($request->permissions);
         }
-
 
         return response()->json(['message' => 'User successfully created.'], 200);
     }
@@ -67,10 +65,15 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show($userId)
     {
 
-        return new UserResource($user->load(['permissions','roles.permissions']));
+        $user = User::with(['permissions', 'roles.permissions'])->withSum(['vacations' => function ($query) {
+            $query->whereStatus('approved');
+        }], 'days')
+        ->findOrFail($userId);
+
+        return new UserResource($user);
     }
 
     /**
@@ -84,20 +87,20 @@ class UserController extends Controller
     {
         $user->update($request->validated());
 
-        $data = $request->except(['password','password_confirmation']);
+        $data = $request->except(['password', 'password_confirmation']);
 
-        if($request->filled('password')){
-           $data = array_merge($data, $request->only(['password','password_confirmation']));
+        if ($request->filled('password')) {
+            $data = array_merge($data, $request->only(['password', 'password_confirmation']));
         }
         if ($request->avatar_new) {
             $avatar = Upload::uploadBase64AvatarAndResize($request->avatar_new);
             $data['avatar'] = $avatar;
         }
         $user->update($data);
-        if($request->role){
+        if ($request->role) {
             $user->syncRoles($request->role);
         }
-        if($request->permissions_list){
+        if ($request->permissions_list) {
             $user->syncPermissions($request->permissions_list);
         }
 
@@ -133,7 +136,6 @@ class UserController extends Controller
 
         return response()->json(['message' => 'User status successfully updated.'], 200);
     }
-
 
     public function getAllPermissions($user)
     {

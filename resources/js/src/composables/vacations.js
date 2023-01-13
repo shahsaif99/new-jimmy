@@ -5,12 +5,13 @@ import {
 import route from 'ziggy-js'
 import toaster from './toaster'
 
-export default function useEquipments() {
+export default function useVacations() {
   const busy = ref(false)
   const respResult = ref(null)
-  const equipments = ref([])
-  const equipment = ref(null)
+  const vacations = ref([])
   const errors = ref({})
+  const vacationData = ref({})
+  const vacationsStats = ref({})
   const toast = toaster()
   const perPage = ref(10)
   const totalRecords = ref(0)
@@ -22,21 +23,16 @@ export default function useEquipments() {
   const refListTable = ref(null)
   const filters = reactive({
   })
-
-
   const tableColumns = [
-    { key: 'name', sortable: true },
-    { key: 'supplier', sortable: false },
-    { key: 'category', sortable: false },
-    { key: 'serial_number', sortable: false },
-    { key: 'certificate_number', sortable: false },
-    { key: 'valid_until', sortable: false },
-    { key: 'lending', sortable: false },
-    // { key: 'project.name', sortable: false, label: 'Project' },
-    // { key: 'created_at', sortable: false },
+    { key: 'from_date', sortable: false },
+    { key: 'to_date', sortable: false },
+    { key: 'days', sortable: false },
+    { key: 'status', sortable: false },
+    { key: 'comments', sortable: false },
+    { key: 'approved_by.name', sortable: false, label: 'Approved By' },
+    { key: 'approved_date', sortable: false },
     { key: 'actions' },
   ]
-
 
   const dataMeta = computed(() => {
     const localItemsCount = refListTable.value ? refListTable.value.localItems.length : 0
@@ -47,10 +43,10 @@ export default function useEquipments() {
     }
   })
 
-  const fetchEquipments = async () => {
+  const fetchVacations = async () => {
     try {
       busy.value = true
-      const response = await axios.get(route('equipments.index'), {
+      const response = await axios.get(route('vacations.index'), {
         params: {
           q: searchQuery.value,
           perPage: perPage.value,
@@ -60,7 +56,7 @@ export default function useEquipments() {
           ...filters,
         },
       })
-      equipments.value = response.data.data
+      vacations.value = response.data.data
       if (response.data.meta) {
         const { total } = response.data.meta
         totalRecords.value = total
@@ -78,10 +74,11 @@ export default function useEquipments() {
     }
   }
 
-  const getEquipment = async id => {
+  const getVacation = async id => {
     try {
-      const response = await axios.get(route('equipments.show', { id }))
-      equipment.value = response.data.data
+      const response = await axios.get(route('vacations.show', { id }))
+      vacationData.value = response.data.data
+      console.log(vacationData.value)
     } catch (error) {
       if (error.message === 'Network Error') {
         toast.error(error.message)
@@ -96,11 +93,11 @@ export default function useEquipments() {
   }
 
 
-  const storeEquipment = async data => {
+  const storeVacation = async data => {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.post(route('equipments.store'), data)
+      const response = await axios.post(route('vacations.store'), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -119,16 +116,14 @@ export default function useEquipments() {
   }
 
 
-  const updateEquipment = async (data, id) => {
+  const updateVacation = async data => {
     errors.value = ''
     try {
-      console.log(data)
       busy.value = true
-      const response = await axios.post(route('equipments.update', id), data)
+      const response = await axios.put(route('vacations.update', data.id), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
-      console.log(error)
       if (error.message === 'Network Error') {
         toast.error(error.message)
       } else {
@@ -143,10 +138,11 @@ export default function useEquipments() {
     }
   }
 
-  const deleteEquipment = async id => {
+
+  const deleteVacation = async id => {
     try {
       busy.value = true
-      const response = await axios.delete(route('equipments.destroy', id))
+      const response = await axios.delete(route('vacations.destroy', id))
       toast.success(response.data.message)
       respResult.value = response
     } catch (error) {
@@ -160,22 +156,39 @@ export default function useEquipments() {
       busy.value = false
     }
   }
-  const resolveEquipmentstatus = status => {
-    if (status === 'Pending') {
+  const resolveStatus = status => {
+    if (status === 'pending') {
       return 'warning'
-    } if (status === 'Complete Information') { return 'danger' }
+    } if (status === 'approved') { return 'success' }
+    if (status === 'declined') { return 'danger' }
     return 'primary'
   }
 
-  const fetchEquipmentsList = async (searchString = '') => {
+  const fetchVacationsList = async (searchString = '') => {
     busy.value = true
     try {
-      const response = await axios.get(route('equipments.index'), {
+      const response = await axios.get(route('vacations.index'), {
         params: {
           q: searchString,
         },
       })
-      equipments.value = response.data.data
+      vacations.value = response.data.data
+    } catch (e) {
+      toast.error(e.response.data.message)
+    } finally {
+      busy.value = false
+    }
+  }
+
+  const fetchVacationsStats = async (searchString = '') => {
+    busy.value = true
+    try {
+      const response = await axios.get(route('vacations.statistics'), {
+        params: {
+          q: searchString,
+        },
+      })
+      vacationsStats.value = response.data.data
     } catch (e) {
       toast.error(e.response.data.message)
     } finally {
@@ -184,32 +197,34 @@ export default function useEquipments() {
   }
 
   watch([currentPage, searchQuery, perPage], () => {
-    fetchEquipments()
+    fetchVacations()
   })
 
   return {
     busy,
     sortBy,
     errors,
-    filters,
     perPage,
-    equipment,
     dataMeta,
-    equipments,
-    storeEquipment,
-    getEquipment,
+    filters,
+    vacations,
+    getVacation,
     respResult,
-    updateEquipment,
-    fetchEquipments,
+    vacationData,
     currentPage,
     searchQuery,
     totalRecords,
     tableColumns,
-    deleteEquipment,
+    deleteVacation,
     isSortDirDesc,
+    vacationsStats,
+    updateVacation,
+    fetchVacations,
+    storeVacation,
+    resolveStatus,
     perPageOptions,
-    fetchEquipmentsList,
-    resolveEquipmentstatus,
+    fetchVacationsList,
+    fetchVacationsStats,
   }
 }
 

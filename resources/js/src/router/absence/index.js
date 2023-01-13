@@ -16,6 +16,23 @@ const routes = [
       ],
     },
   },
+  {
+    path: 'absences/overview',
+    name: 'absences-overview',
+    component: () => import('@/views/absences/Overview.vue'),
+    meta: {
+      pageTitle: 'Absences Overview',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'absence-overview',
+      breadcrumb: [
+        {
+          text: 'Absences Overview',
+          active: true,
+        },
+      ],
+    },
+  },
 ]
 
 export default routes

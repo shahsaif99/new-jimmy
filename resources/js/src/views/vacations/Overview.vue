@@ -1,21 +1,10 @@
 <template>
   <div>
-    <edit-absence
-      :is-edit-absence-active.sync="isEditAbsenceActive"
-      v-if="isEditAbsenceActive"
-      :absence-id="absenceId"
-      @refetch-data="fetchAbsences"
-    />
-    <add-absence
-      :is-add-absence-active.sync="isAddAbsenceActive"
-      v-if="isAddAbsenceActive"
-      @refetch-data="fetchAbsences"
-    />
     <b-row>
       <b-col
         cols="12"
         md="3"
-        v-for="(stats, index) in absencesStats"
+        v-for="(stats, index) in vacationsStats"
         :key="index"
       >
         <statistic-card-horizontal
@@ -29,47 +18,6 @@
       no-body
       class="mb-0 mt-2"
     >
-      <div class="m-2">
-        <b-row>
-          <b-col
-            cols="12"
-            md="8"
-            class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
-          >
-            <label>Show</label>
-            <v-select
-              v-model="perPage"
-              :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-              :options="perPageOptions"
-              :clearable="false"
-              class="per-page-selector d-inline-block mx-50"
-            />
-            <label>entries</label>
-            <b-button
-              variant="primary"
-              @click="isAddAbsenceActive = true"
-              v-if="$can('absences-add', 'all')"
-              class="ml-3"
-            >
-              <span class="text-nowrap">Add Absence</span>
-            </b-button>
-          </b-col>
-          <b-col
-            cols="12"
-            md="4"
-          >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
-              <b-form-input
-                v-model="searchQuery"
-                class="d-inline-block mr-1"
-                placeholder="Search..."
-              />
-            </div>
-          </b-col>
-        </b-row>
-      </div>
       <b-overlay
         id="overlay-background"
         :show="busy"
@@ -79,7 +27,7 @@
         <b-table
           ref="refListTable"
           class="position-relative"
-          :items="absences"
+          :items="vacations"
           responsive
           :fields="tableColumns"
           primary-key="id"
@@ -114,12 +62,13 @@
                   class="align-middle text-body"
                 />
               </template>
-              <b-dropdown-item
-                v-if="data.item.status !== 'approved'"
-                @click="editAbsence(data.item.id)"
-              >
+              <b-dropdown-item>
                 <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">Edit</span>
+                <span class="align-middle ml-50">Accept</span>
+              </b-dropdown-item>
+              <b-dropdown-item>
+                <feather-icon icon="EditIcon" />
+                <span class="align-middle ml-50">Not Accept</span>
               </b-dropdown-item>
               <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
@@ -187,39 +136,27 @@ import {
   BCard,
   BRow,
   BCol,
-  BBadge,
   BTable,
-  BButton,
   BOverlay,
+  BBadge,
   BDropdown,
-  BFormInput,
   BPagination,
   BDropdownItem,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
-import vSelect from 'vue-select'
-import useAbsences from '@/composables/absences'
-import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
-import AddAbsence from './dialogs/AddAbsence.vue'
-import EditAbsence from './dialogs/EditAbsence.vue'
+import useVacations from '@/composables/vacations'
 
 export default {
   components: {
     BCol,
     BRow,
     BCard,
-    BBadge,
     BTable,
-    vSelect,
-    BButton,
+    BBadge,
     BOverlay,
     BDropdown,
-    AddAbsence,
-    BFormInput,
     BPagination,
-    EditAbsence,
     BDropdownItem,
-    StatisticCardHorizontal,
   },
   setup(_, { root }) {
     const {
@@ -227,7 +164,7 @@ export default {
       sortBy,
       filters,
       perPage,
-      absences,
+      vacations,
       dataMeta,
       respResult,
       refetchData,
@@ -236,41 +173,40 @@ export default {
       currentPage,
       totalRecords,
       refListTable,
-      deleteAbsence,
-      absencesStats,
+      deleteVacation,
+      vacationsStats,
       isSortDirDesc,
       resolveStatus,
-      fetchAbsences,
-      absenceStats,
+      fetchVacations,
+      vacationStats,
       perPageOptions,
-      fetchAbsencesStats,
-    } = useAbsences()
+    } = useVacations()
 
     onMounted(async () => {
-      await fetchAbsences()
-      await fetchAbsencesStats()
+      await fetchVacations()
+    //   await fetchVacationsStats()
     })
     const isExportActive = ref(false)
-    const isAddAbsenceActive = ref(false)
+    const isAddVacationActive = ref(false)
     const isAddDocumentActive = ref(false)
-    const isEditAbsenceActive = ref(false)
-    const absenceId = ref(0)
+    const isEditVacationActive = ref(false)
+    const vacationId = ref(0)
     const deleteConfirmed = async id => {
-      await deleteAbsence(id)
+      await deleteVacation(id)
       if (respResult.value.status === 200) {
-        fetchAbsences()
+        fetchVacations()
       }
     }
 
-    const editAbsence = id => {
-      absenceId.value = id
-      isEditAbsenceActive.value = true
+    const editVacation = id => {
+      vacationId.value = id
+      isEditVacationActive.value = true
     }
 
 
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete absence.', {
+        .msgBoxConfirm('Please confirm that you want to delete vacation.', {
           title: 'Please Confirm',
           size: 'sm',
         })
@@ -285,15 +221,15 @@ export default {
       sortBy,
       filters,
       perPage,
-      absences,
+      vacations,
       dataMeta,
-      absenceId,
+      vacationId,
       refetchData,
-      editAbsence,
+      editVacation,
       searchQuery,
       currentPage,
-      absencesStats,
-      absenceStats,
+      vacationsStats,
+      vacationStats,
       tableColumns,
       totalRecords,
       refListTable,
@@ -302,20 +238,11 @@ export default {
       resolveStatus,
       perPageOptions,
       isExportActive,
-      fetchAbsences,
-      isAddAbsenceActive,
+      fetchVacations,
+      isAddVacationActive,
       isAddDocumentActive,
-      isEditAbsenceActive,
+      isEditVacationActive,
     }
   },
 }
 </script>
-  <style scoped>
-  .per-page-selector {
-    width: 90px;
-  }
-  </style>
-
-  <style lang="scss">
-  @import '~@core/scss/vue/libs/vue-select.scss';
-  </style>

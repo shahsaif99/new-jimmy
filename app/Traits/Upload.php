@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 trait Upload
 {
 
-    public static function uploadBase64Avatar($base64Image)
+    public static function uploadBase64Avatar($base64Image, $path = '')
     {
         $extension = explode('/', explode(':', substr($base64Image, 0, strpos($base64Image, ';')))[1])[1]; // .jpg .png .pdf
         $replace = substr($base64Image, 0, strpos($base64Image, ',') + 1);
@@ -17,7 +17,7 @@ trait Upload
         $image = str_replace($replace, '', $base64Image);
         $image = str_replace(' ', '+', $image);
         $imageName = Str::random(10) . '.' . $extension;
-        Storage::disk('public')->put($imageName, base64_decode($image));
+        Storage::disk('public')->put($path.'/'.$imageName, base64_decode($image));
         return $imageName;
     }
 

@@ -42,7 +42,6 @@ export default [
     title: 'Attendance',
     icon: 'CalendarIcon',
     resource: 'all',
-    action: 'document-center',
     children: [
     //   {
     //     title: 'Time Registrations',
@@ -55,30 +54,31 @@ export default [
         title: 'My Absense',
         route: 'absences',
         icon: 'FolderIcon',
-        action: 'document-center',
+        action: 'my-absence',
         resource: 'all',
       },
       {
         title: 'My Vacations',
-        route: 'handbooks',
+        route: 'vacations',
         icon: 'FolderIcon',
-        action: 'document-center',
-        resource: 'all',
-      },
-      {
-        title: 'Holiday Overview',
-        route: 'handbooks',
-        icon: 'FolderIcon',
-        action: 'document-center',
+        action: 'my-vacations',
         resource: 'all',
       },
       {
         title: 'Absence Overview',
-        route: 'handbooks',
+        route: 'absences-overview',
         icon: 'FolderIcon',
-        action: 'document-center',
+        action: 'absence-overview',
         resource: 'all',
       },
+      {
+        title: 'Vacations Overview',
+        route: 'vacations-overview',
+        icon: 'FolderIcon',
+        action: 'vacations-overview',
+        resource: 'all',
+      },
+
     ],
   },
 

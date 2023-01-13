@@ -29,7 +29,7 @@ class StoreRequest extends FormRequest
             'from_date' => ['required', 'date'],
             'to_date' => ['required', 'date'],
             'days' => ['required'],
-            'comments' => ['required'],
+            'comments' => ['nullable'],
         ];
     }
 }

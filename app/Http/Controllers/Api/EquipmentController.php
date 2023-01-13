@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Equipment\StoreRequest;
-use App\Http\Requests\Equipment\UpdateRequest;
-use App\Http\Resources\EquipmentResource;
+use App\Traits\Upload;
 use App\Models\Equipment;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\EquipmentResource;
 use Plank\Mediable\Facades\MediaUploader;
+use App\Http\Requests\Equipment\StoreRequest;
+use App\Http\Requests\Equipment\UpdateRequest;
 
 class EquipmentController extends Controller
 {
@@ -41,13 +42,18 @@ class EquipmentController extends Controller
     public function store(StoreRequest $request)
     {
 
-        $equipment = Equipment::create($request->validated());
+        $data = $request->validated();
+
+        if ($request->image) {
+            $avatar = Upload::uploadBase64Avatar($request->image, 'equipment');
+            $data['image'] = $avatar;
+        }
+
+        $equipment = Equipment::create($data);
 
         if ($request->hasFile('files')) {
             $this->uploadDocuments($request, $equipment);
         }
-
-
 
         return response()->json([
             'message' => 'Equipment successfully created.',

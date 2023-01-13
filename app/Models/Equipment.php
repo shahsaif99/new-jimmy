@@ -27,6 +27,7 @@ class Equipment extends Model
         'valid_until',
         'project_id',
         'user_id',
+        'image',
     ];
 
 
@@ -35,6 +36,12 @@ class Equipment extends Model
     {
         return \Carbon\Carbon::parse($value)->format('d-m-Y');
     }
+
+     // get user avatar from media library
+     public function getImageUrlAttribute($value)
+     {
+         return '/storage/equipment/'.$this->image;
+     }
 
 
     public function scopeSearch($query, $queryString)

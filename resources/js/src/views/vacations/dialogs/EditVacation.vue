@@ -3,13 +3,13 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Absence"
+    title="Edit Vacation"
     size="lg"
-    class="modal-add-absence-active"
-    id="add-absence-active"
-    @close="$emit('update:is-add-absence-active', false)"
-    :visible="isAddAbsenceActive"
-    @hide="$emit('update:is-add-absence-active', false)"
+    class="modal-add-vacation-active"
+    id="add-vacation-active"
+    @close="$emit('update:is-edit-vacation-active', false)"
+    :visible="isEditVacationActive"
+    @hide="$emit('update:is-edit-vacation-active', false)"
   >
     <div>
       <validation-observer
@@ -22,34 +22,20 @@
         >
           <b-form-row>
             <b-col
-              cols="12"
-              md="6"
+              sm="12"
+              class="mb-2"
             >
-              <validation-provider
-                #default="validationContext"
-                name="Absence Type"
-                rules="required"
+
+              <span
+                class="align-text-top text-capitalize"
+                :class="`text-${resolveStatus(formData.status)}`"
               >
-                <b-form-group
-                  label="Absence Type"
-                  label-for="type"
-                >
-                  <b-form-select
-                    id="type"
-                    v-model="formData.type"
-                    :state="getValidationState(validationContext)"
-                    trim
-                    :options="['Self-Report','Sick Child', 'Welfare Leave']"
-                    placeholder="Absence Type"
-                  />
-
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider>
-
+                <b-badge :variant="resolveStatus(formData.status)">
+                  <span>{{ formData.status }}</span>
+                </b-badge>
+              </span>
             </b-col>
+
             <b-col sm="6">
               <ValidationProvider
                 #default="validationContext"
@@ -97,6 +83,34 @@
                   </b-form-invalid-feedback>
                 </b-form-group>
               </ValidationProvider>
+            </b-col>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                name="Used Vacation Days"
+              >
+                <b-form-group
+                  label="Used Vacation Days"
+                  label-for="days"
+                >
+                  <b-form-input
+                    v-model="formData.used_vacations_days"
+                    placeholder="Used Vacation Days"
+                    readonly
+                    :state="
+                      getValidationState(
+                        validationContext
+                      )
+                    "
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
             </b-col>
             <b-col
               cols="6"
@@ -219,9 +233,10 @@
                   <b-button
                     variant="primary"
                     class="mt-1"
+                    :disabled="isConsumedAllHolidays"
                     type="submit"
                   >
-                    <span class="text-nowrap">Submit</span>
+                    <span class="text-nowrap">Update</span>
                   </b-button>
                 </div>
               </b-col>
@@ -238,17 +253,17 @@ import {
   BRow,
   BCol,
   BForm,
+  BBadge,
   BButton,
   BFormRow,
   BFormInput,
   BFormGroup,
-  BFormSelect,
   BFormTextarea,
   BFormDatepicker,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
-import useAbsences from '@/composables/absences'
+import useVacations from '@/composables/vacations'
 import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
@@ -263,12 +278,12 @@ export default {
     BCol,
     BRow,
     BForm,
-    BFormRow,
+    BBadge,
     BButton,
     vSelect,
+    BFormRow,
     BFormInput,
     BFormGroup,
-    BFormSelect,
     BFormTextarea,
     BFormDatepicker,
     ValidationProvider,
@@ -276,57 +291,88 @@ export default {
     BFormInvalidFeedback,
   },
   model: {
-    prop: 'isAddAbsenceActive',
-    event: 'update:is-add-absence-active',
+    prop: 'isEditVacationActive',
+    event: 'update:is-edit-vacation-active',
   },
   props: {
-    isAddAbsenceActive: {
+    isEditVacationActive: {
       type: Boolean,
+      required: true,
+    },
+    vacationId: {
+      type: Number,
       required: true,
     },
   },
   setup(props, { emit }) {
     const initialState = {
-      type: '',
       from_date: '',
       to_date: '',
       days: '',
       comments: '',
       user: '',
+      used_vacations_days: '',
     }
 
     const userData = JSON.parse(useJwt.getUserData())
     const formData = ref({ ...initialState })
+    const usedHolidays = ref(0)
+    const leftHolidays = ref(0)
+    const isConsumedAllHolidays = ref(false)
 
     const calculateDays = () => {
-      const day = moment(formData.value.from_date)
-      const businessDays = ref(0)
-      const endDate = formData.value.to_date
-      while (day.isSameOrBefore(endDate, 'day')) {
-        if (day.day() !== 0 && day.day() !== 6) businessDays.value += 1
-        day.add(1, 'd')
+      if (formData.value.from_date && formData.value.to_date) {
+        const day = moment(formData.value.from_date)
+        const vacationDays = ref(0)
+        const endDate = formData.value.to_date
+        while (day.isSameOrBefore(endDate, 'day')) {
+          if (day.day() !== 0 && day.day() !== 6) vacationDays.value += 1
+          day.add(1, 'd')
+        }
+        formData.value.days = vacationDays.value
+        if (formData.value.to_date && vacationDays.value <= leftHolidays.value) {
+          isConsumedAllHolidays.value = false
+        } else {
+          isConsumedAllHolidays.value = true
+        }
       }
-      formData.value.days = businessDays.value
     }
 
     const {
       busy,
       respResult,
-      storeAbsence,
-    } = useAbsences()
+      getVacation,
+      vacationData,
+      resolveStatus,
+      updateVacation,
+    } = useVacations()
 
     const {
       busy: usersBusy,
+      user,
       users,
       filters,
+      getUser,
       fetchUsersList,
     } = useUsers()
 
 
     onMounted(async () => {
-      //   await fetchUsersList(userData.name)
-      if (userData.role !== 'Admin') {
-        formData.value.user = userData
+      if (props.isEditVacationActive) {
+        await getVacation(props.vacationId)
+        await getUser(userData.id)
+        usedHolidays.value = user.value.vacations_sum_days
+        formData.value = { ...vacationData.value }
+        if (userData.role !== 'Admin') {
+          formData.value.user = userData
+        }
+        if (usedHolidays.value) {
+          if (usedHolidays.value >= user.value.holidays) {
+            isConsumedAllHolidays.value = true
+          }
+          leftHolidays.value = user.value.holidays - usedHolidays.value
+          formData.value.used_vacations_days = `${usedHolidays.value} used out of ${user.value.holidays}`
+        }
       }
     })
 
@@ -354,10 +400,10 @@ export default {
 
 
     const onSubmit = async () => {
-      await storeAbsence({ ...formData.value, ...{ user_id: formData.value.user.id } })
+      await updateVacation({ ...formData.value, ...{ user_id: formData.value.user.id } })
       if (respResult.value.status === 200) {
         emit('refetch-data')
-        emit('update:is-add-absence-active', false)
+        emit('update:is-edit-vacation-active', false)
       }
     }
     const {
@@ -372,21 +418,18 @@ export default {
       formData,
       required,
       onSubmit,
-      resetForm,
       userData,
+      resetForm,
+      resolveStatus,
       calculateDays,
       refFormObserver,
       getValidationState,
+      isConsumedAllHolidays,
     }
   },
 }
 </script>
-<style lang="scss" scoped>
-.per-page-selector {
-    width: 90px;
-}
-</style>
+  <style lang="scss">
+  @import "~@core/scss/vue/libs/vue-select.scss";
+  </style>
 
-<style lang="scss">
-@import "~@core/scss/vue/libs/vue-select.scss";
-</style>

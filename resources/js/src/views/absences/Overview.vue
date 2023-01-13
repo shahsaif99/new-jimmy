@@ -1,16 +1,5 @@
 <template>
   <div>
-    <edit-absence
-      :is-edit-absence-active.sync="isEditAbsenceActive"
-      v-if="isEditAbsenceActive"
-      :absence-id="absenceId"
-      @refetch-data="fetchAbsences"
-    />
-    <add-absence
-      :is-add-absence-active.sync="isAddAbsenceActive"
-      v-if="isAddAbsenceActive"
-      @refetch-data="fetchAbsences"
-    />
     <b-row>
       <b-col
         cols="12"
@@ -20,8 +9,8 @@
       >
         <statistic-card-horizontal
           icon="CalendarIcon"
-          :statistic="stats.type"
-          :statistic-title="`${stats.total_days} days`"
+          :statistic="`Number of ${stats.type}`"
+          :statistic-title="`${stats.total_days} requests`"
         />
       </b-col>
     </b-row>
@@ -29,47 +18,6 @@
       no-body
       class="mb-0 mt-2"
     >
-      <div class="m-2">
-        <b-row>
-          <b-col
-            cols="12"
-            md="8"
-            class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
-          >
-            <label>Show</label>
-            <v-select
-              v-model="perPage"
-              :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-              :options="perPageOptions"
-              :clearable="false"
-              class="per-page-selector d-inline-block mx-50"
-            />
-            <label>entries</label>
-            <b-button
-              variant="primary"
-              @click="isAddAbsenceActive = true"
-              v-if="$can('absences-add', 'all')"
-              class="ml-3"
-            >
-              <span class="text-nowrap">Add Absence</span>
-            </b-button>
-          </b-col>
-          <b-col
-            cols="12"
-            md="4"
-          >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
-              <b-form-input
-                v-model="searchQuery"
-                class="d-inline-block mr-1"
-                placeholder="Search..."
-              />
-            </div>
-          </b-col>
-        </b-row>
-      </div>
       <b-overlay
         id="overlay-background"
         :show="busy"
@@ -81,7 +29,7 @@
           class="position-relative"
           :items="absences"
           responsive
-          :fields="tableColumns"
+          :fields="overviewTableColumns"
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
@@ -189,19 +137,14 @@ import {
   BCol,
   BBadge,
   BTable,
-  BButton,
   BOverlay,
   BDropdown,
-  BFormInput,
   BPagination,
   BDropdownItem,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
-import vSelect from 'vue-select'
 import useAbsences from '@/composables/absences'
 import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
-import AddAbsence from './dialogs/AddAbsence.vue'
-import EditAbsence from './dialogs/EditAbsence.vue'
 
 export default {
   components: {
@@ -210,14 +153,9 @@ export default {
     BCard,
     BBadge,
     BTable,
-    vSelect,
-    BButton,
     BOverlay,
     BDropdown,
-    AddAbsence,
-    BFormInput,
     BPagination,
-    EditAbsence,
     BDropdownItem,
     StatisticCardHorizontal,
   },
@@ -232,7 +170,6 @@ export default {
       respResult,
       refetchData,
       searchQuery,
-      tableColumns,
       currentPage,
       totalRecords,
       refListTable,
@@ -244,6 +181,7 @@ export default {
       absenceStats,
       perPageOptions,
       fetchAbsencesStats,
+      overviewTableColumns,
     } = useAbsences()
 
     onMounted(async () => {
@@ -251,20 +189,12 @@ export default {
       await fetchAbsencesStats()
     })
     const isExportActive = ref(false)
-    const isAddAbsenceActive = ref(false)
-    const isAddDocumentActive = ref(false)
-    const isEditAbsenceActive = ref(false)
     const absenceId = ref(0)
     const deleteConfirmed = async id => {
       await deleteAbsence(id)
       if (respResult.value.status === 200) {
         fetchAbsences()
       }
-    }
-
-    const editAbsence = id => {
-      absenceId.value = id
-      isEditAbsenceActive.value = true
     }
 
 
@@ -289,12 +219,10 @@ export default {
       dataMeta,
       absenceId,
       refetchData,
-      editAbsence,
       searchQuery,
       currentPage,
       absencesStats,
       absenceStats,
-      tableColumns,
       totalRecords,
       refListTable,
       isSortDirDesc,
@@ -303,9 +231,7 @@ export default {
       perPageOptions,
       isExportActive,
       fetchAbsences,
-      isAddAbsenceActive,
-      isAddDocumentActive,
-      isEditAbsenceActive,
+      overviewTableColumns,
     }
   },
 }

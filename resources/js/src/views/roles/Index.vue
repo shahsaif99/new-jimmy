@@ -283,6 +283,7 @@ export default {
     return {
       roles,
       sortBy,
+      roleId,
       perPage,
       editRole,
       dataMeta,

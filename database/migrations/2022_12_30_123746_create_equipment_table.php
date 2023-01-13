@@ -16,13 +16,14 @@ return new class extends Migration
         Schema::create('equipment', function (Blueprint $table) {
             $table->id();
             $table->string('name', 255);
-            $table->string('serial_number',100);
+            $table->string('serial_number',100)->nullable();
             $table->string('supplier', 150)->nullable();
             $table->string('category', 150)->nullable();
-            $table->string('certificate_number', 150);
+            $table->string('certificate_number', 150)->nullable();
             $table->date('valid_until')->nullable();
-            $table->integer('project_id');
+            $table->integer('project_id')->nullable();
             $table->integer('user_id');
+            $table->string('image', 255)->nullable();
             $table->timestamps();
         });
     }
