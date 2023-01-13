@@ -24,7 +24,7 @@ class RolesAndPermissionSeeder extends Seeder
             'documentcenter', 'projects-add-documents', 'projects-add','equipment-add','equipments-edit',
             'equipments-delete','employee-details','absences-add','absences-listings','competence-listings',
             'employee-delete','employee-edit','employee-add','my-profile-view','password-view','competence-add',
-            'lendings-history','employee-status','vacations-overview','absence-overview','vacations-add',
+            'lendings-history','employee-status','vacations-overview','absence-overview','vacations-add','my-absence','my-vacations'
         ];
 
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {
