@@ -6,6 +6,7 @@ use App\Traits\Upload;
 use App\Models\Equipment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\EquipmentResource;
 use Plank\Mediable\Facades\MediaUploader;
 use App\Http\Requests\Equipment\StoreRequest;
@@ -81,15 +82,15 @@ class EquipmentController extends Controller
 
     public function update(UpdateRequest $request, Equipment $equipment)
     {
-        $equipment->update($request->validated());
+        $data = $request->validated();
 
-        // if ($request->hasFile('files')) {
-        //     if ($equipment->media->count() > 0) {
-        //         $equipment->media->each(function ($media) {
-        //             $media->delete();
-        //         });
-        //     }
-        // }
+        if ($request->image) {
+            Storage::disk('public')->delete('equipment/'.$equipment->image);
+            $avatar = Upload::uploadBase64Avatar($request->image, 'equipment');
+            $data['image'] = $avatar;
+        }
+
+        $equipment->update($data);
 
         if ($request->hasFile('files')) {
             $this->uploadDocuments($request, $equipment);

@@ -18,9 +18,13 @@ class AbsenceController extends Controller
      */
     public function index(Request $request)
     {
-        //
+        if ($request->filled('range') && !str_contains($request->range, 'to')) {
+            return response()->json([
+                'message' => 'Invalid date format. Please select date in range',
+            ], 500);
+        }
         $absences = Absence::query()
-        ->with(['approvedBy:id,first_name,last_name'])
+        ->with(['user:id,first_name,last_name'])
         ->applyFilters($request)
         ->when($request->perPage, function ($query, $perPage) {
             return $query->paginate($perPage);
@@ -95,5 +99,16 @@ class AbsenceController extends Controller
         ->get()->keyBy('type');
         return AbsenceResource::collection($absences);
 
+    }
+
+    public function absenceStatusUpdate(Request $request, Absence $absence){
+
+        $absence->update([
+            'status' => $request->status,
+            'approved_by' => auth()->user()->first_name. ' ' . auth()->user()->last_name,
+            'approved_date' => date('Y-m-d')
+        ]);
+
+        return response()->json(['message' => 'Absence request successfully'. ucwords($request->status)],200);
     }
 }

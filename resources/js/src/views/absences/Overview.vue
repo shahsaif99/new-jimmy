@@ -14,74 +14,27 @@
         />
       </b-col>
     </b-row>
+    <PendingRequest />
     <b-card
       no-body
       class="mb-0 mt-2"
     >
-      <b-overlay
-        id="overlay-background"
-        :show="busy"
-        variant="transparent"
-        rounded="sm"
-      >
-        <b-table
-          ref="refListTable"
-          class="position-relative"
-          :items="absences"
-          responsive
-          :fields="overviewTableColumns"
-          primary-key="id"
-          :sort-by.sync="sortBy"
-          show-empty
-          empty-text="No matching records found"
-          :sort-desc.sync="isSortDirDesc"
-        >
-          <template #cell(status)="data">
-            <div
-              class="text-nowrap"
-            >
-              <span
-                class="align-text-top text-capitalize"
-                :class="`text-${resolveStatus(data.item.status)}`"
-              >
-                <b-badge :variant="resolveStatus(data.item.status)">
-                  <span>{{ data.item.status }}</span>
-                </b-badge>
-              </span>
-            </div>
-          </template>
-          <template #cell(actions)="data">
-            <b-dropdown
-              variant="link"
-              no-caret
-            >
-              <template #button-content>
-                <feather-icon
-                  icon="MoreVerticalIcon"
-                  size="16"
-                  class="align-middle text-body"
-                />
-              </template>
-              <b-dropdown-item
-                v-if="data.item.status !== 'approved'"
-                @click="editAbsence(data.item.id)"
-              >
-                <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">Edit</span>
-              </b-dropdown-item>
-              <b-dropdown-item
-                @click="confirmDelete(data.item.id)"
-                v-if="data.item.status !== 'approved'"
-              >
-                <feather-icon
-                  icon="TrashIcon"
-                />
-                <span class="align-middle ml-50">Delete</span>
-              </b-dropdown-item>
-            </b-dropdown>
-          </template>
-        </b-table>
-      </b-overlay>
+      <h3 class="p-1">
+        Absence overview
+      </h3>
+      <b-table
+        ref="refListTable"
+        class="position-relative competence-table"
+        :items="absences"
+        responsive
+        :fields="overviewTableColumns1"
+        primary-key="id"
+        :sort-by.sync="sortBy"
+        :busy="busy"
+        show-empty
+        empty-text="No matching records found"
+        :sort-desc.sync="isSortDirDesc"
+      />
       <div class="mx-2 mb-2">
         <b-row>
           <b-col
@@ -135,28 +88,22 @@ import {
   BCard,
   BRow,
   BCol,
-  BBadge,
   BTable,
-  BOverlay,
-  BDropdown,
   BPagination,
-  BDropdownItem,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 import useAbsences from '@/composables/absences'
 import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
+import PendingRequest from './PendingRequest.vue'
 
 export default {
   components: {
     BCol,
     BRow,
     BCard,
-    BBadge,
     BTable,
-    BOverlay,
-    BDropdown,
     BPagination,
-    BDropdownItem,
+    PendingRequest,
     StatisticCardHorizontal,
   },
   setup(_, { root }) {
@@ -180,11 +127,13 @@ export default {
       fetchAbsences,
       absenceStats,
       perPageOptions,
+      updateAbsenceStatus,
       fetchAbsencesStats,
       overviewTableColumns,
     } = useAbsences()
 
     onMounted(async () => {
+      filters.status = 'approved'
       await fetchAbsences()
       await fetchAbsencesStats()
     })
@@ -195,6 +144,27 @@ export default {
       if (respResult.value.status === 200) {
         fetchAbsences()
       }
+    }
+
+
+    const absenceStatusConfirmed = async data => {
+      await updateAbsenceStatus(data)
+      if (respResult.value.status === 200) {
+        fetchAbsences()
+      }
+    }
+
+    const confirmStatus = async (id, status) => {
+      root.$bvModal
+        .msgBoxConfirm(`Please confirm that you want to ${status} absence request.`, {
+          title: 'Please Confirm',
+          size: 'sm',
+        })
+        .then(value => {
+          if (value) {
+            absenceStatusConfirmed({ id, status })
+          }
+        })
     }
 
 
@@ -210,6 +180,158 @@ export default {
           }
         })
     }
+
+    const overviewTableColumns1 = [
+      { key: 'user.name', sortable: true, label: 'Employee Name' },
+      { key: 'from_date', sortable: false },
+      { key: 'to_date', sortable: false },
+      { key: 'days', sortable: false },
+      { key: 'type', sortable: false },
+      { key: 'comments', sortable: false, width: 100 },
+    ]
+
+    // const absencsOverview = ref([
+    //   {
+    //     name: 'Employee 1',
+    //     _showDetails: true,
+    //     absents: [
+    //       {
+    //         type: 'self',
+    //         from_date: '12-12-2020',
+    //         to_date: '12-12-2020',
+    //         days: '22 days',
+    //         status: 'approved',
+    //         approved_by: 'approved',
+    //         approved_date: '12-12-2020',
+    //         comments: 'test',
+    //       },
+    //       {
+    //         type: 'self',
+    //         from_date: '12-12-2020',
+    //         to_date: '12-12-2020',
+    //         days: '22 days',
+    //         status: 'approved',
+    //         approved_by: 'approved',
+    //         approved_date: '12-12-2020',
+    //         comments: 'test',
+    //       },
+    //       {
+    //         type: 'self',
+    //         from_date: '12-12-2020',
+    //         to_date: '12-12-2020',
+    //         days: '22 days',
+    //         status: 'approved',
+    //         approved_by: 'approved',
+    //         approved_date: '12-12-2020',
+    //         comments: 'test',
+    //       },
+    //       {
+    //         type: 'self',
+    //         from_date: '12-12-2020',
+    //         to_date: '12-12-2020',
+    //         days: '22 days',
+    //         status: 'approved',
+    //         approved_by: 'approved',
+    //         approved_date: '12-12-2020',
+    //         comments: 'test',
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     name: 'Employee 2',
+    //     _showDetails: true,
+    //     absents: [
+    //       {
+    //         type: 'self',
+    //         from_date: '12-12-2020',
+    //         to_date: '12-12-2020',
+    //         days: '22 days',
+    //         status: 'approved',
+    //         approved_by: 'approved',
+    //         approved_date: '12-12-2020',
+    //         comments: 'test',
+    //       },
+    //       {
+    //         type: 'self',
+    //         from_date: '12-12-2020',
+    //         to_date: '12-12-2020',
+    //         days: '22 days',
+    //         status: 'approved',
+    //         approved_by: 'approved',
+    //         approved_date: '12-12-2020',
+    //         comments: 'test',
+    //       },
+    //       {
+    //         type: 'self',
+    //         from_date: '12-12-2020',
+    //         to_date: '12-12-2020',
+    //         days: '22 days',
+    //         status: 'approved',
+    //         approved_by: 'approved',
+    //         approved_date: '12-12-2020',
+    //         comments: 'test',
+    //       },
+    //       {
+    //         type: 'self',
+    //         from_date: '12-12-2020',
+    //         to_date: '12-12-2020',
+    //         days: '22 days',
+    //         status: 'approved',
+    //         approved_by: 'approved',
+    //         approved_date: '12-12-2020',
+    //         comments: 'test',
+    //       },
+    //     ],
+    //   },
+    // ])
+
+    const absencsOverview = ref([
+      {
+        name: 'Employee 1',
+        type: 'self',
+        from_date: '12-12-2020',
+        to_date: '12-12-2020',
+        days: '22 days',
+        status: 'approved',
+        approved_by: 'approved',
+        approved_date: '12-12-2020',
+        comments: 'test',
+      },
+      {
+        name: 'Employee 1',
+        type: 'self',
+        from_date: '12-12-2020',
+        to_date: '12-12-2020',
+        days: '22 days',
+        status: 'approved',
+        approved_by: 'approved',
+        approved_date: '12-12-2020',
+        comments: 'test',
+      },
+      {
+        name: 'Employee 2',
+        type: 'self',
+        from_date: '12-12-2020',
+        to_date: '12-12-2020',
+        days: '22 days',
+        status: 'approved',
+        approved_by: 'approved',
+        approved_date: '12-12-2020',
+        comments: 'test',
+      },
+      {
+        name: 'Employee 2',
+        type: 'self',
+        from_date: '12-12-2020',
+        to_date: '12-12-2020',
+        days: '22 days',
+        status: 'approved',
+        approved_by: 'approved',
+        approved_date: '12-12-2020',
+        comments: 'test',
+      },
+    ])
+
     return {
       busy,
       sortBy,
@@ -224,6 +346,7 @@ export default {
       absencesStats,
       absenceStats,
       totalRecords,
+      confirmStatus,
       refListTable,
       isSortDirDesc,
       confirmDelete,
@@ -232,16 +355,17 @@ export default {
       isExportActive,
       fetchAbsences,
       overviewTableColumns,
+      absencsOverview,
+      overviewTableColumns1,
     }
   },
 }
 </script>
-  <style scoped>
-  .per-page-selector {
-    width: 90px;
-  }
-  </style>
-
   <style lang="scss">
   @import '~@core/scss/vue/libs/vue-select.scss';
   </style>
+<style>
+.per-page-selector {
+    width: 90px;
+}
+</style>

@@ -30,6 +30,9 @@ class Equipment extends Model
         'image',
     ];
 
+    protected $appends = ['image_url'];
+
+
 
     // created at
     public function getCreatedAtAttribute($value)
@@ -55,6 +58,7 @@ class Equipment extends Model
 
     public function scopeApplyFilters($query, Request $request)
     {
+       
         $user = auth()->user();
         $query
         ->when($request->sortDesc, function ($query, $sortDesc) {
@@ -63,6 +67,7 @@ class Equipment extends Model
         ->when($request->userId, function ($query, $userId) {
             $query->where('user_id', $userId);
         })
+
         ->when($request->isExpiring, function ($query) {
             $query->whereBetween('valid_until', [Carbon::now(), Carbon::now()->addMonths(3)] );
         })

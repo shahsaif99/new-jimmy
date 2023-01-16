@@ -302,33 +302,7 @@
                   </b-col>
 
                   <!-- Field: Status -->
-                  <!-- <b-col
-                    cols="12"
-                    md="6"
-                  >
-                    <validation-provider
-                      #default="validationContext"
-                      name="Status"
-                      rules="required"
-                    >
-                      <b-form-group
-                        label="Status"
-                        :state="getValidationState(validationContext)"
-                      >
-                        <v-select
-                          placeholder="Status"
-                          v-model="formData.status"
-                          :options="statusOptions"
-                          :reduce="status => status.value"
-                          :clearable="false"
-                          input-id="title"
-                        />
-                        <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                          {{ validationContext.errors[0] }}
-                        </b-form-invalid-feedback>
-                      </b-form-group>
-                    </validation-provider>
-                  </b-col> -->
+
                 </b-row>
 
               </b-card>

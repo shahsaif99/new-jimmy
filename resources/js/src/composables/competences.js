@@ -199,15 +199,7 @@ export default function useCompetences() {
   }
 
 
-  const attachmentFields = [
-    { key: 'name' },
-    { key: 'attachment' },
-  ]
-  const attachmentData = [
-    { name: 'hello.png', attachment: 'hello' },
-    { name: 'hello.png', attachment: 'hello' },
-  ]
-  watch([currentPage, searchQuery], () => {
+  watch([currentPage, searchQuery, perPage], () => {
     fetchCompetences()
   })
 
@@ -232,9 +224,7 @@ export default function useCompetences() {
     fetchCompetences,
     storeCompetence,
     perPageOptions,
-    attachmentData,
     uploadDocument,
-    attachmentFields,
     fetchCompetencesList,
     resolveCompetencestatus,
   }

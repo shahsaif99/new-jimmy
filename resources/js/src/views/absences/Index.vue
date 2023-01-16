@@ -33,7 +33,7 @@
         <b-row>
           <b-col
             cols="12"
-            md="8"
+            md="3"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
             <label>Show</label>
@@ -45,6 +45,8 @@
               class="per-page-selector d-inline-block mx-50"
             />
             <label>entries</label>
+
+
             <b-button
               variant="primary"
               @click="isAddAbsenceActive = true"
@@ -56,7 +58,53 @@
           </b-col>
           <b-col
             cols="12"
-            md="4"
+            md="2"
+            class="mb-md-0 mb-2"
+          >
+            <flat-pickr
+              :config="pickerConfig"
+              id="month"
+              class="form-control"
+              placeholder="Select Date Range"
+              v-model="filters.range"
+            />
+          </b-col>
+          <b-col
+            cols="12"
+            md="2"
+            class="mb-md-0 mb-2"
+          >
+            <v-select
+              placeholder="Status"
+              v-model="filters.status"
+              :options="statusOptions"
+              :reduce="status => status.value"
+              :clearable="false"
+              input-id="title"
+            />
+
+          </b-col>
+          <b-col
+            cols="12"
+            md="2"
+            class="mb-md-0 mb-2"
+          >
+            <b-button
+              variant="primary"
+              @click="filterRecords"
+            >
+              Filter
+            </b-button>
+            <b-button
+              variant="warning"
+              @click="resetFilter"
+            >
+              Reset
+            </b-button>
+          </b-col>
+          <b-col
+            cols="12"
+            md="3"
           >
             <div
               class="d-flex align-items-center justify-content-end"
@@ -200,6 +248,7 @@ import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useAbsences from '@/composables/absences'
 import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
+import flatPickr from 'vue-flatpickr-component'
 import AddAbsence from './dialogs/AddAbsence.vue'
 import EditAbsence from './dialogs/EditAbsence.vue'
 
@@ -212,6 +261,7 @@ export default {
     BTable,
     vSelect,
     BButton,
+    flatPickr,
     BOverlay,
     BDropdown,
     AddAbsence,
@@ -280,6 +330,27 @@ export default {
           }
         })
     }
+    const pickerConfig = {
+      mode: 'range',
+      dateFormat: 'Y-m-d',
+    }
+
+    const statusOptions = [
+      { label: 'Approved', value: 'approved' },
+      { label: 'Pending', value: 'pending' },
+    ]
+
+    const filterRecords = () => {
+      fetchAbsences()
+    }
+
+    const filterKey = ref(0)
+    const resetFilter = () => {
+      Object.keys(filters).forEach(index => { filters[index] = null })
+      filterKey.value += 1
+      fetchAbsences()
+    }
+
     return {
       busy,
       sortBy,
@@ -288,8 +359,12 @@ export default {
       absences,
       dataMeta,
       absenceId,
+      filterKey,
+      filterRecords,
       refetchData,
       editAbsence,
+      statusOptions,
+      resetFilter,
       searchQuery,
       currentPage,
       absencesStats,
@@ -303,6 +378,7 @@ export default {
       perPageOptions,
       isExportActive,
       fetchAbsences,
+      pickerConfig,
       isAddAbsenceActive,
       isAddDocumentActive,
       isEditAbsenceActive,
@@ -317,5 +393,6 @@ export default {
   </style>
 
   <style lang="scss">
+  @import '~flatpickr/dist/flatpickr.css';
   @import '~@core/scss/vue/libs/vue-select.scss';
   </style>

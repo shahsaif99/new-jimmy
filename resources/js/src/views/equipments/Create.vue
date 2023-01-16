@@ -435,7 +435,6 @@ export default {
 
 
     const refInputEl = ref(null)
-    const previewEl = ref(null)
     const previewImg = ref(null)
 
     // remove image
@@ -448,7 +447,6 @@ export default {
     const { inputImageRenderer } = useInputImageRenderer(refInputEl, base64 => {
       formData.value.image = base64
       previewImg.value = base64
-      console.log(previewImg.value)
     })
 
     return {
@@ -460,7 +458,6 @@ export default {
       required,
       onSearch,
       resetForm,
-      previewEl,
       previewImg,
       refInputEl,
       removeImage,

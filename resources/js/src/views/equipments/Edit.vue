@@ -21,6 +21,46 @@
           @reset.prevent="resetForm"
         >
           <div>
+            <b-media class="mb-2">
+              <template #aside>
+                <div
+                  class="border"
+                  :class="{'p-4': !previewImg}"
+                >
+                  <b-img
+                    v-if="previewImg"
+                    ref="previewEl"
+                    width="160"
+                    :src="previewImg"
+                    alt="Image Preview"
+                  />
+                  <span v-if="!previewImg">Image Preview</span>
+                </div>
+              </template>
+              <div class="d-flex flex-wrap">
+                <b-button
+                  variant="primary"
+                  size="sm"
+                  @click="$refs.refInputEl.click()"
+                >
+                  <input
+                    ref="refInputEl"
+                    type="file"
+                    class="d-none"
+                    @input="inputImageRenderer"
+                  >
+                  <span class="d-none d-sm-inline">Upload</span>
+                </b-button>
+                <!-- <b-button
+                  variant="outline-secondary"
+                  class="ml-1"
+                  @click="removeImage"
+                  size="sm"
+                >
+                  <span class="d-sm-inline">Remove</span>
+                </b-button> -->
+              </div>
+            </b-media>
             <b-row>
               <b-col
                 cols="6"
@@ -278,6 +318,8 @@ import {
   BForm,
   BBadge,
   BButton,
+  BImg,
+  BMedia,
   BFormFile,
   BFormInput,
   BFormGroup,
@@ -291,13 +333,16 @@ import useEquipments from '@/composables/equipments'
 import useProjects from '@/composables/projects'
 import debounce from 'lodash/debounce'
 import vSelect from 'vue-select'
+import { useInputImageRenderer } from '@core/comp-functions/forms/form-utils'
 
 export default {
   components: {
     BCol,
     BRow,
+    BImg,
     BForm,
     BBadge,
+    BMedia,
     BButton,
     vSelect,
     BFormFile,
@@ -353,10 +398,13 @@ export default {
 
     const formData = ref()
     const files = ref([])
+    const refInputEl = ref(null)
+    const previewImg = ref(null)
+
 
     onMounted(() => {
       if (props.equipment) {
-        console.log(props.equipment)
+        previewImg.value = props.equipment.image_url
         formData.value = { ...props.equipment }
       }
     })
@@ -400,6 +448,9 @@ export default {
       if (formData.value.valid_until) {
         formNewData.append('valid_until', formData.value.valid_until)
       }
+      if (formData.value.image) {
+        formNewData.append('image', formData.value.image)
+      }
       formNewData.append('_method', 'put')
       await updateEquipment(formNewData, formData.value.id)
       if (respResult.value.status === 200) {
@@ -407,6 +458,19 @@ export default {
         emit('update:is-edit-equipment-active', false)
       }
     }
+
+
+    // remove image
+    const removeImage = () => {
+      previewImg.value = ''
+      formData.value.image = ''
+    }
+
+
+    const { inputImageRenderer } = useInputImageRenderer(refInputEl, base64 => {
+      formData.value.image = base64
+      previewImg.value = base64
+    })
 
     return {
       busy,
@@ -422,7 +486,10 @@ export default {
       required,
       alphaNum,
       onSearch,
+      refInputEl,
       resetForm,
+      previewImg,
+      removeImage,
       refetchData,
       searchQuery,
       currentPage,
@@ -432,6 +499,7 @@ export default {
       perPageOptions,
       refFormObserver,
       getValidationState,
+      inputImageRenderer,
     }
   },
 }

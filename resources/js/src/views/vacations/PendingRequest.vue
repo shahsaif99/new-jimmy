@@ -1,96 +1,97 @@
 <template>
   <div>
-    <PendingRequest @refetch-data="fetchVacations" />
+    <b-row>
+      <b-col
+        cols="12"
+        md="3"
+      >
+        <statistic-card-horizontal
+          icon="CalendarIcon"
+          statistic="Number of holiday requests"
+          :statistic-title="`${vacations.length} request(s)`"
+        />
+      </b-col>
+    </b-row>
     <b-card
       no-body
       class="mb-0 mt-2"
     >
       <h3 class="p-1">
-        Vacations overview
+        Vacations requests
       </h3>
-      <b-overlay
-        id="overlay-background"
-        :show="busy"
-        variant="transparent"
-        rounded="sm"
+      <b-table
+        ref="refListTable"
+        class="position-relative"
+        :items="vacations"
+        responsive
+        :fields="overviewTableColumns"
+        primary-key="id"
+        :sort-by.sync="sortBy"
+        show-empty
+        empty-text="No matching records found"
+        :sort-desc.sync="isSortDirDesc"
       >
-        <b-table
-          ref="refListTable"
-          class="position-relative"
-          :items="vacations"
-          responsive
-          :fields="overviewTableColumns"
-          primary-key="id"
-          :sort-by.sync="sortBy"
-          show-empty
-          empty-text="No matching records found"
-          :sort-desc.sync="isSortDirDesc"
-        >
-          <template #cell(status)="data">
-            <div
-              class="text-nowrap"
+        <template #cell(status)="data">
+          <div
+            class="text-nowrap"
+          >
+            <span
+              class="align-text-top text-capitalize"
+              :class="`text-${resolveStatus(data.item.status)}`"
             >
-              <span
-                class="align-text-top text-capitalize"
-                :class="`text-${resolveStatus(data.item.status)}`"
-              >
-                <b-badge :variant="resolveStatus(data.item.status)">
-                  <span>{{ data.item.status }}</span>
-                </b-badge>
-              </span>
-            </div>
-          </template>
-          <template #cell(actions)="data">
-            <div
-              class="text-nowrap"
-              v-if="data.item.status != 'approved'"
+              <b-badge :variant="resolveStatus(data.item.status)">
+                <span>{{ data.item.status }}</span>
+              </b-badge>
+            </span>
+          </div>
+        </template>
+        <template #cell(actions)="data">
+          <div class="text-nowrap">
+            <b-button
+              variant="success"
+              class="btn-icon"
+              size="sm"
+              @click="confirmStatus(data.item.id, 'approved')"
+              :id="`row-${data.item.id}-check-btn`"
             >
-              <b-button
-                variant="success"
-                class="btn-icon"
-                size="sm"
-                @click="confirmStatus(data.item.id, 'approved')"
-                :id="`row-${data.item.id}-check-btn`"
-              >
-                <feather-icon icon="CheckIcon" />
-              </b-button>
-              <b-tooltip
-                title="Accept Request"
-                class="cursor-pointer"
-                :target="`row-${data.item.id}-check-btn`"
-              />
-              <b-button
-                variant="warning"
-                class="btn-icon"
-                size="sm"
-                :id="`row-${data.item.id}-cross-btn`"
-                @click="confirmStatus(data.item.id, 'declined')"
-              >
-                <feather-icon icon="XIcon" />
-              </b-button>
-              <b-tooltip
-                title="Decline Request"
-                class="cursor-pointer"
-                :target="`row-${data.item.id}-cross-btn`"
-              />
-              <b-button
-                variant="danger"
-                class="btn-icon"
-                size="sm"
-                :id="`row-${data.item.id}-trash-btn`"
-                @click="confirmDelete(data.item.id)"
-              >
-                <feather-icon icon="TrashIcon" />
-              </b-button>
-              <b-tooltip
-                title="Delete Request"
-                class="cursor-pointer"
-                :target="`row-${data.item.id}-trash-btn`"
-              />
-            </div>
-          </template>
-        </b-table>
-      </b-overlay>
+              <feather-icon icon="CheckIcon" />
+            </b-button>
+            <b-tooltip
+              title="Accept Request"
+              class="cursor-pointer"
+              :target="`row-${data.item.id}-check-btn`"
+            />
+            <b-button
+              variant="warning"
+              class="btn-icon"
+              size="sm"
+              :id="`row-${data.item.id}-cross-btn`"
+              @click="confirmStatus(data.item.id, 'declined')"
+            >
+              <feather-icon icon="XIcon" />
+            </b-button>
+            <b-tooltip
+              title="Decline Request"
+              class="cursor-pointer"
+              :target="`row-${data.item.id}-cross-btn`"
+            />
+            <b-button
+              variant="danger"
+              class="btn-icon"
+              size="sm"
+              :id="`row-${data.item.id}-trash-btn`"
+              @click="confirmDelete(data.item.id)"
+            >
+              <feather-icon icon="TrashIcon" />
+            </b-button>
+            <b-tooltip
+              title="Delete Request"
+              class="cursor-pointer"
+              :target="`row-${data.item.id}-trash-btn`"
+            />
+          </div>
+        </template>
+      </b-table>
       <div class="mx-2 mb-2">
         <b-row>
           <b-col
@@ -144,31 +145,30 @@ import {
   BCard,
   BRow,
   BCol,
+  BBadge,
   BTable,
   BButton,
-  BBadge,
-  BOverlay,
   BTooltip,
   BPagination,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 import useVacations from '@/composables/vacations'
-import PendingRequest from './PendingRequest.vue'
+import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
 
 export default {
   components: {
     BCol,
     BRow,
     BCard,
-    BTable,
     BBadge,
+    BTable,
     BButton,
     BTooltip,
-    BOverlay,
     BPagination,
-    PendingRequest,
+    StatisticCardHorizontal,
+
   },
-  setup(_, { root }) {
+  setup(_, { root, emit }) {
     const {
       busy,
       sortBy,
@@ -179,25 +179,24 @@ export default {
       respResult,
       refetchData,
       searchQuery,
-      overviewTableColumns,
       currentPage,
       totalRecords,
       refListTable,
       deleteVacation,
-      vacationsStats,
       isSortDirDesc,
       resolveStatus,
       fetchVacations,
-      vacationStats,
       perPageOptions,
+      overviewTableColumns,
       updateVacationStatus,
     } = useVacations()
 
     onMounted(async () => {
+      filters.status = 'pending'
       await fetchVacations()
     })
-    const vacationId = ref(0)
-
+    const isExportActive = ref(false)
+    const absenceId = ref(0)
     const deleteConfirmed = async id => {
       await deleteVacation(id)
       if (respResult.value.status === 200) {
@@ -205,9 +204,11 @@ export default {
       }
     }
 
+
     const absenceStatusConfirmed = async data => {
       await updateVacationStatus(data)
       if (respResult.value.status === 200) {
+        emit('refetch-data')
         fetchVacations()
       }
     }
@@ -228,7 +229,7 @@ export default {
 
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete vacation.', {
+        .msgBoxConfirm('Please confirm that you want to delete absence.', {
           title: 'Please Confirm',
           size: 'sm',
         })
@@ -238,6 +239,7 @@ export default {
           }
         })
     }
+
     return {
       busy,
       sortBy,
@@ -245,22 +247,28 @@ export default {
       perPage,
       vacations,
       dataMeta,
-      confirmStatus,
-      vacationId,
+      absenceId,
       refetchData,
       searchQuery,
       currentPage,
-      vacationsStats,
-      vacationStats,
-      overviewTableColumns,
       totalRecords,
+      confirmStatus,
       refListTable,
       isSortDirDesc,
       confirmDelete,
       resolveStatus,
       perPageOptions,
-      fetchVacations,
+      isExportActive,
+      overviewTableColumns,
     }
   },
 }
 </script>
+  <style lang="scss">
+  @import '~@core/scss/vue/libs/vue-select.scss';
+  </style>
+<style>
+.per-page-selector {
+    width: 90px;
+}
+</style>

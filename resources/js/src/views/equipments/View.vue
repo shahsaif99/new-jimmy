@@ -11,7 +11,23 @@
       :visible="isEquipmentDetailsActive"
       @hide="$emit('update:is-equipment-details-active', false)"
     >
+      <b-media class="mb-2">
+        <template #aside>
+          <div
+            class="border"
+          >
+            <b-img
+              v-if="equipmentDetailsData.image_url"
+              ref="previewEl"
+              width="160"
+              :src="equipmentDetailsData.image_url"
+              alt="Image Preview"
+            />
+          </div>
+        </template>
+      </b-media>
       <b-row v-if="equipmentDetailsData">
+
         <b-col
           sm="6"
         >
@@ -183,7 +199,7 @@
 
 <script>
 import {
-  BModal, BRow, BCol, BLink, BCardText, VBTooltip, BButton,
+  BModal, BRow, BCol, BLink, BCardText, VBTooltip, BButton, BMedia, BImg,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 import { startCase } from 'lodash'
@@ -198,8 +214,10 @@ export default {
   components: {
     BRow,
     BCol,
+    BImg,
     BLink,
     BModal,
+    BMedia,
     BButton,
     BCardText,
     LendingHistory,

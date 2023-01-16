@@ -160,11 +160,6 @@ export default {
     },
   },
   setup(props) {
-    const statusOptions = [
-      { label: 'Active', value: true },
-      { label: 'Inactive', value: false },
-    ]
-
     const formData = toRef(props, 'userData')
     const {
       busy,
@@ -187,7 +182,6 @@ export default {
       formData,
       onSubmit,
       resetForm,
-      statusOptions,
       refFormObserver,
       getValidationState,
     }

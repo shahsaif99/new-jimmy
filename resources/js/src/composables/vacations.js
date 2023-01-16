@@ -34,6 +34,16 @@ export default function useVacations() {
     { key: 'actions' },
   ]
 
+  const overviewTableColumns = [
+    { key: 'user.name', sortable: true, label: 'Employee Name' },
+    { key: 'from_date', sortable: false },
+    { key: 'to_date', sortable: false },
+    { key: 'days', sortable: false },
+    { key: 'comments', sortable: false, width: 100 },
+    { key: 'actions' },
+  ]
+
+
   const dataMeta = computed(() => {
     const localItemsCount = refListTable.value ? refListTable.value.localItems.length : 0
     return {
@@ -196,6 +206,21 @@ export default function useVacations() {
     }
   }
 
+  const updateVacationStatus = async userData => {
+    try {
+      busy.value = true
+      const response = await axios.post(route('vacations.status', userData.id), userData)
+      respResult.value = response
+      toast.success(response.data.message)
+    } catch (e) {
+      if (e.response.status === 422) {
+        toast.error(e.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+
   watch([currentPage, searchQuery, perPage], () => {
     fetchVacations()
   })
@@ -225,6 +250,8 @@ export default function useVacations() {
     perPageOptions,
     fetchVacationsList,
     fetchVacationsStats,
+    updateVacationStatus,
+    overviewTableColumns,
   }
 }
 

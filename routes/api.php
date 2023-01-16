@@ -39,7 +39,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/projects/documents/upload/{project}', [ProjectController::class, 'uploadDocuments'])->name('projects.upload.documents');
     Route::get('/dashboard/statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
     Route::get('/absences/statistics', [AbsenceController::class, 'absenceStatistics'])->name('absences.statistics');
-    // Route::get('/vacations/statistics', [AbsenceController::class, 'vacationstatistics'])->name('vacations.statistics');
+    Route::post('/absences/status/{absence}', [AbsenceController::class, 'absenceStatusUpdate'])->name('absences.status');
+    Route::post('/vacations/status/{vacation}', [VacationController::class, 'vacationStatusUpdate'])->name('vacations.status');
+    Route::get('/vacations/statistics', [VacationController::class, 'vacationStatistics'])->name('vacations.statistics');
 
     Route::apiResources([
         'users' => UserController::class,

@@ -15,13 +15,31 @@
       <b-col
         cols="12"
         md="3"
-        v-for="(stats, index) in vacationsStats"
-        :key="index"
       >
         <statistic-card-horizontal
           icon="CalendarIcon"
-          :statistic="stats.type"
-          :statistic-title="`${stats.total_days} days`"
+          statistic="Number of holiday days"
+          :statistic-title="`${vacationsStats.vacations} days`"
+        />
+      </b-col>
+      <b-col
+        cols="12"
+        md="3"
+      >
+        <statistic-card-horizontal
+          icon="CalendarIcon"
+          statistic="Remaining holidays"
+          :statistic-title="`${vacationsStats.remainingVacations} days`"
+        />
+      </b-col>
+      <b-col
+        cols="12"
+        md="3"
+      >
+        <statistic-card-horizontal
+          icon="CalendarIcon"
+          statistic="Used holidays"
+          :statistic-title="`${vacationsStats.usedVacations} days`"
         />
       </b-col>
     </b-row>
@@ -33,7 +51,7 @@
         <b-row>
           <b-col
             cols="12"
-            md="8"
+            md="3"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
             <label>Show</label>
@@ -56,7 +74,53 @@
           </b-col>
           <b-col
             cols="12"
-            md="4"
+            md="2"
+            class="mb-md-0 mb-2"
+          >
+            <flat-pickr
+              :config="pickerConfig"
+              id="month"
+              class="form-control"
+              placeholder="Select Date Range"
+              v-model="filters.range"
+            />
+          </b-col>
+          <b-col
+            cols="12"
+            md="2"
+            class="mb-md-0 mb-2"
+          >
+            <v-select
+              placeholder="Status"
+              v-model="filters.status"
+              :options="statusOptions"
+              :reduce="status => status.value"
+              :clearable="false"
+              input-id="title"
+            />
+
+          </b-col>
+          <b-col
+            cols="12"
+            md="2"
+            class="mb-md-0 mb-2"
+          >
+            <b-button
+              variant="primary"
+              @click="filterRecords"
+            >
+              Filter
+            </b-button>
+            <b-button
+              variant="warning"
+              @click="resetFilter"
+            >
+              Reset
+            </b-button>
+          </b-col>
+          <b-col
+            cols="12"
+            md="3"
           >
             <div
               class="d-flex align-items-center justify-content-end"
@@ -200,6 +264,7 @@ import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useVacations from '@/composables/vacations'
 import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
+import flatPickr from 'vue-flatpickr-component'
 import AddVacation from './dialogs/AddVacation.vue'
 import EditVacation from './dialogs/EditVacation.vue'
 
@@ -213,6 +278,7 @@ export default {
     vSelect,
     BButton,
     BOverlay,
+    flatPickr,
     BDropdown,
     AddVacation,
     BFormInput,
@@ -248,7 +314,7 @@ export default {
 
     onMounted(async () => {
       await fetchVacations()
-    //   await fetchVacationsStats()
+      await fetchVacationsStats()
     })
     const isExportActive = ref(false)
     const isAddVacationActive = ref(false)
@@ -280,6 +346,28 @@ export default {
           }
         })
     }
+
+    const pickerConfig = {
+      mode: 'range',
+      dateFormat: 'Y-m-d',
+    }
+
+    const statusOptions = [
+      { label: 'Approved', value: 'approved' },
+      { label: 'Pending', value: 'pending' },
+    ]
+
+    const filterRecords = () => {
+      fetchVacations()
+    }
+
+    const filterKey = ref(0)
+    const resetFilter = () => {
+      Object.keys(filters).forEach(index => { filters[index] = null })
+      filterKey.value += 1
+      fetchVacations()
+    }
+
     return {
       busy,
       sortBy,
@@ -287,14 +375,18 @@ export default {
       perPage,
       vacations,
       dataMeta,
+      resetFilter,
       vacationId,
       refetchData,
       editVacation,
       searchQuery,
       currentPage,
+      pickerConfig,
+      filterRecords,
       vacationsStats,
       vacationStats,
       tableColumns,
+      statusOptions,
       totalRecords,
       refListTable,
       isSortDirDesc,
@@ -317,5 +409,6 @@ export default {
   </style>
 
   <style lang="scss">
+  @import '~flatpickr/dist/flatpickr.css';
   @import '~@core/scss/vue/libs/vue-select.scss';
   </style>

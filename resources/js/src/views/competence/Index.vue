@@ -33,6 +33,8 @@
               class="per-page-selector d-inline-block mx-50"
             />
             <label>entries</label>
+
+
             <b-button
               variant="primary"
               @click="isAddCompetenceActive = true"
@@ -212,6 +214,7 @@ import useCompetences from '@/composables/competences'
 import AddCompetence from './dialogs/Add.vue'
 import EditCompetence from './dialogs/Edit.vue'
 
+
 export default {
   components: {
     BCol,
@@ -291,14 +294,15 @@ export default {
         })
     }
 
+
     return {
       busy,
       sortBy,
       filters,
-      competence,
       perPage,
-      competences,
       dataMeta,
+      competence,
+      competences,
       refetchData,
       searchQuery,
       currentPage,

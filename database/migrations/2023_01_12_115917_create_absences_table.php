@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('to_date');
             $table->tinyInteger('days');
             $table->string('status')->default('pending');
-            $table->integer('approved_by');
+            $table->string('approved_by');
             $table->date('approved_date')->nullable();
             $table->integer('user_id');
             $table->text('comments')->nullable();

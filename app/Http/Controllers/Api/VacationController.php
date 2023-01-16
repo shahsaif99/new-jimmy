@@ -19,8 +19,13 @@ class VacationController extends Controller
     public function index(Request $request)
     {
         //
+        if ($request->filled('range') && !str_contains($request->range, 'to')) {
+            return response()->json([
+                'message' => 'Invalid date format. Please select date in range',
+            ], 500);
+        }
         $vacations = Vacation::query()
-        ->with(['approvedBy:id,first_name,last_name'])
+        ->with(['user:id,first_name,last_name'])
         ->applyFilters($request)
         ->when($request->perPage, function ($query, $perPage) {
             return $query->paginate($perPage);
@@ -87,14 +92,29 @@ class VacationController extends Controller
 
     }
 
-    // public function absenceStatistics()
-    // {
-    //     $vacations = Vacation::query()
-    //     ->select([DB::raw("SUM(days) as total_days"), 'type'])
-    //     ->groupBy('type')
-    //     ->get()->keyBy('type');
+    public function vacationStatistics()
+    {
+        $vacations = Vacation::query()
+        ->select([DB::raw("SUM(days) as total_days")])
+        ->whereStatus('approved')
+        ->first();
 
-    //     return VacationResource::collection($vacations);
+        return new VacationResource([
+            'vacations' => auth()->user()->holidays,
+            'usedVacations' => $vacations->total_days,
+            'remainingVacations' => auth()->user()->holidays - $vacations->total_days
+        ]);
 
-    // }
+    }
+
+    public function vacationStatusUpdate(Request $request, Vacation $vacation){
+
+        $vacation->update([
+            'status' => $request->status,
+            'approved_by' => auth()->user()->first_name. ' ' . auth()->user()->last_name,
+            'approved_date' => date('Y-m-d')
+        ]);
+
+        return response()->json(['message' => 'Absence request successfully'. ucwords($request->status)],200);
+    }
 }

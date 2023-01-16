@@ -31,7 +31,7 @@ export default function useAbsences() {
     { key: 'days', sortable: false },
     { key: 'status', sortable: false },
     { key: 'comments', sortable: false, width: 100 },
-    { key: 'approved_by.name', sortable: false, label: 'Approved By' },
+    { key: 'approved_by', sortable: false },
     { key: 'approved_date', sortable: false },
     { key: 'actions' },
   ]
@@ -171,7 +171,7 @@ export default function useAbsences() {
   const resolveStatus = status => {
     if (status === 'pending') {
       return 'warning'
-    } if (status === 'approved') { return 'primary' }
+    } if (status === 'approved') { return 'success' }
     if (status === 'declined') { return 'danger' }
     return 'primary'
   }
@@ -208,8 +208,23 @@ export default function useAbsences() {
     }
   }
 
+  const updateAbsenceStatus = async userData => {
+    try {
+      busy.value = true
+      const response = await axios.post(route('absences.status', userData.id), userData)
+      respResult.value = response
+      toast.success(response.data.message)
+    } catch (e) {
+      if (e.response.status === 422) {
+        toast.error(e.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
 
-  watch([currentPage, searchQuery], () => {
+
+  watch([currentPage, searchQuery, perPage], () => {
     fetchAbsences()
   })
 
@@ -238,6 +253,7 @@ export default function useAbsences() {
     perPageOptions,
     fetchAbsencesList,
     fetchAbsencesStats,
+    updateAbsenceStatus,
     overviewTableColumns,
   }
 }

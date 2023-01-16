@@ -49,12 +49,23 @@ class Absence extends Model
 
     public function scopeApplyFilters($query, Request $request)
     {
+
+
         $query
         ->when($request->sortDesc, function ($query, $sortDesc) {
             $query->orderByDesc('id');
         })
         ->when($request->userId, function ($query, $userId) {
             $query->where('user_id', $userId);
+        })
+        ->when($request->status, function ($query, $status) {
+            $query->where('status', $status);
+        })
+        ->when($request->range, function ($query) use($request) {
+            $dates = explode('to', $request->range);
+            $date1 = trim($dates[0]);
+            $date2 = trim($dates[1]);
+            $query->whereBetween('created_at', [$date1, $date2]);
         })
         ->when($request->sortBy, function ($query, $sortBy) {
             $query->orderBy($sortBy);
@@ -71,16 +82,6 @@ class Absence extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get the user that owns the Absence
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function approvedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'approved_by');
     }
 
 }

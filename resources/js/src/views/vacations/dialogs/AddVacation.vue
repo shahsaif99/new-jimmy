@@ -20,7 +20,15 @@
           @submit.prevent="handleSubmit(onSubmit)"
           @reset.prevent="resetForm"
         >
+          <b-alert
+            v-model="isConsumedAllHolidays"
+            variant="danger"
+            dismissible
+          >
+            <p>Selected days are more than remaining</p>
+          </b-alert>
           <b-form-row>
+
             <b-col sm="6">
               <ValidationProvider
                 #default="validationContext"
@@ -241,6 +249,7 @@ import {
   BCol,
   BForm,
   BButton,
+  BAlert,
   BFormRow,
   BFormInput,
   BFormGroup,
@@ -264,6 +273,7 @@ export default {
     BCol,
     BRow,
     BForm,
+    BAlert,
     BFormRow,
     BButton,
     vSelect,
