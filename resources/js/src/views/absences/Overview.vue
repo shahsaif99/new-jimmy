@@ -127,13 +127,12 @@ export default {
       fetchAbsences,
       absenceStats,
       perPageOptions,
-      updateAbsenceStatus,
       fetchAbsencesStats,
+      updateAbsenceStatus,
       overviewTableColumns,
     } = useAbsences()
 
     onMounted(async () => {
-      filters.status = 'approved'
       await fetchAbsences()
       await fetchAbsencesStats()
     })
@@ -145,28 +144,6 @@ export default {
         fetchAbsences()
       }
     }
-
-
-    const absenceStatusConfirmed = async data => {
-      await updateAbsenceStatus(data)
-      if (respResult.value.status === 200) {
-        fetchAbsences()
-      }
-    }
-
-    const confirmStatus = async (id, status) => {
-      root.$bvModal
-        .msgBoxConfirm(`Please confirm that you want to ${status} absence request.`, {
-          title: 'Please Confirm',
-          size: 'sm',
-        })
-        .then(value => {
-          if (value) {
-            absenceStatusConfirmed({ id, status })
-          }
-        })
-    }
-
 
     const confirmDelete = async id => {
       root.$bvModal
@@ -190,148 +167,6 @@ export default {
       { key: 'comments', sortable: false, width: 100 },
     ]
 
-    // const absencsOverview = ref([
-    //   {
-    //     name: 'Employee 1',
-    //     _showDetails: true,
-    //     absents: [
-    //       {
-    //         type: 'self',
-    //         from_date: '12-12-2020',
-    //         to_date: '12-12-2020',
-    //         days: '22 days',
-    //         status: 'approved',
-    //         approved_by: 'approved',
-    //         approved_date: '12-12-2020',
-    //         comments: 'test',
-    //       },
-    //       {
-    //         type: 'self',
-    //         from_date: '12-12-2020',
-    //         to_date: '12-12-2020',
-    //         days: '22 days',
-    //         status: 'approved',
-    //         approved_by: 'approved',
-    //         approved_date: '12-12-2020',
-    //         comments: 'test',
-    //       },
-    //       {
-    //         type: 'self',
-    //         from_date: '12-12-2020',
-    //         to_date: '12-12-2020',
-    //         days: '22 days',
-    //         status: 'approved',
-    //         approved_by: 'approved',
-    //         approved_date: '12-12-2020',
-    //         comments: 'test',
-    //       },
-    //       {
-    //         type: 'self',
-    //         from_date: '12-12-2020',
-    //         to_date: '12-12-2020',
-    //         days: '22 days',
-    //         status: 'approved',
-    //         approved_by: 'approved',
-    //         approved_date: '12-12-2020',
-    //         comments: 'test',
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     name: 'Employee 2',
-    //     _showDetails: true,
-    //     absents: [
-    //       {
-    //         type: 'self',
-    //         from_date: '12-12-2020',
-    //         to_date: '12-12-2020',
-    //         days: '22 days',
-    //         status: 'approved',
-    //         approved_by: 'approved',
-    //         approved_date: '12-12-2020',
-    //         comments: 'test',
-    //       },
-    //       {
-    //         type: 'self',
-    //         from_date: '12-12-2020',
-    //         to_date: '12-12-2020',
-    //         days: '22 days',
-    //         status: 'approved',
-    //         approved_by: 'approved',
-    //         approved_date: '12-12-2020',
-    //         comments: 'test',
-    //       },
-    //       {
-    //         type: 'self',
-    //         from_date: '12-12-2020',
-    //         to_date: '12-12-2020',
-    //         days: '22 days',
-    //         status: 'approved',
-    //         approved_by: 'approved',
-    //         approved_date: '12-12-2020',
-    //         comments: 'test',
-    //       },
-    //       {
-    //         type: 'self',
-    //         from_date: '12-12-2020',
-    //         to_date: '12-12-2020',
-    //         days: '22 days',
-    //         status: 'approved',
-    //         approved_by: 'approved',
-    //         approved_date: '12-12-2020',
-    //         comments: 'test',
-    //       },
-    //     ],
-    //   },
-    // ])
-
-    const absencsOverview = ref([
-      {
-        name: 'Employee 1',
-        type: 'self',
-        from_date: '12-12-2020',
-        to_date: '12-12-2020',
-        days: '22 days',
-        status: 'approved',
-        approved_by: 'approved',
-        approved_date: '12-12-2020',
-        comments: 'test',
-      },
-      {
-        name: 'Employee 1',
-        type: 'self',
-        from_date: '12-12-2020',
-        to_date: '12-12-2020',
-        days: '22 days',
-        status: 'approved',
-        approved_by: 'approved',
-        approved_date: '12-12-2020',
-        comments: 'test',
-      },
-      {
-        name: 'Employee 2',
-        type: 'self',
-        from_date: '12-12-2020',
-        to_date: '12-12-2020',
-        days: '22 days',
-        status: 'approved',
-        approved_by: 'approved',
-        approved_date: '12-12-2020',
-        comments: 'test',
-      },
-      {
-        name: 'Employee 2',
-        type: 'self',
-        from_date: '12-12-2020',
-        to_date: '12-12-2020',
-        days: '22 days',
-        status: 'approved',
-        approved_by: 'approved',
-        approved_date: '12-12-2020',
-        comments: 'test',
-      },
-    ])
-
     return {
       busy,
       sortBy,
@@ -346,7 +181,6 @@ export default {
       absencesStats,
       absenceStats,
       totalRecords,
-      confirmStatus,
       refListTable,
       isSortDirDesc,
       confirmDelete,
@@ -355,7 +189,6 @@ export default {
       isExportActive,
       fetchAbsences,
       overviewTableColumns,
-      absencsOverview,
       overviewTableColumns1,
     }
   },
