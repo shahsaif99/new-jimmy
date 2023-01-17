@@ -21,7 +21,7 @@
           @reset.prevent="resetForm"
         >
           <b-alert
-            v-model="isConsumedAllHolidays"
+            v-if="isConsumedAllHolidays"
             variant="danger"
             dismissible
           >
@@ -330,6 +330,7 @@ export default {
     onMounted(async () => {
       if (props.isAddVacationActive) {
         await getUser(userData.id)
+        console.log(user.value)
         usedHolidays.value = user.value.vacations_sum_days
         if (userData.role !== 'Admin') {
           formData.value.user = userData
@@ -340,6 +341,9 @@ export default {
           }
           leftHolidays.value = user.value.holidays - usedHolidays.value
           formData.value.used_vacations_days = `${usedHolidays.value} used out of ${user.value.holidays}`
+        } else {
+          leftHolidays.value = user.value.holidays
+          formData.value.used_vacations_days = `0 used out of ${user.value.holidays}`
         }
       }
     })

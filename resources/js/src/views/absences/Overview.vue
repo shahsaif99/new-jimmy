@@ -128,7 +128,6 @@ export default {
       absenceStats,
       perPageOptions,
       fetchAbsencesStats,
-      updateAbsenceStatus,
       overviewTableColumns,
     } = useAbsences()
 

@@ -64,7 +64,8 @@ class RolesAndPermissionSeeder extends Seeder
             'last_name' => 'Galaxy',
             'email' => 'admin@admin.com',
             'email_verified_at' => now(),
-            'password' =>'password'
+            'password' =>'password',
+            'gender' =>'Male'
         ]);
 
 
@@ -74,7 +75,8 @@ class RolesAndPermissionSeeder extends Seeder
             'email' => 'employee@gmail.com',
             'email_verified_at' => now(),
             'password' =>'password',
-            'holidays' => 10
+            'holidays' => 10,
+            'gender' =>'Male'
         ]);
 
         $user = User::create([
@@ -83,7 +85,8 @@ class RolesAndPermissionSeeder extends Seeder
             'email' => 'user@gmail.com',
             'email_verified_at' => now(),
             'password' =>'password',
-            'holidays' => 10
+            'holidays' => 10,
+            'gender' =>'Male'
         ]);
 
         $admin->assignRole($role1);
