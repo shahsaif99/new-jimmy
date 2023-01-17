@@ -119,31 +119,6 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Employee Number"
-                >
-                  <b-form-group
-                    label="Employee Number"
-                  >
-                    <b-form-input
-                      id="employee_number"
-                      v-model="formData.employee_number"
-                      :state="getValidationState(validationContext)"
-                      trim
-                      placeholder="Employee Number"
-                    />
-
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-              <b-col
-                cols="12"
-                md="3"
-              >
-                <validation-provider
-                  #default="validationContext"
                   name="Address"
                   rules="required"
                 >
@@ -393,6 +368,43 @@
                   </b-form-group>
                 </validation-provider>
               </b-col>
+              <!-- Field: Status -->
+              <b-col
+                cols="12"
+                md="3"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  name="Status"
+                  rules="required"
+                >
+                  <b-form-group
+                    label="Status"
+                    :state="getValidationState(validationContext)"
+                  >
+                    <!-- <v-select
+                      placeholder="Status"
+                      v-model="formData.status"
+                      :options="statusOptions"
+                      :reduce="status => status.value"
+                      :clearable="false"
+                      input-id="title"
+                    /> -->
+                    <b-form-select
+                      id="status"
+                      v-model="formData.status"
+                      :state="getValidationState(validationContext)"
+                      value-field="value"
+                      text-field="label"
+                      :options="statusOptions"
+                      placeholder="Status"
+                    />
+                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider>
+              </b-col>
               <b-col
                 cols="12"
                 md="12"
@@ -505,6 +517,11 @@ export default {
       //   formData.value = JSON.parse(JSON.stringify(blankFormData))
     }
 
+    const statusOptions = [
+      { label: 'Active', value: true },
+      { label: 'Inactive', value: false },
+    ]
+
 
     const onSubmit = async () => {
       await updateUser(formData.value)
@@ -538,6 +555,7 @@ export default {
       resetForm,
       previewEl,
       avatarText,
+      statusOptions,
       refFormObserver,
       getValidationState,
       inputImageRenderer,

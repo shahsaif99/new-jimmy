@@ -20,7 +20,6 @@ export default function useUsers() {
     { key: 'email', sortable: true },
     { key: 'phone', sortable: true },
     { key: 'employement_date' },
-    { key: 'end_date' },
     { key: 'roles.0.name', sortable: true, label: 'Role' },
     { key: 'status', sortable: true },
     { key: 'actions' },
@@ -216,6 +215,11 @@ export default function useUsers() {
     return 'primary'
   }
 
+
+  const resolveUserStatusVariant = status => {
+    if (status) return 'success'
+    return 'secondary'
+  }
   const resolveUserRoleIcon = role => {
     if (role === 'Employee') return 'DatabaseIcon'
     if (role === 'User') return 'UserIcon'
@@ -259,5 +263,6 @@ export default function useUsers() {
     resolveUserRoleIcon,
     employeeTableColumns,
     resolveUserRoleVariant,
+    resolveUserStatusVariant,
   }
 }

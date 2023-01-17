@@ -16,7 +16,6 @@ export default function useAccount() {
   const userData = ref(
     {
       name: 'olo',
-      employee_number: 4545,
       address: 'London',
       post_address: 'London',
       post_code: 75300,

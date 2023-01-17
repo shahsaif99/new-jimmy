@@ -32,7 +32,7 @@ class AuthController extends Controller
         $permissions = $this->getAllPermissions($user);
         $role = $user->getRoleNames()[0];
 
-        $userData = array_merge($user->only(['id', 'first_name', 'last_name','name']), ['role' => $role]);
+        $userData = array_merge($user->only(['id', 'first_name', 'last_name','name','avatar_url']), ['role' => $role]);
 
         $user->last_login_at = date('Y-m-d H:i:s');
         $user->save();

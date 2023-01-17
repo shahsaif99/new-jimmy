@@ -25,7 +25,6 @@ class CreateUsersTable extends Migration
             $table->string('gender', 30)->nullable();
             $table->string('citizen_country', 50)->nullable();
             $table->string('position_percentage', 30)->nullable();
-            $table->string('employee_number', 30)->nullable();
             $table->date('employement_date')->nullable();
             $table->date('end_date')->nullable();
             $table->date('dob')->nullable();

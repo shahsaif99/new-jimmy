@@ -80,8 +80,27 @@
           <template #cell(avatar)="data">
             <b-avatar :src="data.item.avatar" />
           </template>
-          <!-- Column: Status -->
+
+          <template #cell(name)="data">
+            <b-link
+              :to="{ name: 'users-edit', params: { id: data.item.id } }"
+            >
+              {{ data.item.name }}
+            </b-link>
+          </template>
+
           <template #cell(status)="data">
+            <b-badge
+              pill
+              :variant="`light-${resolveUserStatusVariant(data.item.status)}`"
+              class="text-capitalize"
+            >
+              {{ data.item.status ? 'Active' : 'Inactive' }}
+            </b-badge>
+          </template>
+
+          <!-- Column: Status -->
+          <!-- <template #cell(status)="data">
             <div>
               <b-form-checkbox
                 :checked="data.item.status"
@@ -91,7 +110,7 @@
                 switch
               />
             </div>
-          </template>
+          </template> -->
 
           <template #cell(roles.0.name)="data">
             <div
@@ -110,7 +129,34 @@
 
           <!-- Column: Actions -->
           <template #cell(actions)="data">
-            <b-dropdown
+
+            <feather-icon
+              :id="`user-row-${data.item.id}-pencil-icon`"
+              icon="EditIcon"
+              size="16"
+              class="mx-1 cursor-pointer"
+              @click="$router.push({ name: 'users-edit', params: { id: data.item.id } })"
+              v-if="$can('manage-users', 'all')"
+            />
+            <b-tooltip
+              title="Edit User"
+              :target="`user-row-${data.item.id}-pencil-icon`"
+            />
+            <feather-icon
+              :id="`user-row-${data.item.id}-trash-icon`"
+              icon="TrashIcon"
+              class="cursor-pointer"
+              size="16"
+              @click="confirmDelete(data.item.id)"
+              v-if="$can('manage-users', 'all')"
+            />
+            <b-tooltip
+              title="Delete User"
+              :target="`user-row-${data.item.id}-trash-icon`"
+            />
+
+
+            <!-- <b-dropdown
               variant="link"
               no-caret
             >
@@ -140,7 +186,7 @@
                 <span class="align-middle ml-50">Delete</span>
               </b-dropdown-item>
 
-            </b-dropdown>
+            </b-dropdown> -->
           </template>
 
         </b-table>
@@ -195,8 +241,8 @@
 <script>
 import { ref, onMounted } from '@vue/composition-api'
 import {
-  BAvatar, BButton, BCard, BCol, BDropdown,
-  BDropdownItem, BFormCheckbox, BFormInput, BOverlay, BPagination, BRow, BTable,
+  BAvatar, BButton, BCard, BCol, BTooltip, BLink, BBadge,
+  BFormInput, BOverlay, BPagination, BRow, BTable,
 } from 'bootstrap-vue'
 import vSelect from 'vue-select'
 import route from 'ziggy-js'
@@ -209,14 +255,14 @@ export default {
     BOverlay,
     BCard,
     BRow,
+    BLink,
     BCol,
     BFormInput,
     BButton,
     BTable,
-    BDropdown,
-    BDropdownItem,
+    BTooltip,
     BPagination,
-    BFormCheckbox,
+    BBadge,
     BAvatar,
     vSelect,
   },
@@ -241,6 +287,7 @@ export default {
       updateUserStatus,
       resolveUserRoleIcon,
       resolveUserRoleVariant,
+      resolveUserStatusVariant,
     } = useUsers()
 
 
@@ -279,6 +326,10 @@ export default {
       }
     }
 
+    const viewUser = item => {
+      context.root.$router.push({ name: 'users-edit', params: { id: item.id } })
+    }
+
 
     const confirmDelete = async id => {
       context.root.$bvModal
@@ -302,6 +353,7 @@ export default {
       perPage,
       filters,
       dataMeta,
+      viewUser,
       fetchUsers,
       searchQuery,
       currentPage,
@@ -315,6 +367,7 @@ export default {
       isExportActive,
       resolveUserRoleIcon,
       resolveUserRoleVariant,
+      resolveUserStatusVariant,
     }
   },
 }

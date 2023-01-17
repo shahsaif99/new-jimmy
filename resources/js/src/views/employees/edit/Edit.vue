@@ -80,35 +80,6 @@
                       </b-form-group>
                     </validation-provider>
                   </b-col>
-
-                  <b-col
-                    cols="12"
-                    md="6"
-                  >
-                    <validation-provider
-                      #default="validationContext"
-                      name="Employee Number"
-                    >
-                      <b-form-group
-                        label="Employee Number"
-                      >
-                        <b-form-input
-                          id="employee_number"
-                          v-model="formData.employee_number"
-                          :state="getValidationState(validationContext)"
-                          trim
-                          placeholder="Employee Number"
-                        />
-
-                        <b-form-invalid-feedback>
-                          {{ validationContext.errors[0] }}
-                        </b-form-invalid-feedback>
-                      </b-form-group>
-                    </validation-provider>
-
-                  </b-col>
-
-
                   <b-col
                     cols="12"
                     md="6"

@@ -20,7 +20,8 @@ class UserSeeder extends Seeder
             'last_name' => 'Galaxy',
             'email' => 'superadmin@admin.com',
             'email_verified_at' => now(),
-            'password' =>'password'
+            'password' =>'password',
+            'gender' =>'Male'
         ]);
 
         User::create([
@@ -29,7 +30,8 @@ class UserSeeder extends Seeder
             'email' => 'admin@admin.com',
             'email_verified_at' => now(),
             'role' => 'admin',
-            'password' => 'password'
+            'password' => 'password',
+            'gender' =>'Male'
         ]);
 
         User::create([
@@ -38,7 +40,8 @@ class UserSeeder extends Seeder
             'email' => 'user@gmail.com',
             'email_verified_at' => now(),
             'role' => 'user',
-            'password' => 'password'
+            'password' => 'password',
+            'gender' =>'Male'
         ]);
 
     }

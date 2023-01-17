@@ -9,6 +9,14 @@
         </b-card-title>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
+            ID
+          </h5>
+          <b-card-text>
+            {{ user.id }}
+          </b-card-text>
+        </div>
+        <div class="mt-1">
+          <h5 class="text-capitalize m-0">
             First Name
           </h5>
           <b-card-text>
@@ -29,14 +37,6 @@
           </h5>
           <b-card-text>
             {{ user.email }}
-          </b-card-text>
-        </div>
-        <div class="mt-1">
-          <h5 class="text-capitalize m-0">
-            Employee Number
-          </h5>
-          <b-card-text>
-            {{ user.employee_number }}
           </b-card-text>
         </div>
         <div class="mt-1">

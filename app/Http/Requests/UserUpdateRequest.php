@@ -37,7 +37,6 @@ class UserUpdateRequest extends FormRequest
             'gender' => ['nullable', 'max:30'],
             'citizen_country' => ['nullable', 'max:50'],
             'position_percentage' => ['nullable', 'max:30'],
-            'employee_number' => ['nullable', 'max:30'],
             'employement_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date'],
             'dob' => ['nullable', 'date'],

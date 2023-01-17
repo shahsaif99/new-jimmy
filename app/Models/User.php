@@ -35,7 +35,6 @@ class User extends Authenticatable
         'gender',
         'citizen_country',
         'position_percentage',
-        'employee_number',
         'employement_date',
         'end_date',
         'dob',
