@@ -46,7 +46,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@core/scss/vue/libs/vue-select.scss";
 .modal-lg, .modal-xl {
     max-width: 1058px;
 }

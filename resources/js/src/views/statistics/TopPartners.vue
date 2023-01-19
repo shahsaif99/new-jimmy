@@ -14,7 +14,7 @@
       :fields="tableColumns"
       primary-key="id"
       show-empty
-      empty-text="No matching records found"
+      :empty-text="t('No matching records found')"
       :sort-desc.sync="isSortDirDesc"
     >
       <template #cell(avatar)="data">

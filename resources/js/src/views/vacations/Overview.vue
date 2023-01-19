@@ -6,7 +6,7 @@
       class="mb-0 mt-2"
     >
       <h3 class="p-1">
-        Vacations overview
+        {{ t('Vacations Overview') }}
       </h3>
       <b-overlay
         id="overlay-background"
@@ -23,9 +23,27 @@
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
-          empty-text="No matching records found"
+          :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
+          <template #cell(user)="data">
+            <b-media vertical-align="center">
+              <template #aside>
+                <b-avatar
+                  size="32"
+                  :src="data.item.avatar"
+                  :text="avatarText(data.item.name)"
+                  :to="{ name: 'users-edit', params: { id: data.item.id } }"
+                />
+              </template>
+              <b-link
+                :to="{ name: 'users-edit', params: { id: data.item.id } }"
+              >
+                {{ data.item.name }}
+              </b-link>
+            </b-media>
+          </template>
+
           <template #cell(status)="data">
             <div
               class="text-nowrap"
@@ -45,47 +63,54 @@
               class="text-nowrap"
               v-if="data.item.status != 'approved'"
             >
-              <b-button
+              <!-- <b-button
                 variant="success"
                 class="btn-icon"
                 size="sm"
                 @click="confirmStatus(data.item.id, 'approved')"
-                :id="`row-${data.item.id}-check-btn`"
+                :id="`row-overview-${data.item.id}-check-btn`"
               >
                 <feather-icon icon="CheckIcon" />
-              </b-button>
-              <b-tooltip
-                title="Accept Request"
+              </b-button> -->
+              <feather-icon
+                @click="confirmStatus(data.item.id, 'approved')"
+                :id="`row-overview-${data.item.id}-check-btn`"
+                icon="CheckIcon"
                 class="cursor-pointer"
-                :target="`row-${data.item.id}-check-btn`"
+                size="16"
+              />
+              <b-tooltip
+                :title="t('Accept Request')"
+                class="cursor-pointer"
+                :target="`row-overview-${data.item.id}-check-btn`"
               />
               <b-button
                 variant="warning"
                 class="btn-icon"
                 size="sm"
-                :id="`row-${data.item.id}-cross-btn`"
+                :id="`row-overview-${data.item.id}-cross-btn`"
                 @click="confirmStatus(data.item.id, 'declined')"
               >
                 <feather-icon icon="XIcon" />
               </b-button>
               <b-tooltip
-                title="Decline Request"
+                :title="t('Decline Request')"
                 class="cursor-pointer"
-                :target="`row-${data.item.id}-cross-btn`"
+                :target="`row-overview-${data.item.id}-cross-btn`"
               />
               <b-button
                 variant="danger"
                 class="btn-icon"
                 size="sm"
-                :id="`row-${data.item.id}-trash-btn`"
+                :id="`row-overview-${data.item.id}-trash-btn`"
                 @click="confirmDelete(data.item.id)"
               >
                 <feather-icon icon="TrashIcon" />
               </b-button>
               <b-tooltip
-                title="Delete Request"
+                :title="t('Delete Request')"
                 class="cursor-pointer"
-                :target="`row-${data.item.id}-trash-btn`"
+                :target="`row-overview-${data.item.id}-trash-btn`"
               />
             </div>
           </template>
@@ -100,8 +125,8 @@
           >
             <span
               class="text-muted"
-            >Showing {{ dataMeta.from }} to {{ dataMeta.to }} of
-              {{ dataMeta.of }} entries</span>
+            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
+              {{ dataMeta.of }} {{ t('entries') }}</span>
           </b-col>
           <!-- Pagination -->
           <b-col
@@ -146,6 +171,7 @@ import {
   BCol,
   BTable,
   BButton,
+  BAvatar,
   BBadge,
   BOverlay,
   BTooltip,
@@ -153,6 +179,9 @@ import {
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 import useVacations from '@/composables/vacations'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import i18n from '@/libs/i18n'
+import { avatarText } from '@core/utils/filter'
 import PendingRequest from './PendingRequest.vue'
 
 export default {
@@ -162,6 +191,7 @@ export default {
     BCard,
     BTable,
     BBadge,
+    BAvatar,
     BButton,
     BTooltip,
     BOverlay,
@@ -193,6 +223,9 @@ export default {
       updateVacationStatus,
     } = useVacations()
 
+    const { t } = useI18nUtils()
+
+
     onMounted(async () => {
       await fetchVacations()
     })
@@ -215,7 +248,7 @@ export default {
     const confirmStatus = async (id, status) => {
       root.$bvModal
         .msgBoxConfirm(`Please confirm that you want to ${status} absence request.`, {
-          title: 'Please Confirm',
+          title: i18n.t('Please Confirm'),
           size: 'sm',
         })
         .then(value => {
@@ -228,8 +261,8 @@ export default {
 
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete vacation.', {
-          title: 'Please Confirm',
+        .msgBoxConfirm(i18n.t('Please confirm that you want to delete vacation.'), {
+          title: i18n.t('Please Confirm'),
           size: 'sm',
         })
         .then(value => {
@@ -239,7 +272,9 @@ export default {
         })
     }
     return {
+      t,
       busy,
+      avatarText,
       sortBy,
       filters,
       perPage,

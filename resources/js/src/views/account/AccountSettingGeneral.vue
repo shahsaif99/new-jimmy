@@ -9,7 +9,7 @@
         <b-tab>
           <template #title>
             <feather-icon icon="UserIcon" />
-            <span>Details</span>
+            <span>{{ t('Details') }}</span>
           </template>
           <b-overlay
             id="overlay-background"
@@ -56,7 +56,7 @@
                               class="d-none"
                               @input="inputImageRenderer"
                             >
-                            <span class="d-none d-sm-inline">Upload</span>
+                            <span class="d-none d-sm-inline">{{ t('Upload') }}</span>
                           </b-button>
                           <b-button
                             variant="outline-secondary"
@@ -64,7 +64,7 @@
                             @click="removeImage"
                             size="sm"
                           >
-                            <span class="d-none d-sm-inline">Remove</span>
+                            <span class="d-none d-sm-inline">{{ t('Remove') }}</span>
                           </b-button>
                         </div>
                       </b-media>
@@ -75,14 +75,14 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="First Name"
+                        :name="t('First Name')"
                         rules="required"
                       >
                         <b-form-group
-                          label="First Name"
+                          :label="t('First Name')"
                         >
                           <b-form-input
-                            placeholder="First Name"
+                            :placeholder="t('First Name')"
                             id="first_name"
                             v-model="formData.first_name"
                             :state="getValidationState(validationContext)"
@@ -103,18 +103,18 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="Last Name"
+                        :name="t('Last Name')"
                         rules="required"
                       >
                         <b-form-group
-                          label="Last Name"
+                          :label="t('Last Name')"
                         >
                           <b-form-input
                             id="last_name"
                             v-model="formData.last_name"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="Last Name"
+                            :placeholder="t('Last Name')"
                           />
 
                           <b-form-invalid-feedback>
@@ -129,18 +129,18 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="Address"
+                        :name="t('Address')"
                         rules="required"
                       >
                         <b-form-group
-                          label="Address"
+                          :label="t('Address')"
                         >
                           <b-form-input
                             id="address"
                             v-model="formData.address"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="Address"
+                            :placeholder="t('Address')"
                           />
 
                           <b-form-invalid-feedback>
@@ -155,17 +155,17 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="Post Address"
+                        :name="t('Post Address')"
                       >
                         <b-form-group
-                          label="Post Address"
+                          :label="t('Post Address')"
                         >
                           <b-form-input
                             id="post_address"
                             v-model="formData.post_address"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="Post Address"
+                            :placeholder="t('Post Address')"
                           />
 
                           <b-form-invalid-feedback>
@@ -180,17 +180,17 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="Post Code"
+                        :name="t('Post Code')"
                       >
                         <b-form-group
-                          label="Post Code"
+                          :name="t('Post Code')"
                         >
                           <b-form-input
                             id="postal_code"
                             v-model="formData.postal_code"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="Post Code"
+                            :placeholder="t('Post Code')"
                           />
 
                           <b-form-invalid-feedback>
@@ -205,17 +205,17 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="Date of Birth"
+                        :name="t('Date of Birth')"
                       >
                         <b-form-group
-                          label="Date of Birth"
+                          :label="t('Date of Birth')"
                         >
                           <b-form-datepicker
                             id="dob"
                             v-model="formData.dob"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="Date of Birth"
+                            :placeholder="t('Date of Birth')"
                           />
 
                           <b-form-invalid-feedback>
@@ -230,11 +230,11 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="Gender"
+                        :name="t('Gender')"
                         rules="required"
                       >
                         <b-form-group
-                          label="Gender"
+                          :label="t('Gender')"
                         >
                           <b-form-select
                             id="gender"
@@ -242,7 +242,7 @@
                             :state="getValidationState(validationContext)"
                             trim
                             :options="['Male','Female']"
-                            placeholder="Gender"
+                            :placeholder="t('Gender')"
                           />
 
                           <b-form-invalid-feedback>
@@ -261,14 +261,14 @@
                         rules="required"
                       >
                         <b-form-group
-                          label="Phone"
+                          :label="t('Phone')"
                         >
                           <b-form-input
                             id="phone"
                             v-model="formData.phone"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="Phone"
+                            :placeholder="t('Phone')"
                           />
 
                           <b-form-invalid-feedback>
@@ -283,17 +283,17 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="Citizen Country"
+                        :name="t('Citizen Country')"
                       >
                         <b-form-group
-                          label="Citizen Country"
+                          :label="t('Citizen Country')"
                         >
                           <b-form-input
                             id="citizen_country"
                             v-model="formData.citizen_country"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="Citizen Country"
+                            :placeholder="t('Citizen Country')"
                           />
 
                           <b-form-invalid-feedback>
@@ -308,18 +308,18 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="Employement Date"
+                        :name="t('Employement Date')"
                         rules="required"
                       >
                         <b-form-group
-                          label="Employement Date"
+                          :label="t('Employement Date')"
                         >
                           <b-form-datepicker
                             id="employement_date"
                             v-model="formData.employement_date"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="Employement Date"
+                            :placeholder="t('Employement Date')"
                           />
 
                           <b-form-invalid-feedback>
@@ -334,17 +334,17 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="End Date"
+                        :name="t('End Date')"
                       >
                         <b-form-group
-                          label="End Date"
+                          :label="t('End Date')"
                         >
                           <b-form-datepicker
                             id="end_date"
                             v-model="formData.end_date"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="End Date"
+                            :placeholder="t('End Date')"
                           />
 
                           <b-form-invalid-feedback>
@@ -359,17 +359,17 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="Position Percentage"
+                        :name="t('Position Percentage')"
                       >
                         <b-form-group
-                          label="Position Percentage"
+                          :label="t('Position Percentage')"
                         >
                           <b-form-input
                             id="position_percentage"
                             v-model="formData.position_percentage"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="Position Percentage"
+                            :placeholder="t('Position Percentage')"
                           />
 
                           <b-form-invalid-feedback>
@@ -421,17 +421,17 @@
                     >
                       <validation-provider
                         #default="validationContext"
-                        name="Job Description"
+                        :name="t('Job Description')"
                       >
                         <b-form-group
-                          label="Job Description"
+                          :label="t('Job Description')"
                         >
                           <b-form-textarea
                             id="description"
                             v-model="formData.description"
                             :state="getValidationState(validationContext)"
                             trim
-                            placeholder="Job Description"
+                            :placeholder="t('Job Description')"
                           />
 
                           <b-form-invalid-feedback>
@@ -448,7 +448,7 @@
                       class="ml-2"
                       type="submit"
                     >
-                      Update User
+                      {{ t('Update User') }}
                     </b-button>
                   </div>
                 </b-card>
@@ -476,6 +476,7 @@ import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import { avatarText } from '@core/utils/filter'
 import useUsers from '@/composables/users'
 import useJwt from '@/auth/jwt/useJwt'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -503,6 +504,7 @@ export default {
   },
   setup() {
     const userData = JSON.parse(useJwt.getUserData())
+    const { t } = useI18nUtils()
     const formData = ref({})
     const statusOptions = [
       { label: 'Active', value: true },
@@ -543,6 +545,7 @@ export default {
     }
 
     return {
+      t,
       busy,
       email,
       formData,

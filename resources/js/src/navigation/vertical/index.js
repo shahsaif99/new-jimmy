@@ -83,21 +83,50 @@ export default [
   },
 
   {
-    title: 'Document center',
+    title: 'Document Center',
     icon: 'FolderIcon',
     resource: 'all',
     action: 'document-center',
     children: [
-      // {
-      //   title: 'Document center',
-      //   route: 'documentcenter',
-      //   icon: 'FolderIcon',
-      //   action: 'document-center',
-      //   resource: 'all',
-      // },
+      {
+        title: 'Procedure/Instructions',
+        route: '#',
+        icon: 'FolderIcon',
+        action: 'document-center',
+        resource: 'all',
+      },
       {
         title: 'Handbooks',
-        route: 'handbooks',
+        route: '#',
+        icon: 'FolderIcon',
+        action: 'document-center',
+        resource: 'all',
+      },
+    ],
+  },
+  {
+    title: 'Risk Center',
+    icon: 'FolderIcon',
+    resource: 'all',
+    action: 'document-center',
+    children: [
+      {
+        title: 'Protection Rounds',
+        route: '#',
+        icon: 'FolderIcon',
+        action: 'document-center',
+        resource: 'all',
+      },
+      {
+        title: 'Safe job analysis',
+        route: '#',
+        icon: 'FolderIcon',
+        action: 'document-center',
+        resource: 'all',
+      },
+      {
+        title: 'Deviation / RUH',
+        route: '#',
         icon: 'FolderIcon',
         action: 'document-center',
         resource: 'all',

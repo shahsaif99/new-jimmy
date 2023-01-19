@@ -29,7 +29,7 @@ export default function useVacations() {
     { key: 'days', sortable: false },
     { key: 'status', sortable: false },
     { key: 'comments', sortable: false },
-    { key: 'approved_by.name', sortable: false, label: 'Approved By' },
+    { key: 'approved_by', sortable: false, label: 'Approved By' },
     { key: 'approved_date', sortable: false },
     { key: 'actions' },
   ]
@@ -42,7 +42,7 @@ export default function useVacations() {
     { key: 'comments', sortable: false, width: 100 },
     { key: 'actions' },
   ]
-
+ 
 
   const dataMeta = computed(() => {
     const localItemsCount = refListTable.value ? refListTable.value.localItems.length : 0

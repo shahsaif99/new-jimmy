@@ -3,7 +3,7 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Information"
+    :title="t('Add Information')"
     size="lg"
     class="modal-is-dashboard-active"
     id="is-dashboard-active"
@@ -27,16 +27,16 @@
           >
             <validation-provider
               #default="validationContext"
-              name="Information"
+              :name="t('Information')"
               rules="required"
             >
               <b-form-group
-                label="Information"
+                :label="t('Information')"
                 label-for="information"
               >
                 <b-form-textarea
                   v-model="content"
-                  placeholder="Information"
+                  :placeholder="t('Information')"
                   rows="6"
                   :state="
                     getValidationState(
@@ -61,7 +61,7 @@
                 class="px-5 mt-2"
                 type="submit"
               >
-                <span class="text-nowrap">Submit</span>
+                <span class="text-nowrap">{{ t('Submit') }}</span>
               </b-button>
             </div>
           </b-col>
@@ -86,6 +86,7 @@ import useInformationBoard from '@/composables/informationBoard'
 import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -117,6 +118,8 @@ export default {
       storeInformation,
     } = useInformationBoard()
 
+    const { t } = useI18nUtils()
+
     const { refFormObserver, getValidationState, resetForm } = formValidation()
 
     const content = ref('')
@@ -131,6 +134,7 @@ export default {
     }
 
     return {
+      t,
       busy,
       content,
       onSubmit,

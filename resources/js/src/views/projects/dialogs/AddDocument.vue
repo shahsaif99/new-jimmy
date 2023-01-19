@@ -3,7 +3,7 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Document"
+    :title="t('Add Document')"
     size="lg"
     class="modal-is-add-document-active"
     id="is-add-document-active"
@@ -27,11 +27,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Select Project"
+                :name="t('Select Project')"
                 rules="required"
               >
                 <b-form-group
-                  label="Select Project"
+                  :label="t('Select Project')"
                 >
                   <v-select
                     v-model="projectId"
@@ -54,13 +54,13 @@
             >
 
               <b-form-group
-                label="Add Documents/Images"
+                :label="t('Add Documents/Images')"
                 label-for="files"
                 class="mt-2"
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Files"
+                  :name="t('Files')"
                   rules="required"
                 >
                   <b-form-file
@@ -79,7 +79,7 @@
                         v-if="names.length > 1"
                         variant="primary"
                       >
-                        + {{ names.length - 1 }} More files
+                        + {{ names.length - 1 }} {{ t('More files') }}
                       </b-badge>
                     </template>
                   </b-form-file>
@@ -101,7 +101,7 @@
                     class="mt-1"
                     type="submit"
                   >
-                    <span class="text-nowrap">Submit</span>
+                    <span class="text-nowrap">{{ t('Submit') }}</span>
                   </b-button>
                 </div>
               </b-col>
@@ -130,6 +130,7 @@ import vSelect from 'vue-select'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import useProjects from '@/composables/projects'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -166,6 +167,9 @@ export default {
     const projectId = ref('')
     const files = ref([])
 
+    const { t } = useI18nUtils()
+
+
     onMounted(() => {
       fetchProjects()
     })
@@ -188,6 +192,7 @@ export default {
 
 
     return {
+      t,
       files,
       projectId,
       required,

@@ -31,6 +31,7 @@
 </template>
 
 <script>
+
 import { BNavItemDropdown, BDropdownItem, BImg } from 'bootstrap-vue'
 
 export default {
@@ -45,14 +46,17 @@ export default {
       return this.locales.find(l => l.locale === this.$i18n.locale)
     },
   },
-  mounted() {
-    this.setLocale(localStorage.getItem('locale'))
-  },
   methods: {
-    setLocale(locale) {
-      localStorage.setItem('locale', locale)
-      this.$i18n.locale = locale
+    setLocale(lang) {
+      this.$i18n.locale = lang
+      localStorage.setItem('locale', lang)
     },
+  },
+  mounted() {
+    const locale = localStorage.getItem('locale')
+    if (locale) {
+      this.$i18n.locale = locale
+    }
   },
   setup() {
     /* eslint-disable global-require */
@@ -68,17 +72,9 @@ export default {
         name: 'Norwegian',
       },
     ]
-
-
-    /* eslint-disable global-require */
-
     return {
       locales,
     }
   },
 }
 </script>
-
-<style>
-
-</style>

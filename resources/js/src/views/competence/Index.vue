@@ -24,7 +24,7 @@
             md="8"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
-            <label>Show</label>
+            <label>{{ t('Show') }}</label>
             <v-select
               v-model="perPage"
               :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
@@ -32,7 +32,7 @@
               :clearable="false"
               class="per-page-selector d-inline-block mx-50"
             />
-            <label>entries</label>
+            <label>{{ t('entries') }}</label>
 
 
             <b-button
@@ -41,7 +41,7 @@
               v-if="$can('competence-add', 'all')"
               class="ml-3"
             >
-              <span class="text-nowrap">Add Competence</span>
+              <span class="text-nowrap">{{ t('Add Competence') }}</span>
             </b-button>
           </b-col>
           <b-col
@@ -54,7 +54,7 @@
               <b-form-input
                 v-model="searchQuery"
                 class="d-inline-block mr-1"
-                placeholder="Search..."
+                :placeholder="t('Search...')"
               />
             </div>
           </b-col>
@@ -70,7 +70,7 @@
         :sort-by.sync="sortBy"
         :busy="busy"
         show-empty
-        empty-text="No matching records found"
+        :empty-text="t('No matching records found')"
         :sort-desc.sync="isSortDirDesc"
       >
         <template #row-details="row">
@@ -132,7 +132,7 @@
                     @click="editCompetenceActive=true"
                   >
                     <feather-icon icon="EditIcon" />
-                    <span class="align-middle ml-50">Edit</span>
+                    <span class="align-middle ml-50">{{ t('Edit') }}</span>
                   </b-dropdown-item>
                   <b-dropdown-item
                     @click="confirmDelete(item.competence.id)"
@@ -140,7 +140,7 @@
                     <feather-icon
                       icon="TrashIcon"
                     />
-                    <span class="align-middle ml-50">Delete</span>
+                    <span class="align-middle ml-50">{{ t('Delete') }}</span>
                   </b-dropdown-item>
                 </b-dropdown> -->
               </th>
@@ -157,8 +157,8 @@
           >
             <span
               class="text-muted"
-            >Showing {{ dataMeta.from }} to {{ dataMeta.to }} of
-              {{ dataMeta.of }} entries</span>
+            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
+              {{ dataMeta.of }} {{ t('entries') }}</span>
           </b-col>
           <!-- Pagination -->
           <b-col
@@ -203,14 +203,14 @@ import {
   BCol,
   BTable,
   BButton,
-  BDropdown,
   BFormInput,
   BPagination,
-  BDropdownItem,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useCompetences from '@/composables/competences'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import i18n from '@/libs/i18n'
 import AddCompetence from './dialogs/Add.vue'
 import EditCompetence from './dialogs/Edit.vue'
 
@@ -223,12 +223,10 @@ export default {
     BTable,
     vSelect,
     BButton,
-    BDropdown,
     AddCompetence,
     BFormInput,
     BPagination,
     EditCompetence,
-    BDropdownItem,
   },
   props: {
     userData: {
@@ -257,6 +255,8 @@ export default {
       perPageOptions,
     } = useCompetences()
 
+    const { t } = useI18nUtils()
+
     onMounted(() => {
       if (props.userData) {
         filters.userId = props.userData.id
@@ -283,8 +283,8 @@ export default {
 
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete competence.', {
-          title: 'Please Confirm',
+        .msgBoxConfirm(i18n.t('Please confirm that you want to delete competence.'), {
+          title: i18n.t('Please Confirm'),
           size: 'sm',
         })
         .then(value => {
@@ -296,6 +296,7 @@ export default {
 
 
     return {
+      t,
       busy,
       sortBy,
       filters,

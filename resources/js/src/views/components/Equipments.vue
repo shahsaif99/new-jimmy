@@ -6,7 +6,7 @@
     >
       <div class="m-2">
         <b-card-title>
-          Equipments
+          {{ t('Equipments') }}
         </b-card-title>
       </div>
       <b-overlay
@@ -24,7 +24,7 @@
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
-          empty-text="No matching records found"
+          :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
           tbody-tr-class="item-row"
         >
@@ -45,7 +45,7 @@
                 v-if="$can('equipments-delete', 'all')"
               >
                 <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">Edit</span>
+                <span class="align-middle ml-50">{{ t('Edit') }}</span>
               </b-dropdown-item>
               <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
@@ -54,7 +54,7 @@
                 <feather-icon
                   icon="TrashIcon"
                 />
-                <span class="align-middle ml-50">Delete</span>
+                <span class="align-middle ml-50">{{ t('Delete') }}</span>
               </b-dropdown-item>
             </b-dropdown>
           </template>
@@ -69,8 +69,8 @@
           >
             <span
               class="text-muted"
-            >Showing {{ dataMeta.from }} to {{ dataMeta.to }} of
-              {{ dataMeta.of }} entries</span>
+            >{{ t('Showing') }} {{ dataMeta.from }} to {{ dataMeta.to }} of
+              {{ dataMeta.of }} {{ t('entries') }}</span>
           </b-col>
           <b-col
             cols="12"
@@ -122,6 +122,7 @@ import {
 import { onMounted } from '@vue/composition-api'
 // eslint-disable-next-line import/no-cycle
 import useEquipments from '@/composables/equipments'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 
 export default {
@@ -156,6 +157,8 @@ export default {
       fetchEquipments,
     } = useEquipments()
 
+    const { t } = useI18nUtils()
+
     const tableColumns = [
       { key: 'id', sortable: false },
       { key: 'name', sortable: true },
@@ -172,6 +175,7 @@ export default {
 
 
     return {
+      t,
       busy,
       sortBy,
       student,

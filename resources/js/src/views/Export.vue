@@ -30,7 +30,7 @@
           >
             <validation-provider
               #default="validationContext"
-              name="name"
+              :name="t('Name')"
               rules="required"
             >
               <b-form-group

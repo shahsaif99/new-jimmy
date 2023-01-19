@@ -22,30 +22,16 @@
         >
           <b-form-row>
             <b-col
-              sm="12"
-              class="mb-2"
-            >
-
-              <span
-                class="align-text-top text-capitalize"
-                :class="`text-${resolveStatus(formData.status)}`"
-              >
-                <b-badge :variant="resolveStatus(formData.status)">
-                  <span>{{ formData.status }}</span>
-                </b-badge>
-              </span>
-            </b-col>
-            <b-col
               cols="12"
               md="6"
             >
               <validation-provider
                 #default="validationContext"
-                name="Absence Type"
+                :name="t('Absence Type')"
                 rules="required"
               >
                 <b-form-group
-                  label="Absence Type"
+                  :label="t('Absence Type')"
                   label-for="type"
                 >
                   <b-form-select
@@ -54,7 +40,7 @@
                     :state="getValidationState(validationContext)"
                     trim
                     :options="['Self-Report','Sick Child', 'Welfare Leave']"
-                    placeholder="Absence Type"
+                    :placeholder="t('Absence Type')"
                   />
 
                   <b-form-invalid-feedback>
@@ -67,18 +53,18 @@
             <b-col sm="6">
               <ValidationProvider
                 #default="validationContext"
-                name="Employees"
+                :name="t('Employees')"
                 rules="required"
               >
                 <b-form-group
-                  label="Select Employee"
+                  :label="t('Select Employee')"
                   label-for="employee"
                   :state="getValidationState(validationContext)"
                 >
                   <v-select
                     v-model="formData.user"
                     class="w-full"
-                    placeholder="Type here to search employees"
+                    :placeholder="t('Type here to search employees')"
                     :options="users"
                     :close-on-select="true"
                     :select-on-tab="true"
@@ -91,7 +77,7 @@
                     :state="getValidationState(validationContext)"
                   >
                     <template slot="no-options">
-                      type to search employees..
+                      {{ t('type to search employees..') }}
                     </template>
                     <template
                       slot="option"
@@ -118,11 +104,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="From Date"
+                :name="t('From Date')"
                 rules="required"
               >
                 <b-form-group
-                  label="From Date"
+                  :label="t('From Date')"
                   label-for="startdate"
                 >
                   <b-form-datepicker
@@ -146,11 +132,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="To Date"
+                :name="t('To Date')"
                 rules="required"
               >
                 <b-form-group
-                  label="To Date"
+                  :label="t('To Date')"
                   label-for="to_date"
                 >
                   <b-form-datepicker
@@ -174,16 +160,16 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Days"
+                :name="t('Days')"
                 rules="required"
               >
                 <b-form-group
-                  label="Days"
+                  :label="t('Days')"
                   label-for="days"
                 >
                   <b-form-input
                     v-model="formData.days"
-                    placeholder="Days"
+                    :placeholder="t('Days')"
                     readonly
                     :state="
                       getValidationState(
@@ -204,15 +190,15 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Comments"
+                :name="t('Comments')"
               >
                 <b-form-group
-                  label="Comments"
+                  :label="t('Comments')"
                   label-for="comments"
                 >
                   <b-form-textarea
                     v-model="formData.comments"
-                    placeholder="Comments"
+                    :placeholder="t('Comments')"
                     :state="
                       getValidationState(
                         validationContext
@@ -235,7 +221,7 @@
                     class="mt-1"
                     type="submit"
                   >
-                    <span class="text-nowrap">Update</span>
+                    <span class="text-nowrap">{{ t('Submit') }}</span>
                   </b-button>
                 </div>
               </b-col>
@@ -252,7 +238,6 @@ import {
   BRow,
   BCol,
   BForm,
-  BBadge,
   BButton,
   BFormRow,
   BFormInput,
@@ -272,13 +257,13 @@ import vSelect from 'vue-select'
 import useUsers from '@/composables/users'
 import useJwt from '@/auth/jwt/useJwt'
 import moment from 'moment'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
     BCol,
     BRow,
     BForm,
-    BBadge,
     BButton,
     vSelect,
     BFormRow,
@@ -310,6 +295,7 @@ export default {
     // const formData = toRef(props, 'absence')
 
     const userData = JSON.parse(useJwt.getUserData())
+    const { t } = useI18nUtils()
 
     const calculateDays = () => {
       if (formData.value.from_date) {
@@ -386,6 +372,7 @@ export default {
     } = formValidation()
 
     return {
+      t,
       busy,
       users,
       onSearch,

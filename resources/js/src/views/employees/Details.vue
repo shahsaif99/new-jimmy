@@ -9,7 +9,7 @@
         </b-card-title>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            ID
+            {{ t('ID') }}
           </h5>
           <b-card-text>
             {{ user.id }}
@@ -17,7 +17,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            First Name
+            {{ t('First Name') }}
           </h5>
           <b-card-text>
             {{ user.first_name }}
@@ -25,7 +25,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Last Name
+            {{ t('Last Name') }}
           </h5>
           <b-card-text>
             {{ user.last_name }}
@@ -33,7 +33,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Email
+            {{ t('Email') }}
           </h5>
           <b-card-text>
             {{ user.email }}
@@ -41,7 +41,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Address
+            {{ t('Address') }}
           </h5>
           <b-card-text>
             {{ user.address }}
@@ -49,7 +49,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Post Address
+            {{ t('Post Address') }}
           </h5>
           <b-card-text>
             {{ user.post_address }}
@@ -57,7 +57,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Post Code
+            {{ t('Post Code') }}
           </h5>
           <b-card-text>
             {{ user.postal_code }}
@@ -66,7 +66,7 @@
 
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Date of Birth
+            {{ t('Date of Birth') }}
           </h5>
           <b-card-text>
             {{ user.dob }}
@@ -74,7 +74,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Gender
+            {{ t('Gender') }}
           </h5>
           <b-card-text>
             {{ user.gender }}
@@ -82,7 +82,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Phone
+            {{ t('Phone') }}
           </h5>
           <b-card-text>
             {{ user.phone }}
@@ -90,7 +90,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Citizen Country
+            {{ t('Citizen Country') }}
           </h5>
           <b-card-text>
             {{ user.citizen_country }}
@@ -101,11 +101,11 @@
     <b-col sm="3">
       <b-card>
         <b-card-title>
-          Employment Details
+          {{ t('Employment Details') }}
         </b-card-title>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Employement Date
+            {{ t('Employement Date') }}
           </h5>
           <b-card-text>
             {{ user.employement_date }}
@@ -113,7 +113,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            End Date
+            {{ t('End Date') }}
           </h5>
           <b-card-text>
             {{ user.end_date }}
@@ -121,7 +121,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Position Percentage
+            {{ t('Position Percentage') }}
           </h5>
           <b-card-text>
             {{ user.position_percentage }}
@@ -129,7 +129,7 @@
         </div>
         <div class="mt-1">
           <h5 class="text-capitalize m-0">
-            Job Description
+            {{ t('Job Description') }}
           </h5>
           <b-card-text>
             {{ user.description }}
@@ -146,8 +146,8 @@ import {
 } from 'bootstrap-vue'
 import Ripple from 'vue-ripple-directive'
 import { onMounted } from '@vue/composition-api'
-// import useAccount from '@/composables/admin/account'
 import useUsers from '@/composables/users'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -163,11 +163,15 @@ export default {
   setup(_, { root }) {
     const { getUser, user } = useUsers()
 
+    const { t } = useI18nUtils()
+
+
     onMounted(() => {
       getUser(root.$route.params.id)
     })
 
     return {
+      t,
       user,
     }
   },

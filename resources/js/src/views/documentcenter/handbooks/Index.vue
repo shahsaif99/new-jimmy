@@ -29,7 +29,7 @@
               md="6"
               class="d-flex align-items-center justify-content-start mb-1 mb-md-0 mt-1"
             >
-              <label>Show</label>
+              <label>{{ t('Show') }}</label>
               <v-select
                 v-model="perPage"
                 :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
@@ -37,7 +37,7 @@
                 :clearable="false"
                 class="per-page-selector d-inline-block mx-50"
               />
-              <label>entries</label>
+              <label>{{ t('entries') }}</label>
             </b-col>
             <b-col
               cols="12"
@@ -49,7 +49,7 @@
                 <b-form-input
                   v-model="searchQuery"
                   class="d-inline-block mr-1 md-2 mt-1"
-                  placeholder="Search..."
+                  :placeholder="t('Search...')"
                 />
               </div>
             </b-col>
@@ -68,7 +68,7 @@
               primary-key="id"
               :sort-by.sync="sortBy"
               show-empty
-              empty-text="No matching records found"
+              :empty-text="t('No matching records found')"
               :sort-desc.sync="isSortDirDesc"
             />
           </b-overlay>

@@ -16,6 +16,7 @@ export default function useUsers() {
   const tableColumns = [
     { key: 'id', sortable: false },
     { key: 'avatar', sortable: false },
+    { key: 'user', sortable: false },
     { key: 'name', sortable: true },
     { key: 'email', sortable: true },
     { key: 'phone', sortable: true },

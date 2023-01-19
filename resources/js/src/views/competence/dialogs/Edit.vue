@@ -3,7 +3,7 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Edit Competence"
+    :title="t('Edit Competence')"
     size="lg"
     class="modal-edit-competence-active"
     id="edit-competence-active"
@@ -27,16 +27,16 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Course Name"
+                :name="t('Course Name')"
                 rules="required"
               >
                 <b-form-group
-                  label="Course Name"
+                  :label="t('Course Name')"
                   label-for="competencename"
                 >
                   <b-form-input
                     v-model="formData.name"
-                    placeholder="Course Name"
+                    :placeholder="t('Course Name')"
                     :state="
                       getValidationState(
                         validationContext
@@ -55,11 +55,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Completed Date"
+                :name="t('Completed Date')"
                 rules="required"
               >
                 <b-form-group
-                  label="Completed Date"
+                  :label="t('Completed Date')"
                   label-for="startdate"
                 >
                   <b-form-input
@@ -82,11 +82,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Valid Until"
+                :name="t('Valid Until')"
                 rules="required"
               >
                 <b-form-group
-                  label="Valid Until"
+                  :label="t('Valid Until')"
                   label-for="enddate"
                 >
                   <b-form-input
@@ -150,14 +150,14 @@
                 rules="required"
               >
                 <b-form-group
-                  label="Select Employee"
+                  :label="t('Select Employee')"
                   label-for="employee"
                   :state="getValidationState(validationContext)"
                 >
                   <v-select
                     v-model="formData.employees"
                     class="w-full"
-                    placeholder="Type here to search employees"
+                    :placeholder="t('Type here to search employees')"
                     :options="users"
                     multiple
                     :close-on-select="false"
@@ -170,7 +170,7 @@
                     :state="getValidationState(validationContext)"
                   >
                     <template slot="no-options">
-                      type to search employees..
+                      {{ t('type to search employees..') }}
                     </template>
                     <template
                       slot="option"
@@ -201,7 +201,7 @@
                     class="mt-1"
                     type="submit"
                   >
-                    <span class="text-nowrap">Submit</span>
+                    <span class="text-nowrap">{{ t('Submit') }}</span>
                   </b-button>
                 </div>
               </b-col>

@@ -7,8 +7,8 @@
       >
         <statistic-card-horizontal
           icon="CalendarIcon"
-          statistic="Number of holiday requests"
-          :statistic-title="`${vacations.length} request(s)`"
+          :statistic="t('Number of holiday requests')"
+          :statistic-title="`${vacations.length} ${t('request(s)')}`"
         />
       </b-col>
     </b-row>
@@ -17,7 +17,7 @@
       class="mb-0 mt-2"
     >
       <h3 class="p-1">
-        Vacations requests
+        {{ t('Vacations requests') }}
       </h3>
       <b-table
         ref="refListTable"
@@ -28,7 +28,7 @@
         primary-key="id"
         :sort-by.sync="sortBy"
         show-empty
-        empty-text="No matching records found"
+        :empty-text="t('No matching records found')"
         :sort-desc.sync="isSortDirDesc"
       >
         <template #cell(status)="data">
@@ -52,42 +52,42 @@
               class="btn-icon"
               size="sm"
               @click="confirmStatus(data.item.id, 'approved')"
-              :id="`row-${data.item.id}-check-btn`"
+              :id="`row-overview-${data.item.id}-check-btn`"
             >
               <feather-icon icon="CheckIcon" />
             </b-button>
             <b-tooltip
-              title="Accept Request"
+              :title="t('Accept Request')"
               class="cursor-pointer"
-              :target="`row-${data.item.id}-check-btn`"
+              :target="`row-overview-${data.item.id}-check-btn`"
             />
             <b-button
               variant="warning"
               class="btn-icon"
               size="sm"
-              :id="`row-${data.item.id}-cross-btn`"
+              :id="`row-overview-${data.item.id}-cross-btn`"
               @click="confirmStatus(data.item.id, 'declined')"
             >
               <feather-icon icon="XIcon" />
             </b-button>
             <b-tooltip
-              title="Decline Request"
+              :title="t('Decline Request')"
               class="cursor-pointer"
-              :target="`row-${data.item.id}-cross-btn`"
+              :target="`row-overview-${data.item.id}-cross-btn`"
             />
             <b-button
               variant="danger"
               class="btn-icon"
               size="sm"
-              :id="`row-${data.item.id}-trash-btn`"
+              :id="`row-overview-${data.item.id}-trash-btn`"
               @click="confirmDelete(data.item.id)"
             >
               <feather-icon icon="TrashIcon" />
             </b-button>
             <b-tooltip
-              title="Delete Request"
+              :title="t('Delete Request')"
               class="cursor-pointer"
-              :target="`row-${data.item.id}-trash-btn`"
+              :target="`row-overview-${data.item.id}-trash-btn`"
             />
           </div>
         </template>
@@ -101,8 +101,8 @@
           >
             <span
               class="text-muted"
-            >Showing {{ dataMeta.from }} to {{ dataMeta.to }} of
-              {{ dataMeta.of }} entries</span>
+            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
+              {{ dataMeta.of }} {{ t('entries') }}</span>
           </b-col>
           <!-- Pagination -->
           <b-col
@@ -154,6 +154,8 @@ import {
 import { ref, onMounted } from '@vue/composition-api'
 import useVacations from '@/composables/vacations'
 import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import i18n from '@/libs/i18n'
 
 export default {
   components: {
@@ -191,6 +193,9 @@ export default {
       updateVacationStatus,
     } = useVacations()
 
+    const { t } = useI18nUtils()
+
+
     onMounted(async () => {
       filters.status = 'pending'
       await fetchVacations()
@@ -216,7 +221,7 @@ export default {
     const confirmStatus = async (id, status) => {
       root.$bvModal
         .msgBoxConfirm(`Please confirm that you want to ${status} absence request.`, {
-          title: 'Please Confirm',
+          title: i18n.t('Please Confirm'),
           size: 'sm',
         })
         .then(value => {
@@ -229,8 +234,8 @@ export default {
 
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete absence.', {
-          title: 'Please Confirm',
+        .msgBoxConfirm(i18n.t('Please confirm that you want to delete absence.'), {
+          title: i18n.t('Please Confirm'),
           size: 'sm',
         })
         .then(value => {
@@ -241,6 +246,7 @@ export default {
     }
 
     return {
+      t,
       busy,
       sortBy,
       filters,

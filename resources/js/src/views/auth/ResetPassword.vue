@@ -25,12 +25,12 @@
             @submit.prevent="handleSubmit(onSubmit)"
           >
             <b-form-group
-              label="Email"
+              :label="t('Email')"
               label-for="login-email"
             >
               <validation-provider
                 #default="{ errors }"
-                name="Email"
+                :name="t('Email')"
                 rules="required|email"
               >
                 <b-form-input
@@ -83,11 +83,11 @@
             <!-- confirm password -->
             <b-form-group
               label-for="reset-password-confirm"
-              label="Confirm Password"
+              :label="t('Confirm Password')"
             >
               <validation-provider
                 #default="{ errors }"
-                name="Confirm Password"
+                :name="t('Confirm Password')"
                 rules="required|confirmed:Password"
               >
                 <b-input-group

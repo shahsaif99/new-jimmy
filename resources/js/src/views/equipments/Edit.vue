@@ -3,7 +3,7 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Update Equipment"
+    :title="t('Update Equipment')"
     size="lg"
     class="modal-is-edit-equipment-active"
     id="is-edit-equipment-active"
@@ -32,9 +32,9 @@
                     ref="previewEl"
                     width="160"
                     :src="previewImg"
-                    alt="Image Preview"
+                    :alt="t('Image Preview')"
                   />
-                  <span v-if="!previewImg">Image Preview</span>
+                  <span v-if="!previewImg">{{ t('Image Preview') }}</span>
                 </div>
               </template>
               <div class="d-flex flex-wrap">
@@ -49,7 +49,7 @@
                     class="d-none"
                     @input="inputImageRenderer"
                   >
-                  <span class="d-none d-sm-inline">Upload</span>
+                  <span class="d-none d-sm-inline">{{ t('Upload') }}</span>
                 </b-button>
                 <!-- <b-button
                   variant="outline-secondary"
@@ -68,16 +68,16 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Name"
+                  :name="t('Name')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Name"
+                    :label="t('Name')"
                     label-for="oname"
                   >
                     <b-form-input
                       v-model="formData.name"
-                      placeholder="Name"
+                      :placeholder="t('Name')"
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback>
@@ -92,15 +92,15 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Supplier"
+                  :name="t('Supplier')"
                 >
                   <b-form-group
-                    label="Supplier"
+                    :label="('Supplier')"
                     label-for="supplier"
                   >
                     <b-form-input
                       v-model="formData.supplier"
-                      placeholder="Supplier"
+                      :placeholder="t('Supplier')"
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback :state="getValidationState(validationContext)">
@@ -115,15 +115,15 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Category"
+                  :name="t('Category')"
                 >
                   <b-form-group
-                    label="Category"
+                    :label="t('Category')"
                     label-for="category"
                   >
                     <b-form-input
                       v-model="formData.category"
-                      placeholder="Category"
+                      :placeholder="t('Category')"
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback>
@@ -138,15 +138,15 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Serial Number"
+                  :name="t('Serial Number')"
                 >
                   <b-form-group
-                    label="Serial Number"
+                    :label="t('Serial Number')"
                     label-for="serialno"
                   >
                     <b-form-input
                       v-model="formData.serial_number"
-                      placeholder="Serial Number"
+                      :placeholder="t('Serial Number')"
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback>
@@ -161,15 +161,15 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Certificate Number"
+                  :name="t('Certificate No.')"
                 >
                   <b-form-group
-                    label="Certificate Number"
+                    :label="t('Certificate No.')"
                     label-for="certificateNumber"
                   >
                     <b-form-input
                       v-model="formData.certificate_number"
-                      placeholder="Certificate Number"
+                      :placeholder="t('Certificate No.')"
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback>
@@ -184,10 +184,10 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Valid Until"
+                  :name="t('Valid Until')"
                 >
                   <b-form-group
-                    label="Valid Until"
+                    :label="t('Valid Until')"
                     label-for="validUntil"
                   >
                     <b-form-input
@@ -205,17 +205,17 @@
               <b-col sm="12">
                 <ValidationProvider
                   #default="validationContext"
-                  name="Storage Location"
+                  :name="t('Storage Location')"
                 >
                   <b-form-group
-                    label="Select Storage Location"
+                    :label="t('Select Storage Location')"
                     label-for="project"
                     :state="getValidationState(validationContext)"
                   >
                     <v-select
                       v-model="formData.project"
                       class="w-full"
-                      placeholder="Type here to search projects"
+                      :placeholder="t('Type here to search projects')"
                       :options="projects"
                       :close-on-select="true"
                       :select-on-tab="true"
@@ -227,7 +227,7 @@
                       :state="getValidationState(validationContext)"
                     >
                       <template slot="no-options">
-                        type to search projects..
+                        {{ t('type to search projects..') }}
                       </template>
                       <template
                         slot="option"
@@ -255,7 +255,7 @@
                 sm="12"
               >
                 <h2 class="mt-2 mr-1 md-2">
-                  Files
+                  {{ t('Files') }}
                 </h2>
               </b-col>
             </b-row>
@@ -265,7 +265,7 @@
                 md="12"
               >
                 <b-form-group
-                  label="Add Documents/Images"
+                  :label="t('Add Documents/Images')"
                   label-for="files"
                 >
                   <b-form-file
@@ -283,7 +283,7 @@
                         v-if="names.length > 1"
                         variant="primary"
                       >
-                        + {{ names.length - 1 }} More files
+                        + {{ names.length - 1 }} {{ t('More files') }}
                       </b-badge>
                     </template>
                   </b-form-file>
@@ -299,7 +299,7 @@
                     variant="primary"
                     type="submit"
                   >
-                    <span class="text-nowrap">Update Equipment</span>
+                    <span class="text-nowrap">{{ t('Update Equipment') }}</span>
                   </b-button>
                 </div>
               </b-col>
@@ -334,6 +334,7 @@ import useProjects from '@/composables/projects'
 import debounce from 'lodash/debounce'
 import vSelect from 'vue-select'
 import { useInputImageRenderer } from '@core/comp-functions/forms/form-utils'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -384,6 +385,9 @@ export default {
       updateEquipment,
       perPageOptions,
     } = useEquipments()
+
+    const { t } = useI18nUtils()
+
 
     const { fetchProjectsList, projects } = useProjects()
 
@@ -473,6 +477,7 @@ export default {
     })
 
     return {
+      t,
       busy,
       files,
       sortBy,

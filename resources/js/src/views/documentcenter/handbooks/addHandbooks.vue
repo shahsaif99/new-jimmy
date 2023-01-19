@@ -211,17 +211,17 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Email"
+                  :name="t('Email')"
                   rules="required|email"
                 >
                   <b-form-group
-                    label="Email"
+                    :label="t('Email')"
                     label-for="email"
                   >
                     <b-form-input
                       type="email"
                       v-model="formData.email"
-                      placeholder="Email"
+                      :placeholder="t('Email')"
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback>
@@ -314,7 +314,7 @@
                       variant="primary"
                       type="submit"
                     >
-                      <span class="text-nowrap">Submit</span>
+                      <span class="text-nowrap">{{ t('Submit') }}</span>
                     </b-button>
                   </div>
                 </b-col>

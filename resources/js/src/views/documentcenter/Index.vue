@@ -32,7 +32,7 @@
               variant="primary"
               class="mr-2 px-5 mt-2"
             >
-              <span class="text-nowrap">Add</span>
+              <span class="text-nowrap">{{ t('Add') }}</span>
             </b-button>
             <b-button
               variant="primary"
@@ -74,7 +74,7 @@
                 :fields="tableColumns"
                 primary-key="id"
                 show-empty
-                empty-text="No matching records found"
+                :empty-text="t('No matching records found')"
                 :sort-desc.sync="isSortDirDesc"
               />
             </b-col>
@@ -86,7 +86,7 @@
                 :fields="tableColumns"
                 primary-key="id"
                 show-empty
-                empty-text="No matching records found"
+                :empty-text="t('No matching records found')"
                 :sort-desc.sync="isSortDirDesc"
               />
             </b-col>

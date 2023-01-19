@@ -15,7 +15,7 @@
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-center content-sidebar-header px-2 py-1">
         <h5 class="mb-0">
-          Add New Permission
+          {{ t('Add New Permission') }}
         </h5>
 
         <feather-icon
@@ -48,11 +48,11 @@
 
             <validation-provider
               #default="validationContext"
-              name="Permission"
+              :name="t('Permission')"
               rules="required"
             >
               <b-form-group
-                label="Permission"
+                :label="t('Permission')"
                 label-for="permission"
               >
                 <b-form-input
@@ -61,7 +61,7 @@
                   autofocus
                   :state="getValidationState(validationContext)"
                   trim
-                  placeholder="Enter Permission "
+                  :placeholder="t('Enter Permission')"
                 />
 
                 <b-form-invalid-feedback>
@@ -79,7 +79,7 @@
                 class="mr-2"
                 type="submit"
               >
-                Add Permission
+                {{ t('Add Permission') }}
               </b-button>
               <b-button
                 v-ripple.400="'rgba(186, 191, 199, 0.15)'"
@@ -87,7 +87,7 @@
                 variant="outline-secondary"
                 @click="hide"
               >
-                Cancel
+                {{ t('Cancel') }}
               </b-button>
             </div>
 
@@ -108,6 +108,7 @@ import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import Ripple from 'vue-ripple-directive'
 import usePermissions from '@/composables/permissions'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -150,6 +151,9 @@ export default {
       respResult,
     } = usePermissions()
 
+    const { t } = useI18nUtils()
+
+
     const resetForm = () => {
       form.name = ''
     }
@@ -167,6 +171,7 @@ export default {
     } = formValidation()
 
     return {
+      t,
       busy,
       form,
       onSubmit,

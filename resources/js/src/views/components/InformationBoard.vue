@@ -8,7 +8,7 @@
 
     <div class="m-2">
       <b-card-title>
-        Information Board
+        {{ t('Information Board') }}
       </b-card-title>
       <b-row>
         <b-col
@@ -16,7 +16,7 @@
           md="6"
           class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
         >
-          <label>Show</label>
+          <label>{{ t('Show') }}</label>
           <v-select
             v-model="perPage"
             :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
@@ -24,14 +24,14 @@
             :clearable="false"
             class="per-page-selector d-inline-block mx-50"
           />
-          <label>entries</label>
+          <label>{{ t('entries') }}</label>
           <b-button
             variant="primary"
             v-if="$can('boardinformation-add', 'all')"
             @click="isDashboardActive = true"
             class="ml-2"
           >
-            <span class="text-nowrap">Add New</span>
+            <span class="text-nowrap">{{ t('Add New') }}</span>
           </b-button>
         </b-col>
         <b-col
@@ -44,7 +44,7 @@
             <b-form-input
               v-model="searchQuery"
               class="d-inline-block mr-1 md-2"
-              placeholder="Search..."
+              :placeholder="t('Search...')"
             />
           </div>
         </b-col>
@@ -65,7 +65,7 @@
         primary-key="id"
         :sort-by.sync="sortBy"
         show-empty
-        empty-text="No matching records found"
+        :empty-text="t('No matching records found')"
         :sort-desc.sync="isSortDirDesc"
       />
     </b-overlay>
@@ -125,6 +125,7 @@ import {
 import useInformationBoard from '@/composables/informationBoard'
 import vSelect from 'vue-select'
 // eslint-disable-next-line import/no-cycle
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import AddDashboardInformation from './AddNewInformation.vue'
 
 export default {
@@ -167,6 +168,9 @@ export default {
 
     } = useInformationBoard()
 
+    const { t } = useI18nUtils()
+
+
     onMounted(() => {
       fetchBoardInformation()
     })
@@ -175,6 +179,7 @@ export default {
     const isDashboardActive = ref(false)
 
     return {
+      t,
       busy,
       items,
       sortBy,

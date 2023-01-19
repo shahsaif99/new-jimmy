@@ -34,16 +34,16 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Course Name"
+                  :name="t('Course Name')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Course Name"
+                    :label="t('Course Name')"
                     label-for="competencename"
                   >
                     <b-form-input
                       v-model="formData.name"
-                      placeholder="Course Name"
+                      :placeholder="t('Course Name')"
                       :state="
                         getValidationState(
                           validationContext
@@ -62,16 +62,17 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Completed Date"
+                  :name="t('Completed Date')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Completed Date"
+                    :label="t('Completed Date')"
                     label-for="startdate"
                   >
                     <b-form-input
                       type="date"
                       v-model="formData.completed_date"
+                      :placeholder="t('Completed Date')"
                       :state="
                         getValidationState(
                           validationContext
@@ -89,11 +90,11 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Valid Until"
+                  :name="t('Valid Until')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Valid Until"
+                    :label="t('Valid Until')"
                     label-for="enddate"
                   >
                     <b-form-input
@@ -116,7 +117,7 @@
               >
 
                 <b-form-group
-                  label="Add Documents/Images"
+                  :label="t('Add Documents/Images')"
                   label-for="files"
                   class="mt-2"
                 >
@@ -157,14 +158,14 @@
                   rules="required"
                 >
                   <b-form-group
-                    label="Select Employee"
+                    :label="t('Select Employee')"
                     label-for="employee"
                     :state="getValidationState(validationContext)"
                   >
                     <v-select
                       v-model="formData.employees"
                       class="w-full"
-                      placeholder="Type here to search employees"
+                      :placeholder="t('Type here to search employees')"
                       :options="users"
                       multiple
                       :close-on-select="false"
@@ -177,7 +178,7 @@
                       :state="getValidationState(validationContext)"
                     >
                       <template slot="no-options">
-                        type to search employees..
+                        {{ t('type to search employees..') }}
                       </template>
                       <template
                         slot="option"
@@ -208,7 +209,7 @@
                       class="mt-1"
                       type="submit"
                     >
-                      <span class="text-nowrap">Submit</span>
+                      <span class="text-nowrap">{{ t('Submit') }}</span>
                     </b-button>
                   </div>
                 </b-col>
@@ -242,6 +243,7 @@ import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import debounce from 'lodash/debounce'
 import vSelect from 'vue-select'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -280,7 +282,7 @@ export default {
       valid_until: '',
       employees: [],
     }
-
+    const { t } = useI18nUtils()
 
     const formData = ref({ ...initialState })
     const files = ref([])
@@ -349,6 +351,7 @@ export default {
     } = formValidation()
 
     return {
+      t,
       files,
       users,
       onSearch,

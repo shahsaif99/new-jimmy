@@ -17,7 +17,7 @@
         class="d-flex justify-content-between align-items-center content-sidebar-header px-2 py-1"
       >
         <h5 class="mb-0">
-          Edit Role
+          {{ t('Edit Role') }}
         </h5>
 
         <feather-icon
@@ -48,22 +48,20 @@
           >
             <validation-provider
               #default="validationContext"
-              name="Role"
+              :ame="t('Role')"
               rules="required"
             >
               <b-form-group
-                label="Role"
+                :label="t('Role')"
                 label-for="role"
               >
                 <b-form-input
                   id="role"
                   v-model="roleData.name"
                   autofocus
-                  :state="
-                    getValidationState(validationContext)
-                  "
+                  :state="getValidationState(validationContext)"
                   trim
-                  placeholder="Enter Role"
+                  :placeholder="t('Enter Role')"
                 />
 
                 <b-form-invalid-feedback>
@@ -83,7 +81,7 @@
                 switch
                 inline
               >
-                Select All Permissions
+                {{ t('Select All Permissions') }}
               </b-form-checkbox>
               <b-form-group
                 label-for="status"
@@ -118,14 +116,14 @@
                 class="mr-2"
                 type="submit"
               >
-                Update Role
+                {{ t('Update Role') }}
               </b-button>
               <b-button
                 type="button"
                 variant="outline-secondary"
                 @click="hide"
               >
-                Cancel
+                {{ t('Cancel') }}
               </b-button>
             </div>
           </b-form>
@@ -155,6 +153,7 @@ import formValidation from '@core/comp-functions/forms/form-validation'
 import useRoles from '@/composables/roles'
 import usePermissions from '@/composables/permissions'
 import vSelect from 'vue-select'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -190,6 +189,8 @@ export default {
     } = useRoles()
     const { permissions, fetchPermissionsList } = usePermissions()
     const selected = ref([])
+    const { t } = useI18nUtils()
+
 
     onMounted(async () => {
       if (props.isEditRoleSidebarActive) {
@@ -219,6 +220,7 @@ export default {
     const { refFormObserver, getValidationState } = formValidation()
 
     return {
+      t,
       busy,
       required,
       selected,

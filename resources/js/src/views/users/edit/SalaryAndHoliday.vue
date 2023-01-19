@@ -23,18 +23,18 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Salary Type"
+                  :name="t('Salary Type')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Salary Type"
+                    :label="t('Salary Type')"
                   >
                     <b-form-input
                       id="salary_type"
                       v-model="formData.salary_type"
                       :state="getValidationState(validationContext)"
                       trim
-                      placeholder="Salary Type"
+                      :placeholder="t('Salary Type')"
                     />
 
                     <b-form-invalid-feedback>
@@ -49,11 +49,11 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Holidays"
+                  :name="t('Holidays')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Holidays"
+                    :label="t('Holidays')"
                   >
                     <b-form-input
                       id="salary_type"
@@ -61,7 +61,7 @@
                       :state="getValidationState(validationContext)"
                       trim
                       type="number"
-                      placeholder="Holidays"
+                      :placeholder="t('Holidays')"
                     />
 
                     <b-form-invalid-feedback>
@@ -103,7 +103,7 @@
                 class="ml-2"
                 type="submit"
               >
-                Update User
+                {{ t('Update User') }}
               </b-button>
             </div>
           </b-card>
@@ -137,6 +137,7 @@ import {
 } from '@validations'
 import { togglePasswordVisibility } from '@core/mixins/ui/forms'
 import useUsers from '@/composables/users'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -165,6 +166,7 @@ export default {
       busy,
       updateUser,
     } = useUsers()
+    const { t } = useI18nUtils()
 
 
     const resetformData = () => {
@@ -177,6 +179,7 @@ export default {
     const { refFormObserver, getValidationState, resetForm } = formValidation(resetformData)
 
     return {
+      t,
       busy,
       required,
       formData,

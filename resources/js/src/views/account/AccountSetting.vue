@@ -18,7 +18,7 @@
           size="18"
           class="mr-50"
         />
-        <span class="font-weight-bold">General</span>
+        <span class="font-weight-bold">{{ t('General') }}</span>
       </template>
 
       <account-setting-general />
@@ -33,7 +33,7 @@
           size="18"
           class="mr-50"
         />
-        <span class="font-weight-bold">Change Password</span>
+        <span class="font-weight-bold">{{ t('Change Password') }}</span>
       </template>
 
       <account-setting-password :account-data="accountData" />
@@ -47,6 +47,7 @@ import { BTabs, BTab } from 'bootstrap-vue'
 import { onMounted, ref, watch } from '@vue/composition-api'
 // eslint-disable-next-line import/no-cycle
 import useAccount from '@/composables/account'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import AccountSettingGeneral from './AccountSettingGeneral.vue'
 import AccountSettingPassword from './AccountSettingPassword.vue'
 
@@ -66,7 +67,7 @@ export default {
     } = useAccount()
 
     const tabIndex = ref(0)
-
+    const { t } = useI18nUtils()
     const activeTab = () => {
       if (root.$route.name === 'account-password') {
         tabIndex.value = 1
@@ -86,6 +87,7 @@ export default {
       fetchAccount,
     )
     return {
+      t,
       tabIndex,
       accountData,
       fetchAccount,

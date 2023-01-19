@@ -17,7 +17,7 @@
         >
           <b-card>
             <b-card-title>
-              Login Information
+              {{ t('Login Information') }}
             </b-card-title>
             <b-row>
               <b-col
@@ -26,11 +26,11 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Email"
+                  :name="t('Email')"
                   rules="required|email"
                 >
                   <b-form-group
-                    label="Email"
+                    :label="t('Email')"
                   >
                     <b-form-input
                       id="email"
@@ -38,9 +38,8 @@
                       :disabled="true"
                       :state="getValidationState(validationContext)"
                       trim
-                      placeholder="Email"
+                      :placeholder="t('Email')"
                     />
-
                     <b-form-invalid-feedback>
                       {{ validationContext.errors[0] }}
                     </b-form-invalid-feedback>
@@ -53,11 +52,11 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Password"
+                  :name="t('Password')"
                   rules="min:6"
                 >
                   <b-form-group
-                    label="Password"
+                    :label="t('Password')"
                   >
                     <b-input-group
                       class="input-group-merge"
@@ -68,8 +67,8 @@
                         v-model="formData.password"
                         :state="getValidationState(validationContext)"
                         :type="passwordFieldType"
-                        name="password"
-                        placeholder="Password"
+                        :name="t('Password')"
+                        :placeholder="t('Password')"
                       />
                       <b-input-group-append is-text>
                         <feather-icon
@@ -98,11 +97,11 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Confirm Password"
+                  :name="t('Confirm Password')"
                   rules="confirmed:Password"
                 >
                   <b-form-group
-                    label="Confirm Password"
+                    :label="t('Confirm Password')"
                   >
                     <b-input-group
                       class="input-group-merge"
@@ -113,7 +112,7 @@
                         v-model="formData.password_confirmation"
                         :state="getValidationState(validationContext)"
                         :type="passwordFieldType"
-                        placeholder="Confirm Password"
+                        :placeholder="t('Confirm Password')"
                       />
                       <b-input-group-append is-text>
                         <feather-icon
@@ -135,15 +134,15 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Status"
+                  :name="('Status')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Status"
+                    :label="t('Status')"
                     :state="getValidationState(validationContext)"
                   >
                     <v-select
-                      placeholder="Status"
+                      :placeholder="t('Status')"
                       v-model="formData.status"
                       :options="statusOptions"
                       :reduce="status => status.value"
@@ -162,15 +161,15 @@
             class="border mt-1"
           >
             <b-card-title class="mb-1">
-              User Role Permissions
+              {{ t('User Role Permissions') }}
             </b-card-title>
             <validation-provider
               #default="validationContext"
-              name="Role"
+              :name="t('Role')"
               rules="required"
             >
               <b-form-group
-                label="Role"
+                :label="t('Role')"
                 :state="getValidationState(validationContext)"
               >
                 <b-form-radio-group
@@ -190,7 +189,7 @@
             </validation-provider>
 
             <b-form-group
-              label="Permissions"
+              :label="t('Permissions')"
             >
               <b-form-checkbox-group
                 v-model="formData.permissions_list"
@@ -208,7 +207,7 @@
                 class="ml-2"
                 type="submit"
               >
-                Update User
+                {{ t('Update User') }}
               </b-button>
             </div>
           </b-card>
@@ -250,6 +249,7 @@ import { togglePasswordVisibility } from '@core/mixins/ui/forms'
 import vSelect from 'vue-select'
 import usePermissions from '@/composables/permissions'
 import useRoles from '@/composables/roles'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -284,6 +284,8 @@ export default {
       { label: 'Active', value: true },
       { label: 'Inactive', value: false },
     ]
+    const { t } = useI18nUtils()
+
     const {
       roles,
       fetchRolesList,
@@ -337,6 +339,7 @@ export default {
     const { refFormObserver, getValidationState, resetForm } = formValidation(resetformData)
 
     return {
+      t,
       busy,
       roles,
       required,

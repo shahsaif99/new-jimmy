@@ -3,7 +3,7 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Vacation"
+    :title="t('Add Vacation')"
     size="lg"
     class="modal-add-vacation-active"
     id="add-vacation-active"
@@ -25,25 +25,25 @@
             variant="danger"
             dismissible
           >
-            <p>Selected days are more than remaining</p>
+            <p>{{ t('Selected days are more than remaining') }}</p>
           </b-alert>
           <b-form-row>
 
             <b-col sm="6">
               <ValidationProvider
                 #default="validationContext"
-                name="Employees"
+                :name="t('Employees')"
                 rules="required"
               >
                 <b-form-group
-                  label="Select Employee"
+                  :label="t('Select Employee')"
                   label-for="employee"
                   :state="getValidationState(validationContext)"
                 >
                   <v-select
                     v-model="formData.user"
                     class="w-full"
-                    placeholder="Type here to search employees"
+                    :placeholder="t('Type here to search employees')"
                     :options="users"
                     :close-on-select="true"
                     :select-on-tab="true"
@@ -56,7 +56,7 @@
                     :state="getValidationState(validationContext)"
                   >
                     <template slot="no-options">
-                      type to search employees..
+                      {{ t('type to search employees..') }}
                     </template>
                     <template
                       slot="option"
@@ -83,15 +83,15 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Used Vacation Days"
+                :name="t('Used Vacation Days')"
               >
                 <b-form-group
-                  label="Used Vacation Days"
+                  :label="t('Used Vacation Days')"
                   label-for="days"
                 >
                   <b-form-input
                     v-model="formData.used_vacations_days"
-                    placeholder="Used Vacation Days"
+                    :placeholder="t('Used Vacation Days')"
                     readonly
                     :state="
                       getValidationState(
@@ -111,11 +111,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="From Date"
+                :name="t('From Date')"
                 rules="required"
               >
                 <b-form-group
-                  label="From Date"
+                  :label="t('From Date')"
                   label-for="startdate"
                 >
                   <b-form-datepicker
@@ -140,11 +140,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="To Date"
+                :name="t('To Date')"
                 rules="required"
               >
                 <b-form-group
-                  label="To Date"
+                  :label="t('To Date')"
                   label-for="to_date"
                 >
                   <b-form-datepicker
@@ -169,16 +169,16 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Days"
+                :name="t('Days')"
                 rules="required"
               >
                 <b-form-group
-                  label="Days"
+                  :label="t('Days')"
                   label-for="days"
                 >
                   <b-form-input
                     v-model="formData.days"
-                    placeholder="Days"
+                    :placeholder="t('Days')"
                     readonly
                     :state="
                       getValidationState(
@@ -199,15 +199,15 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Comments"
+                :name="t('Comments')"
               >
                 <b-form-group
-                  label="Comments"
+                  :label="t('Comments')"
                   label-for="comments"
                 >
                   <b-form-textarea
                     v-model="formData.comments"
-                    placeholder="Comments"
+                    :placeholder="t('Comments')"
                     :state="
                       getValidationState(
                         validationContext
@@ -231,7 +231,7 @@
                     type="submit"
                     :disabled="isConsumedAllHolidays"
                   >
-                    <span class="text-nowrap">Submit</span>
+                    <span class="text-nowrap">{{ t('Submit') }}</span>
                   </b-button>
                 </div>
               </b-col>
@@ -267,6 +267,7 @@ import vSelect from 'vue-select'
 import useUsers from '@/composables/users'
 import useJwt from '@/auth/jwt/useJwt'
 import moment from 'moment'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -304,6 +305,7 @@ export default {
       user: '',
       used_vacations_days: '',
     }
+    const { t } = useI18nUtils()
 
     const userData = JSON.parse(useJwt.getUserData())
     const formData = ref({ ...initialState })
@@ -402,6 +404,7 @@ export default {
     } = formValidation()
 
     return {
+      t,
       busy,
       users,
       usersBusy,

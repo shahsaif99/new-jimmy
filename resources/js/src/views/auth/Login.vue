@@ -9,10 +9,10 @@
         </b-link>
 
         <b-card-title class="mb-1">
-          Welcome to {{ appName }}!
+          {{ t('Welcome to') }} {{ appName }}!
         </b-card-title>
         <b-card-text class="mb-2">
-          Please sign-in to your account
+          {{ t('Please sign-in to your account') }}
         </b-card-text>
 
         <!-- form -->
@@ -33,12 +33,12 @@
             >
               <!-- email -->
               <b-form-group
-                label="Email"
+                :label="t('Email')"
                 label-for="login-email"
               >
                 <validation-provider
                   #default="{ errors }"
-                  name="Email"
+                  :name="t('Email')"
                   rules="required|email"
                 >
                   <b-form-input
@@ -54,18 +54,18 @@
 
               <b-form-group>
                 <div class="d-flex justify-content-between">
-                  <label for="login-password">Password</label>
+                  <label for="login-password">{{ t('Password') }}</label>
                   <b-link
                     :to="{
                       name: 'forgot-password',
                     }"
                   >
-                    <small>Forgot Password?</small>
+                    <small>{{ t('Forgot Password?') }}</small>
                   </b-link>
                 </div>
                 <validation-provider
                   #default="{ errors }"
-                  name="Password"
+                  :name="t('Password')"
                   rules="required"
                 >
                   <b-input-group
@@ -100,7 +100,7 @@
                   v-model="status"
                   name="checkbox-1"
                 >
-                  Remember Me
+                  {{ t('Remember Me') }}
                 </b-form-checkbox>
               </b-form-group>
 
@@ -109,7 +109,7 @@
                 variant="primary"
                 block
               >
-                Sign in
+                {{ t('Sign in') }}
               </b-button>
             </b-form>
           </b-overlay>
@@ -187,6 +187,8 @@ import { ref, computed, reactive } from '@vue/composition-api'
 import useAuth from '@/composables/auth'
 import { required, email } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import i18n from '@/libs/i18n'
 
 export default {
   components: {
@@ -204,7 +206,6 @@ export default {
     BInputGroupAppend,
     ValidationObserver,
     ValidationProvider,
-    Logo,
   },
   mixins: [togglePasswordVisibility],
   data() {
@@ -222,6 +223,9 @@ export default {
       responseStatus,
       login,
     } = useAuth()
+
+    const { t } = useI18nUtils()
+
 
     const passwordFieldType = ref(null)
     const passwordToggleIcon = computed(() => (passwordFieldType.value === 'password' ? 'EyeIcon' : 'EyeOffIcon'))
@@ -253,16 +257,17 @@ export default {
               component: ToastificationContent,
               position: 'top-right',
               props: {
-                title: `Welcome ${userData.first_name}`,
+                title: `${i18n.t('Welcome')} ${userData.first_name}`,
                 icon: 'CoffeeIcon',
                 variant: 'success',
-                text: 'You have successfully logged in.',
+                text: i18n.t('You have successfully logged in.'),
               },
             })
           })
       }
     }
     return {
+      t,
       busy,
       appName,
       onSubmit,

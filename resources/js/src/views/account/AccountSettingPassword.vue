@@ -25,12 +25,12 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Current Password"
+                :name="t('Current Password')"
                 rules="required"
                 vid="current_password"
               >
                 <b-form-group
-                  label="Current Password"
+                  :label="t('Current Password')"
                   :state="getValidationState(validationContext)"
                 >
                   <b-input-group
@@ -41,8 +41,7 @@
                       v-model="userData.current_password"
                       :state="getValidationState(validationContext)"
                       :type="passwordFieldType"
-                      name="password"
-                      placeholder="Current Password"
+                      :placeholder="t('Current Password')"
                     />
                     <b-input-group-append is-text>
                       <feather-icon
@@ -65,7 +64,7 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Password"
+                :name="t('New Password')"
                 rules="min:6|required"
                 vid="password"
               >
@@ -81,8 +80,7 @@
                       v-model="userData.password"
                       :state="getValidationState(validationContext)"
                       :type="passwordFieldType"
-                      name="password"
-                      placeholder="New Password"
+                      :placeholder="t('New Password')"
                     />
                     <b-input-group-append is-text>
                       <feather-icon
@@ -104,7 +102,7 @@
                 <b-form-invalid-feedback>
                   {{ validationContext.errors[0] }}
                 </b-form-invalid-feedback>
-                <small>Password must be min 6 characters long and must contain letters, numbers</small>
+                <small>{{ t('Password must be min 6 characters long and must contain letters, numbers') }}</small>
               </validation-provider>
             </b-col>
             <!-- new password -->
@@ -114,12 +112,12 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Confirm Password"
+                :name="t('Confirm Password')"
                 rules="confirmed:password|min:6|required"
                 vid="password_confirmation"
               >
                 <b-form-group
-                  label="Confirm Password"
+                  :label="t('Confirm Password')"
                   :state="getValidationState(validationContext)"
                 >
                   <b-input-group
@@ -130,7 +128,7 @@
                       v-model="userData.password_confirmation"
                       :state="getValidationState(validationContext)"
                       :type="passwordFieldType"
-                      placeholder="Confirm Password"
+                      :placeholder="t('Confirm Password')"
                     />
                     <b-input-group-append is-text>
                       <feather-icon
@@ -157,7 +155,7 @@
                 class="mt-1 mr-1"
                 type="submit"
               >
-                Update
+                {{ t('Update') }}
               </b-button>
               <b-button
                 v-ripple.400="'rgba(186, 191, 199, 0.15)'"
@@ -165,7 +163,7 @@
                 variant="outline-secondary"
                 class="mt-1"
               >
-                Reset
+                {{ t('Reset') }}
               </b-button>
             </b-col>
             <!--/ buttons -->
@@ -191,6 +189,7 @@ import formValidation from '@core/comp-functions/forms/form-validation'
 import {
   required, min,
 } from '@validations'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -224,6 +223,8 @@ export default {
       errors,
       updatePassword,
     } = useAccount()
+    const { t } = useI18nUtils()
+
     const passwordFieldType = ref(null)
     const passwordToggleIcon = computed(() => (passwordFieldType.value === 'password' ? 'EyeIcon' : 'EyeOffIcon'))
     const blankUserData = {
@@ -255,6 +256,7 @@ export default {
 
 
     return {
+      t,
       busy,
       userData,
       resetForm,

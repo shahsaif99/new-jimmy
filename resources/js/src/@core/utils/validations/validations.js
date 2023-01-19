@@ -1,4 +1,5 @@
-import { extend, localize } from 'vee-validate'
+import { extend, localize, configure } from 'vee-validate'
+import i18n from '@/libs/i18n'
 import {
   required as rule_required,
   email as rule_email,
@@ -20,13 +21,32 @@ import ar from 'vee-validate/dist/locale/ar.json'
 import en from 'vee-validate/dist/locale/en.json'
 
 // eslint-disable-next-line object-curly-newline
-import { validatorPositive, validatorUrlValidator, validatorPassword, validatorCreditCard } from './validators'
+import { validatorPositive, validatorUrlValidator, validatorPassword } from './validators'
+
+// configure({
+//   // this will be used to generate messages.
+//   defaultMessage: (field, values) =>
+//     // values._field_ = i18n.t(`fields.${field}`)
+//     // console.log(values)
+//     // console.log(values._rule_)
+//     i18n.t(`validations.messages.${values._rule_}`, field),
+// })
+
+export const required = extend('required', {
+  ...rule_required,
+  // the values param is the placeholders values
+  message: (field, values) =>
+    // i18n.t(`fields.${field}`)
+    // values._field_ = i18n.t(`fields.${field}`)
+    i18n.t(`validations.messages.${values._rule_}`, { field }),
+})
+
 
 // ////////////////////////////////////////////////////////
 // General
 // ////////////////////////////////////////////////////////
 
-export const required = extend('required', rule_required)
+// export const required = extend('required', rule_required)
 
 export const email = extend('email', rule_email)
 export const double = extend('double', rule_double)

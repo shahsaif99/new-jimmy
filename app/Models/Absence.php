@@ -43,8 +43,22 @@ class Absence extends Model
     // created at
     public function getCreatedAtAttribute($value)
     {
-        return \Carbon\Carbon::parse($value)->format('d-m-Y');
+        return \Carbon\Carbon::parse($value)->format('d.m.Y');
     }
+
+    // public function getApprovedDateAttribute($value)
+    // {
+    //     return \Carbon\Carbon::parse($value)->format('d.m.Y');
+    // }
+
+    // public function getFromDateAttribute($value)
+    // {
+    //     return \Carbon\Carbon::parse($value)->format('d.m.Y');
+    // }
+    // public function getToDateAttribute($value)
+    // {
+    //     return \Carbon\Carbon::parse($value)->format('d.m.Y');
+    // }
 
 
     public function scopeApplyFilters($query, Request $request)

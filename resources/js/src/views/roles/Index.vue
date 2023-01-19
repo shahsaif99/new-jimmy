@@ -69,14 +69,14 @@
             md="8"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
-            <label>Show</label>
+            <label>{{ t('Show') }}</label>
             <v-select
               v-model="perPage"
               :options="perPageOptions"
               :clearable="false"
               class="per-page-selector d-inline-block mx-50"
             />
-            <label>entries</label>
+            <label>{{ t('entries') }}</label>
 
           </b-col>
 
@@ -89,7 +89,7 @@
               <b-form-input
                 v-model="searchQuery"
                 class="d-inline-block mr-1"
-                placeholder="Search..."
+                :placeholder="t('Search...')"
               />
               <b-button
                 variant="primary"
@@ -111,7 +111,7 @@
         primary-key="id"
         :sort-by.sync="sortBy"
         show-empty
-        empty-text="No matching records found"
+        :empty-text="t('No matching records found')"
         :sort-desc.sync="isSortDirDesc"
       >
         <template #cell(actions)="data">
@@ -128,13 +128,13 @@
             </template>
             <b-dropdown-item @click="editRole(data.item)">
               <feather-icon icon="EditIcon" />
-              <span class="align-middle ml-50">Edit</span>
+              <span class="align-middle ml-50">{{ t('Edit') }}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="confirmDelete(data.item.id)">
               <feather-icon
                 icon="TrashIcon"
               />
-              <span class="align-middle ml-50">Delete</span>
+              <span class="align-middle ml-50">{{ t('Delete') }}</span>
             </b-dropdown-item>
           </b-dropdown>
         </template>
@@ -147,7 +147,10 @@
             sm="6"
             class="d-flex align-items-center justify-content-center justify-content-sm-start"
           >
-            <span class="text-muted">Showing {{ dataMeta.from }} to {{ dataMeta.to }} of {{ dataMeta.of }} entries</span>
+            <span
+              class="text-muted"
+            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
+              {{ dataMeta.of }} {{ t('entries') }}</span>
           </b-col>
           <!-- Pagination -->
           <b-col
@@ -206,6 +209,8 @@ import useRoles from '@/composables/roles'
 import vSelect from 'vue-select'
 import { ref } from '@vue/composition-api'
 import Ripple from 'vue-ripple-directive'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import i18n from '@/libs/i18n'
 import AddRole from './AddRole.vue'
 import EditRole from './EditRole.vue'
 
@@ -245,6 +250,8 @@ export default {
       perPageOptions,
     } = useRoles()
 
+    const { t } = useI18nUtils()
+
     fetchRoles()
     const isAddNewRoleSidebarActive = ref(false)
     const isEditRoleSidebarActive = ref(false)
@@ -262,14 +269,13 @@ export default {
       }
     }
 
-
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete role.', {
-          title: 'Please Confirm',
+        .msgBoxConfirm(i18n.t('Please confirm that you want to delete role.'), {
+          title: i18n.t('Please Confirm'),
           okVariant: 'primary',
-          okTitle: 'Yes, Delete It',
-          cancelTitle: 'No',
+          okTitle: i18n.t('Yes, Delete It'),
+          cancelTitle: i18n.t('No'),
           cancelVariant: 'outline-secondary',
           centered: true,
         })
@@ -281,6 +287,7 @@ export default {
     }
 
     return {
+      t,
       roles,
       sortBy,
       roleId,

@@ -27,16 +27,16 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Project Name"
+                :name="t('Project Name')"
                 rules="required"
               >
                 <b-form-group
-                  label="Project Name"
+                  :label="t('Project Name')"
                   label-for="projectname"
                 >
                   <b-form-input
                     v-model="formData.name"
-                    placeholder="Project Name"
+                    :placeholder="t('Project Name')"
                     :state="
                       getValidationState(
                         validationContext
@@ -55,11 +55,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Start Date"
+                :name="t('Start Date')"
                 rules="required"
               >
                 <b-form-group
-                  label="Start Date"
+                  :label="t('Start Date')"
                   label-for="startdate"
                 >
                   <b-form-input
@@ -82,11 +82,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="End Date"
+                :name="t('End Date')"
                 rules="required"
               >
                 <b-form-group
-                  label="End Date"
+                  :label="t('End Date')"
                   label-for="enddate"
                 >
                   <b-form-input
@@ -109,16 +109,16 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Customer"
+                :name="t('Customer')"
                 rules="required"
               >
                 <b-form-group
-                  label="Customer"
+                  :label="t('Customer')"
                   label-for="customer"
                 >
                   <b-form-input
                     v-model="formData.customer"
-                    placeholder="Customer"
+                    :placeholder="t('Customer')"
                     :state="
                       getValidationState(
                         validationContext
@@ -141,7 +141,7 @@
                     class="mt-1"
                     type="submit"
                   >
-                    <span class="text-nowrap">Update</span>
+                    <span class="text-nowrap">{{ t('Update') }}</span>
                   </b-button>
                 </div>
               </b-col>
@@ -168,6 +168,7 @@ import useProjects from '@/composables/projects'
 import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -196,12 +197,7 @@ export default {
     },
   },
   setup(props, { emit }) {
-    const initialState = {
-      name: '',
-      start_date: '',
-      end_date: '',
-      customer: '',
-    }
+    const { t } = useI18nUtils()
 
     const formData = ref({ })
     const {
@@ -233,6 +229,7 @@ export default {
     } = formValidation()
 
     return {
+      t,
       busy,
       formData,
       required,
@@ -248,9 +245,5 @@ export default {
   .per-page-selector {
       width: 90px;
   }
-  </style>
-
-  <style lang="scss">
-  @import "~@core/scss/vue/libs/vue-select.scss";
   </style>
 

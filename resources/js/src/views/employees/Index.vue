@@ -16,7 +16,7 @@
             md="6"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
-            <label>Show</label>
+            <label>{{ t('Show') }}</label>
             <v-select
               v-model="perPage"
               :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
@@ -24,7 +24,7 @@
               :clearable="false"
               class="per-page-selector d-inline-block mx-50"
             />
-            <label>entries</label>
+            <label>{{ t('entries') }}</label>
 
             <b-button
               class="d-inline-block ml-1"
@@ -32,7 +32,7 @@
               variant="primary"
               @click="$router.push({ name: 'users-add' })"
             >
-              <span class="text-nowrap">Add Employee</span>
+              <span class="text-nowrap">{{ t('Add Employee') }}</span>
             </b-button>
           </b-col>
           <b-col
@@ -45,7 +45,7 @@
               <b-form-input
                 v-model="searchQuery"
                 class="d-inline-block mr-1 md-2"
-                placeholder="Search..."
+                :placeholder="t('Search...')"
               />
             </div>
           </b-col>
@@ -66,7 +66,7 @@
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
-          empty-text="No matching records found"
+          :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
           <template #cell(status)="data">
@@ -100,7 +100,7 @@
                 v-if="$can('employee-edit', 'all')"
               >
                 <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">Edit</span>
+                <span class="align-middle ml-50">{{ t('Edit') }}</span>
               </b-dropdown-item>
 
               <!-- <b-dropdown-item
@@ -118,7 +118,7 @@
                 <feather-icon
                   icon="TrashIcon"
                 />
-                <span class="align-middle ml-50">Delete</span>
+                <span class="align-middle ml-50">{{ t('Delete') }}</span>
               </b-dropdown-item>
 
             </b-dropdown>
@@ -135,8 +135,8 @@
           >
             <span
               class="text-muted"
-            >Showing {{ dataMeta.from }} to {{ dataMeta.to }} of
-              {{ dataMeta.of }} entries</span>
+            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
+              {{ dataMeta.of }} {{ t('entries') }}</span>
           </b-col>
 
           <!-- Pagination -->
@@ -184,7 +184,8 @@ import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useUsers from '@/composables/users'
 // eslint-disable-next-line import/no-cycle
-import useJwt from '@/auth/jwt/useJwt'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import i18n from '@/libs/i18n'
 import AddEmployee from './add/Add.vue'
 import EditEmployee from './edit/Edit.vue'
 
@@ -228,6 +229,9 @@ export default {
       employeeTableColumns,
     } = useUsers()
 
+    const { t } = useI18nUtils()
+
+
     const isExportActive = ref(false)
     const filterKey = ref(0)
     const addEmployeeActive = ref(false)
@@ -255,7 +259,7 @@ export default {
         status: newStatus,
       }
       updateUserStatus(payload)
-      // update user status by axios
+      // {{ t(' Update User') }} status by axios
     }
 
 
@@ -269,8 +273,8 @@ export default {
 
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete employee.', {
-          title: 'Please Confirm',
+        .msgBoxConfirm(i18n.t('Please confirm that you want to delete employee.'), {
+          title: i18n.t('Please Confirm'),
           size: 'sm',
         })
         .then(value => {
@@ -280,6 +284,7 @@ export default {
         })
     }
     return {
+      t,
       busy,
       sortBy,
       users,

@@ -26,7 +26,7 @@
             md="8"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
-            <label>Show</label>
+            <label>{{ t('Show') }}</label>
             <v-select
               v-model="perPage"
               :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
@@ -34,7 +34,7 @@
               :clearable="false"
               class="per-page-selector d-inline-block mx-50"
             />
-            <label>entries</label>
+            <label>{{ t('entries') }}</label>
             <b-button
               variant="primary"
               @click="isAddProjectActive = true"
@@ -62,7 +62,7 @@
               <b-form-input
                 v-model="searchQuery"
                 class="d-inline-block mr-1"
-                placeholder="Search..."
+                :placeholder="t('Search...')"
               />
             </div>
           </b-col>
@@ -83,7 +83,7 @@
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
-          empty-text="No matching records found"
+          :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
           <template #cell(actions)="data">
@@ -102,7 +102,7 @@
                 @click="editProject(data.item)"
               >
                 <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">Edit</span>
+                <span class="align-middle ml-50">{{ t('Edit') }}</span>
               </b-dropdown-item>
               <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
@@ -110,7 +110,7 @@
                 <feather-icon
                   icon="TrashIcon"
                 />
-                <span class="align-middle ml-50">Delete</span>
+                <span class="align-middle ml-50">{{ t('Delete') }}</span>
               </b-dropdown-item>
             </b-dropdown>
           </template>
@@ -125,8 +125,8 @@
           >
             <span
               class="text-muted"
-            >Showing {{ dataMeta.from }} to {{ dataMeta.to }} of
-              {{ dataMeta.of }} entries</span>
+            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
+              {{ dataMeta.of }} {{ t('entries') }}</span>
           </b-col>
           <!-- Pagination -->
           <b-col
@@ -180,6 +180,8 @@ import {
 import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useProjects from '@/composables/projects'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import i18n from '@/libs/i18n'
 import AddProject from './dialogs/AddProject.vue'
 import AddDocument from './dialogs/AddDocument.vue'
 import EditProject from './dialogs/EditProject.vue'
@@ -222,6 +224,9 @@ export default {
       perPageOptions,
     } = useProjects()
 
+    const { t } = useI18nUtils()
+
+
     onMounted(() => {
       fetchProjects()
     })
@@ -245,8 +250,8 @@ export default {
 
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete project.', {
-          title: 'Please Confirm',
+        .msgBoxConfirm(i18n.t('Please confirm that you want to delete project.'), {
+          title: i18n.t('Please Confirm'),
           size: 'sm',
         })
         .then(value => {
@@ -256,6 +261,7 @@ export default {
         })
     }
     return {
+      t,
       busy,
       sortBy,
       filters,

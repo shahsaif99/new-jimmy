@@ -23,11 +23,12 @@
     </div>
 
     <b-navbar-nav class="nav align-items-center ml-auto">
-      <!-- <locale /> -->
+      <Locale />
       <!-- <search-bar /> -->
       <!-- <notification-dropdown /> -->
       <user-dropdown />
     </b-navbar-nav>
+    <!-- <Translator /> -->
   </div>
 </template>
 
@@ -38,6 +39,7 @@ import {
 // import Bookmarks from './components/Bookmarks.vue'
 
 // import SearchBar from './components/SearchBar.vue'
+// import { Translator } from 'vue-google-translate'
 import DarkToggler from './components/DarkToggler.vue'
 // import NotificationDropdown from './components/NotificationDropdown.vue'
 import UserDropdown from './components/UserDropdown.vue'

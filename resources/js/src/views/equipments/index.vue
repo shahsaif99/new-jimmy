@@ -38,7 +38,7 @@
             md="6"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
-            <label>Show</label>
+            <label>{{ t('Show') }}</label>
             <v-select
               v-model="perPage"
               :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
@@ -46,7 +46,7 @@
               :clearable="false"
               class="per-page-selector d-inline-block mx-50"
             />
-            <label>entries</label>
+            <label>{{ t('entries') }}</label>
             <b-button
               variant="primary"
               v-if="$can('equipment-add', 'all')"
@@ -66,7 +66,7 @@
               <b-form-input
                 v-model="searchQuery"
                 class="d-inline-block mr-1 md-2"
-                placeholder="Search..."
+                :placeholder="t('Search...')"
               />
 
             </div>
@@ -88,7 +88,7 @@
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
-          empty-text="No matching records found"
+          :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
           @row-clicked="viewEquipment"
           tbody-tr-class="item-row"
@@ -125,7 +125,7 @@
                 v-if="$can('equipments-edit', 'all')"
               >
                 <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">Edit</span>
+                <span class="align-middle ml-50">{{ t('Edit') }}</span>
               </b-dropdown-item>
               <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
@@ -134,7 +134,7 @@
                 <feather-icon
                   icon="TrashIcon"
                 />
-                <span class="align-middle ml-50">Delete</span>
+                <span class="align-middle ml-50">{{ t('Delete') }}</span>
               </b-dropdown-item>
             </b-dropdown>
           </template>
@@ -149,8 +149,8 @@
           >
             <span
               class="text-muted"
-            >Showing {{ dataMeta.from }} to {{ dataMeta.to }} of
-              {{ dataMeta.of }} entries</span>
+            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
+              {{ dataMeta.of }} {{ t('entries') }}</span>
           </b-col>
           <!-- Pagination -->
           <b-col
@@ -206,6 +206,8 @@ import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
 // eslint-disable-next-line import/no-cycle
 import useEquipments from '@/composables/equipments'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import i18n from '@/libs/i18n'
 import CreateEquipment from './Create.vue'
 import EditEquipment from './Edit.vue'
 import ViewEquipment from './View.vue'
@@ -253,7 +255,7 @@ export default {
       deleteEquipment,
       fetchEquipments,
     } = useEquipments()
-
+    const { t } = useI18nUtils()
 
     onMounted(() => {
       fetchEquipments()
@@ -292,8 +294,8 @@ export default {
 
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete equipment.', {
-          title: 'Please Confirm',
+        .msgBoxConfirm(i18n.t('Please confirm that you want to delete equipment.'), {
+          title: i18n.t('Please Confirm'),
           size: 'sm',
         })
         .then(value => {
@@ -305,6 +307,7 @@ export default {
 
 
     return {
+      t,
       busy,
       sortBy,
       filters,

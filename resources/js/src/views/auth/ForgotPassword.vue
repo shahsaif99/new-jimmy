@@ -33,7 +33,7 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Email"
+                :name="t('Email')"
                 rules="required|email"
               >
                 <b-form-group
@@ -44,7 +44,7 @@
                     v-model="userEmail"
                     :state="getValidationState(validationContext)"
                     trim
-                    placeholder="Email"
+                    :placeholder="t('Email')"
                   />
 
                   <b-form-invalid-feedback>

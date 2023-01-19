@@ -19,18 +19,18 @@
       :fields="tableColumns"
       primary-key="id"
       show-empty
-      empty-text="No matching records found"
+      :empty-text="t('No matching records found')"
       :sort-desc.sync="isSortDirDesc"
     />
   </b-card>
 </template>
 
 <script>
-import useLeads from '@/composables/leads'
 import { onMounted, ref } from '@vue/composition-api'
 import {
   BCard, BTable, VBTooltip,
 } from 'bootstrap-vue'
+import useLeads from '@/composables/leads'
 import AddLead from '../leads/AddLead.vue'
 
 

@@ -38,9 +38,7 @@ class RolesAndPermissionSeeder extends Seeder
         $role3 = Role::create(['name' => 'User','guard_name' => 'sanctum']);
 
         foreach ($permissions as $permission) {
-            if(!in_array($permission['name'], ['my-absence','my-vacations'])){
                 $role1->givePermissionTo($permission['name']);
-            }
         }
 
         $employeePermissionsArray = [

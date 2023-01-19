@@ -5,7 +5,7 @@
     <b-modal
       cancel-variant="outline-secondary"
       :hide-footer="true"
-      title="Equipment Details"
+      :title="t('Equipment Details')"
       size="lg"
       @close="$emit('update:is-equipment-details-active', false)"
       :visible="isEquipmentDetailsActive"
@@ -21,7 +21,7 @@
               ref="previewEl"
               width="160"
               :src="equipmentDetailsData.image_url"
-              alt="Image Preview"
+              :alt="t('Image Preview')"
             />
           </div>
         </template>
@@ -32,20 +32,20 @@
           sm="6"
         >
           <b-card-text class="mt-1">
-            <span class="font-weight-bolder">Name: </span> {{ equipmentDetailsData.name }}
+            <span class="font-weight-bolder">{{ t('Name') }}: </span> {{ equipmentDetailsData.name }}
           </b-card-text>
           <b-card-text class="mt-1">
-            <span class="font-weight-bolder">Category: </span> {{ equipmentDetailsData.category }}
+            <span class="font-weight-bolder">{{ t('Category') }}: </span> {{ equipmentDetailsData.category }}
           </b-card-text>
           <b-card-text class="mt-1">
-            <span class="font-weight-bolder">Certificate Number: </span> {{ equipmentDetailsData.certificate_number }}
+            <span class="font-weight-bolder">{{ t('Certificate Number') }}: </span> {{ equipmentDetailsData.certificate_number }}
           </b-card-text>
 
           <b-card-text
             class="mt-1"
             v-if="equipmentDetailsData.project"
           >
-            <span class="font-weight-bolder">Storage Location: </span> {{ equipmentDetailsData.project.name }}
+            <span class="font-weight-bolder">{{ t('Storage Location') }}: </span> {{ equipmentDetailsData.project.name }}
           </b-card-text>
 
 
@@ -54,13 +54,13 @@
           sm="6"
         >
           <b-card-text class="mt-1">
-            <span class="font-weight-bolder">Supplier: </span> {{ equipmentDetailsData.supplier }}
+            <span class="font-weight-bolder">{{ t('Supplier') }}: </span> {{ equipmentDetailsData.supplier }}
           </b-card-text>
           <b-card-text class="mt-1">
-            <span class="font-weight-bolder">Serial Number: </span> {{ equipmentDetailsData.serial_number }}
+            <span class="font-weight-bolder">{{ t('Serial Number') }}: </span> {{ equipmentDetailsData.serial_number }}
           </b-card-text>
           <b-card-text class="mt-1">
-            <span class="font-weight-bolder">Valid Until: </span> {{ equipmentDetailsData.valid_until }}
+            <span class="font-weight-bolder">{{ t('Valid Until') }}: </span> {{ equipmentDetailsData.valid_until }}
           </b-card-text>
         </b-col>
       </b-row>
@@ -72,7 +72,7 @@
           md="4"
           class="bequipment "
         >
-          <h4>Files</h4>
+          <h4>{{ t('Files') }}</h4>
           <table
             style="width:100%"
             v-if="equipmentDetailsData.media && equipmentDetailsData.media.length > 0"
@@ -147,7 +147,7 @@
               icon="TrashIcon"
               class="mr-50"
             />
-            Delete
+            {{ t('Delete') }}
           </b-button>
 
           <b-button
@@ -158,14 +158,14 @@
             @click="isEditEquipmentActive = true"
             v-if="$can('equipments-edit', 'all')"
           >
-            Edit
+            {{ t('Edit') }}
           </b-button>
           <b-button
             size="sm"
             variant="primary"
             @click="isShowLendingHistoryActive = true"
           >
-            Show Lending History
+            {{ t('Show Lending History') }}
           </b-button>
         </div>
         <b-button
@@ -179,7 +179,7 @@
             )
           "
         >
-          Close
+          {{ t('Close') }}
         </b-button>
       </div>
     </b-modal>
@@ -207,6 +207,8 @@ import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import moment from 'moment'
 import useEquipments from '@/composables/equipments'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import i18n from '@/libs/i18n'
 import LendingHistory from './LendingHistory.vue'
 import EditEquipment from './Edit.vue'
 
@@ -250,6 +252,8 @@ export default {
       deleteEquipment,
     } = useEquipments()
 
+    const { t } = useI18nUtils()
+
     onMounted(() => {
       if (props.isEquipmentDetailsActive) {
         equipmentDetailsData.value = props.equipment
@@ -270,12 +274,12 @@ export default {
 
     const deleteConfirm = () => {
       root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete equipment.', {
-          title: 'Please Confirm',
+        .msgBoxConfirm(i18n.t('Please confirm that you want to delete equipment.'), {
+          title: i18n.t('Please Confirm'),
           size: 'sm',
           centered: true,
-          okTitle: 'Yes, Delete it',
-          cancelTitle: 'NO',
+          okTitle: i18n.t('Yes, Delete it'),
+          cancelTitle: i18n.t('NO'),
           okVariant: 'danger',
         })
         .then(value => {
@@ -306,6 +310,7 @@ export default {
       })
     }
     return {
+      t,
       startCase,
       deleteConfirm,
       handleZipDownload,

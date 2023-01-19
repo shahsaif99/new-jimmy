@@ -17,7 +17,7 @@
 
         <div class="d-flex justify-content-between">
           <b-card-text>
-            Date of Birth
+            {{ t('Date of Birth') }}
           </b-card-text>
           <b-card-text>
             {{ user.dob }}
@@ -25,7 +25,7 @@
         </div>
         <div class="d-flex justify-content-between">
           <b-card-text>
-            Address
+            {{ t('Address') }}
           </b-card-text>
           <b-card-text>
             {{ user.address }}
@@ -33,7 +33,7 @@
         </div>
         <div class="d-flex justify-content-between">
           <b-card-text>
-            Postal Code
+            {{ t('Post Code') }}
           </b-card-text>
           <b-card-text>
             {{ user.postal_code }}
@@ -41,7 +41,7 @@
         </div>
         <div class="d-flex justify-content-between">
           <b-card-text>
-            Phone
+            {{ t('Phone') }}
           </b-card-text>
           <b-card-text>
             {{ user.phone }}
@@ -49,7 +49,7 @@
         </div>
         <div class="d-flex justify-content-between">
           <b-card-text>
-            Email
+            {{ t('Email') }}
           </b-card-text>
           <b-card-text>
             {{ user.email }}
@@ -57,7 +57,7 @@
         </div>
         <div class="d-flex justify-content-between">
           <b-card-text>
-            Status
+            {{ t('Status') }}
           </b-card-text>
           <b-card-text>
             {{ user.status ? 'Active' : 'Not Active' }}
@@ -65,7 +65,7 @@
         </div>
         <div class="d-flex justify-content-between">
           <b-card-text>
-            Last Login
+            {{ t('Last Login') }}
           </b-card-text>
           <b-card-text>
             {{ user.last_login_at }}
@@ -82,7 +82,7 @@
         <b-tab>
           <!-- title -->
           <template #title>
-            <span class="font-weight-bold">General Info</span>
+            <span class="font-weight-bold">{{ t('General Info') }}</span>
           </template>
 
           <General :user-data="user" />
@@ -95,7 +95,7 @@
               size="18"
               class="mr-50"
             />
-            <span class="font-weight-bold">Access</span>
+            <span class="font-weight-bold">{{ t('Access') }}</span>
           </template>
 
           <Access :user-data="user" />
@@ -108,7 +108,7 @@
               size="18"
               class="mr-50"
             />
-            <span class="font-weight-bold">Salary & Holiday</span>
+            <span class="font-weight-bold">{{ t('Salary & Holiday') }}</span>
           </template>
 
           <SalaryAndHoliday :user-data="user" />
@@ -122,7 +122,7 @@
               size="18"
               class="mr-50"
             />
-            <span class="font-weight-bold">Competence</span>
+            <span class="font-weight-bold">{{ t('Competence') }}</span>
           </template>
 
           <Competence :user-data="user" />
@@ -134,7 +134,7 @@
 
 <script>
 import {
-  BTabs, BTab, BRow, BCol, BCard, BCardText, BMedia,
+  BTabs, BTab, BRow, BCol, BCard, BCardText,
   BAvatar,
 } from 'bootstrap-vue'
 import {
@@ -142,6 +142,7 @@ import {
 } from '@vue/composition-api'
 import useUsers from '@/composables/users'
 import { avatarText } from '@core/utils/filter'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import General from './General.vue'
 import Access from './Access.vue'
 import SalaryAndHoliday from './SalaryAndHoliday.vue'
@@ -156,7 +157,6 @@ export default {
     BCard,
     Access,
     BAvatar,
-    BMedia,
     General,
     BCardText,
     Competence,
@@ -175,6 +175,8 @@ export default {
     } = useUsers()
 
     const index = ref(0)
+    const { t } = useI18nUtils()
+
 
     onMounted(async () => {
       await getUser(root.$route.params.id)
@@ -183,6 +185,7 @@ export default {
     })
 
     return {
+      t,
       user,
       index,
       avatarText,

@@ -25,25 +25,30 @@ export default function useAbsences() {
   })
 
   const tableColumns = [
-    { key: 'type', sortable: true },
-    { key: 'from_date', sortable: false },
-    { key: 'to_date', sortable: false },
-    { key: 'days', sortable: false },
-    { key: 'status', sortable: false },
-    { key: 'comments', sortable: false, width: 100 },
-    { key: 'approved_by', sortable: false },
-    { key: 'approved_date', sortable: false },
-    { key: 'actions' },
+    { key: 'type', sortable: true, label: 'Type' },
+    { key: 'from_date', sortable: false, label: 'Type' },
+    { key: 'to_date', sortable: false, label: 'To Date' },
+    { key: 'days', sortable: false, label: 'Days' },
+    { key: 'status', sortable: false, label: 'Status' },
+    {
+      key: 'comments', sortable: false, label: 'Comments', width: 100,
+    },
+    { key: 'approved_by', sortable: false, label: 'Approved By' },
+    { key: 'approved_date', sortable: false, label: 'Approved Date' },
+    { key: 'actions', label: 'Actions' },
   ]
 
   const overviewTableColumns = [
     { key: 'user.name', sortable: true, label: 'Employee Name' },
-    { key: 'from_date', sortable: false },
-    { key: 'to_date', sortable: false },
-    { key: 'days', sortable: false },
-    { key: 'type', sortable: false },
-    { key: 'comments', sortable: false, width: 100 },
-    { key: 'actions' },
+    { key: 'from_date', sortable: false, label: 'Type' },
+    { key: 'to_date', sortable: false, label: 'To Date' },
+    { key: 'days', sortable: false, label: 'Days' },
+    { key: 'status', sortable: false, label: 'Status' },
+    { key: 'type', sortable: true, label: 'Type' },
+    {
+      key: 'comments', sortable: false, label: 'Comments', width: 100,
+    },
+    { key: 'actions', label: 'Actions' },
   ]
 
   const dataMeta = computed(() => {

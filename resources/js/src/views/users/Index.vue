@@ -17,27 +17,27 @@
             md="8"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
-            <label>Show</label>
+            <label>{{ t('Show') }}</label>
             <v-select
               v-model="perPage"
               :options="perPageOptions"
               :clearable="false"
               class="per-page-selector d-inline-block mx-50"
             />
-            <label>entries</label>
+            <label>{{ t('entries') }}</label>
             <b-button
               class="d-inline-block ml-1"
               v-if="$can('manage-users', 'all')"
               variant="primary"
               @click="$router.push({ name: 'users-add' })"
             >
-              <span class="text-nowrap">Add User</span>
+              <span class="text-nowrap">{{ t('Add User') }}</span>
             </b-button>
 
           </b-col>
 
           <!-- Search -->
-          <b-col
+          <!-- <b-col
             cols="12"
             md="4"
           >
@@ -45,17 +45,17 @@
               <b-form-input
                 v-model="searchQuery"
                 class="d-inline-block mr-1"
-                placeholder="Search..."
+                :placeholder="t('Search...')"
               />
               <b-button
                 class="d-inline-block ml-1"
                 variant="primary"
                 @click="isExportActive = true"
               >
-                <span class="text-nowrap">Export</span>
+                <span class="text-nowrap">{{ t('Export') }}</span>
               </b-button>
             </div>
-          </b-col>
+          </b-col> -->
         </b-row>
 
       </div>
@@ -74,20 +74,39 @@
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
-          empty-text="No matching records found"
+          :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
           <template #cell(avatar)="data">
             <b-avatar :src="data.item.avatar" />
           </template>
 
-          <template #cell(name)="data">
+          <template #cell(user)="data">
+            <b-media vertical-align="center">
+              <template #aside>
+                <b-avatar
+                  size="32"
+                  :src="data.item.avatar"
+                  :text="avatarText(data.item.name)"
+                  :variant="`light-${resolveUserRoleVariant(data.item.roles[0].name)}`"
+                  :to="{ name: 'users-edit', params: { id: data.item.id } }"
+                />
+              </template>
+              <b-link
+                :to="{ name: 'users-edit', params: { id: data.item.id } }"
+              >
+                {{ data.item.name }}
+              </b-link>
+            </b-media>
+          </template>
+
+          <!-- <template #cell(name)="data">
             <b-link
               :to="{ name: 'users-edit', params: { id: data.item.id } }"
             >
               {{ data.item.name }}
             </b-link>
-          </template>
+          </template> -->
 
           <template #cell(status)="data">
             <b-badge
@@ -139,7 +158,7 @@
               v-if="$can('manage-users', 'all')"
             />
             <b-tooltip
-              title="Edit User"
+              :title="t('Edit User')"
               :target="`user-row-${data.item.id}-pencil-icon`"
             />
             <feather-icon
@@ -151,7 +170,7 @@
               v-if="$can('manage-users', 'all')"
             />
             <b-tooltip
-              title="Delete User"
+              :title="t('Delete User')"
               :target="`user-row-${data.item.id}-trash-icon`"
             />
 
@@ -183,7 +202,7 @@
                 <feather-icon
                   icon="TrashIcon"
                 />
-                <span class="align-middle ml-50">Delete</span>
+                <span class="align-middle ml-50">{{ t('Delete') }}</span>
               </b-dropdown-item>
 
             </b-dropdown> -->
@@ -199,7 +218,10 @@
             sm="6"
             class="d-flex align-items-center justify-content-center justify-content-sm-start"
           >
-            <span class="text-muted">Showing {{ dataMeta.from }} to {{ dataMeta.to }} of {{ dataMeta.of }} entries</span>
+            <span
+              class="text-muted"
+            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
+              {{ dataMeta.of }} {{ t('entries') }}</span>
           </b-col>
           <!-- Pagination -->
           <b-col
@@ -241,23 +263,25 @@
 <script>
 import { ref, onMounted } from '@vue/composition-api'
 import {
-  BAvatar, BButton, BCard, BCol, BTooltip, BLink, BBadge,
-  BFormInput, BOverlay, BPagination, BRow, BTable,
+  BAvatar, BButton, BCard, BCol, BTooltip, BLink, BBadge, BMedia,
+  BOverlay, BPagination, BRow, BTable,
 } from 'bootstrap-vue'
 import vSelect from 'vue-select'
 import route from 'ziggy-js'
 import useUsers from '@/composables/users'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import { avatarText } from '@core/utils/filter'
 import Export from '../Export.vue'
 
 export default {
   components: {
     Export,
+    BMedia,
     BOverlay,
     BCard,
     BRow,
     BLink,
     BCol,
-    BFormInput,
     BButton,
     BTable,
     BTooltip,
@@ -290,6 +314,7 @@ export default {
       resolveUserStatusVariant,
     } = useUsers()
 
+    const { t } = useI18nUtils()
 
     onMounted(() => {
       fetchUsers()
@@ -315,7 +340,7 @@ export default {
         status: newStatus,
       }
       updateUserStatus(payload)
-      // update user status by axios
+      // {{ t(' Update User') }} status by axios
     }
 
 
@@ -333,8 +358,8 @@ export default {
 
     const confirmDelete = async id => {
       context.root.$bvModal
-        .msgBoxConfirm('Please confirm that you want to delete user.', {
-          title: 'Please Confirm',
+        .msgBoxConfirm(t('Please confirm that you want to delete user.'), {
+          title: t('Please Confirm'),
           size: 'sm',
         })
         .then(value => {
@@ -345,6 +370,7 @@ export default {
     }
 
     return {
+      t,
       busy,
       user,
       route,
@@ -355,6 +381,7 @@ export default {
       dataMeta,
       viewUser,
       fetchUsers,
+      avatarText,
       searchQuery,
       currentPage,
       tableColumns,

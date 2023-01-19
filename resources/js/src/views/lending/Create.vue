@@ -3,7 +3,7 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    title="Add Lending History"
+    :title="t('Add Lending History')"
     size="lg"
     class="modal-is-add-lending-active"
     id="is-add-lending-active"
@@ -28,17 +28,17 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Lending Date"
+                  :name="t('Lending Date')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Lending Date"
+                    :label="t('Lending Date')"
                     label-for="lending_date"
                   >
                     <b-form-input
                       type="date"
                       v-model="formData.lending_date"
-                      placeholder="Lending Date"
+                      :placeholder="t('Lending Date')"
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback>
@@ -53,17 +53,17 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Returned Date"
+                  :name="t('Returned Date')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Returned Date"
+                    :label="t('Returned Date')"
                     label-for="returned_date"
                   >
                     <b-form-input
                       type="date"
                       v-model="formData.returned_date"
-                      placeholder="Returned Date"
+                      :placeholder="t('Returned Date')"
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback>
@@ -79,16 +79,16 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  name="Loaned to"
+                  :name="t('Loaned to')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Loaned To"
+                    :label="t('Loaned to')"
                     label-for="loaned_to"
                   >
                     <b-form-input
                       v-model="formData.loaned_to"
-                      placeholder="Loaned To"
+                      :placeholder="t('Loaned to')"
                       :state="getValidationState(validationContext)"
                     />
                     <b-form-invalid-feedback>
@@ -100,18 +100,18 @@
               <b-col sm="6">
                 <ValidationProvider
                   #default="validationContext"
-                  name="Equipment"
+                  :name="t('Equipment')"
                   rules="required"
                 >
                   <b-form-group
-                    label="Select Equipment"
+                    :label="t('Select Equipment')"
                     label-for="equipment"
                     :state="getValidationState(validationContext)"
                   >
                     <v-select
                       v-model="formData.equipment"
                       class="w-full"
-                      placeholder="Type here to search equipments"
+                      :placeholder="t('Type here to search equipments')"
                       :options="equipments"
                       :close-on-select="true"
                       :select-on-tab="true"
@@ -123,7 +123,7 @@
                       :state="getValidationState(validationContext)"
                     >
                       <template slot="no-options">
-                        type to search equipments..
+                        {{ t('type to search equipments..') }}
                       </template>
                       <template
                         slot="option"
@@ -144,30 +144,6 @@
                   </b-form-group>
                 </ValidationProvider>
               </b-col>
-              <!-- <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  name="Registered by"
-                  rules="required"
-                >
-                  <b-form-group
-                    label="Registered By"
-                    label-for="registeredby"
-                  >
-                    <b-form-input
-                      v-model="formData.rgisteredBy"
-                      placeholder="Registered By"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col> -->
             </b-row>
             <b-row>
               <b-col>
@@ -177,7 +153,7 @@
                     class="px-5 mt-2"
                     type="submit"
                   >
-                    <span class="text-nowrap">Add</span>
+                    <span class="text-nowrap">{{ t('Add') }}</span>
                   </b-button>
                 </div>
               </b-col>
@@ -207,6 +183,7 @@ import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import debounce from 'lodash/debounce'
 import vSelect from 'vue-select'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -243,6 +220,7 @@ export default {
       equipment: '',
     }
     const formData = ref({ ...initialState })
+    const { t } = useI18nUtils()
 
 
     const {
@@ -293,6 +271,7 @@ export default {
       }
     }
     return {
+      t,
       formData,
       required,
       onSubmit,
