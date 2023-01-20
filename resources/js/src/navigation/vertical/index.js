@@ -176,4 +176,31 @@ export default [
     ],
   },
 
+  {
+    title: 'Settings',
+    icon: 'SettingsIcon',
+    action: 'settings',
+    resource: 'all',
+    children: [
+      {
+        title: 'Absence Types',
+        route: '#',
+        action: 'settings',
+        resource: 'all',
+      },
+      {
+        title: 'Competence',
+        route: '#',
+        action: 'settings',
+        resource: 'all',
+      },
+      {
+        title: 'Holiday',
+        route: '#',
+        action: 'settings',
+        resource: 'all',
+      },
+    ],
+  },
+
 ]

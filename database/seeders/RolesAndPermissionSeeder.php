@@ -23,7 +23,7 @@ class RolesAndPermissionSeeder extends Seeder
             'authentication', 'manage-users', 'document-center', 'equipments-listings','employees-listings',
             'documentcenter', 'projects-add-documents', 'projects-add','equipment-add','equipments-edit',
             'equipments-delete','employee-details','absences-add','absences-listings','competence-listings',
-            'employee-delete','employee-edit','employee-add','my-profile-view','password-view','competence-add',
+            'employee-delete','employee-edit','employee-add','my-profile-view','password-view','competence-add','settings',
             'lendings-history','employee-status','vacations-overview','absence-overview','vacations-add','my-absence','my-vacations'
         ];
 
@@ -63,7 +63,8 @@ class RolesAndPermissionSeeder extends Seeder
             'email' => 'admin@admin.com',
             'email_verified_at' => now(),
             'password' =>'password',
-            'gender' =>'Male'
+            'gender' =>'Male',
+            'holidays' => 10,
         ]);
 
 

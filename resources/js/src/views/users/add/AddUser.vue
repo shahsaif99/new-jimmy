@@ -22,7 +22,7 @@
             >
               <b-card>
                 <b-card-title>
-                  Details
+                  {{ t('Details') }}
                 </b-card-title>
 
                 <b-row>
@@ -306,7 +306,7 @@
               </b-card>
               <b-card>
                 <b-card-title>
-                  Login Information
+                  {{ t('Login Information') }}
                 </b-card-title>
                 <b-row>
                   <!-- Field: Email -->
@@ -343,15 +343,15 @@
                   >
                     <validation-provider
                       #default="validationContext"
-                      name="Role"
+                      :name="t('Select Role')"
                       rules="required"
                     >
                       <b-form-group
-                        label="Role"
+                        :label="t('Select Role')"
                         :state="getValidationState(validationContext)"
                       >
                         <v-select
-                          placeholder="Select Role"
+                          :placeholder="t('Select Role')"
                           v-model="formData.role"
                           :options="roles"
                           label="name"
@@ -517,18 +517,18 @@
                   >
                     <validation-provider
                       #default="validationContext"
-                      name="Salary Type"
+                      :name="t('Salary Type')"
                       rules="required"
                     >
                       <b-form-group
-                        label="Salary Type"
+                        :label="t('Salary Type')"
                       >
                         <b-form-input
                           id="salary_type"
                           v-model="formData.salary_type"
                           :state="getValidationState(validationContext)"
                           trim
-                          placeholder="Salary Type"
+                          :placeholder="t('Salary Type')"
                         />
 
                         <b-form-invalid-feedback>
@@ -543,11 +543,11 @@
                   >
                     <validation-provider
                       #default="validationContext"
-                      name="Holidays"
+                      :name="t('Holidays')"
                       rules="required"
                     >
                       <b-form-group
-                        label="Holidays"
+                        :label="t('Holidays')"
                       >
                         <b-form-input
                           id="holidays"
@@ -555,7 +555,7 @@
                           :state="getValidationState(validationContext)"
                           trim
                           type="number"
-                          placeholder="Holidays"
+                          :placeholder="t('Holidays')"
                         />
 
                         <b-form-invalid-feedback>

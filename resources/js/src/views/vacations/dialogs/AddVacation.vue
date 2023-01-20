@@ -21,8 +21,8 @@
           @reset.prevent="resetForm"
         >
           <b-alert
-            v-if="isConsumedAllHolidays"
             variant="danger"
+            :show="isConsumedAllHolidays"
             dismissible
           >
             <p>{{ t('Selected days are more than remaining') }}</p>
@@ -53,6 +53,7 @@
                     :disabled="userData.role !== 'Admin'"
                     label="name"
                     @search="onSearch"
+                    @input="selectEmployee"
                     :state="getValidationState(validationContext)"
                   >
                     <template slot="no-options">
@@ -323,30 +324,30 @@ export default {
       busy: usersBusy,
       user,
       users,
-      filters,
       getUser,
       fetchUsersList,
     } = useUsers()
 
+    const checkHolidays = selectUser => {
+      usedHolidays.value = selectUser.vacations_sum_days
+      formData.value.user = userData
+      if (usedHolidays.value) {
+        if (usedHolidays.value >= selectUser.holidays) {
+          isConsumedAllHolidays.value = true
+        }
+        leftHolidays.value = selectUser.holidays - usedHolidays.value
+        formData.value.used_vacations_days = `${usedHolidays.value} used out of ${selectUser.holidays}`
+      } else {
+        leftHolidays.value = selectUser.holidays
+        formData.value.used_vacations_days = `0 used out of ${selectUser.holidays}`
+      }
+    }
+
 
     onMounted(async () => {
-      if (props.isAddVacationActive) {
+      if (props.isAddVacationActive && userData.role !== 'Admin') {
         await getUser(userData.id)
-        console.log(user.value)
-        usedHolidays.value = user.value.vacations_sum_days
-        if (userData.role !== 'Admin') {
-          formData.value.user = userData
-        }
-        if (usedHolidays.value) {
-          if (usedHolidays.value >= user.value.holidays) {
-            isConsumedAllHolidays.value = true
-          }
-          leftHolidays.value = user.value.holidays - usedHolidays.value
-          formData.value.used_vacations_days = `${usedHolidays.value} used out of ${user.value.holidays}`
-        } else {
-          leftHolidays.value = user.value.holidays
-          formData.value.used_vacations_days = `0 used out of ${user.value.holidays}`
-        }
+        checkHolidays(user.value)
       }
     })
 
@@ -360,25 +361,36 @@ export default {
           if (day.day() !== 0 && day.day() !== 6) vacationDays.value += 1
           day.add(1, 'd')
         }
+        console.log(leftHolidays.value)
+        console.log(vacationDays.value)
         formData.value.days = vacationDays.value
         if (formData.value.to_date && vacationDays.value <= leftHolidays.value) {
           isConsumedAllHolidays.value = false
         } else {
+          console.log('fuk')
           isConsumedAllHolidays.value = true
+          console.log(isConsumedAllHolidays.value)
         }
       }
     }
 
+    const selectEmployee = employee => {
+      console.log(employee)
+      checkHolidays(employee)
+    }
 
-    const resetForm = () => {
 
+    const resetFormData = () => {
+      formData.value = {
+        ...initialState,
+      }
     }
 
     const fetchAsynEmployees = debounce(async (loading, name) => {
       if (!name.length) {
         return
       }
-      filters.role = 'Employee'
+      //   filters.role = 'Employee'
       fetchUsersList(name)
       loading(false)
     }, 350)
@@ -391,17 +403,20 @@ export default {
       fetchAsynEmployees(loading, name, this)
     }
 
+    const {
+      refFormObserver, getValidationState, resetForm,
+    } = formValidation()
 
     const onSubmit = async () => {
       await storeVacation({ ...formData.value, ...{ user_id: formData.value.user.id } })
       if (respResult.value.status === 200) {
         emit('refetch-data')
+        resetFormData()
         emit('update:is-add-vacation-active', false)
+        resetForm()
       }
     }
-    const {
-      refFormObserver, getValidationState,
-    } = formValidation()
+
 
     return {
       t,
@@ -414,6 +429,7 @@ export default {
       onSubmit,
       resetForm,
       userData,
+      selectEmployee,
       calculateDays,
       refFormObserver,
       getValidationState,

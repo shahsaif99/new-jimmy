@@ -24,25 +24,66 @@ export default function useVacations() {
   const filters = reactive({
   })
   const tableColumns = [
-    { key: 'from_date', sortable: false },
-    { key: 'to_date', sortable: false },
-    { key: 'days', sortable: false },
-    { key: 'status', sortable: false },
-    { key: 'comments', sortable: false },
+    { key: 'user', sortable: true, label: 'Employee Name' },
+    { key: 'from_date', sortable: false, label: 'From Date' },
+    { key: 'to_date', sortable: false, label: 'To Date' },
+    { key: 'days', sortable: false, label: 'Days' },
+    { key: 'status', sortable: false, label: 'Status' },
+    {
+      key: 'comments', sortable: false, label: 'Comments', width: 100,
+    },
     { key: 'approved_by', sortable: false, label: 'Approved By' },
-    { key: 'approved_date', sortable: false },
-    { key: 'actions' },
+    { key: 'approved_date', sortable: false, label: 'Approved Date' },
+    { key: 'actions', label: 'Actions' },
+  ]
+
+  const pendingTableColumns = [
+    { key: 'user', sortable: true, label: 'Employee Name' },
+    { key: 'from_date', sortable: false, label: 'From Date' },
+    { key: 'to_date', sortable: false, label: 'To Date' },
+    { key: 'days', sortable: false, label: 'Days' },
+    { key: 'status', sortable: false, label: 'Status' },
+    {
+      key: 'comments', sortable: false, label: 'Comments', width: 100,
+    },
+    { key: 'actions', label: 'Actions' },
   ]
 
   const overviewTableColumns = [
-    { key: 'user.name', sortable: true, label: 'Employee Name' },
-    { key: 'from_date', sortable: false },
-    { key: 'to_date', sortable: false },
-    { key: 'days', sortable: false },
-    { key: 'comments', sortable: false, width: 100 },
-    { key: 'actions' },
+    {
+      label: 'From Date',
+      field: 'from_date',
+      type: 'date',
+      dateInputFormat: 'yyyy-MM-dd', // expects 2018-03-16
+      dateOutputFormat: 'MM.dd.yyyy', //
+    },
+    {
+      label: 'To Date',
+      field: 'to_date',
+      type: 'date',
+      dateInputFormat: 'yyyy-MM-dd', // expects 2018-03-16
+      dateOutputFormat: 'MM.dd.yyyy', //
+    },
+    {
+      label: 'Days',
+      field: 'days',
+    },
+    {
+      label: 'Status',
+      field: 'status',
+    },
+    {
+      label: 'Comments',
+      field: 'comments',
+    },
+    { field: 'approved_by', label: 'Approved By' },
+    { field: 'approved_date', label: 'Approved Date' },
+    {
+      label: 'Actions',
+      field: 'actions',
+    },
   ]
- 
+
 
   const dataMeta = computed(() => {
     const localItemsCount = refListTable.value ? refListTable.value.localItems.length : 0
@@ -53,11 +94,12 @@ export default function useVacations() {
     }
   })
 
-  const fetchVacations = async () => {
+  const fetchVacations = async params => {
     try {
       busy.value = true
       const response = await axios.get(route('vacations.index'), {
         params: {
+          ...params,
           q: searchQuery.value,
           perPage: perPage.value,
           page: currentPage.value,
@@ -72,7 +114,6 @@ export default function useVacations() {
         totalRecords.value = total
       }
     } catch (error) {
-      console.log(error)
       if (error.message === 'Network Error') {
         toast.error(error.message)
       } else {
@@ -251,6 +292,7 @@ export default function useVacations() {
     fetchVacationsList,
     fetchVacationsStats,
     updateVacationStatus,
+    pendingTableColumns,
     overviewTableColumns,
   }
 }

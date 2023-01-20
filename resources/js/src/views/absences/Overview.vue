@@ -14,265 +14,387 @@
         />
       </b-col>
     </b-row>
+    <edit-absence
+      :is-edit-absence-active.sync="isEditAbsenceActive"
+      v-if="isEditAbsenceActive"
+      :absence-id="absenceId"
+      @refetch-data="fetchAbsences"
+    />
+    <add-absence
+      :is-add-absence-active.sync="isAddAbsenceActive"
+      v-if="isAddAbsenceActive"
+      @refetch-data="fetchAbsences"
+    />
     <PendingRequest />
+
     <b-card
       no-body
       class="mb-0 mt-2"
     >
       <h3 class="p-1">
-        {{ t('Absence Overview') }}
+        {{ t("Absence Overview") }}
       </h3>
-      <b-table
-        ref="refListTable"
-        class="position-relative competence-table"
-        :items="absences"
-        responsive
-        :fields="overviewTableColumns1"
-        primary-key="id"
-        :sort-by.sync="sortBy"
-        :busy="busy"
-        show-empty
-        :empty-text="t('No matching records found')"
-        :sort-desc.sync="isSortDirDesc"
+      <b-overlay
+        id="overlay-background"
+        :show="busy"
+        variant="transparent"
+        rounded="sm"
       >
-        <template #cell(user)="data">
-          <b-media vertical-align="center">
-            <template #aside>
-              <b-avatar
-                size="32"
-                :src="data.item.avatar"
-                :text="avatarText(data.item.user.name)"
-                :to="{ name: 'users-edit', params: { id: data.item.user.id } }"
-              />
-            </template>
-            <b-link
-              :to="{ name: 'users-edit', params: { id: data.item.user.id } }"
+        <div class="d-flex justify-content-end  mb-2">
+          <div class="d-flex align-items-center col-md-4 mb-1 mb-md-0">
+            <b-form-input
+              v-model="searchTerm"
+              placeholder="Search"
+              type="text"
+              class="d-inline-block mr-1"
+              @input="handleSearch"
+            />
+            <b-button
+              variant="primary"
+              @click="isAddAbsenceActive = true"
+              v-if="$can('absences-add', 'all')"
             >
-              {{ data.item.user.name }}
-            </b-link>
-          </b-media>
-        </template>
-
-        <template #cell(status)="data">
-          <div
-            class="text-nowrap"
+              <span class="text-nowrap">{{ t('Add Absence') }}</span>
+            </b-button>
+          </div>
+        </div>
+        <vue-good-table
+          mode="remote"
+          @on-page-change="onPageChange"
+          @on-per-page-change="onPerPageChange"
+          :columns="overviewTableColumns"
+          @on-sort-change="onSortChange"
+          @on-column-filter="onColumnFilter"
+          :rows="absences"
+          :is-loading.sync="busy"
+          :total-rows="totalRecords"
+          :sort-options="{
+            enabled: false,
+          }"
+          :search-options="{
+            enabled: true,
+            externalQuery: searchTerm }"
+          :pagination-options="{
+            enabled: true,
+            perPage:pageLength
+          }"
+          :group-options="{
+            enabled: true,
+          }"
+        >
+          <template
+            slot="table-column"
+            slot-scope="props"
           >
             <span
-              class="align-text-top text-capitalize"
-              :class="`text-${resolveStatus(data.item.status)}`"
+              v-if="props.column.field ==='from_date'"
+              class="text-nowrap"
             >
-              <b-badge :variant="resolveStatus(data.item.status)">
-                <span>{{ data.item.status }}</span>
+              {{ $t('From Date') }}
+            </span>
+            <span
+              v-else-if="props.column.field ==='to_date'"
+              class="text-nowrap"
+            >
+              {{ $t('To Date') }}
+            </span>
+            <span
+              v-else-if="props.column.field ==='days'"
+              class="text-nowrap"
+            >
+              {{ $t('Days') }}
+            </span>
+            <span
+              v-else-if="props.column.field ==='status'"
+              class="text-nowrap"
+            >
+              {{ $t('Status') }}
+            </span>
+            <span
+              v-else-if="props.column.field ==='comments'"
+              class="text-nowrap"
+            >
+              {{ $t('Comments') }}
+            </span>
+            <span
+              v-else-if="props.column.field ==='actions'"
+              class="text-nowrap"
+            >
+              {{ $t('Actions') }}
+            </span>
+            <span v-else>
+              {{ props.column.field }}
+            </span>
+          </template>
+          <template
+            slot="table-header-row"
+            slot-scope="props"
+          >
+            <b-media vertical-align="center">
+              <template #aside>
+                <b-avatar
+                  size="32"
+                  :src="props.row.children[0].user.avatar_url"
+                  :text="avatarText(props.row.label)"
+                  :to="{ name: 'users-edit', params: { id: props.row.children[0].user.id } }"
+                />
+              </template>
+              <b-link
+                :to="{ name: 'users-edit', params: { id: props.row.children[0].user.id } }"
+              >
+                {{ props.row.label }}
+              </b-link>
+            </b-media>
+          </template>
+          <template
+            slot="table-row"
+            slot-scope="props"
+          >
+            <!-- Column: Name -->
+            <span
+              v-if="props.column.field === 'name'"
+              class="text-nowrap"
+            >
+              <b-avatar
+                :src="props.row.avatar"
+                class="mx-1"
+              />
+
+              <span class="text-nowrap">{{ props.row.user.name }}</span>
+            </span>
+            <span
+              v-else-if="props.column.field === 'days'"
+              class="text-nowrap"
+            >
+              <span class="text-nowrap">{{ props.row.days }} {{ t('days(s)') }}</span>
+            </span>
+            <!-- Column: Status -->
+            <span v-else-if="props.column.field === 'status'">
+              <b-badge :variant="resolveStatus(props.row.status)">
+                {{ props.row.status }}
               </b-badge>
             </span>
-          </div>
-        </template>
-        <template #cell(actions)="data">
-          <div
-            class="text-nowrap"
-            v-if="data.item.status != 'approved'"
-          >
-            <!-- <b-button
-              variant="success"
-              class="btn-icon"
-              size="sm"
-              @click="confirmStatus(data.item.id, 'approved')"
-              :id="`row-${data.item.id}-check-btn`"
-            >
-              <feather-icon icon="CheckIcon" />
-            </b-button> -->
-            <feather-icon
-              @click="confirmStatus(data.item.id, 'approved')"
-              :id="`row-overview-${data.item.id}-check-btn`"
-              icon="CheckIcon"
-              class="cursor-pointer"
-              size="16"
-            />
-            <b-tooltip
-              :title="t('Accept Request')"
-              class="cursor-pointer"
-              :target="`row-${data.item.id}-check-btn`"
-            />
-            <b-button
-              variant="warning"
-              class="btn-icon"
-              size="sm"
-              :id="`row-${data.item.id}-cross-btn`"
-              @click="confirmStatus(data.item.id, 'declined')"
-            >
-              <feather-icon icon="XIcon" />
-            </b-button>
-            <b-tooltip
-              :title="t('Decline Request')"
-              class="cursor-pointer"
-              :target="`row-${data.item.id}-cross-btn`"
-            />
-            <b-button
-              variant="danger"
-              class="btn-icon"
-              size="sm"
-              :id="`row-${data.item.id}-trash-btn`"
-              @click="confirmDelete(data.item.id)"
-            >
-              <feather-icon icon="TrashIcon" />
-            </b-button>
-            <b-tooltip
-              :title="t('Delete Request')"
-              class="cursor-pointer"
-              :target="`row-${data.item.id}-trash-btn`"
-            />
-          </div>
-        </template>
-      </b-table>
-      <div class="mx-2 mb-2">
-        <b-row>
-          <b-col
-            cols="12"
-            sm="6"
-            class="d-flex align-items-center justify-content-center justify-content-sm-start"
-          >
-            <span
-              class="text-muted"
-            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
-              {{ dataMeta.of }} {{ t('entries') }}</span>
-          </b-col>
-          <!-- Pagination -->
-          <b-col
-            cols="12"
-            sm="6"
-            class="d-flex align-items-center justify-content-center justify-content-sm-end"
-          >
-            <b-pagination
-              v-model="currentPage"
-              :total-rows="totalRecords"
-              :per-page="perPage"
-              first-number
-              last-number
-              class="mb-0 mt-1 mt-sm-0"
-              prev-class="prev-item"
-              next-class="next-item"
-            >
-              <template #prev-text>
-                <feather-icon
-                  icon="ChevronLeftIcon"
-                  size="18"
+
+            <!-- Column: Action -->
+            <span v-else-if="props.column.field === 'actions'">
+              <div
+                class="text-nowrap"
+              >
+                <span class="text-success">
+                  <feather-icon
+                    @click="confirmStatus(props.row.id, 'approved')"
+                    :id="`accept-request-${props.row.id}-check-btn`"
+                    icon="CheckIcon"
+                    class="cursor-pointer ml-1"
+                    size="16"
+                  />
+                </span>
+                <b-tooltip
+                  :title="t('Accept Request')"
+                  :target="`accept-request-${props.row.id}-check-btn`"
                 />
-              </template>
-              <template #next-text>
-                <feather-icon
-                  icon="ChevronRightIcon"
-                  size="18"
+
+                <span class="text-danger">
+                  <feather-icon
+                    @click="confirmStatus(props.row.id, 'declined')"
+                    :id="`decline-request-${props.row.id}-cross-btn`"
+                    icon="SlashIcon"
+                    class="cursor-pointer ml-1"
+                    size="16"
+                  />
+                </span>
+                <b-tooltip
+                  :title="t('Decline Request')"
+                  :target="`decline-request-${props.row.id}-cross-btn`"
                 />
-              </template>
-            </b-pagination>
-          </b-col>
-        </b-row>
-      </div>
+                <feather-icon
+                  :id="`user-row-${props.row.id}-pencil-icon`"
+                  icon="EditIcon"
+                  size="16"
+                  class="mx-1 cursor-pointer"
+                  @click="editAbsence(props.row.id)"
+                />
+                <b-tooltip
+                  title="Edit"
+                  :target="`user-row-${props.row.id}-pencil-icon`"
+                />
+                <feather-icon
+                  @click="confirmDelete(props.row.id)"
+                  :id="`delete-request-${props.row.id}-trash-btn`"
+                  icon="Trash2Icon"
+                  class="cursor-pointer ml-1"
+                  size="16"
+                />
+                <b-tooltip
+                  :title="t('Delete Request')"
+                  :target="`delete-request-${props.row.id}-trash-btn`"
+                />
+              </div>
+            </span>
+          </template>
+        </vue-good-table>
+      </b-overlay>
     </b-card>
   </div>
 </template>
 
 <script>
 import {
-  BCard,
   BRow,
   BCol,
-  BTable,
-  BAvatar,
-  BMedia,
+  BCard,
   BLink,
-  BPagination,
+  BMedia,
+  BBadge,
+  BAvatar,
+  BButton,
+  BOverlay,
+  BTooltip,
+  BFormInput,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 import useAbsences from '@/composables/absences'
-import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import i18n from '@/libs/i18n'
+// eslint-disable-next-line import/no-cycle
 import { avatarText } from '@core/utils/filter'
+import { VueGoodTable } from 'vue-good-table'
+import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
 import PendingRequest from './PendingRequest.vue'
+import 'vue-good-table/dist/vue-good-table.css'
+import AddAbsence from './dialogs/AddAbsence.vue'
+import EditAbsence from './dialogs/EditAbsence.vue'
 
 export default {
   components: {
-    BCol,
     BRow,
+    BCol,
+    BCard,
     BMedia,
     BLink,
-    BCard,
+    BBadge,
+    BButton,
     BAvatar,
-    BTable,
-    BPagination,
+    BTooltip,
+    BOverlay,
+    BFormInput,
+    VueGoodTable,
+    AddAbsence,
+    EditAbsence,
     PendingRequest,
     StatisticCardHorizontal,
   },
   setup(_, { root }) {
     const {
       busy,
-      sortBy,
       filters,
-      perPage,
       absences,
-      dataMeta,
       respResult,
-      refetchData,
       searchQuery,
-      currentPage,
+      absencesStats,
       totalRecords,
       refListTable,
       deleteAbsence,
-      absencesStats,
       isSortDirDesc,
       resolveStatus,
       fetchAbsences,
-      absenceStats,
-      perPageOptions,
       fetchAbsencesStats,
-      updateAbsenceStatus,
       overviewTableColumns,
+      updateAbsenceStatus,
     } = useAbsences()
 
+    const searchTerm = ref('')
+    const pageLength = ref(10)
+    const absenceId = ref(0)
+    const isEditAbsenceActive = ref(false)
+    const isAddAbsenceActive = ref(false)
     const { t } = useI18nUtils()
 
+    const serverParams = ref({
+      columnFilters: {
+      },
+      sort: [
+        {
+          field: '',
+          type: '',
+        },
+      ],
+      page: 1,
+      perPage: 10,
+    })
 
     onMounted(async () => {
-      await fetchAbsences()
+      filters.group = true
       await fetchAbsencesStats()
+      await fetchAbsences(serverParams.value)
     })
-    const isExportActive = ref(false)
-    const absenceId = ref(0)
+
+    const editAbsence = id => {
+      absenceId.value = id
+      isEditAbsenceActive.value = true
+    }
+
     const deleteConfirmed = async id => {
       await deleteAbsence(id)
       if (respResult.value.status === 200) {
-        fetchAbsences()
+        fetchAbsences(serverParams.value)
       }
     }
-
-    const confirmDelete = async id => {
-      root.$bvModal
-        .msgBoxConfirm(i18n.t('Please confirm that you want to delete absence.'), {
-          title: i18n.t('Please Confirm'),
-          size: 'sm',
-        })
-        .then(value => {
-          if (value) {
-            deleteConfirmed(id)
-          }
-        })
-    }
-
 
     const absenceStatusConfirmed = async data => {
       await updateAbsenceStatus(data)
       if (respResult.value.status === 200) {
-        fetchAbsences()
+        fetchAbsences(serverParams.value)
       }
     }
 
+    const handleSearch = query => {
+      searchQuery.value = query
+      fetchAbsences(serverParams.value)
+    }
+
+    const updateParams = newProps => {
+      serverParams.value = { ...serverParams.value, ...newProps }
+    }
+
+    const onPageChange = params => {
+      updateParams({ page: params.currentPage })
+      fetchAbsences(serverParams.value)
+    }
+
+    const onPerPageChange = params => {
+      updateParams({ perPage: params.currentPerPage })
+      fetchAbsences(serverParams.value)
+    }
+
+    const onSortChange = params => {
+      console.log(params.columnIndex)
+      updateParams({
+        sort: [
+          {
+            type: params.sortType,
+            field: overviewTableColumns.value[params.columnIndex].field,
+          },
+        ],
+      })
+      fetchAbsences(serverParams.value)
+    }
+
+    const onColumnFilter = params => {
+      updateParams(params)
+      fetchAbsences(serverParams.value)
+    }
+
+
     const confirmStatus = async (id, status) => {
       root.$bvModal
-        .msgBoxConfirm(`Please confirm that you want to ${status} absence request.`, {
-          title: i18n.t('Please Confirm'),
-          size: 'sm',
-        })
+        .msgBoxConfirm(
+          `Please confirm that you want to ${status} absence request.`,
+          {
+            title: i18n.t('Please Confirm'),
+            size: 'sm',
+          },
+        )
         .then(value => {
           if (value) {
             absenceStatusConfirmed({ id, status })
@@ -280,54 +402,50 @@ export default {
         })
     }
 
-    const overviewTableColumns1 = [
-    //   { key: 'user.name', sortable: true, label: i18n.t('Employee Name') },
-      { key: 'user', sortable: true, label: i18n.t('Employee') },
-      { key: 'from_date', sortable: false, label: i18n.t('From Date') },
-      { key: 'to_date', sortable: false, label: i18n.t('To Date') },
-      { key: 'days', sortable: false, label: i18n.t('Days') },
-      { key: 'type', sortable: false, label: i18n.t('Type') },
-      {
-        key: 'comments', sortable: false, width: 100, label: i18n.t('Comments'),
-      },
-    ]
-
+    const confirmDelete = async id => {
+      root.$bvModal
+        .msgBoxConfirm(
+          i18n.t('Please confirm that you want to delete absence.'),
+          {
+            title: i18n.t('Please Confirm'),
+            size: 'sm',
+          },
+        )
+        .then(value => {
+          if (value) {
+            deleteConfirmed(id)
+          }
+        })
+    }
     return {
       t,
       busy,
-      sortBy,
       filters,
-      perPage,
+      handleSearch,
+      onSortChange,
       absences,
-      dataMeta,
-      absenceId,
-      refetchData,
+      isAddAbsenceActive,
+      onColumnFilter,
+      updateParams,
+      pageLength,
+      searchTerm,
+      serverParams,
       avatarText,
-      searchQuery,
-      currentPage,
+      absenceId,
       absencesStats,
-      absenceStats,
+      onPerPageChange,
+      onPageChange,
+      editAbsence,
+      confirmStatus,
       totalRecords,
       refListTable,
       isSortDirDesc,
-      confirmStatus,
       confirmDelete,
       resolveStatus,
-      perPageOptions,
-      isExportActive,
       fetchAbsences,
       overviewTableColumns,
-      overviewTableColumns1,
-      absenceStatusConfirmed,
+      isEditAbsenceActive,
     }
   },
 }
 </script>
-  <style lang="scss">
-  @import '~@core/scss/vue/libs/vue-select.scss';
-  </style>
-<style>
-.per-page-selector {
-    width: 90px;
-}
-</style>

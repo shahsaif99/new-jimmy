@@ -25,8 +25,8 @@ export default function useAbsences() {
   })
 
   const tableColumns = [
-    { key: 'type', sortable: true, label: 'Type' },
-    { key: 'from_date', sortable: false, label: 'Type' },
+    { key: 'user', sortable: true, label: 'Employee Name' },
+    { key: 'from_date', sortable: false, label: 'From Date' },
     { key: 'to_date', sortable: false, label: 'To Date' },
     { key: 'days', sortable: false, label: 'Days' },
     { key: 'status', sortable: false, label: 'Status' },
@@ -38,18 +38,66 @@ export default function useAbsences() {
     { key: 'actions', label: 'Actions' },
   ]
 
-  const overviewTableColumns = [
-    { key: 'user.name', sortable: true, label: 'Employee Name' },
-    { key: 'from_date', sortable: false, label: 'Type' },
+  const pendingTableColumns = [
+    { key: 'user', sortable: true, label: 'Employee Name' },
+    { key: 'from_date', sortable: false, label: 'From Date' },
     { key: 'to_date', sortable: false, label: 'To Date' },
     { key: 'days', sortable: false, label: 'Days' },
     { key: 'status', sortable: false, label: 'Status' },
-    { key: 'type', sortable: true, label: 'Type' },
     {
       key: 'comments', sortable: false, label: 'Comments', width: 100,
     },
     { key: 'actions', label: 'Actions' },
   ]
+
+  const overviewTableColumns = [
+    {
+      label: 'From Date',
+      field: 'from_date',
+      type: 'date',
+      dateInputFormat: 'yyyy-MM-dd', // expects 2018-03-16
+      dateOutputFormat: 'MM.dd.yyyy', //
+    },
+    {
+      label: 'To Date',
+      field: 'to_date',
+      type: 'date',
+      dateInputFormat: 'yyyy-MM-dd', // expects 2018-03-16
+      dateOutputFormat: 'MM.dd.yyyy', //
+    },
+    {
+      label: 'Days',
+      field: 'days',
+    },
+    {
+      label: 'Status',
+      field: 'status',
+    },
+    {
+      label: 'Comments',
+      field: 'comments',
+    },
+    { field: 'approved_by', label: 'Approved By' },
+    { field: 'approved_date', label: 'Approved Date' },
+    {
+      label: 'Actions',
+      field: 'actions',
+    },
+  ]
+
+  //   const overviewTableColumns = [
+  //     { key: 'user', sortable: true, label: 'Employee Name' },
+  //     // { key: 'user.name', sortable: true, label: 'Employee Name' },
+  //     { key: 'from_date', sortable: false, label: 'From Date' },
+  //     { key: 'to_date', sortable: false, label: 'To Date' },
+  //     { key: 'days', sortable: false, label: 'Days' },
+  //     { key: 'status', sortable: false, label: 'Status' },
+  //     { key: 'type', sortable: true, label: 'Type' },
+  //     {
+  //       key: 'comments', sortable: false, label: 'Comments', width: 100,
+  //     },
+  //     { key: 'actions', label: 'Actions' },
+  //   ]
 
   const dataMeta = computed(() => {
     const localItemsCount = refListTable.value ? refListTable.value.localItems.length : 0
@@ -60,11 +108,12 @@ export default function useAbsences() {
     }
   })
 
-  const fetchAbsences = async () => {
+  const fetchAbsences = async params => {
     try {
       busy.value = true
       const response = await axios.get(route('absences.index'), {
         params: {
+          ...params,
           q: searchQuery.value,
           perPage: perPage.value,
           page: currentPage.value,
@@ -259,6 +308,7 @@ export default function useAbsences() {
     fetchAbsencesList,
     fetchAbsencesStats,
     updateAbsenceStatus,
+    pendingTableColumns,
     overviewTableColumns,
   }
 }

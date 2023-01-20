@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Vacation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Container\Container;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\Paginator;
 use App\Http\Resources\VacationResource;
 use App\Http\Requests\Vacation\StoreRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class VacationController extends Controller
 {
@@ -25,12 +29,26 @@ class VacationController extends Controller
             ], 500);
         }
         $vacations = Vacation::query()
-        ->with(['user:id,first_name,last_name'])
+        ->with(['user:id,first_name,last_name,avatar'])
         ->applyFilters($request)
-        ->when($request->perPage, function ($query, $perPage) {
-            return $query->paginate($perPage);
+        ->when(!$request->group, function ($query) use($request) {
+            return $query->paginate($request->perPage);
         }, function ($query) {
             return $query->get();
+        })
+        ->when($request->group, function($query){
+           return $query->groupBy('user_id')
+            ->map(function($item, $key){
+                return [
+                    'mode' => 'span',
+                    'label' => $item->first()->user->name,
+                    'children' => $item->toArray()
+                ];
+            });
+        })
+
+        ->when($request->group, function ($data) use($request){
+            return $this->paginate($data, $request->perPage);
         });
 
         return VacationResource::collection($vacations);
@@ -95,14 +113,15 @@ class VacationController extends Controller
     public function vacationStatistics()
     {
         $vacations = Vacation::query()
+        ->whereUserId(auth()->id())
         ->select([DB::raw("SUM(days) as total_days")])
         ->whereStatus('approved')
         ->first();
 
         return new VacationResource([
-            'vacations' => auth()->user()->holidays,
-            'usedVacations' => $vacations->total_days,
-            'remainingVacations' => auth()->user()->holidays - $vacations->total_days
+            'vacations' => auth()->user()->holidays ?? 0,
+            'usedVacations' => $vacations->total_days ?? 0,
+            'remainingVacations' => auth()->user()->holidays - $vacations->total_days ?? 0
         ]);
 
     }
@@ -116,5 +135,35 @@ class VacationController extends Controller
         ]);
 
         return response()->json(['message' => 'Absence request successfully'. ucwords($request->status)],200);
+    }
+
+    public static function paginate(Collection $results, $pageSize)
+    {
+        $page = Paginator::resolveCurrentPage('page');
+
+        $total = $results->count();
+
+        return self::paginator($results->forPage($page, $pageSize), $total, $pageSize, $page, [
+            'path' => Paginator::resolveCurrentPath(),
+            'pageName' => 'page',
+        ]);
+
+    }
+
+    /**
+     * Create a new length-aware paginator instance.
+     *
+     * @param  \Illuminate\Support\Collection  $items
+     * @param  int  $total
+     * @param  int  $perPage
+     * @param  int  $currentPage
+     * @param  array  $options
+     * @return LengthAwarePaginator
+     */
+    protected static function paginator($items, $total, $perPage, $currentPage, $options)
+    {
+        return Container::getInstance()->makeWith(LengthAwarePaginator::class, compact(
+            'items', 'total', 'perPage', 'currentPage', 'options'
+        ));
     }
 }

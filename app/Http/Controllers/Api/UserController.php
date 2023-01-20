@@ -23,6 +23,9 @@ class UserController extends Controller
             ->with('roles:id,name')
             ->search($request->q)
             ->applyFilters($request)
+            ->withSum(['vacations' => function ($query) {
+                $query->whereStatus('approved');
+            }], 'days')
             ->when($request->perPage, function ($query, $perPage) {
                 return $query->paginate($perPage);
             }, function ($query) {

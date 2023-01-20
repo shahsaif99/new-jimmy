@@ -38,6 +38,15 @@ class Vacation extends Model
         'status' => LeaveStatus::class,
     ];
 
+    public function scopeSearch($query, $queryString)
+    {
+        return $query
+        ->whereHas('user', function ($query) use ($queryString){
+            $query->where('first_name', 'like', '%'.$queryString.'%');
+            $query->OrWhere('last_name', 'like', '%'.$queryString.'%');
+        });
+    }
+
 
     // created at
     public function getCreatedAtAttribute($value)
@@ -45,26 +54,16 @@ class Vacation extends Model
         return \Carbon\Carbon::parse($value)->format('d.m.Y');
     }
 
-    // public function getApprovedDateAttribute($value)
-    // {
-    //     return \Carbon\Carbon::parse($value)->format('d.m.Y');
-    // }
-
-    // public function getFromDateAttribute($value)
-    // {
-    //     return \Carbon\Carbon::parse($value)->format('d.m.Y');
-    // }
-    // public function getToDateAttribute($value)
-    // {
-    //     return \Carbon\Carbon::parse($value)->format('d.m.Y');
-    // }
-
 
     public function scopeApplyFilters($query, Request $request)
     {
+        // $userRole = auth()->role;
         $query
         ->when($request->sortDesc, function ($query, $sortDesc) {
             $query->orderByDesc('id');
+        })
+        ->when(in_array(auth()->user()->role, ['User', 'Employee']), function ($query) {
+            $query->where('user_id', auth()->id());
         })
         ->when($request->userId, function ($query, $userId) {
             $query->where('user_id', $userId);
@@ -93,16 +92,6 @@ class Vacation extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get the user that owns the Vacation
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function approvedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'approved_by');
     }
 
 }

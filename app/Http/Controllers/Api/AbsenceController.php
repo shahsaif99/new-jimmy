@@ -4,10 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Absence;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Container\Container;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\Paginator;
 use App\Http\Resources\AbsenceResource;
 use App\Http\Requests\Absence\StoreRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class AbsenceController extends Controller
 {
@@ -24,13 +29,24 @@ class AbsenceController extends Controller
             ], 500);
         }
         $absences = Absence::query()
-        ->with(['user:id,first_name,last_name'])
+        ->with(['user:id,first_name,last_name,avatar'])
+        ->search($request->q)
         ->applyFilters($request)
-        ->when($request->perPage, function ($query, $perPage) {
-            return $query->paginate($perPage);
-        }, function ($query) {
-            return $query->get();
-        });
+        ->latest()
+        ->get()
+        ->when($request->group, function($query){
+            return $query->groupBy('user_id')
+             ->map(function($item, $key){
+                 return [
+                     'mode' => 'span',
+                     'label' => $item->first()->user->name,
+                     'children' => $item->toArray()
+                 ];
+             });
+         })
+         ->when($request->perPage, function ($data, $perPage) {
+             return $this->paginate($data, 10);
+         });
 
         return AbsenceResource::collection($absences);
     }
@@ -110,5 +126,35 @@ class AbsenceController extends Controller
         ]);
 
         return response()->json(['message' => 'Absence request successfully'. ucwords($request->status)],200);
+    }
+
+    public static function paginate(Collection $results, $pageSize)
+    {
+        $page = Paginator::resolveCurrentPage('page');
+
+        $total = $results->count();
+
+        return self::paginator($results->forPage($page, $pageSize), $total, $pageSize, $page, [
+            'path' => Paginator::resolveCurrentPath(),
+            'pageName' => 'page',
+        ]);
+
+    }
+
+    /**
+     * Create a new length-aware paginator instance.
+     *
+     * @param  \Illuminate\Support\Collection  $items
+     * @param  int  $total
+     * @param  int  $perPage
+     * @param  int  $currentPage
+     * @param  array  $options
+     * @return LengthAwarePaginator
+     */
+    protected static function paginator($items, $total, $perPage, $currentPage, $options)
+    {
+        return Container::getInstance()->makeWith(LengthAwarePaginator::class, compact(
+            'items', 'total', 'perPage', 'currentPage', 'options'
+        ));
     }
 }

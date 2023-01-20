@@ -322,7 +322,7 @@ export default {
     const {
       busy: usersBusy,
       users,
-      filters,
+      //   filters,
       fetchUsersList,
     } = useUsers()
 
@@ -346,7 +346,7 @@ export default {
       if (!name.length) {
         return
       }
-      filters.role = 'Employee'
+      //   filters.role = 'Employee'
       fetchUsersList(name)
       loading(false)
     }, 350)

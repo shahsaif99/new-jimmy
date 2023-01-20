@@ -1,12 +1,24 @@
 <template>
   <div>
+    <edit-vacation
+      :is-edit-vacation-active.sync="isEditVacationActive"
+      v-if="isEditVacationActive"
+      :vacation-id="vacationId"
+      @refetch-data="fetchVacations"
+    />
+    <add-vacation
+      :is-add-vacation-active.sync="isAddVacationActive"
+      v-if="isAddVacationActive"
+      @refetch-data="fetchVacations"
+    />
     <PendingRequest @refetch-data="fetchVacations" />
+
     <b-card
       no-body
       class="mb-0 mt-2"
     >
       <h3 class="p-1">
-        {{ t('Vacations Overview') }}
+        {{ $t("Vacations Overview") }}
       </h3>
       <b-overlay
         id="overlay-background"
@@ -14,152 +26,167 @@
         variant="transparent"
         rounded="sm"
       >
-        <b-table
-          ref="refListTable"
-          class="position-relative"
-          :items="vacations"
-          responsive
-          :fields="overviewTableColumns"
-          primary-key="id"
-          :sort-by.sync="sortBy"
-          show-empty
-          :empty-text="t('No matching records found')"
-          :sort-desc.sync="isSortDirDesc"
+        <div class="d-flex justify-content-end  mb-2">
+          <div class="d-flex align-items-center col-md-4 mb-1 mb-md-0">
+            <b-form-input
+              v-model="searchTerm"
+              placeholder="Search"
+              type="text"
+              class="d-inline-block mr-1"
+              @input="handleSearch"
+            />
+            <b-button
+              variant="primary"
+              @click="isAddVacationActive = true"
+              v-if="$can('absences-add', 'all')"
+            >
+              <span class="text-nowrap">{{ $t('Add Vacation') }}</span>
+            </b-button>
+          </div>
+        </div>
+        <!-- mode="remote" -->
+        <vue-good-table
+          mode="remote"
+          @on-page-change="onPageChange"
+          @on-per-page-change="onPerPageChange"
+          :columns="overviewTableColumns"
+          @on-sort-change="onSortChange"
+          @on-column-filter="onColumnFilter"
+          :rows="vacations"
+          :is-loading.sync="busy"
+          :total-rows="totalRecords"
+          :sort-options="{
+            enabled: false,
+          }"
+          :search-options="{
+            enabled: true,
+            externalQuery: searchTerm }"
+          :pagination-options="{
+            enabled: true,
+            perPage:pageLength
+          }"
+          :group-options="{
+            enabled: true,
+          }"
         >
-          <template #cell(user)="data">
+          <template
+            slot="table-column"
+            slot-scope="props"
+          >
+            <span
+              class="text-nowrap"
+            >
+              {{ $t(props.column.label) }}
+            </span>
+          </template>
+          <template
+            slot="table-header-row"
+            slot-scope="props"
+          >
             <b-media vertical-align="center">
               <template #aside>
                 <b-avatar
                   size="32"
-                  :src="data.item.avatar"
-                  :text="avatarText(data.item.name)"
-                  :to="{ name: 'users-edit', params: { id: data.item.id } }"
+                  :src="props.row.children[0].user.avatar_url"
+                  :text="avatarText(props.row.label)"
+                  :to="{ name: 'users-edit', params: { id: props.row.children[0].user.id } }"
                 />
               </template>
               <b-link
-                :to="{ name: 'users-edit', params: { id: data.item.id } }"
+                :to="{ name: 'users-edit', params: { id: props.row.children[0].user.id } }"
               >
-                {{ data.item.name }}
+                {{ props.row.label }}
               </b-link>
             </b-media>
           </template>
-
-          <template #cell(status)="data">
-            <div
-              class="text-nowrap"
-            >
-              <span
-                class="align-text-top text-capitalize"
-                :class="`text-${resolveStatus(data.item.status)}`"
-              >
-                <b-badge :variant="resolveStatus(data.item.status)">
-                  <span>{{ data.item.status }}</span>
-                </b-badge>
-              </span>
-            </div>
-          </template>
-          <template #cell(actions)="data">
-            <div
-              class="text-nowrap"
-              v-if="data.item.status != 'approved'"
-            >
-              <!-- <b-button
-                variant="success"
-                class="btn-icon"
-                size="sm"
-                @click="confirmStatus(data.item.id, 'approved')"
-                :id="`row-overview-${data.item.id}-check-btn`"
-              >
-                <feather-icon icon="CheckIcon" />
-              </b-button> -->
-              <feather-icon
-                @click="confirmStatus(data.item.id, 'approved')"
-                :id="`row-overview-${data.item.id}-check-btn`"
-                icon="CheckIcon"
-                class="cursor-pointer"
-                size="16"
-              />
-              <b-tooltip
-                :title="t('Accept Request')"
-                class="cursor-pointer"
-                :target="`row-overview-${data.item.id}-check-btn`"
-              />
-              <b-button
-                variant="warning"
-                class="btn-icon"
-                size="sm"
-                :id="`row-overview-${data.item.id}-cross-btn`"
-                @click="confirmStatus(data.item.id, 'declined')"
-              >
-                <feather-icon icon="XIcon" />
-              </b-button>
-              <b-tooltip
-                :title="t('Decline Request')"
-                class="cursor-pointer"
-                :target="`row-overview-${data.item.id}-cross-btn`"
-              />
-              <b-button
-                variant="danger"
-                class="btn-icon"
-                size="sm"
-                :id="`row-overview-${data.item.id}-trash-btn`"
-                @click="confirmDelete(data.item.id)"
-              >
-                <feather-icon icon="TrashIcon" />
-              </b-button>
-              <b-tooltip
-                :title="t('Delete Request')"
-                class="cursor-pointer"
-                :target="`row-overview-${data.item.id}-trash-btn`"
-              />
-            </div>
-          </template>
-        </b-table>
-      </b-overlay>
-      <div class="mx-2 mb-2">
-        <b-row>
-          <b-col
-            cols="12"
-            sm="6"
-            class="d-flex align-items-center justify-content-center justify-content-sm-start"
+          <template
+            slot="table-row"
+            slot-scope="props"
           >
+            <!-- Column: Name -->
             <span
-              class="text-muted"
-            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
-              {{ dataMeta.of }} {{ t('entries') }}</span>
-          </b-col>
-          <!-- Pagination -->
-          <b-col
-            cols="12"
-            sm="6"
-            class="d-flex align-items-center justify-content-center justify-content-sm-end"
-          >
-            <b-pagination
-              v-model="currentPage"
-              :total-rows="totalRecords"
-              :per-page="perPage"
-              first-number
-              last-number
-              class="mb-0 mt-1 mt-sm-0"
-              prev-class="prev-item"
-              next-class="next-item"
+              v-if="props.column.field === 'name'"
+              class="text-nowrap"
             >
-              <template #prev-text>
-                <feather-icon
-                  icon="ChevronLeftIcon"
-                  size="18"
+              <b-avatar
+                :src="props.row.avatar"
+                class="mx-1"
+              />
+
+              <span class="text-nowrap">{{ props.row.user.name }}</span>
+            </span>
+            <span
+              v-else-if="props.column.field === 'days'"
+              class="text-nowrap"
+            >
+              <span class="text-nowrap">{{ props.row.days }} {{ $t('days(s)') }}</span>
+            </span>
+            <!-- Column: Status -->
+            <span v-else-if="props.column.field === 'status'">
+              <b-badge :variant="resolveStatus(props.row.status)">
+                {{ props.row.status }}
+              </b-badge>
+            </span>
+
+            <!-- Column: Action -->
+            <span v-else-if="props.column.field === 'actions'">
+              <div
+                class="text-nowrap"
+              >
+                <span class="text-success">
+                  <feather-icon
+                    @click="confirmStatus(props.row.id, 'approved')"
+                    :id="`accept-request-${props.row.id}-check-btn`"
+                    icon="CheckIcon"
+                    class="cursor-pointer ml-1"
+                    size="16"
+                  />
+                </span>
+                <b-tooltip
+                  :title="t('Accept Request')"
+                  :target="`accept-request-${props.row.id}-check-btn`"
                 />
-              </template>
-              <template #next-text>
-                <feather-icon
-                  icon="ChevronRightIcon"
-                  size="18"
+
+                <span class="text-danger">
+                  <feather-icon
+                    @click="confirmStatus(props.row.id, 'declined')"
+                    :id="`decline-request-${props.row.id}-cross-btn`"
+                    icon="SlashIcon"
+                    class="cursor-pointer ml-1"
+                    size="16"
+                  />
+                </span>
+                <b-tooltip
+                  :title="t('Decline Request')"
+                  :target="`decline-request-${props.row.id}-cross-btn`"
                 />
-              </template>
-            </b-pagination>
-          </b-col>
-        </b-row>
-      </div>
+                <feather-icon
+                  :id="`user-row-${props.row.id}-pencil-icon`"
+                  icon="EditIcon"
+                  size="16"
+                  class="mx-1 cursor-pointer"
+                  @click="editVacation(props.row.id)"
+                />
+                <b-tooltip
+                  title="Edit"
+                  :target="`user-row-${props.row.id}-pencil-icon`"
+                />
+                <feather-icon
+                  @click="confirmDelete(props.row.id)"
+                  :id="`delete-request-${props.row.id}-trash-btn`"
+                  icon="Trash2Icon"
+                  class="cursor-pointer ml-1"
+                  size="16"
+                />
+                <b-tooltip
+                  :title="t('Delete Request')"
+                  :target="`delete-request-${props.row.id}-trash-btn`"
+                />
+              </div>
+            </span>
+          </template>
+        </vue-good-table>
+      </b-overlay>
     </b-card>
   </div>
 </template>
@@ -167,90 +194,151 @@
 <script>
 import {
   BCard,
-  BRow,
-  BCol,
-  BTable,
+  BLink,
+  BMedia,
+  BBadge,
   BButton,
   BAvatar,
-  BBadge,
   BOverlay,
   BTooltip,
-  BPagination,
+  BFormInput,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 import useVacations from '@/composables/vacations'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import i18n from '@/libs/i18n'
+// eslint-disable-next-line import/no-cycle
 import { avatarText } from '@core/utils/filter'
+import { VueGoodTable } from 'vue-good-table'
 import PendingRequest from './PendingRequest.vue'
+import 'vue-good-table/dist/vue-good-table.css'
+import EditVacation from './dialogs/EditVacation.vue'
+import AddVacation from './dialogs/AddVacation.vue'
 
 export default {
   components: {
-    BCol,
-    BRow,
     BCard,
-    BTable,
+    BMedia,
+    BLink,
+    BButton,
     BBadge,
     BAvatar,
-    BButton,
     BTooltip,
     BOverlay,
-    BPagination,
+    BFormInput,
+    AddVacation,
+    VueGoodTable,
+    EditVacation,
     PendingRequest,
   },
   setup(_, { root }) {
     const {
       busy,
-      sortBy,
       filters,
-      perPage,
       vacations,
-      dataMeta,
       respResult,
-      refetchData,
       searchQuery,
-      overviewTableColumns,
-      currentPage,
       totalRecords,
       refListTable,
       deleteVacation,
-      vacationsStats,
       isSortDirDesc,
       resolveStatus,
       fetchVacations,
-      vacationStats,
-      perPageOptions,
+      overviewTableColumns,
       updateVacationStatus,
     } = useVacations()
 
+    const searchTerm = ref('')
+    const pageLength = ref(10)
+    const vacationId = ref(0)
+    const isEditVacationActive = ref(false)
+    const isAddVacationActive = ref(false)
     const { t } = useI18nUtils()
 
+    const serverParams = ref({
+      columnFilters: {
+      },
+      sort: [
+        {
+          field: '',
+          type: '',
+        },
+      ],
+      page: 1,
+      perPage: 10,
+    })
 
     onMounted(async () => {
-      await fetchVacations()
+      filters.group = true
+      await fetchVacations(serverParams.value)
     })
-    const vacationId = ref(0)
+
+    const editVacation = id => {
+      vacationId.value = id
+      isEditVacationActive.value = true
+    }
+
+    const handleSearch = query => {
+      searchQuery.value = query
+      fetchVacations(serverParams.value)
+    }
+
 
     const deleteConfirmed = async id => {
       await deleteVacation(id)
       if (respResult.value.status === 200) {
-        fetchVacations()
+        fetchVacations(serverParams.value)
       }
     }
 
     const absenceStatusConfirmed = async data => {
       await updateVacationStatus(data)
       if (respResult.value.status === 200) {
-        fetchVacations()
+        fetchVacations(serverParams.value)
       }
     }
 
+    const updateParams = newProps => {
+      serverParams.value = { ...serverParams.value, ...newProps }
+    }
+
+    const onPageChange = params => {
+      updateParams({ page: params.currentPage })
+      fetchVacations(serverParams.value)
+    }
+
+    const onPerPageChange = params => {
+      updateParams({ perPage: params.currentPerPage })
+      fetchVacations(serverParams.value)
+    }
+
+    const onSortChange = params => {
+      updateParams({
+        sort: [
+          {
+            type: params[0].type,
+            field: params[0].field,
+          },
+        ],
+      })
+      fetchVacations(serverParams.value)
+    }
+
+    const onColumnFilter = params => {
+      updateParams(params)
+      fetchVacations(serverParams.value)
+    }
+
+
     const confirmStatus = async (id, status) => {
       root.$bvModal
-        .msgBoxConfirm(`Please confirm that you want to ${status} absence request.`, {
-          title: i18n.t('Please Confirm'),
-          size: 'sm',
-        })
+        .msgBoxConfirm(
+          `Please confirm that you want to ${status} absence request.`,
+          {
+            title: i18n.t('Please Confirm'),
+            size: 'sm',
+          },
+        )
         .then(value => {
           if (value) {
             absenceStatusConfirmed({ id, status })
@@ -258,13 +346,15 @@ export default {
         })
     }
 
-
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm(i18n.t('Please confirm that you want to delete vacation.'), {
-          title: i18n.t('Please Confirm'),
-          size: 'sm',
-        })
+        .msgBoxConfirm(
+          i18n.t('Please confirm that you want to delete vacation.'),
+          {
+            title: i18n.t('Please Confirm'),
+            size: 'sm',
+          },
+        )
         .then(value => {
           if (value) {
             deleteConfirmed(id)
@@ -274,27 +364,30 @@ export default {
     return {
       t,
       busy,
-      avatarText,
-      sortBy,
       filters,
-      perPage,
+      onSortChange,
       vacations,
-      dataMeta,
-      confirmStatus,
+      handleSearch,
+      onColumnFilter,
+      updateParams,
+      pageLength,
+      searchTerm,
+      serverParams,
+      avatarText,
       vacationId,
-      refetchData,
-      searchQuery,
-      currentPage,
-      vacationsStats,
-      vacationStats,
-      overviewTableColumns,
+      onPerPageChange,
+      onPageChange,
+      editVacation,
+      confirmStatus,
       totalRecords,
       refListTable,
       isSortDirDesc,
       confirmDelete,
       resolveStatus,
-      perPageOptions,
       fetchVacations,
+      isAddVacationActive,
+      overviewTableColumns,
+      isEditVacationActive,
     }
   },
 }

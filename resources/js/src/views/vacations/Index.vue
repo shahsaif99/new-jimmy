@@ -152,6 +152,23 @@
           :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
+          <template #cell(user)="data">
+            <b-media vertical-align="center">
+              <template #aside>
+                <b-avatar
+                  size="32"
+                  :src="data.item.user.avatar_url"
+                  :text="avatarText(data.item.user.name)"
+                  :to="{ name: 'users-edit', params: { id: data.item.user.id } }"
+                />
+              </template>
+              <b-link
+                :to="{ name: 'users-edit', params: { id: data.item.user.id } }"
+              >
+                {{ data.item.user.name }}
+              </b-link>
+            </b-media>
+          </template>
           <template #cell(status)="data">
             <div
               class="text-nowrap"
@@ -165,6 +182,9 @@
                 </b-badge>
               </span>
             </div>
+          </template>
+          <template #cell(days)="data">
+            <span>{{ data.item.days }} {{ t('days(s)') }}</span>
           </template>
           <template #cell(actions)="data">
             <feather-icon
@@ -274,6 +294,9 @@ import {
   BRow,
   BCol,
   BTable,
+  BLink,
+  BMedia,
+  BAvatar,
   BOverlay,
   BBadge,
   BTooltip,
@@ -288,6 +311,10 @@ import StatisticCardHorizontal from '@core/components/statistics-cards/Statistic
 import flatPickr from 'vue-flatpickr-component'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import i18n from '@/libs/i18n'
+// eslint-disable-next-line import/no-cycle
+import { avatarText } from '@core/utils/filter'
+// eslint-disable-next-line import/no-cycle
+import useJwt from '@/auth/jwt/useJwt'
 import AddVacation from './dialogs/AddVacation.vue'
 import EditVacation from './dialogs/EditVacation.vue'
 
@@ -297,8 +324,11 @@ export default {
     BRow,
     BCard,
     BTable,
+    BLink,
     BBadge,
+    BMedia,
     vSelect,
+    BAvatar,
     BButton,
     BTooltip,
     BOverlay,
@@ -334,7 +364,10 @@ export default {
       fetchVacationsStats,
     } = useVacations()
 
+    const userData = JSON.parse(useJwt.getUserData())
+
     onMounted(async () => {
+      filters.userId = userData.id
       await fetchVacations()
       await fetchVacationsStats()
     })
@@ -399,6 +432,7 @@ export default {
       perPage,
       vacations,
       dataMeta,
+      avatarText,
       resetFilter,
       vacationId,
       refetchData,

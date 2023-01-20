@@ -136,6 +136,23 @@
           :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
+          <template #cell(user)="data">
+            <b-media vertical-align="center">
+              <template #aside>
+                <b-avatar
+                  size="32"
+                  :src="data.item.user.avatar_url"
+                  :text="avatarText(data.item.user.name)"
+                  :to="{ name: 'users-edit', params: { id: data.item.user.id } }"
+                />
+              </template>
+              <b-link
+                :to="{ name: 'users-edit', params: { id: data.item.user.id } }"
+              >
+                {{ data.item.user.name }}
+              </b-link>
+            </b-media>
+          </template>
           <template #cell(status)="data">
             <div
               class="text-nowrap"
@@ -150,61 +167,39 @@
               </span>
             </div>
           </template>
-          <template #cell(actions)="data">
-
-            <feather-icon
-              :id="`user-row-${data.item.id}-pencil-icon`"
-              icon="EditIcon"
-              size="16"
-              class="mx-1 cursor-pointer"
-              @click="editAbsence(data.item.id)"
-              v-if="data.item.status !== 'approved'"
-            />
-            <b-tooltip
-              title="Edit"
-              :target="`user-row-${data.item.id}-pencil-icon`"
-            />
-            <feather-icon
-              :id="`user-row-${data.item.id}-trash-icon`"
-              icon="TrashIcon"
-              class="cursor-pointer"
-              size="16"
-              @click="confirmDelete(data.item.id)"
-              v-if="data.item.status !== 'approved'"
-            />
-            <b-tooltip
-              title="Delete"
-              :target="`user-row-${data.item.id}-trash-icon`"
-            />
-            <!-- <b-dropdown
-              variant="link"
-              no-caret
-            >
-              <template #button-content>
-                <feather-icon
-                  icon="MoreVerticalIcon"
-                  size="16"
-                  class="align-middle text-body"
-                />
-              </template>
-              <b-dropdown-item
-                v-if="data.item.status !== 'approved'"
-                @click="editAbsence(data.item.id)"
-              >
-                <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">{{ t('Edit') }}</span>
-              </b-dropdown-item>
-              <b-dropdown-item
-                @click="confirmDelete(data.item.id)"
-                v-if="data.item.status !== 'approved'"
-              >
-                <feather-icon
-                  icon="TrashIcon"
-                />
-                <span class="align-middle ml-50">{{ t('Delete') }}</span>
-              </b-dropdown-item>
-            </b-dropdown> -->
+          <template #cell(days)="data">
+            <span>{{ data.item.days }} {{ t('days(s)') }}</span>
           </template>
+          <template #cell(actions)="data">
+            <div
+              class="text-nowrap"
+              v-if="data.item.status !== 'approved'"
+            >
+              <feather-icon
+                :id="`user-row-${data.item.id}-pencil-icon`"
+                icon="EditIcon"
+                size="16"
+                class="mx-1 cursor-pointer"
+                @click="editAbsence(data.item.id)"
+              />
+              <b-tooltip
+                title="Edit"
+                :target="`user-row-${data.item.id}-pencil-icon`"
+              />
+              <feather-icon
+                :id="`user-row-${data.item.id}-trash-icon`"
+                icon="TrashIcon"
+                class="cursor-pointer"
+                size="16"
+                @click="confirmDelete(data.item.id)"
+              />
+              <b-tooltip
+                title="Delete"
+                :target="`user-row-${data.item.id}-trash-icon`"
+              />
+            </div>
+          </template>
+
         </b-table>
       </b-overlay>
       <div class="mx-2 mb-2">
@@ -261,11 +256,14 @@ import {
   BCard,
   BRow,
   BCol,
-  BBadge,
   BTable,
-  BButton,
-  BTooltip,
+  BLink,
+  BMedia,
+  BAvatar,
   BOverlay,
+  BBadge,
+  BTooltip,
+  BButton,
   BFormInput,
   BPagination,
 } from 'bootstrap-vue'
@@ -276,6 +274,10 @@ import StatisticCardHorizontal from '@core/components/statistics-cards/Statistic
 import flatPickr from 'vue-flatpickr-component'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import i18n from '@/libs/i18n'
+// eslint-disable-next-line import/no-cycle
+import useJwt from '@/auth/jwt/useJwt'
+// eslint-disable-next-line import/no-cycle
+import { avatarText } from '@core/utils/filter'
 import AddAbsence from './dialogs/AddAbsence.vue'
 import EditAbsence from './dialogs/EditAbsence.vue'
 
@@ -289,6 +291,9 @@ export default {
     vSelect,
     BTooltip,
     BButton,
+    BLink,
+    BMedia,
+    BAvatar,
     flatPickr,
     BOverlay,
     AddAbsence,
@@ -323,8 +328,10 @@ export default {
     } = useAbsences()
 
     const { t } = useI18nUtils()
+    const userData = JSON.parse(useJwt.getUserData())
 
     onMounted(async () => {
+      filters.userId = userData.id
       await fetchAbsences()
       await fetchAbsencesStats()
     })
@@ -389,6 +396,7 @@ export default {
       dataMeta,
       absenceId,
       filterKey,
+      avatarText,
       filterRecords,
       refetchData,
       editAbsence,

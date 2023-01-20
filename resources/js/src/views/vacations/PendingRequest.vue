@@ -24,7 +24,7 @@
         class="position-relative"
         :items="vacations"
         responsive
-        :fields="overviewTableColumns"
+        :fields="pendingTableColumns"
         primary-key="id"
         :sort-by.sync="sortBy"
         show-empty
@@ -45,49 +45,69 @@
             </span>
           </div>
         </template>
-        <template #cell(actions)="data">
-          <div class="text-nowrap">
-            <b-button
-              variant="success"
-              class="btn-icon"
-              size="sm"
-              @click="confirmStatus(data.item.id, 'approved')"
-              :id="`row-overview-${data.item.id}-check-btn`"
+        <template #cell(user)="data">
+          <b-media vertical-align="center">
+            <template #aside>
+              <b-avatar
+                size="32"
+                :src="data.item.user.avatar_url"
+                :text="avatarText(data.item.user.name)"
+                :to="{ name: 'users-edit', params: { id: data.item.user.id } }"
+              />
+            </template>
+            <b-link
+              :to="{ name: 'users-edit', params: { id: data.item.user.id } }"
             >
-              <feather-icon icon="CheckIcon" />
-            </b-button>
+              {{ data.item.user.name }}
+            </b-link>
+          </b-media>
+        </template>
+        <template #cell(days)="data">
+          <span>{{ data.item.days }} {{ t('days(s)') }}</span>
+        </template>
+        <template #cell(actions)="data">
+          <div
+            class="text-nowrap"
+            v-if="data.item.status !== 'approved'"
+          >
+            <span class="text-success">
+              <feather-icon
+                @click="confirmStatus(data.item.id, 'approved')"
+                :id="`pending-accept-request-${data.item.id}-check-btn`"
+                icon="CheckIcon"
+                class="cursor-pointer ml-1"
+                size="16"
+              />
+            </span>
             <b-tooltip
               :title="t('Accept Request')"
-              class="cursor-pointer"
-              :target="`row-overview-${data.item.id}-check-btn`"
+              :target="`pending-accept-request-${data.item.id}-check-btn`"
             />
-            <b-button
-              variant="warning"
-              class="btn-icon"
-              size="sm"
-              :id="`row-overview-${data.item.id}-cross-btn`"
-              @click="confirmStatus(data.item.id, 'declined')"
-            >
-              <feather-icon icon="XIcon" />
-            </b-button>
+
+            <span class="text-danger">
+              <feather-icon
+                @click="confirmStatus(data.item.id, 'declined')"
+                :id="`pending-decline-request-${data.item.id}-cross-btn`"
+                icon="SlashIcon"
+                class="cursor-pointer ml-1"
+                size="16"
+              />
+            </span>
             <b-tooltip
               :title="t('Decline Request')"
-              class="cursor-pointer"
-              :target="`row-overview-${data.item.id}-cross-btn`"
+              :target="`pending-decline-request-${data.item.id}-cross-btn`"
             />
-            <b-button
-              variant="danger"
-              class="btn-icon"
-              size="sm"
-              :id="`row-overview-${data.item.id}-trash-btn`"
+
+            <feather-icon
               @click="confirmDelete(data.item.id)"
-            >
-              <feather-icon icon="TrashIcon" />
-            </b-button>
+              :id="`delete-request-${data.item.id}-trash-btn`"
+              icon="Trash2Icon"
+              class="cursor-pointer ml-1"
+              size="16"
+            />
             <b-tooltip
               :title="t('Delete Request')"
-              class="cursor-pointer"
-              :target="`row-overview-${data.item.id}-trash-btn`"
+              :target="`delete-request-${data.item.id}-trash-btn`"
             />
           </div>
         </template>
@@ -145,9 +165,11 @@ import {
   BCard,
   BRow,
   BCol,
+  BMedia,
   BBadge,
+  BLink,
   BTable,
-  BButton,
+  BAvatar,
   BTooltip,
   BPagination,
 } from 'bootstrap-vue'
@@ -156,15 +178,18 @@ import useVacations from '@/composables/vacations'
 import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import i18n from '@/libs/i18n'
+import { avatarText } from '@core/utils/filter'
 
 export default {
   components: {
-    BCol,
-    BRow,
     BCard,
+    BRow,
+    BCol,
+    BMedia,
     BBadge,
+    BLink,
     BTable,
-    BButton,
+    BAvatar,
     BTooltip,
     BPagination,
     StatisticCardHorizontal,
@@ -189,7 +214,7 @@ export default {
       resolveStatus,
       fetchVacations,
       perPageOptions,
-      overviewTableColumns,
+      pendingTableColumns,
       updateVacationStatus,
     } = useVacations()
 
@@ -253,6 +278,7 @@ export default {
       perPage,
       vacations,
       dataMeta,
+      avatarText,
       absenceId,
       refetchData,
       searchQuery,
@@ -265,7 +291,7 @@ export default {
       resolveStatus,
       perPageOptions,
       isExportActive,
-      overviewTableColumns,
+      pendingTableColumns,
     }
   },
 }
