@@ -6,7 +6,7 @@ const routes = [
     name: 'users',
     component: () => import('@/views/users/Index.vue'),
     meta: {
-      pageTitle: 'Users',
+      pageTitle: 'Employee Overview',
       resource: 'all',
       action: 'manage-users',
       auth: true,
@@ -23,18 +23,18 @@ const routes = [
     name: 'users-add',
     component: () => import('@/views/users/add/AddUser.vue'),
     meta: {
-      pageTitle: 'Add User',
+      pageTitle: 'Add Employee',
       resource: 'all',
       action: 'manage-users',
       auth: true,
       breadcrumb: [
         {
-          text: 'Users',
+          text: 'Employee Overview',
           active: false,
           to: { name: 'users' },
         },
         {
-          text: 'Add User',
+          text: 'Add Employee',
           active: true,
         },
       ],
@@ -48,18 +48,18 @@ const routes = [
     component: () => import('@/views/users/edit/Index.vue'),
     props: route => ({ id: Number(route.params.id) }),
     meta: {
-      pageTitle: 'Edit User',
+      pageTitle: 'Edit Employee',
       resource: 'all',
       action: 'manage-users',
       auth: true,
       breadcrumb: [
         {
-          text: 'Users',
+          text: 'Employee Overview',
           active: false,
           to: { name: 'users' },
         },
         {
-          text: 'Edit User',
+          text: 'Edit Employee',
           active: true,
         },
       ],

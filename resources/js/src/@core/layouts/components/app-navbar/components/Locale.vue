@@ -67,8 +67,8 @@ export default {
         name: 'English',
       },
       {
-        locale: 'nr',
-        img: require('@/assets/images/flags/nr.png'),
+        locale: 'no',
+        img: require('@/assets/images/flags/no.png'),
         name: 'Norwegian',
       },
     ]

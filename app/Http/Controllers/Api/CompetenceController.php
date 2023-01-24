@@ -27,17 +27,25 @@ class CompetenceController extends Controller
         ->search($request->q)
         ->applyFilters($request)
         ->role('Employee')
-        ->when($request->perPage, function ($query, $perPage) {
-            return $query->paginate($perPage);
-        }, function ($query) {
-            return $query->get();
-        })->transform(function($item){
-            return [
-                'name' => $item->name,
-                '_showDetails' => true,
-                'competences' => $item->competences,
-            ];
-        });
+        ->get()
+        ->when($request->group, function($query){
+            $query->transform(function($item, $key){
+                 return [
+                     'mode' => 'span',
+                     'label' => $item->first()->name,
+                     'children' => $item->competences
+                 ];
+             });
+
+         });
+
+        // ->transform(function($item){
+        //     return [
+        //         'mode' => 'span',
+        //         'label' => $item->name,
+        //         'children' => $item->competences,
+        //     ];
+        // })
 
         return CompetenceResource::collection($competences);
     }

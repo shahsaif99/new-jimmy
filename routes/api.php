@@ -8,14 +8,17 @@ use App\Http\Controllers\Api\AbsenceController;
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\LendingController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\VacationController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EquipmentController;
 use App\Http\Controllers\Api\CompetenceController;
+use App\Http\Controllers\Api\AbsenceTypeController;
 use App\Http\Controllers\Api\PermissionsController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\BoardInformationController;
+use App\Http\Controllers\Api\CompetenceCourseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +57,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'boardinformation' => BoardInformationController::class,
         'absences' => AbsenceController::class,
         'vacations' => VacationController::class,
+        'absence-types' => AbsenceTypeController::class,
+        'competence-courses' => CompetenceCourseController::class,
+        'settings' => SettingsController::class,
     ]);
 
     Route::get('/account', [AccountController::class, 'account'])->name('account');

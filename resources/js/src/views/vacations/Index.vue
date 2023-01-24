@@ -19,7 +19,7 @@
         <statistic-card-horizontal
           icon="CalendarIcon"
           :statistic="t('Number of holiday days')"
-          :statistic-title="`${vacationsStats.vacations} days`"
+          :statistic-title="`${vacationsStats.vacations} ${$t('day(s)')}`"
         />
       </b-col>
       <b-col
@@ -29,7 +29,7 @@
         <statistic-card-horizontal
           icon="CalendarIcon"
           :statistic="t('Remaining holidays')"
-          :statistic-title="`${vacationsStats.remainingVacations} days`"
+          :statistic-title="`${vacationsStats.remainingVacations} ${$t('day(s)')}`"
         />
       </b-col>
       <b-col
@@ -39,7 +39,7 @@
         <statistic-card-horizontal
           icon="CalendarIcon"
           :statistic="t('Used holidays')"
-          :statistic-title="`${vacationsStats.usedVacations} days`"
+          :statistic-title="`${vacationsStats.usedVacations} ${$t('day(s)')}`"
         />
       </b-col>
     </b-row>
@@ -152,6 +152,21 @@
           :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
+          <template #head()="data">
+            <span>{{ $t(data.label) }}</span>
+          </template>
+          <template #cell(days)="data">
+            <span>{{ data.item.days }} {{ t('day(s)') }}</span>
+          </template>
+          <template #cell(from_date)="data">
+            <span>{{ moment(data.item.from_date).format('YYYY.MM.DD') }}</span>
+          </template>
+          <template #cell(to_date)="data">
+            <span>{{ moment(data.item.to_date).format('YYYY.MM.DD') }}</span>
+          </template>
+          <template #cell(approved_date)="data">
+            <span v-if="data.item.approved_date">{{ moment(data.item.approved_date).format('YYYY.MM.DD') }}</span>
+          </template>
           <template #cell(user)="data">
             <b-media vertical-align="center">
               <template #aside>
@@ -178,13 +193,10 @@
                 :class="`text-${resolveStatus(data.item.status)}`"
               >
                 <b-badge :variant="resolveStatus(data.item.status)">
-                  <span>{{ data.item.status }}</span>
+                  <span>{{ $t(data.item.status) }}</span>
                 </b-badge>
               </span>
             </div>
-          </template>
-          <template #cell(days)="data">
-            <span>{{ data.item.days }} {{ t('days(s)') }}</span>
           </template>
           <template #cell(actions)="data">
             <feather-icon
@@ -194,10 +206,10 @@
               class="mx-1 cursor-pointer"
               @click="editVacation(data.item.id)"
             />
-            <b-tooltip
+            <!-- <b-tooltip
               title="Edit"
               :target="`user-row-${data.item.id}-pencil-icon`"
-            />
+            /> -->
             <feather-icon
               :id="`user-row-${data.item.id}-trash-icon`"
               icon="TrashIcon"
@@ -205,38 +217,10 @@
               size="16"
               @click="confirmDelete(data.item.id)"
             />
-            <b-tooltip
+            <!-- <b-tooltip
               title="Delete"
               :target="`user-row-${data.item.id}-trash-icon`"
-            />
-            <!-- <b-dropdown
-              variant="link"
-              no-caret
-            >
-              <template #button-content>
-                <feather-icon
-                  icon="MoreVerticalIcon"
-                  size="16"
-                  class="align-middle text-body"
-                />
-              </template>
-              <b-dropdown-item
-                v-if="data.item.status !== 'approved'"
-                @click="editVacation(data.item.id)"
-              >
-                <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">{{ t('Edit') }}</span>
-              </b-dropdown-item>
-              <b-dropdown-item
-                @click="confirmDelete(data.item.id)"
-                v-if="data.item.status !== 'approved'"
-              >
-                <feather-icon
-                  icon="TrashIcon"
-                />
-                <span class="align-middle ml-50">{{ t('Delete') }}</span>
-              </b-dropdown-item>
-            </b-dropdown> -->
+            /> -->
           </template>
         </b-table>
       </b-overlay>
@@ -299,7 +283,6 @@ import {
   BAvatar,
   BOverlay,
   BBadge,
-  BTooltip,
   BButton,
   BFormInput,
   BPagination,
@@ -315,6 +298,7 @@ import i18n from '@/libs/i18n'
 import { avatarText } from '@core/utils/filter'
 // eslint-disable-next-line import/no-cycle
 import useJwt from '@/auth/jwt/useJwt'
+import moment from 'moment'
 import AddVacation from './dialogs/AddVacation.vue'
 import EditVacation from './dialogs/EditVacation.vue'
 
@@ -330,7 +314,6 @@ export default {
     vSelect,
     BAvatar,
     BButton,
-    BTooltip,
     BOverlay,
     flatPickr,
     AddVacation,
@@ -395,6 +378,8 @@ export default {
         .msgBoxConfirm(i18n.t('Please confirm that you want to delete vacation.'), {
           title: i18n.t('Please Confirm'),
           size: 'sm',
+          okTitle: i18n.t('Confirm'),
+          cancelTitle: i18n.t('Cancel'),
         })
         .then(value => {
           if (value) {
@@ -428,6 +413,7 @@ export default {
       t,
       busy,
       sortBy,
+      moment,
       filters,
       perPage,
       vacations,

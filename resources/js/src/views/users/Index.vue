@@ -77,11 +77,11 @@
           :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
-          <template #cell(avatar)="data">
-            <b-avatar :src="data.item.avatar" />
+          <template #head()="data">
+            <span>{{ $t(data.label) }}</span>
           </template>
 
-          <template #cell(user)="data">
+          <template #cell(name)="data">
             <b-media vertical-align="center">
               <template #aside>
                 <b-avatar
@@ -100,21 +100,13 @@
             </b-media>
           </template>
 
-          <!-- <template #cell(name)="data">
-            <b-link
-              :to="{ name: 'users-edit', params: { id: data.item.id } }"
-            >
-              {{ data.item.name }}
-            </b-link>
-          </template> -->
-
           <template #cell(status)="data">
             <b-badge
               pill
               :variant="`light-${resolveUserStatusVariant(data.item.status)}`"
               class="text-capitalize"
             >
-              {{ data.item.status ? 'Active' : 'Inactive' }}
+              {{ data.item.status ? $t('Active') : $t('Inactive') }}
             </b-badge>
           </template>
 
@@ -131,6 +123,10 @@
             </div>
           </template> -->
 
+          <template #cell(employement_date)="data">
+            <span v-if="data.item.employement_date">{{ moment(data.item.employement_date).format('YYYY.MM.DD') }}</span>
+          </template>
+
           <template #cell(roles.0.name)="data">
             <div
               class="text-nowrap"
@@ -142,7 +138,7 @@
                 class="mr-50"
                 :class="`text-${resolveUserRoleVariant(data.item.roles[0].name)}`"
               />
-              <span class="align-text-top text-capitalize">{{ data.item.roles[0].name }}</span>
+              <span class="align-text-top text-capitalize">{{ $t(data.item.roles[0].name) }}</span>
             </div>
           </template>
 
@@ -157,10 +153,10 @@
               @click="$router.push({ name: 'users-edit', params: { id: data.item.id } })"
               v-if="$can('manage-users', 'all')"
             />
-            <b-tooltip
+            <!-- <b-tooltip
               :title="t('Edit User')"
               :target="`user-row-${data.item.id}-pencil-icon`"
-            />
+            /> -->
             <feather-icon
               :id="`user-row-${data.item.id}-trash-icon`"
               icon="TrashIcon"
@@ -169,43 +165,11 @@
               @click="confirmDelete(data.item.id)"
               v-if="$can('manage-users', 'all')"
             />
-            <b-tooltip
+            <!-- <b-tooltip
               :title="t('Delete User')"
               :target="`user-row-${data.item.id}-trash-icon`"
-            />
+            /> -->
 
-
-            <!-- <b-dropdown
-              variant="link"
-              no-caret
-            >
-
-              <template #button-content>
-                <feather-icon
-                  icon="MoreVerticalIcon"
-                  size="16"
-                  class="align-middle text-body"
-                />
-              </template>
-              <b-dropdown-item
-                @click="$router.push({ name: 'users-edit', params: { id: data.item.id } })"
-                v-if="$can('manage-users', 'all')"
-              >
-                <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">View</span>
-              </b-dropdown-item>
-
-              <b-dropdown-item
-                @click="confirmDelete(data.item.id)"
-                v-if="$can('manage-users', 'all')"
-              >
-                <feather-icon
-                  icon="TrashIcon"
-                />
-                <span class="align-middle ml-50">{{ t('Delete') }}</span>
-              </b-dropdown-item>
-
-            </b-dropdown> -->
           </template>
 
         </b-table>
@@ -263,11 +227,12 @@
 <script>
 import { ref, onMounted } from '@vue/composition-api'
 import {
-  BAvatar, BButton, BCard, BCol, BTooltip, BLink, BBadge, BMedia,
+  BAvatar, BButton, BCard, BCol, BLink, BBadge, BMedia,
   BOverlay, BPagination, BRow, BTable,
 } from 'bootstrap-vue'
 import vSelect from 'vue-select'
 import route from 'ziggy-js'
+import moment from 'moment'
 import useUsers from '@/composables/users'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import { avatarText } from '@core/utils/filter'
@@ -284,11 +249,10 @@ export default {
     BCol,
     BButton,
     BTable,
-    BTooltip,
-    BPagination,
     BBadge,
     BAvatar,
     vSelect,
+    BPagination,
   },
   setup(_, context) {
     const {
@@ -376,6 +340,7 @@ export default {
       route,
       users,
       sortBy,
+      moment,
       perPage,
       filters,
       dataMeta,

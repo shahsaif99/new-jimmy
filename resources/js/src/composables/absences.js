@@ -25,27 +25,29 @@ export default function useAbsences() {
   })
 
   const tableColumns = [
-    { key: 'user', sortable: true, label: 'Employee Name' },
-    { key: 'from_date', sortable: false, label: 'From Date' },
-    { key: 'to_date', sortable: false, label: 'To Date' },
-    { key: 'days', sortable: false, label: 'Days' },
-    { key: 'status', sortable: false, label: 'Status' },
+    { key: 'user', sortable: true, label: 'Name' },
+    { key: 'type', sortable: true },
+    { key: 'from_date', sortable: false },
+    { key: 'to_date', sortable: false },
+    { key: 'days', sortable: false },
+    { key: 'status' },
     {
-      key: 'comments', sortable: false, label: 'Comments', width: 100,
+      key: 'comments', sortable: false, width: 100,
     },
-    { key: 'approved_by', sortable: false, label: 'Approved By' },
-    { key: 'approved_date', sortable: false, label: 'Approved Date' },
+    { key: 'approved_by', sortable: false },
+    { key: 'approved_date', sortable: false },
     { key: 'actions', label: 'Actions' },
   ]
 
   const pendingTableColumns = [
-    { key: 'user', sortable: true, label: 'Employee Name' },
-    { key: 'from_date', sortable: false, label: 'From Date' },
-    { key: 'to_date', sortable: false, label: 'To Date' },
-    { key: 'days', sortable: false, label: 'Days' },
-    { key: 'status', sortable: false, label: 'Status' },
+    { key: 'user', sortable: true, label: 'Name' },
+    { key: 'type', sortable: true },
+    { key: 'from_date', sortable: false },
+    { key: 'to_date', sortable: false },
+    { key: 'days', sortable: false },
+    { key: 'status', sortable: false },
     {
-      key: 'comments', sortable: false, label: 'Comments', width: 100,
+      key: 'comments', sortable: false, width: 100,
     },
     { key: 'actions', label: 'Actions' },
   ]
@@ -55,14 +57,14 @@ export default function useAbsences() {
       label: 'From Date',
       field: 'from_date',
       type: 'date',
-      dateInputFormat: 'yyyy-MM-dd', // expects 2018-03-16
+      dateInputFormat: 'yyyy-MM-dd',
       dateOutputFormat: 'MM.dd.yyyy', //
     },
     {
       label: 'To Date',
       field: 'to_date',
       type: 'date',
-      dateInputFormat: 'yyyy-MM-dd', // expects 2018-03-16
+      dateInputFormat: 'yyyy-MM-dd',
       dateOutputFormat: 'MM.dd.yyyy', //
     },
     {
@@ -78,26 +80,18 @@ export default function useAbsences() {
       field: 'comments',
     },
     { field: 'approved_by', label: 'Approved By' },
-    { field: 'approved_date', label: 'Approved Date' },
+    {
+      field: 'approved_date',
+      label: 'Approved Date',
+      type: 'date',
+      dateInputFormat: 'yyyy-MM-dd',
+      dateOutputFormat: 'MM.dd.yyyy',
+    },
     {
       label: 'Actions',
       field: 'actions',
     },
   ]
-
-  //   const overviewTableColumns = [
-  //     { key: 'user', sortable: true, label: 'Employee Name' },
-  //     // { key: 'user.name', sortable: true, label: 'Employee Name' },
-  //     { key: 'from_date', sortable: false, label: 'From Date' },
-  //     { key: 'to_date', sortable: false, label: 'To Date' },
-  //     { key: 'days', sortable: false, label: 'Days' },
-  //     { key: 'status', sortable: false, label: 'Status' },
-  //     { key: 'type', sortable: true, label: 'Type' },
-  //     {
-  //       key: 'comments', sortable: false, label: 'Comments', width: 100,
-  //     },
-  //     { key: 'actions', label: 'Actions' },
-  //   ]
 
   const dataMeta = computed(() => {
     const localItemsCount = refListTable.value ? refListTable.value.localItems.length : 0

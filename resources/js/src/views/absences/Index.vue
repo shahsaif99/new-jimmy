@@ -20,8 +20,8 @@
       >
         <statistic-card-horizontal
           icon="CalendarIcon"
-          :statistic="stats.type"
-          :statistic-title="`${stats.total_days} days`"
+          :statistic="$t(stats.type)"
+          :statistic-title="`${stats.total_days} ${$t('day(s)')}`"
         />
       </b-col>
     </b-row>
@@ -33,7 +33,7 @@
         <b-row>
           <b-col
             cols="12"
-            md="3"
+            md="4"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
             <label>{{ t('Show') }}</label>
@@ -75,7 +75,7 @@
             class="mb-md-0 mb-2"
           >
             <v-select
-              placeholder="Status"
+              :placeholder="$t('Status')"
               v-model="filters.status"
               :options="statusOptions"
               :reduce="status => status.value"
@@ -104,7 +104,7 @@
           </b-col>
           <b-col
             cols="12"
-            md="3"
+            md="2"
           >
             <div
               class="d-flex align-items-center justify-content-end"
@@ -136,6 +136,9 @@
           :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
+          <template #head()="data">
+            <span>{{ $t(data.label) }}</span>
+          </template>
           <template #cell(user)="data">
             <b-media vertical-align="center">
               <template #aside>
@@ -162,13 +165,25 @@
                 :class="`text-${resolveStatus(data.item.status)}`"
               >
                 <b-badge :variant="resolveStatus(data.item.status)">
-                  <span>{{ data.item.status }}</span>
+                  <span>{{ $t(data.item.status) }}</span>
                 </b-badge>
               </span>
             </div>
           </template>
           <template #cell(days)="data">
-            <span>{{ data.item.days }} {{ t('days(s)') }}</span>
+            <span>{{ data.item.days }} {{ t('day(s)') }}</span>
+          </template>
+          <template #cell(type)="data">
+            <span>{{ $t(data.item.type) }} </span>
+          </template>
+          <template #cell(from_date)="data">
+            <span>{{ moment(data.item.from_date).format('YYYY.MM.DD') }}</span>
+          </template>
+          <template #cell(to_date)="data">
+            <span>{{ moment(data.item.to_date).format('YYYY.MM.DD') }}</span>
+          </template>
+          <template #cell(approved_date)="data">
+            <span v-if="data.item.approved_date">{{ moment(data.item.approved_date).format('YYYY.MM.DD') }}</span>
           </template>
           <template #cell(actions)="data">
             <div
@@ -182,10 +197,6 @@
                 class="mx-1 cursor-pointer"
                 @click="editAbsence(data.item.id)"
               />
-              <b-tooltip
-                title="Edit"
-                :target="`user-row-${data.item.id}-pencil-icon`"
-              />
               <feather-icon
                 :id="`user-row-${data.item.id}-trash-icon`"
                 icon="TrashIcon"
@@ -193,13 +204,8 @@
                 size="16"
                 @click="confirmDelete(data.item.id)"
               />
-              <b-tooltip
-                title="Delete"
-                :target="`user-row-${data.item.id}-trash-icon`"
-              />
             </div>
           </template>
-
         </b-table>
       </b-overlay>
       <div class="mx-2 mb-2">
@@ -262,7 +268,6 @@ import {
   BAvatar,
   BOverlay,
   BBadge,
-  BTooltip,
   BButton,
   BFormInput,
   BPagination,
@@ -278,6 +283,7 @@ import i18n from '@/libs/i18n'
 import useJwt from '@/auth/jwt/useJwt'
 // eslint-disable-next-line import/no-cycle
 import { avatarText } from '@core/utils/filter'
+import moment from 'moment'
 import AddAbsence from './dialogs/AddAbsence.vue'
 import EditAbsence from './dialogs/EditAbsence.vue'
 
@@ -289,7 +295,6 @@ export default {
     BBadge,
     BTable,
     vSelect,
-    BTooltip,
     BButton,
     BLink,
     BMedia,
@@ -358,6 +363,8 @@ export default {
         .msgBoxConfirm(i18n.t('Please confirm that you want to delete absence.'), {
           title: i18n.t('Please Confirm'),
           size: 'sm',
+          okTitle: i18n.t('Confirm'),
+          cancelTitle: i18n.t('Cancel'),
         })
         .then(value => {
           if (value) {
@@ -389,6 +396,7 @@ export default {
     return {
       t,
       busy,
+      moment,
       sortBy,
       filters,
       perPage,

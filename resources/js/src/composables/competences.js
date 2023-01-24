@@ -23,11 +23,28 @@ export default function useCompetences() {
   const filters = reactive({})
 
   const tableColumns = [
-    { key: 'name', sortable: true },
-    { key: 'completed_date', sortable: false },
-    { key: 'valid_until', sortable: false },
-    // { key: 'file', sortable: false },
-    { key: 'actions' },
+    {
+      label: 'Name',
+      field: 'competence.name',
+    },
+    {
+      field: 'competence.completed_date',
+      label: 'Completed Date',
+      type: 'date',
+      dateInputFormat: 'yyyy-MM-dd',
+      dateOutputFormat: 'MM.dd.yyyy',
+    },
+    {
+      field: 'competence.valid_until',
+      label: 'Valid Until',
+      type: 'date',
+      dateInputFormat: 'yyyy-MM-dd',
+      dateOutputFormat: 'MM.dd.yyyy',
+    },
+    // {
+    //   label: 'Actions',
+    //   field: 'actions',
+    // },
   ]
 
 
@@ -40,11 +57,12 @@ export default function useCompetences() {
     }
   })
 
-  const fetchCompetences = async () => {
+  const fetchCompetences = async params => {
     try {
       busy.value = true
       const response = await axios.get(route('competences.index'), {
         params: {
+          ...params,
           q: searchQuery.value,
           perPage: perPage.value,
           page: currentPage.value,
@@ -59,7 +77,6 @@ export default function useCompetences() {
         totalRecords.value = total
       }
     } catch (error) {
-      console.log(error)
       if (error.message === 'Network Error') {
         toast.error(error.message)
       } else {

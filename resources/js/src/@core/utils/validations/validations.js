@@ -1,4 +1,4 @@
-import { extend, localize, configure } from 'vee-validate'
+import { extend, localize } from 'vee-validate'
 import i18n from '@/libs/i18n'
 import {
   required as rule_required,
@@ -17,20 +17,11 @@ import {
   length as rule_length,
   ext as rule_ext,
 } from 'vee-validate/dist/rules'
-import ar from 'vee-validate/dist/locale/ar.json'
 import en from 'vee-validate/dist/locale/en.json'
 
 // eslint-disable-next-line object-curly-newline
 import { validatorPositive, validatorUrlValidator, validatorPassword } from './validators'
 
-// configure({
-//   // this will be used to generate messages.
-//   defaultMessage: (field, values) =>
-//     // values._field_ = i18n.t(`fields.${field}`)
-//     // console.log(values)
-//     // console.log(values._rule_)
-//     i18n.t(`validations.messages.${values._rule_}`, field),
-// })
 
 export const required = extend('required', {
   ...rule_required,
@@ -127,18 +118,6 @@ localize({
     fields: {
       password: {
         min: '{_field_} is too short, you want to get hacked?',
-      },
-    },
-  },
-  ar: {
-    messages: ar.messages,
-    names: {
-      email: 'البريد الإلكتروني',
-      password: 'كلمة السر',
-    },
-    fields: {
-      password: {
-        min: 'كلمة السر قصيرة جداً سيتم اختراقك',
       },
     },
   },

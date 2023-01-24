@@ -24,27 +24,27 @@ export default function useVacations() {
   const filters = reactive({
   })
   const tableColumns = [
-    { key: 'user', sortable: true, label: 'Employee Name' },
-    { key: 'from_date', sortable: false, label: 'From Date' },
-    { key: 'to_date', sortable: false, label: 'To Date' },
-    { key: 'days', sortable: false, label: 'Days' },
-    { key: 'status', sortable: false, label: 'Status' },
+    { key: 'user', sortable: true, label: 'Name' },
+    { key: 'from_date', sortable: false },
+    { key: 'to_date', sortable: false },
+    { key: 'days', sortable: false },
+    { key: 'status', sortable: false },
     {
-      key: 'comments', sortable: false, label: 'Comments', width: 100,
+      key: 'comments', sortable: false, width: 100,
     },
-    { key: 'approved_by', sortable: false, label: 'Approved By' },
-    { key: 'approved_date', sortable: false, label: 'Approved Date' },
+    { key: 'approved_by', sortable: false },
+    { key: 'approved_date', sortable: false },
     { key: 'actions', label: 'Actions' },
   ]
 
   const pendingTableColumns = [
-    { key: 'user', sortable: true, label: 'Employee Name' },
-    { key: 'from_date', sortable: false, label: 'From Date' },
-    { key: 'to_date', sortable: false, label: 'To Date' },
-    { key: 'days', sortable: false, label: 'Days' },
-    { key: 'status', sortable: false, label: 'Status' },
+    { key: 'user', sortable: true, label: 'Name' },
+    { key: 'from_date', sortable: false },
+    { key: 'to_date', sortable: false },
+    { key: 'days', sortable: false },
+    { key: 'status', sortable: false },
     {
-      key: 'comments', sortable: false, label: 'Comments', width: 100,
+      key: 'comments', sortable: false, width: 100,
     },
     { key: 'actions', label: 'Actions' },
   ]
@@ -76,8 +76,13 @@ export default function useVacations() {
       label: 'Comments',
       field: 'comments',
     },
-    { field: 'approved_by', label: 'Approved By' },
-    { field: 'approved_date', label: 'Approved Date' },
+    {
+      field: 'approved_date',
+      label: 'Approved Date',
+      type: 'date',
+      dateInputFormat: 'yyyy-MM-dd', // expects 2018-03-16
+      dateOutputFormat: 'MM.dd.yyyy', //
+    },
     {
       label: 'Actions',
       field: 'actions',

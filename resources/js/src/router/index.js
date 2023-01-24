@@ -17,6 +17,7 @@ import lendingRoutes from './lending'
 import absenceRoutes from './absence'
 import vacationRoutes from './vacation'
 import rolesRoutes from './roles'
+import settingsRoutes from './settings'
 import permissionsRoutes from './permissions'
 // routes
 
@@ -46,6 +47,7 @@ const router = new Router({
         ...lendingRoutes,
         ...rolesRoutes,
         ...vacationRoutes,
+        ...settingsRoutes,
         ...equipmentsRoutes,
         ...permissionsRoutes,
         ...competenceRoutes,

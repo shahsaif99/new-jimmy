@@ -30,7 +30,7 @@ export default [
         resource: 'all',
       },
       {
-        title: 'Users',
+        title: 'Employee Overview',
         route: 'users',
         action: 'manage-users',
         resource: 'all',
@@ -72,7 +72,7 @@ export default [
         resource: 'all',
       },
       {
-        title: 'Vacations Overview',
+        title: 'Holiday Overview',
         route: 'vacations-overview',
         icon: 'FolderIcon',
         action: 'vacations-overview',
@@ -156,7 +156,7 @@ export default [
   },
   {
     title: 'Authentication',
-    icon: 'SettingsIcon',
+    icon: 'LockIcon',
     action: 'authentication',
     resource: 'all',
     children: [
@@ -179,25 +179,25 @@ export default [
   {
     title: 'Settings',
     icon: 'SettingsIcon',
-    action: 'settings',
+    action: 'manage-settings',
     resource: 'all',
     children: [
       {
         title: 'Absence Types',
-        route: '#',
-        action: 'settings',
+        route: 'settings-absence-types',
+        action: 'manage-settings',
         resource: 'all',
       },
       {
         title: 'Competence',
-        route: '#',
-        action: 'settings',
+        route: 'settings-competence',
+        action: 'manage-settings',
         resource: 'all',
       },
       {
         title: 'Holiday',
-        route: '#',
-        action: 'settings',
+        route: 'settings-holiday',
+        action: 'manage-settings',
         resource: 'all',
       },
     ],

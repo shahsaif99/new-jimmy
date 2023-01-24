@@ -41,14 +41,15 @@
                     :label="t('Course Name')"
                     label-for="competencename"
                   >
-                    <b-form-input
+                    <b-form-select
+                      id="name"
                       v-model="formData.name"
+                      :state="getValidationState(validationContext)"
+                      trim
+                      value-field="name"
+                      text-field="name"
+                      :options="competencesCourses"
                       :placeholder="t('Course Name')"
-                      :state="
-                        getValidationState(
-                          validationContext
-                        )
-                      "
                     />
                     <b-form-invalid-feedback>
                       {{ validationContext.errors[0] }}
@@ -232,6 +233,7 @@ import {
   BOverlay,
   BFormFile,
   BFormInput,
+  BFormSelect,
   BFormGroup,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
@@ -244,6 +246,7 @@ import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import debounce from 'lodash/debounce'
 import vSelect from 'vue-select'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import useSettingsCompetence from '@/composables/settingsCompetence'
 
 export default {
   components: {
@@ -257,6 +260,7 @@ export default {
     BFormFile,
     BFormInput,
     BFormGroup,
+    BFormSelect,
     ValidationProvider,
     ValidationObserver,
     BFormInvalidFeedback,
@@ -295,6 +299,11 @@ export default {
     } = useCompetences()
 
     const {
+      competences: competencesCourses,
+      fetchCompetenceList,
+    } = useSettingsCompetence()
+
+    const {
       busy: usersBusy,
       users,
       filters,
@@ -305,6 +314,7 @@ export default {
       if (props.userData) {
         formData.value.employees = [props.userData]
       }
+      fetchCompetenceList()
     })
 
     const fetchAsynEmployees = debounce(async (loading, name) => {
@@ -363,6 +373,7 @@ export default {
       onSubmit,
       resetForm,
       refFormObserver,
+      competencesCourses,
       getValidationState,
     }
   },

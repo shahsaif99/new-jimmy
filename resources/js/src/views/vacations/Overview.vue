@@ -18,7 +18,7 @@
       class="mb-0 mt-2"
     >
       <h3 class="p-1">
-        {{ $t("Vacations Overview") }}
+        {{ $t("Holiday Overview") }}
       </h3>
       <b-overlay
         id="overlay-background"
@@ -30,7 +30,7 @@
           <div class="d-flex align-items-center col-md-4 mb-1 mb-md-0">
             <b-form-input
               v-model="searchTerm"
-              placeholder="Search"
+              :placeholder="$t('Search...')"
               type="text"
               class="d-inline-block mr-1"
               @input="handleSearch"
@@ -119,7 +119,7 @@
               v-else-if="props.column.field === 'days'"
               class="text-nowrap"
             >
-              <span class="text-nowrap">{{ props.row.days }} {{ $t('days(s)') }}</span>
+              <span class="text-nowrap">{{ props.row.days }} {{ $t('day(s)') }}</span>
             </span>
             <!-- Column: Status -->
             <span v-else-if="props.column.field === 'status'">
@@ -133,55 +133,43 @@
               <div
                 class="text-nowrap"
               >
-                <span class="text-success">
-                  <feather-icon
-                    @click="confirmStatus(props.row.id, 'approved')"
-                    :id="`accept-request-${props.row.id}-check-btn`"
-                    icon="CheckIcon"
-                    class="cursor-pointer ml-1"
-                    size="16"
-                  />
-                </span>
-                <b-tooltip
-                  :title="t('Accept Request')"
-                  :target="`accept-request-${props.row.id}-check-btn`"
-                />
+                <div v-if="props.row.status == 'pending'">
+                  <span class="text-success">
+                    <feather-icon
+                      @click="confirmStatus(props.row.id, 'approved')"
+                      :id="`accept-request-${props.row.id}-check-btn`"
+                      icon="CheckIcon"
+                      class="cursor-pointer ml-1"
+                      size="16"
+                    />
+                  </span>
+                  <span class="text-danger">
+                    <feather-icon
+                      @click="confirmStatus(props.row.id, 'declined')"
+                      :id="`decline-request-${props.row.id}-cross-btn`"
+                      icon="SlashIcon"
+                      class="cursor-pointer ml-1"
+                      size="16"
+                    />
+                  </span>
+                </div>
 
-                <span class="text-danger">
+                <div v-if="props.row.status == 'approved'">
                   <feather-icon
-                    @click="confirmStatus(props.row.id, 'declined')"
-                    :id="`decline-request-${props.row.id}-cross-btn`"
-                    icon="SlashIcon"
-                    class="cursor-pointer ml-1"
+                    :id="`user-row-${props.row.id}-pencil-icon`"
+                    icon="EditIcon"
+                    size="16"
+                    class="mx-1 cursor-pointer"
+                    @click="editVacation(props.row.id)"
+                  />
+                  <feather-icon
+                    @click="confirmDelete(props.row.id)"
+                    :id="`delete-request-${props.row.id}-trash-btn`"
+                    icon="Trash2Icon"
+                    class="cursor-pointer "
                     size="16"
                   />
-                </span>
-                <b-tooltip
-                  :title="t('Decline Request')"
-                  :target="`decline-request-${props.row.id}-cross-btn`"
-                />
-                <feather-icon
-                  :id="`user-row-${props.row.id}-pencil-icon`"
-                  icon="EditIcon"
-                  size="16"
-                  class="mx-1 cursor-pointer"
-                  @click="editVacation(props.row.id)"
-                />
-                <b-tooltip
-                  title="Edit"
-                  :target="`user-row-${props.row.id}-pencil-icon`"
-                />
-                <feather-icon
-                  @click="confirmDelete(props.row.id)"
-                  :id="`delete-request-${props.row.id}-trash-btn`"
-                  icon="Trash2Icon"
-                  class="cursor-pointer ml-1"
-                  size="16"
-                />
-                <b-tooltip
-                  :title="t('Delete Request')"
-                  :target="`delete-request-${props.row.id}-trash-btn`"
-                />
+                </div>
               </div>
             </span>
           </template>
@@ -333,10 +321,12 @@ export default {
     const confirmStatus = async (id, status) => {
       root.$bvModal
         .msgBoxConfirm(
-          `Please confirm that you want to ${status} absence request.`,
+          i18n.t(`Please confirm that you want to ${status} absence request.`),
           {
             title: i18n.t('Please Confirm'),
             size: 'sm',
+            okTitle: i18n.t('Confirm'),
+            cancelTitle: i18n.t('Cancel'),
           },
         )
         .then(value => {
@@ -353,6 +343,8 @@ export default {
           {
             title: i18n.t('Please Confirm'),
             size: 'sm',
+            okTitle: i18n.t('Confirm'),
+            cancelTitle: i18n.t('Cancel'),
           },
         )
         .then(value => {
@@ -392,3 +384,18 @@ export default {
   },
 }
 </script>
+<style >
+.vgt-table thead{
+    display: none;
+}
+table.vgt-table{
+    font-size: 1rem;
+}
+table.vgt-table th {
+    font-size: 0.857rem;
+    text-transform: uppercase
+}
+table.vgt-table td {
+    border: none !important;
+}
+</style>

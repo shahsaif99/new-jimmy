@@ -4,7 +4,7 @@ const routes = [
     name: 'absences',
     component: () => import('@/views/absences/Index.vue'),
     meta: {
-      pageTitle: 'Absences',
+      pageTitle: 'My Absense',
       layout: 'vertical',
       resource: 'all',
       action: 'absences-listings',

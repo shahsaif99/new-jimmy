@@ -4,13 +4,13 @@ const routes = [
     name: 'vacations',
     component: () => import('@/views/vacations/Index.vue'),
     meta: {
-      pageTitle: 'Vacations',
+      pageTitle: 'Holiday Overview',
       layout: 'vertical',
       resource: 'all',
       action: 'vacations-listings',
       breadcrumb: [
         {
-          text: 'Vacations',
+          text: 'Holiday Overview',
           active: true,
         },
       ],
@@ -21,13 +21,13 @@ const routes = [
     name: 'vacations-overview',
     component: () => import('@/views/vacations/Overview.vue'),
     meta: {
-      pageTitle: 'Vacations Overview',
+      pageTitle: 'Holiday Overview',
       layout: 'vertical',
       resource: 'all',
       action: 'vacations-overview',
       breadcrumb: [
         {
-          text: 'Vacations Overview',
+          text: 'Holiday Overview',
           active: true,
         },
       ],

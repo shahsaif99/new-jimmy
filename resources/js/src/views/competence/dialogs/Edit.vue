@@ -34,14 +34,15 @@
                   :label="t('Course Name')"
                   label-for="competencename"
                 >
-                  <b-form-input
+                  <b-form-select
+                    id="name"
                     v-model="formData.name"
+                    :state="getValidationState(validationContext)"
+                    trim
+                    value-field="name"
+                    text-field="name"
+                    :options="competencesCourses"
                     :placeholder="t('Course Name')"
-                    :state="
-                      getValidationState(
-                        validationContext
-                      )
-                    "
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
@@ -233,6 +234,7 @@ import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import debounce from 'lodash/debounce'
 import vSelect from 'vue-select'
+import useSettingsCompetence from '@/composables/settingsCompetence'
 
 export default {
   components: {
@@ -271,6 +273,11 @@ export default {
     } = useCompetences()
 
     const {
+      competences: competencesCourses,
+      fetchCompetenceList,
+    } = useSettingsCompetence()
+
+    const {
       busy: usersBusy,
       users,
       filters,
@@ -302,6 +309,7 @@ export default {
     onMounted(() => {
       if (props.competence) {
         formData.value = { ...props.competence }
+        fetchCompetenceList()
       }
     })
 
@@ -337,6 +345,7 @@ export default {
       onSubmit,
       resetForm,
       refFormObserver,
+      competencesCourses,
       getValidationState,
     }
   },

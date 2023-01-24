@@ -176,6 +176,7 @@
                       >
                         <b-form-datepicker
                           id="dob"
+                          :locale="locale"
                           v-model="formData.dob"
                           :state="getValidationState(validationContext)"
                           trim
@@ -473,6 +474,7 @@
                         :label="t('Employement Date')"
                       >
                         <b-form-datepicker
+                          :locale="locale"
                           id="employement_date"
                           v-model="formData.employement_date"
                           :state="getValidationState(validationContext)"
@@ -499,6 +501,7 @@
                       >
                         <b-form-datepicker
                           id="end_date"
+                          :locale="locale"
                           v-model="formData.end_date"
                           :state="getValidationState(validationContext)"
                           trim
@@ -751,6 +754,7 @@ export default {
 
     const passwordFieldType = ref(null)
     const passwordToggleIcon = computed(() => (passwordFieldType.value === 'password' ? 'EyeIcon' : 'EyeOffIcon'))
+    const locale = localStorage.getItem('locale')
 
     onMounted(() => {
       fetchRolesList()
@@ -775,6 +779,7 @@ export default {
       min,
       email,
       busy,
+      locale,
       roles,
       required,
       formData,

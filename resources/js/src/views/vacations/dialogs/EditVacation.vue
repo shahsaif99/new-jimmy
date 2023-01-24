@@ -31,7 +31,7 @@
                 :class="`text-${resolveStatus(formData.status)}`"
               >
                 <b-badge :variant="resolveStatus(formData.status)">
-                  <span>{{ formData.status }}</span>
+                  <span>{{ $t(formData.status) }}</span>
                 </b-badge>
               </span>
             </b-col>
@@ -126,6 +126,7 @@
                   label-for="startdate"
                 >
                   <b-form-datepicker
+                    :locale="locale"
                     v-model="formData.from_date"
                     @input="calculateDays"
                     :state="
@@ -154,6 +155,7 @@
                   label-for="to_date"
                 >
                   <b-form-datepicker
+                    :locale="locale"
                     v-model="formData.to_date"
                     @input="calculateDays"
                     :state="
@@ -353,7 +355,6 @@ export default {
       busy: usersBusy,
       user,
       users,
-      filters,
       getUser,
       fetchUsersList,
     } = useUsers()
@@ -378,6 +379,7 @@ export default {
       }
     })
 
+    const locale = localStorage.getItem('locale')
 
     const resetForm = () => {
 
@@ -416,6 +418,7 @@ export default {
       t,
       busy,
       users,
+      locale,
       usersBusy,
       onSearch,
       formData,

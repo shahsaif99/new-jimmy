@@ -39,7 +39,9 @@
                     v-model="formData.type"
                     :state="getValidationState(validationContext)"
                     trim
-                    :options="['Self-Report','Sick Child', 'Welfare Leave']"
+                    value-field="name"
+                    text-field="name"
+                    :options="absenceTypes"
                     :placeholder="t('Absence Type')"
                   />
 
@@ -114,6 +116,7 @@
                   <b-form-datepicker
                     v-model="formData.from_date"
                     @input="calculateDays"
+                    :locale="locale"
                     :state="
                       getValidationState(
                         validationContext
@@ -142,6 +145,7 @@
                   <b-form-datepicker
                     v-model="formData.to_date"
                     @input="calculateDays"
+                    :locale="locale"
                     :state="
                       getValidationState(
                         validationContext
@@ -258,6 +262,9 @@ import useUsers from '@/composables/users'
 import useJwt from '@/auth/jwt/useJwt'
 import moment from 'moment'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import useSettingsAbsenceTypes from '@/composables/settingsAbsenceTypes'
+import useSettings from '@/composables/settings'
+
 
 export default {
   components: {
@@ -297,6 +304,21 @@ export default {
     }
     const { t } = useI18nUtils()
 
+    const {
+      absenceTypes,
+      fetchAbsenceTypes,
+    } = useSettingsAbsenceTypes()
+
+    const {
+      settings,
+      fetchSettings,
+    } = useSettings()
+
+    onMounted(async () => {
+      await fetchSettings()
+      await fetchAbsenceTypes()
+      console.log(settings)
+    })
 
     const userData = JSON.parse(useJwt.getUserData())
     const formData = ref({ ...initialState })
@@ -306,6 +328,12 @@ export default {
       const businessDays = ref(0)
       const endDate = formData.value.to_date
       while (day.isSameOrBefore(endDate, 'day')) {
+        // if (settings.value.is_saturday_off && day.day() === 6) {
+        //   businessDays.value += 1
+        // }
+        // if (settings.value.is_sunday_off && day.day() === 0) {
+        //   businessDays.value += 1
+        // }
         if (day.day() !== 0 && day.day() !== 6) businessDays.value += 1
         day.add(1, 'd')
       }
@@ -355,7 +383,9 @@ export default {
       fetchAsynEmployees(loading, name, this)
     }
 
+    const locale = localStorage.getItem('locale')
 
+    console.log(locale)
     const onSubmit = async () => {
       await storeAbsence({ ...formData.value, ...{ user_id: formData.value.user.id } })
       if (respResult.value.status === 200) {
@@ -370,6 +400,7 @@ export default {
     return {
       t,
       busy,
+      locale,
       users,
       usersBusy,
       onSearch,
@@ -378,6 +409,7 @@ export default {
       onSubmit,
       resetForm,
       userData,
+      absenceTypes,
       calculateDays,
       refFormObserver,
       getValidationState,

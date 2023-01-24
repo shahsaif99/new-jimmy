@@ -39,7 +39,9 @@
                     v-model="formData.type"
                     :state="getValidationState(validationContext)"
                     trim
-                    :options="['Self-Report','Sick Child', 'Welfare Leave']"
+                    value-field="name"
+                    text-field="name"
+                    :options="absenceTypes"
                     :placeholder="t('Absence Type')"
                   />
 
@@ -114,6 +116,7 @@
                   <b-form-datepicker
                     v-model="formData.from_date"
                     @input="calculateDays"
+                    :locale="locale"
                     :state="
                       getValidationState(
                         validationContext
@@ -142,6 +145,7 @@
                   <b-form-datepicker
                     v-model="formData.to_date"
                     @input="calculateDays"
+                    :locale="locale"
                     :state="
                       getValidationState(
                         validationContext
@@ -258,6 +262,8 @@ import useUsers from '@/composables/users'
 import useJwt from '@/auth/jwt/useJwt'
 import moment from 'moment'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import useSettingsAbsenceTypes from '@/composables/settingsAbsenceTypes'
+
 
 export default {
   components: {
@@ -311,6 +317,15 @@ export default {
     }
 
     const {
+      absenceTypes,
+      fetchAbsenceTypes,
+    } = useSettingsAbsenceTypes()
+
+    onMounted(() => {
+      fetchAbsenceTypes()
+    })
+
+    const {
       busy,
       respResult,
       getAbsence,
@@ -359,6 +374,7 @@ export default {
       fetchAsynEmployees(loading, name, this)
     }
 
+    const locale = localStorage.getItem('locale')
 
     const onSubmit = async () => {
       await updateAbsence({ ...formData.value, ...{ user_id: formData.value.user.id } })
@@ -375,6 +391,7 @@ export default {
       t,
       busy,
       users,
+      locale,
       onSearch,
       formData,
       userData,
@@ -382,6 +399,7 @@ export default {
       onSubmit,
       usersBusy,
       resetForm,
+      absenceTypes,
       resolveStatus,
       calculateDays,
       refFormObserver,

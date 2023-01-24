@@ -202,6 +202,7 @@
                   >
                     <b-form-datepicker
                       id="dob"
+                      :locale="locale"
                       v-model="formData.dob"
                       :state="getValidationState(validationContext)"
                       trim
@@ -306,6 +307,7 @@
                   >
                     <b-form-datepicker
                       id="employement_date"
+                      :locale="locale"
                       v-model="formData.employement_date"
                       :state="getValidationState(validationContext)"
                       trim
@@ -331,6 +333,7 @@
                   >
                     <b-form-datepicker
                       id="end_date"
+                      :locale="locale"
                       v-model="formData.end_date"
                       :state="getValidationState(validationContext)"
                       trim
@@ -525,6 +528,7 @@ export default {
       { label: 'Inactive', value: false },
     ]
 
+    const locale = localStorage.getItem('locale')
 
     const onSubmit = async () => {
       await updateUser(formData.value)
@@ -551,6 +555,7 @@ export default {
       min,
       email,
       busy,
+      locale,
       required,
       formData,
       onSubmit,

@@ -16,6 +16,7 @@
         "maatwebsite/excel": "^3.1",
         "plank/laravel-mediable": "^5.7",
         "psr/simple-cache": "^1.0",
+        "rawilk/laravel-settings": "^2.2",
         "spatie/laravel-permission": "^5.7",
         "tightenco/ziggy": "^1.4"
     },

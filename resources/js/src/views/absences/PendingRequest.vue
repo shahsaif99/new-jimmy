@@ -19,6 +19,7 @@
         :empty-text="t('No matching records found')"
         :sort-desc.sync="isSortDirDesc"
       >
+
         <template #cell(user)="data">
           <b-media vertical-align="center">
             <template #aside>
@@ -36,8 +37,20 @@
             </b-link>
           </b-media>
         </template>
+        <template #head()="data">
+          <span>{{ $t(data.label) }}</span>
+        </template>
+        <template #cell(type)="data">
+          <span>{{ $t(data.item.type) }} </span>
+        </template>
         <template #cell(days)="data">
-          <span>{{ data.item.days }} {{ t('days(s)') }}</span>
+          <span>{{ data.item.days }} {{ t('day(s)') }}</span>
+        </template>
+        <template #cell(from_date)="data">
+          <span>{{ moment(data.item.from_date).format('YYYY.MM.DD') }}</span>
+        </template>
+        <template #cell(to_date)="data">
+          <span>{{ moment(data.item.to_date).format('YYYY.MM.DD') }}</span>
         </template>
         <template #cell(status)="data">
           <div
@@ -48,7 +61,7 @@
               :class="`text-${resolveStatus(data.item.status)}`"
             >
               <b-badge :variant="resolveStatus(data.item.status)">
-                <span>{{ data.item.status }}</span>
+                <span>{{ $t(data.item.status) }}</span>
               </b-badge>
             </span>
           </div>
@@ -67,10 +80,6 @@
                 size="16"
               />
             </span>
-            <b-tooltip
-              :title="t('Accept Request')"
-              :target="`accept-request-${data.item.id}-check-btn`"
-            />
 
             <span class="text-danger">
               <feather-icon
@@ -81,10 +90,6 @@
                 size="16"
               />
             </span>
-            <b-tooltip
-              :title="t('Decline Request')"
-              :target="`decline-request-${data.item.id}-cross-btn`"
-            />
 
             <feather-icon
               @click="confirmDelete(data.item.id)"
@@ -92,10 +97,6 @@
               icon="Trash2Icon"
               class="cursor-pointer ml-1"
               size="16"
-            />
-            <b-tooltip
-              :title="t('Delete Request')"
-              :target="`delete-request-${data.item.id}-trash-btn`"
             />
           </div>
         </template>
@@ -158,7 +159,6 @@ import {
   BLink,
   BTable,
   BAvatar,
-  BTooltip,
   BPagination,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
@@ -166,6 +166,7 @@ import useAbsences from '@/composables/absences'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import i18n from '@/libs/i18n'
 import { avatarText } from '@core/utils/filter'
+import moment from 'moment'
 
 export default {
   components: {
@@ -177,7 +178,6 @@ export default {
     BBadge,
     BTable,
     BAvatar,
-    BTooltip,
     BPagination,
   },
   setup(_, { root }) {
@@ -231,8 +231,10 @@ export default {
 
     const confirmStatus = async (id, status) => {
       root.$bvModal
-        .msgBoxConfirm(`Please confirm that you want to ${status} absence request.`, {
+        .msgBoxConfirm(i18n.t(`Please confirm that you want to ${status} absence request.`), {
           title: i18n.t('Please Confirm'),
+          okTitle: i18n.t('Confirm'),
+          cancelTitle: i18n.t('Cancel'),
           size: 'sm',
         })
         .then(value => {
@@ -247,6 +249,8 @@ export default {
       root.$bvModal
         .msgBoxConfirm(i18n.t('Please confirm that you want to delete absence.'), {
           title: i18n.t('Please Confirm'),
+          okTitle: i18n.t('Confirm'),
+          cancelTitle: i18n.t('Cancel'),
           size: 'sm',
         })
         .then(value => {
@@ -260,6 +264,7 @@ export default {
       t,
       busy,
       sortBy,
+      moment,
       filters,
       perPage,
       absences,

@@ -60,138 +60,113 @@
           </b-col>
         </b-row>
       </div>
-      <b-table
-        ref="refListTable"
-        class="position-relative competence-table"
-        responsive
-        :items="competences"
-        primary-key="id"
-        :fields="tableColumns"
-        :sort-by.sync="sortBy"
-        :busy="busy"
-        show-empty
-        :empty-text="t('No matching records found')"
-        :sort-desc.sync="isSortDirDesc"
+      <vue-good-table
+        mode="remote"
+        @on-page-change="onPageChange"
+        @on-per-page-change="onPerPageChange"
+        :columns="tableColumns"
+        @on-sort-change="onSortChange"
+        @on-column-filter="onColumnFilter"
+        :rows="competences"
+        :is-loading.sync="busy"
+        :total-rows="totalRecords"
+        :sort-options="{
+          enabled: false,
+        }"
+        :search-options="{
+          enabled: true,
+          externalQuery: searchTerm }"
+        :pagination-options="{
+          enabled: true,
+          perPage:pageLength
+        }"
+        :group-options="{
+          enabled: true,
+        }"
       >
-        <template #row-details="row">
 
-          <table class="w-100">
-            <tr
-              v-for="(item, key) in row.item.competences"
-              :key="key"
-            >
-              <th
-                class="pb-50 "
-                v-if="item.competence"
-              >
-                <span class="font-weight-bold">{{ item.competence.name }}</span>
-
-              </th>
-              <th
-                class="pb-50 text-center"
-                v-if="item.competence"
-              >
-                <span class="font-weight-bold">{{ item.competence.completed_date }}</span>
-              </th>
-              <th
-                class="pb-50 text-center"
-                v-if="item.competence"
-              >
-                <span class="font-weight-bold">{{ item.competence.valid_until }}</span>
-              </th>
-              <!-- <th class="pb-50 text-center">
-
-                <span
-                  class="font-weight-bold"
-                  v-for="(media, index) in item.competence.media"
-                  :key="index"
-                >
-                  <b-link
-                    :to="`/storage/${media.directory}/${media.filename}.${media.extension}`"
-                    class="font-weight-bold"
-                    target="_blank"
-                    download
-                  >
-                    {{ media.filename }}
-                  </b-link>
-                </span>
-              </th> -->
-              <th class="pb-50 text-center">
-                <!-- <b-dropdown
-                  variant="link"
-                  no-caret
-                >
-                  <template #button-content>
-                    <feather-icon
-                      icon="MoreVerticalIcon"
-                      size="16"
-                      class="align-middle text-body"
-                    />
-                  </template>
-                 - <b-dropdown-item
-                    @click="editCompetenceActive=true"
-                  >
-                    <feather-icon icon="EditIcon" />
-                    <span class="align-middle ml-50">{{ t('Edit') }}</span>
-                  </b-dropdown-item>
-                  <b-dropdown-item
-                    @click="confirmDelete(item.competence.id)"
-                  >
-                    <feather-icon
-                      icon="TrashIcon"
-                    />
-                    <span class="align-middle ml-50">{{ t('Delete') }}</span>
-                  </b-dropdown-item>
-                </b-dropdown> -->
-              </th>
-            </tr>
-          </table>
+        <template
+          slot="table-column"
+          slot-scope="props"
+        >
+          <span
+            class="text-nowrap"
+          >
+            {{ $t(props.column.label) }}
+          </span>
         </template>
-      </b-table>
-      <div class="mx-2 mb-2">
-        <b-row>
-          <b-col
-            cols="12"
-            sm="6"
-            class="d-flex align-items-center justify-content-center justify-content-sm-start"
+        <!-- <template
+          slot="table-row"
+          slot-scope="props"
+        >
+          <span
+            v-if="props.column.field === 'name'"
+            class="text-nowrap"
           >
-            <span
-              class="text-muted"
-            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
-              {{ dataMeta.of }} {{ t('entries') }}</span>
-          </b-col>
-          <!-- Pagination -->
-          <b-col
-            cols="12"
-            sm="6"
-            class="d-flex align-items-center justify-content-center justify-content-sm-end"
+            <b-avatar
+              :src="props.row.avatar"
+              class="mx-1"
+            />
+
+            <span class="text-nowrap">{{ props.row.user.name }}</span>
+          </span>
+          <span
+            v-else-if="props.column.field === 'days'"
+            class="text-nowrap"
           >
-            <b-pagination
-              v-model="currentPage"
-              :total-rows="totalRecords"
-              :per-page="perPage"
-              first-number
-              last-number
-              class="mb-0 mt-1 mt-sm-0"
-              prev-class="prev-item"
-              next-class="next-item"
+            <span class="text-nowrap">{{ props.row.days }} {{ t('day(s)') }}</span>
+          </span>
+          <span v-else-if="props.column.field === 'status'">
+            <b-badge :variant="resolveStatus(props.row.status)">
+              {{ $t(props.row.status) }}
+            </b-badge>
+          </span>
+
+          <span v-else-if="props.column.field === 'actions'">
+            <div
+              class="text-nowrap"
             >
-              <template #prev-text>
+              <div v-if="props.row.status == 'pending'">
+                <span class="text-success">
+                  <feather-icon
+                    @click="confirmStatus(props.row.id, 'approved')"
+                    :id="`accept-request-${props.row.id}-check-btn`"
+                    icon="CheckIcon"
+                    class="cursor-pointer ml-1"
+                    size="16"
+                  />
+                </span>
+                <span class="text-danger">
+                  <feather-icon
+                    @click="confirmStatus(props.row.id, 'declined')"
+                    :id="`decline-request-${props.row.id}-cross-btn`"
+                    icon="SlashIcon"
+                    class="cursor-pointer ml-1"
+                    size="16"
+                  />
+                </span>
+              </div>
+
+              <div v-if="props.row.status == 'approved'">
                 <feather-icon
-                  icon="ChevronLeftIcon"
-                  size="18"
+                  :id="`user-row-${props.row.id}-pencil-icon`"
+                  icon="EditIcon"
+                  size="16"
+                  class="mx-1 cursor-pointer"
+                  @click="editAbsence(props.row.id)"
                 />
-              </template>
-              <template #next-text>
                 <feather-icon
-                  icon="ChevronRightIcon"
-                  size="18"
+                  @click="confirmDelete(props.row.id)"
+                  :id="`delete-request-${props.row.id}-trash-btn`"
+                  icon="Trash2Icon"
+                  class="cursor-pointer"
+                  size="16"
                 />
-              </template>
-            </b-pagination>
-          </b-col>
-        </b-row>
-      </div>
+              </div>
+            </div>
+          </span>
+        </template> -->
+      </vue-good-table>
     </b-card>
   </div>
 </template>
@@ -201,18 +176,18 @@ import {
   BCard,
   BRow,
   BCol,
-  BTable,
   BButton,
   BFormInput,
-  BPagination,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
 import useCompetences from '@/composables/competences'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import i18n from '@/libs/i18n'
+import { VueGoodTable } from 'vue-good-table'
 import AddCompetence from './dialogs/Add.vue'
 import EditCompetence from './dialogs/Edit.vue'
+import 'vue-good-table/dist/vue-good-table.css'
 
 
 export default {
@@ -220,12 +195,11 @@ export default {
     BCol,
     BRow,
     BCard,
-    BTable,
     vSelect,
     BButton,
     AddCompetence,
     BFormInput,
-    BPagination,
+    VueGoodTable,
     EditCompetence,
   },
   props: {
@@ -256,18 +230,33 @@ export default {
     } = useCompetences()
 
     const { t } = useI18nUtils()
-
+    const searchTerm = ref('')
+    const pageLength = ref(10)
+    const serverParams = ref({
+      columnFilters: {
+      },
+      sort: [
+        {
+          field: '',
+          type: '',
+        },
+      ],
+      page: 1,
+      perPage: 10,
+    })
     onMounted(() => {
+      filters.group = true
       if (props.userData) {
         filters.userId = props.userData.id
       }
-      fetchCompetences()
+      fetchCompetences(serverParams.value)
     })
     const isExportActive = ref(false)
     const isAddCompetenceActive = ref(false)
     const isAddDocumentActive = ref(false)
     const isEditCompetenceActive = ref(false)
     const competence = ref({})
+
     const deleteConfirmed = async id => {
       await deleteCompetence(id)
       if (respResult.value.status === 200) {
@@ -280,12 +269,51 @@ export default {
       isEditCompetenceActive.value = true
     }
 
+    const handleSearch = query => {
+      searchQuery.value = query
+      fetchCompetences(serverParams.value)
+    }
+
+    const updateParams = newProps => {
+      serverParams.value = { ...serverParams.value, ...newProps }
+    }
+
+    const onPageChange = params => {
+      updateParams({ page: params.currentPage })
+      fetchCompetences(serverParams.value)
+    }
+
+    const onPerPageChange = params => {
+      updateParams({ perPage: params.currentPerPage })
+      fetchCompetences(serverParams.value)
+    }
+
+    const onSortChange = params => {
+      console.log(params.columnIndex)
+      updateParams({
+        sort: [
+          {
+            type: params.sortType,
+            field: tableColumns.value[params.columnIndex].field,
+          },
+        ],
+      })
+      fetchCompetences(serverParams.value)
+    }
+
+    const onColumnFilter = params => {
+      updateParams(params)
+      fetchCompetences(serverParams.value)
+    }
+
 
     const confirmDelete = async id => {
       root.$bvModal
         .msgBoxConfirm(i18n.t('Please confirm that you want to delete competence.'), {
           title: i18n.t('Please Confirm'),
           size: 'sm',
+          okTitle: i18n.t('Confirm'),
+          cancelTitle: i18n.t('Cancel'),
         })
         .then(value => {
           if (value) {
@@ -302,6 +330,14 @@ export default {
       filters,
       perPage,
       dataMeta,
+      searchTerm,
+      pageLength,
+      handleSearch,
+      onSortChange,
+      onColumnFilter,
+      updateParams,
+      onPerPageChange,
+      onPageChange,
       competence,
       competences,
       refetchData,
@@ -332,26 +368,15 @@ export default {
   <style lang="scss">
   @import '~@core/scss/vue/libs/vue-select.scss';
   </style>
-<style>
-.per-page-selector {
-    width: 90px;
+<style >
+table.vgt-table{
+    font-size: 1rem;
 }
-.b-table-has-details{
-  background-color: #ababab !important;
-  color: #fff;
+table.vgt-table th {
+    font-size: 0.857rem;
+    text-transform: uppercase
 }
-.competence-table table.inner {
-display: inline-table;
-width: auto;
-border: 1px solid blue;
+table.vgt-table td {
+    border: none !important;
 }
-.competence-table td {
-border: 1px dotted gray;
-}
-/* .competence-table td.r {
-text-align: right;
-}
-td.l {
-text-align: left;
-} */
 </style>

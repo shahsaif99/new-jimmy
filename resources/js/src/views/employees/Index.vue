@@ -276,6 +276,8 @@ export default {
         .msgBoxConfirm(i18n.t('Please confirm that you want to delete employee.'), {
           title: i18n.t('Please Confirm'),
           size: 'sm',
+          okTitle: i18n.t('Confirm'),
+          cancelTitle: i18n.t('Cancel'),
         })
         .then(value => {
           if (value) {

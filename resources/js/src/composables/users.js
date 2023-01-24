@@ -14,13 +14,10 @@ export default function useUsers() {
   const refListTable = ref(null)
   // Table Handlers
   const tableColumns = [
-    { key: 'id', sortable: false },
-    { key: 'avatar', sortable: false },
-    { key: 'user', sortable: false },
-    { key: 'name', sortable: true },
+    { key: 'name', sortable: false },
     { key: 'email', sortable: true },
     { key: 'phone', sortable: true },
-    { key: 'employement_date' },
+    { key: 'employement_date', label: 'Date of Employment' },
     { key: 'roles.0.name', sortable: true, label: 'Role' },
     { key: 'status', sortable: true },
     { key: 'actions' },

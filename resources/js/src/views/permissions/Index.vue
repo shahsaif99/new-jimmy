@@ -231,6 +231,7 @@ export default {
           cancelTitle: i18n.t('No'),
           cancelVariant: 'outline-secondary',
           centered: true,
+          
         })
         .then(value => {
           if (value) {

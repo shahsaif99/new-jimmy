@@ -212,6 +212,7 @@
                         >
                           <b-form-datepicker
                             id="dob"
+                            :locale="locale"
                             v-model="formData.dob"
                             :state="getValidationState(validationContext)"
                             trim
@@ -316,6 +317,7 @@
                         >
                           <b-form-datepicker
                             id="employement_date"
+                            :locale="locale"
                             v-model="formData.employement_date"
                             :state="getValidationState(validationContext)"
                             trim
@@ -341,6 +343,7 @@
                         >
                           <b-form-datepicker
                             id="end_date"
+                            :locale="locale"
                             v-model="formData.end_date"
                             :state="getValidationState(validationContext)"
                             trim
@@ -523,6 +526,7 @@ export default {
       await getUser(userData.id)
       formData.value = user.value
     })
+    const locale = localStorage.getItem('locale')
 
     // remove image
     const removeImage = () => {
@@ -548,6 +552,7 @@ export default {
       t,
       busy,
       email,
+      locale,
       formData,
       required,
       alphaNum,

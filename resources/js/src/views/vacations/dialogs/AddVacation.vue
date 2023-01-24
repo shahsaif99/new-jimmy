@@ -120,6 +120,7 @@
                   label-for="startdate"
                 >
                   <b-form-datepicker
+                    :locale="locale"
                     v-model="formData.from_date"
                     @input="calculateDays"
                     :min="new Date()"
@@ -149,6 +150,7 @@
                   label-for="to_date"
                 >
                   <b-form-datepicker
+                    :locale="locale"
                     v-model="formData.to_date"
                     @input="calculateDays"
                     :min="new Date()"
@@ -342,6 +344,7 @@ export default {
         formData.value.used_vacations_days = `0 used out of ${selectUser.holidays}`
       }
     }
+    const locale = localStorage.getItem('locale')
 
 
     onMounted(async () => {
@@ -422,6 +425,7 @@ export default {
       t,
       busy,
       users,
+      locale,
       usersBusy,
       onSearch,
       formData,
