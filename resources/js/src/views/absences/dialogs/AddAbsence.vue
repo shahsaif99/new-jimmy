@@ -328,13 +328,13 @@ export default {
       const businessDays = ref(0)
       const endDate = formData.value.to_date
       while (day.isSameOrBefore(endDate, 'day')) {
-        // if (settings.value.is_saturday_off && day.day() === 6) {
-        //   businessDays.value += 1
-        // }
-        // if (settings.value.is_sunday_off && day.day() === 0) {
-        //   businessDays.value += 1
-        // }
-        if (day.day() !== 0 && day.day() !== 6) businessDays.value += 1
+        if (!settings.value.is_saturday_off && day.day() !== 6) {
+          businessDays.value += 1
+        } else if (!settings.value.is_sunday_off && day.day() !== 0) {
+          businessDays.value += 1
+        } else if (settings.value.is_sunday_off && settings.value.is_saturday_off && day.day() !== 0 && day.day() !== 6) {
+          businessDays.value += 1
+        }
         day.add(1, 'd')
       }
       formData.value.days = businessDays.value
