@@ -1,16 +1,20 @@
 const routes = [
   {
-    path: 'documentcenter',
-    name: 'documentcenter',
-    component: () => import('@/views/documentcenter/Index.vue'),
+    path: 'procedures',
+    name: 'procedures',
+    component: () => import('@/views/procedures/Index.vue'),
     meta: {
-      pageTitle: 'Document Center',
+      pageTitle: 'Procedures',
       layout: 'vertical',
       resource: 'all',
-      action: 'documentcenter',
+      action: 'procedures',
       breadcrumb: [
         {
           text: 'Document Center',
+          active: false,
+        },
+        {
+          text: 'Procedures',
           active: true,
         },
       ],
@@ -19,7 +23,7 @@ const routes = [
   {
     path: 'handbooks',
     name: 'handbooks',
-    component: () => import('@/views/documentcenter/handbooks/Index.vue'),
+    component: () => import('@/views/handbooks/Index.vue'),
     meta: {
       pageTitle: 'Handbooks',
       layout: 'vertical',
@@ -28,6 +32,10 @@ const routes = [
       breadcrumb: [
         {
           text: 'Document Center',
+          active: false,
+        },
+        {
+          text: 'Handbooks',
           active: true,
         },
       ],

@@ -89,15 +89,15 @@ export default [
     action: 'document-center',
     children: [
       {
-        title: 'Procedure/Instructions',
-        route: '#',
+        title: 'Procedures',
+        route: 'procedures',
         icon: 'FolderIcon',
         action: 'document-center',
         resource: 'all',
       },
       {
         title: 'Handbooks',
-        route: '#',
+        route: 'handbooks',
         icon: 'FolderIcon',
         action: 'document-center',
         resource: 'all',
