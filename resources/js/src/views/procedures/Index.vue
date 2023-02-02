@@ -152,72 +152,72 @@
                     sm="6"
                     class="mb-2"
                   >
-                    <h5>
+                    <h6>
                       <strong>Category</strong>
-                    </h5>
+                    </h6>
                     <span>Bedrift</span>
                   </b-col>
                   <b-col
                     sm="6"
                     class="mb-2"
                   >
-                    <h5>
+                    <h6>
                       <strong>SubCategory</strong>
-                    </h5>
+                    </h6>
                     <span>Innledning</span>
                   </b-col>
                   <b-col
                     sm="6"
                     class="mb-2"
                   >
-                    <h5>
+                    <h6>
                       <strong>Created Date</strong>
-                    </h5>
+                    </h6>
                     <span>Bedrift</span>
                   </b-col>
                   <b-col
                     sm="6"
                     class="mb-2"
                   >
-                    <h5>
+                    <h6>
                       <strong>Doc No</strong>
-                    </h5>
+                    </h6>
                     <span>0231675</span>
                   </b-col>
                   <b-col
                     sm="6"
                     class="mb-2"
                   >
-                    <h5>
+                    <h6>
                       <strong>Revised Date</strong>
-                    </h5>
+                    </h6>
                     <span>12.12.2022</span>
                   </b-col>
                   <b-col
                     sm="6"
                     class="mb-2"
                   >
-                    <h5>
+                    <h6>
                       <strong>Approved By</strong>
-                    </h5>
+                    </h6>
                     <span>Olan</span>
                   </b-col>
                   <b-col
                     sm="6"
                     class="mb-2"
                   >
-                    <h5>
+                    <h6>
                       <strong>Doc Author</strong>
-                    </h5>
+                    </h6>
                     <span>Olan</span>
                   </b-col>
                   <b-col
                     sm="6"
                     class="mb-2"
                   >
-                    <h5>
+                    <h6>
                       <strong>Approved Date</strong>
-                    </h5>
+                    </h6>
                     <span>12.12.2022</span>
                   </b-col>
                   <b-col cols="12">
@@ -311,6 +311,11 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+
+.collapsed > .when-open,
+.not-collapsed > .when-closed {
+  display: none;
+}
 .ck.ck-editor{
     z-index: 100;
 }
@@ -323,12 +328,13 @@ export default {
             li {
                 h4 {
                     margin-bottom: 0px;
-                    font-size: 16px;
+                    font-size: 14px;
                 }
                 a {
                     padding: 5px;
                     border-radius: 5px;
                     color: #333;
+                    font-size: 13px;
                     display: block;
                     &:hover {
                         color: #FFF;
