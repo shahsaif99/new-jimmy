@@ -31,12 +31,13 @@
             sm="3"
             class=""
           >
+            <h3>Table Of Contents</h3>
             <b-card>
               <vue-perfect-scrollbar
                 :settings="perfectScrollbarSettings"
                 class="indexing-table-scroller scroll-area"
               >
-                <h3>Table Of Contents</h3>
+
                 <ul class="list-unstyled indexing-table">
                   <li>
                     <h4><a href="#">01 Bedrift</a></h4>
@@ -112,6 +113,7 @@
             </b-card>
           </b-col>
           <b-col sm="6">
+            <h3>Innledning</h3>
             <b-card>
               <ckeditor
                 :editor="ClassicEditor"
@@ -132,90 +134,106 @@
             sm="3"
             class=""
           >
+            <div class="justify-content-end d-flex mb-1">
+              <b-button
+                v-b-toggle:my-collapse
+                class="flat-primary"
+                size="sm"
+              >
+                <span class="when-open">Close</span><span class="when-closed">Open</span> Document Details
+              </b-button>
+            </div>
             <b-card>
-              <b-row>
-                <b-col
-                  sm="6"
-                  class="mb-2"
-                >
-                  <h5>
-                    <strong>Category</strong>
-                  </h5>
-                  <span>Bedrift</span>
-                </b-col>
-                <b-col
-                  sm="6"
-                  class="mb-2"
-                >
-                  <h5>
-                    <strong>SubCategory</strong>
-                  </h5>
-                  <span>Innledning</span>
-                </b-col>
-                <b-col
-                  sm="6"
-                  class="mb-2"
-                >
-                  <h5>
-                    <strong>Created Date</strong>
-                  </h5>
-                  <span>Bedrift</span>
-                </b-col>
-                <b-col
-                  sm="6"
-                  class="mb-2"
-                >
-                  <h5>
-                    <strong>Doc No</strong>
-                  </h5>
-                  <span>0231675</span>
-                </b-col>
-                <b-col
-                  sm="6"
-                  class="mb-2"
-                >
-                  <h5>
-                    <strong>Revised Date</strong>
-                  </h5>
-                  <span>12.12.2022</span>
-                </b-col>
-                <b-col
-                  sm="6"
-                  class="mb-2"
-                >
-                  <h5>
-                    <strong>Approved By</strong>
-                  </h5>
-                  <span>Olan</span>
-                </b-col>
-                <b-col
-                  sm="6"
-                  class="mb-2"
-                >
-                  <h5>
-                    <strong>Doc Author</strong>
-                  </h5>
-                  <span>Olan</span>
-                </b-col>
-                <b-col
-                  sm="6"
-                  class="mb-2"
-                >
-                  <h5>
-                    <strong>Approved Date</strong>
-                  </h5>
-                  <span>12.12.2022</span>
-                </b-col>
-                <b-col cols="12">
-                  <button class="btn btn-primary">
-                    <feather-icon
-                      icon="DownloadIcon"
-                      class="mr-1"
-                    />
-                    Download PDF
-                  </button>
-                </b-col>
-              </b-row>
+
+              <b-collapse
+                id="my-collapse"
+                class="mt-2"
+                visible
+              >
+                <b-row>
+                  <b-col
+                    sm="6"
+                    class="mb-2"
+                  >
+                    <h5>
+                      <strong>Category</strong>
+                    </h5>
+                    <span>Bedrift</span>
+                  </b-col>
+                  <b-col
+                    sm="6"
+                    class="mb-2"
+                  >
+                    <h5>
+                      <strong>SubCategory</strong>
+                    </h5>
+                    <span>Innledning</span>
+                  </b-col>
+                  <b-col
+                    sm="6"
+                    class="mb-2"
+                  >
+                    <h5>
+                      <strong>Created Date</strong>
+                    </h5>
+                    <span>Bedrift</span>
+                  </b-col>
+                  <b-col
+                    sm="6"
+                    class="mb-2"
+                  >
+                    <h5>
+                      <strong>Doc No</strong>
+                    </h5>
+                    <span>0231675</span>
+                  </b-col>
+                  <b-col
+                    sm="6"
+                    class="mb-2"
+                  >
+                    <h5>
+                      <strong>Revised Date</strong>
+                    </h5>
+                    <span>12.12.2022</span>
+                  </b-col>
+                  <b-col
+                    sm="6"
+                    class="mb-2"
+                  >
+                    <h5>
+                      <strong>Approved By</strong>
+                    </h5>
+                    <span>Olan</span>
+                  </b-col>
+                  <b-col
+                    sm="6"
+                    class="mb-2"
+                  >
+                    <h5>
+                      <strong>Doc Author</strong>
+                    </h5>
+                    <span>Olan</span>
+                  </b-col>
+                  <b-col
+                    sm="6"
+                    class="mb-2"
+                  >
+                    <h5>
+                      <strong>Approved Date</strong>
+                    </h5>
+                    <span>12.12.2022</span>
+                  </b-col>
+                  <b-col cols="12">
+                    <button class="btn btn-primary">
+                      <feather-icon
+                        icon="DownloadIcon"
+                        class="mr-1"
+                      />
+                      Download PDF
+                    </button>
+                  </b-col>
+                </b-row>
+              </b-collapse>
             </b-card>
           </b-col>
         </b-row>
@@ -227,7 +245,7 @@
 
 <script>
 import {
-  BButton, BCard, BCol, BRow, BFormGroup, BFormInput,
+  BButton, BCard, BCol, BRow, BFormGroup, BFormInput, BCollapse, VBToggle,
 } from 'bootstrap-vue'
 import { ref } from '@vue/composition-api'
 // eslint-disable-next-line import/no-cycle
@@ -244,13 +262,16 @@ export default {
     BCol,
     BCard,
     BButton,
+    BCollapse,
     BFormInput,
     BFormGroup,
     addHandbooks,
     VuePerfectScrollbar,
     ckeditor: CKEditor.component,
   },
-
+  directives: {
+    'b-toggle': VBToggle,
+  },
   setup() {
     const isExportActive = ref(false)
     const addDocumentActive = ref(false)
@@ -293,7 +314,13 @@ export default {
   },
 }
 </script>
+
 <style lang="scss" scoped>
+
+.collapsed > .when-open,
+.not-collapsed > .when-closed {
+  display: none;
+}
 .ck.ck-editor{
     z-index: 100;
 }
@@ -309,7 +336,7 @@ export default {
                     font-size: 16px;
                 }
                 a {
-                    padding: 10px;
+                    padding: 5px;
                     border-radius: 5px;
                     color: #333;
                     display: block;
@@ -326,3 +353,8 @@ export default {
     }
 </style>
 
+<style>
+.ck-content p{
+    font-size:12px !important;
+}
+</style>
