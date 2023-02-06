@@ -18,6 +18,7 @@
           <span class="text-nowrap">Add Handbook Document</span>
         </b-button>
         <addHandbooks
+          @refetch-data="getDocuments"
           :add-document-active.sync="addDocumentActive"
           v-if="addDocumentActive"
         />
@@ -597,6 +598,7 @@ export default {
     return {
       onSubmit,
       required,
+      getDocuments,
       downloadPdf,
       isDocumentOpen,
       getDocument,

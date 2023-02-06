@@ -15,6 +15,7 @@ class DocumentController extends Controller
 
         $documents = Document::query()
         ->whereType($request->type)
+        ->latest()
         ->get();
 
         $grouped = $documents->groupBy('category', true);

@@ -44,6 +44,7 @@ export default function useDocuments() {
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
+      console.log(error)
       if (error.message === 'Network Error') {
         toast.error(error.message)
       } else {
@@ -87,6 +88,7 @@ export default function useDocuments() {
     busy,
     errors,
     filters,
+    respResult,
     updateDocument,
     getDocuments,
     documentsData,

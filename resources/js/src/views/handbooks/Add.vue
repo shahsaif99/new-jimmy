@@ -372,7 +372,7 @@ export default {
       await storeDocument(formData.value)
       if (respResult.value.status === 200) {
         emit('refetch-data')
-        emit('update:is-add-document-active', false)
+        emit('update:add-document-active', false)
       }
     }
 
