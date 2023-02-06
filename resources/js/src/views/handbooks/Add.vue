@@ -28,17 +28,18 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Document Title"
+                :name="$t('Document Title')"
                 rules="required"
               >
                 <b-form-group
-                  label="Document Title"
+                  :label="$t('Document Title')"
                   label-for="oname"
                 >
                   <b-form-input
                     v-model="formData.title"
-                    placeholder="Document Title"
+                    :placeholder="$t('Document Title')"
                     :state="getValidationState(validationContext)"
+                    trim
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
@@ -52,17 +53,18 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Category"
+                :name="$t('Category')"
                 rules="required"
               >
                 <b-form-group
-                  label="Category"
+                  :label="$t('Category')"
                   label-for="cname"
                 >
                   <b-form-input
                     v-model="formData.category"
-                    placeholder="Category"
+                    :placeholder="$t('Category')"
                     :state="getValidationState(validationContext)"
+                    trim
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
@@ -75,17 +77,18 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="SubCategory"
+                :name="$t('SubCategory')"
                 rules="required"
               >
                 <b-form-group
-                  label="SubCategory "
+                  :label="$t('SubCategory')"
                   label-for="address"
                 >
                   <b-form-input
                     v-model="formData.subcategory"
-                    placeholder="SubCategory"
+                    :placeholder="$t('SubCategory')"
                     :state="getValidationState(validationContext)"
+                    trim
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
@@ -100,17 +103,18 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Created Date"
+                :name="$t('Created Date')"
                 rules="required"
               >
                 <b-form-group
-                  label="Created Date"
+                  :label="$t('Created Date')"
                   label-for="created_date"
                 >
                   <b-form-input
                     type="date"
                     v-model="formData.created_date"
                     placeholder=""
+                    trim
                     :state="getValidationState(validationContext)"
                   />
                   <b-form-invalid-feedback>
@@ -125,17 +129,17 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Doc No."
+                :name="$t('Doc No.')"
                 rules="required"
               >
                 <b-form-group
-                  label="Doc No."
+                  :label="$t('Doc No.')"
                   label-for="registered"
                 >
                   <b-form-input
-
+                    trim
                     v-model="formData.document_number"
-                    placeholder=""
+                    :placeholder="$t('Doc No.')"
                     :state="getValidationState(validationContext)"
                   />
                   <b-form-invalid-feedback>
@@ -150,17 +154,18 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Revised Date"
+                :name="$t('Revised Date')"
                 rules="required"
               >
                 <b-form-group
-                  label="Revised Date"
+                  :label="$t('Revised Date')"
                   label-for="revised_date"
                 >
                   <b-form-input
                     type="date"
+                    trim
                     v-model="formData.revised_date"
-                    placeholder="Revised Date"
+                    :placeholder="$t('Revised Date')"
                     :state="getValidationState(validationContext)"
                   />
                   <b-form-invalid-feedback>
@@ -175,16 +180,17 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Revision No."
+                :name="$t('Revision No.')"
                 rules="required"
               >
                 <b-form-group
-                  label="Revision No."
+                  :label="$t('Revision No.')"
                   label-for="revision_number"
                 >
                   <b-form-input
+                    trim
                     v-model="formData.revision_number"
-                    placeholder="Revision No."
+                    :placeholder="$t('Revision No.')"
                     :state="getValidationState(validationContext)"
                   />
                   <b-form-invalid-feedback>
@@ -199,16 +205,17 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Doc Author"
+                :name="$t('Doc Author')"
                 rules="required"
               >
                 <b-form-group
-                  label="Doc Author"
+                  :label="$t('Doc Author')"
                   label-for="author"
                 >
                   <b-form-input
+                    trim
                     v-model="formData.author"
-                    placeholder="Doc Author"
+                    :placeholder="$t('Doc Author')"
                     :state="getValidationState(validationContext)"
                   />
                   <b-form-invalid-feedback>
@@ -230,6 +237,7 @@
                   label-for="approved_by"
                 >
                   <b-form-input
+                    trim
                     v-model="formData.approved_by"
                     :placeholder="$t('Approved By')"
                     :state="getValidationState(validationContext)"
@@ -246,17 +254,17 @@
             >
               <validation-provider
                 #default="validationContext"
-                name="Approved Date"
+                :name="$t('Approved Date')"
                 rules="required"
               >
                 <b-form-group
-                  label="Approved Date"
+                  :label="$t('Approved Date')"
                   label-for="approved_date"
                 >
                   <b-form-input
                     type="date"
                     v-model="formData.approved_date"
-                    placeholder="Approved Date"
+                    :placeholder="$t('Approved Date')"
                     :state="getValidationState(validationContext)"
                   />
                   <b-form-invalid-feedback>
@@ -308,6 +316,7 @@ import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import CKEditor from '@ckeditor/ckeditor5-vue2'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+import useDocuments from '@/composables/documents'
 
 export default {
   components: {
@@ -332,7 +341,7 @@ export default {
       required: true,
     },
   },
-  setup() {
+  setup(_, { emit }) {
     const {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
@@ -347,19 +356,26 @@ export default {
       revision_number: '',
       author: '',
       approved_by: '',
-      content: '<h1>Home Page / About Us Page</h1> <p>Australian College of Vocational Education and Training (ACVET) aims to be a recognised provider of vocational education and training facilitating industry relevant skills and knowledge for students.Our primary purpose is the provision of high-quality vocational training in a supportive and well-resourced learning environment for students to help equip them with industry-relevant skills and qualifications that are most needed in Australia.</p>',
+      type: 'handbook',
+      content: '',
     }
 
-
     const formData = ref({ ...initialState })
+
+    const { storeDocument, respResult } = useDocuments()
+
+
     const contentUpdate = data => {
       formData.value.content = data
     }
     const onSubmit = async () => {
-    //   await updateGeneral(formData.value)
+      await storeDocument(formData.value)
+      if (respResult.value.status === 200) {
+        emit('refetch-data')
+        emit('update:is-add-document-active', false)
+      }
     }
 
-    // console.log(ClassicEditor.builtinPlugins.map(plugin => plugin.pluginName))
     const editorConfig = ref({
       removePlugins: ['ImageUpload', 'EasyImage'],
     })
