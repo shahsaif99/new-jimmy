@@ -669,6 +669,8 @@ width: 100%;
 
     const onSubmit = async () => {
       await updateDocument(documentData.value)
+      getDocument(documentData.value)
+      getDocuments()
     }
 
     const downloadPdf = () => {
