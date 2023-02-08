@@ -160,7 +160,6 @@ export default [
     action: 'authentication',
     resource: 'all',
     children: [
-
       {
         title: 'Roles',
         route: 'roles',
@@ -175,13 +174,18 @@ export default [
       },
     ],
   },
-
   {
     title: 'Settings',
     icon: 'SettingsIcon',
     action: 'manage-settings',
     resource: 'all',
     children: [
+      {
+        title: 'Categories',
+        route: 'categories',
+        action: 'manage-categories',
+        resource: 'all',
+      },
       {
         title: 'Absence Types',
         route: 'settings-absence-types',

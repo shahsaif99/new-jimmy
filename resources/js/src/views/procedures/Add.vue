@@ -60,11 +60,15 @@
                   :label="$t('Category')"
                   label-for="cname"
                 >
-                  <b-form-input
+                  <b-form-select
+                    id="category"
                     v-model="formData.category"
-                    :placeholder="$t('Category')"
                     :state="getValidationState(validationContext)"
                     trim
+                    value-field="name"
+                    text-field="name"
+                    :options="categories"
+                    :placeholder="$t('Category')"
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
@@ -84,11 +88,15 @@
                   :label="$t('SubCategory')"
                   label-for="address"
                 >
-                  <b-form-input
+                  <b-form-select
+                    id="subcategory"
                     v-model="formData.subcategory"
-                    :placeholder="$t('SubCategory')"
                     :state="getValidationState(validationContext)"
                     trim
+                    value-field="name"
+                    text-field="name"
+                    :options="categories"
+                    :placeholder="$t('SubCategory')"
                   />
                   <b-form-invalid-feedback>
                     {{ validationContext.errors[0] }}
@@ -307,16 +315,18 @@ import {
   BForm,
   BButton,
   BFormGroup,
+  BFormSelect,
   BFormInput,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
-import { ref } from '@vue/composition-api'
+import { ref, onMounted } from '@vue/composition-api'
 import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import CKEditor from '@ckeditor/ckeditor5-vue2'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import useDocuments from '@/composables/documents'
+import useCategories from '@/composables/category'
 
 export default {
   components: {
@@ -327,6 +337,7 @@ export default {
     BButton,
     BFormGroup,
     BFormInput,
+    BFormSelect,
     ValidationObserver,
     ValidationProvider,
     BFormInvalidFeedback,
@@ -346,6 +357,8 @@ export default {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
+    const { fetchCategories, categories } = useCategories()
+
     const initialState = {
       title: '',
       category: '',
@@ -363,6 +376,10 @@ export default {
     const formData = ref({ ...initialState })
 
     const { storeDocument, respResult } = useDocuments()
+
+    onMounted(async () => {
+      await fetchCategories()
+    })
 
 
     const contentUpdate = data => {
@@ -385,9 +402,10 @@ export default {
       formData,
       required,
       onSubmit,
-      contentUpdate,
+      categories,
       resetForm,
       editorConfig,
+      contentUpdate,
       ClassicEditor,
       refFormObserver,
       getValidationState,

@@ -76,6 +76,9 @@
           :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
+          <template #head()="data">
+            <span>{{ $t(data.label) }}</span>
+          </template>
           <template #cell(actions)="data">
             <b-dropdown
               variant="link"

@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\CompetenceController;
 use App\Http\Controllers\Api\AbsenceTypeController;
 use App\Http\Controllers\Api\PermissionsController;
 use App\Http\Controllers\Api\ResetPasswordController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\BoardInformationController;
 use App\Http\Controllers\Api\CompetenceCourseController;
@@ -61,6 +62,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'absence-types' => AbsenceTypeController::class,
         'competence-courses' => CompetenceCourseController::class,
         'settings' => SettingsController::class,
+        'categories' => CategoryController::class,
+
     ]);
 
     Route::get('/documents', [DocumentController::class, 'getDocuments'])->name('documents');

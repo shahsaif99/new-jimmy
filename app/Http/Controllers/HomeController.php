@@ -23,7 +23,6 @@ class HomeController extends Controller
     {
         $subscription = $this->authorizedNetService->getSubscription($subscriptionId);
 
-        dd($subscription);
     }
 
     public function transaction(Request $request, $transactionId)

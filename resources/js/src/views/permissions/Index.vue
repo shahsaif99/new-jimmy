@@ -68,6 +68,9 @@
         :empty-text="t('No matching records found')"
         :sort-desc.sync="isSortDirDesc"
       >
+        <template #head()="data">
+          <span>{{ $t(data.label) }}</span>
+        </template>
         <template #cell(actions)="data">
           <b-dropdown
             variant="link"
@@ -231,7 +234,7 @@ export default {
           cancelTitle: i18n.t('No'),
           cancelVariant: 'outline-secondary',
           centered: true,
-          
+
         })
         .then(value => {
           if (value) {

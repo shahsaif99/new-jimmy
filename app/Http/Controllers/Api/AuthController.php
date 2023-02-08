@@ -73,7 +73,8 @@ class AuthController extends Controller
                         'overview-view',
                         'employee',
                         'document-center',
-                        'equipment-view'
+                        'equipment-view',
+                        'manage-categories'
                     ],
                 ];
                 break;
@@ -89,6 +90,7 @@ class AuthController extends Controller
                         'employee-overview',
                         'competence-overview',
                         'document-center',
+                        'manage-categories',
                         'equipment-view'
                     ],
                 ];

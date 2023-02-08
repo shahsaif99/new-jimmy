@@ -93,6 +93,9 @@
           @row-clicked="viewEquipment"
           tbody-tr-class="item-row"
         >
+          <template #head()="data">
+            <span>{{ $t(data.label) }}</span>
+          </template>
           <template #cell(lending)="data">
             <b-button
               variant="flat-primary"

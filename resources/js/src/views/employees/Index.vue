@@ -69,6 +69,9 @@
           :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
+          <template #head()="data">
+            <span>{{ $t(data.label) }}</span>
+          </template>
           <template #cell(status)="data">
             <div>
               <b-form-checkbox

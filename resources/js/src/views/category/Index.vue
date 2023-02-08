@@ -1,23 +1,18 @@
 <template>
   <div>
-    <edit-project
-      :is-edit-project-active.sync="isEditProjectActive"
-      v-if="isEditProjectActive"
-      :project="project"
-      @refetch-data="fetchProjects"
+    <AddCategory
+      :is-add-category-active.sync="isAddCategoryActive"
+      @refetch-data="fetchCategories"
     />
-    <add-project
-      :is-add-project-active.sync="isAddProjectActive"
-      v-if="isAddProjectActive"
-      @refetch-data="fetchProjects"
-    />
-    <add-document
-      :is-add-document-active.sync="isAddDocumentActive"
-      v-if="isAddDocumentActive"
+    <EditCategory
+      v-if="isEditCategoryActive"
+      :is-edit-category-active.sync="isEditCategoryActive"
+      @refetch-data="fetchCategories"
+      :category-data="categoryData"
     />
     <b-card
       no-body
-      class="mb-0"
+      class="mb-0 mt-2"
     >
       <div class="m-2">
         <b-row>
@@ -26,47 +21,39 @@
             md="8"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
-            <label>{{ t('Show') }}</label>
+            <label>{{ $t('Show') }}</label>
             <v-select
               v-model="perPage"
-              :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
               :options="perPageOptions"
               :clearable="false"
               class="per-page-selector d-inline-block mx-50"
             />
-            <label>{{ t('entries') }}</label>
-            <b-button
-              variant="primary"
-              @click="isAddProjectActive = true"
-              v-if="$can('projects-add', 'all')"
-              class="ml-3"
-            >
-              <span class="text-nowrap">Add Project</span>
-            </b-button>
-            <b-button
-              variant="primary"
-              @click="isAddDocumentActive=true"
-              v-if="$can('projects-add-documents', 'all')"
-              class="ml-3"
-            >
-              <span class="text-nowrap">Add Document</span>
-            </b-button>
+            <label>{{ $t('entries') }}</label>
+
           </b-col>
+
+          <!-- Search -->
           <b-col
             cols="12"
             md="4"
           >
-            <div
-              class="d-flex align-items-center justify-content-end"
-            >
+            <div class="d-flex align-items-center justify-content-end">
               <b-form-input
                 v-model="searchQuery"
                 class="d-inline-block mr-1"
-                :placeholder="t('Search...')"
+                placeholder="Search..."
               />
+              <b-button
+                class="d-inline-block ml-1"
+                variant="primary"
+                @click="isAddCategoryActive=true"
+              >
+                <span class="text-nowrap">{{ $t('Add Category') }}</span>
+              </b-button>
             </div>
           </b-col>
         </b-row>
+
       </div>
       <b-overlay
         id="overlay-background"
@@ -77,23 +64,27 @@
         <b-table
           ref="refListTable"
           class="position-relative"
-          :items="projects"
+          :items="categories"
           responsive
           :fields="tableColumns"
           primary-key="id"
           :sort-by.sync="sortBy"
           show-empty
-          :empty-text="t('No matching records found')"
+          :empty-text="$t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
+
           <template #head()="data">
             <span>{{ $t(data.label) }}</span>
           </template>
+
+          <!-- Column: Actions -->
           <template #cell(actions)="data">
             <b-dropdown
               variant="link"
               no-caret
             >
+
               <template #button-content>
                 <feather-icon
                   icon="MoreVerticalIcon"
@@ -101,26 +92,23 @@
                   class="align-middle text-body"
                 />
               </template>
-              <b-dropdown-item
-                @click="editProject(data.item)"
-              >
+              <b-dropdown-item @click="editCategoryRow(data.item)">
                 <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">{{ t('Edit') }}</span>
+                <span class="align-middle ml-50">{{ $t('Edit') }}</span>
               </b-dropdown-item>
-              <b-dropdown-item
-                @click="confirmDelete(data.item.id)"
-              >
-                <feather-icon
-                  icon="TrashIcon"
-                />
-                <span class="align-middle ml-50">{{ t('Delete') }}</span>
+
+              <b-dropdown-item @click="confirmDelete(data.item.id)">
+                <feather-icon icon="TrashIcon" />
+                <span class="align-middle ml-50">{{ $t('Delete') }}</span>
               </b-dropdown-item>
+
             </b-dropdown>
           </template>
-        </b-table>
-      </b-overlay>
+
+        </b-table></b-overlay>
       <div class="mx-2 mb-2">
         <b-row>
+
           <b-col
             cols="12"
             sm="6"
@@ -128,8 +116,8 @@
           >
             <span
               class="text-muted"
-            >{{ t('Showing') }} {{ dataMeta.from }} {{ t('to') }} {{ dataMeta.to }} {{ t('of') }}
-              {{ dataMeta.of }} {{ t('entries') }}</span>
+            >{{ $t('Showing') }} {{ dataMeta.from }} {{ $t('to') }} {{ dataMeta.to }} {{ $t('of') }}
+              {{ dataMeta.of }} {{ $t('entries') }}</span>
           </b-col>
           <!-- Pagination -->
           <b-col
@@ -137,6 +125,7 @@
             sm="6"
             class="d-flex align-items-center justify-content-center justify-content-sm-end"
           >
+
             <b-pagination
               v-model="currentPage"
               :total-rows="totalRecords"
@@ -160,7 +149,9 @@
                 />
               </template>
             </b-pagination>
+
           </b-col>
+
         </b-row>
       </div>
     </b-card>
@@ -169,136 +160,143 @@
 
 <script>
 import {
-  BCard,
-  BRow,
-  BCol,
-  BTable,
-  BOverlay,
-  BButton,
-  BDropdown,
-  BFormInput,
-  BPagination,
-  BDropdownItem,
+  BButton, BCard, BCol, BDropdown,
+  BDropdownItem, BFormInput, BOverlay, BPagination, BRow, BTable, VBTooltip,
 } from 'bootstrap-vue'
-import { ref, onMounted } from '@vue/composition-api'
 import vSelect from 'vue-select'
-import useProjects from '@/composables/projects'
-import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import route from 'ziggy-js'
+import { ref, onMounted } from '@vue/composition-api'
+import useCategories from '@/composables/category'
 import i18n from '@/libs/i18n'
-import AddProject from './dialogs/AddProject.vue'
-import AddDocument from './dialogs/AddDocument.vue'
-import EditProject from './dialogs/EditProject.vue'
+import AddCategory from './add/AddCategory.vue'
+import EditCategory from './edit/EditCategory.vue'
 
 export default {
   components: {
-    BCol,
     BRow,
+    BCol,
     BCard,
     BTable,
-    vSelect,
     BButton,
+    vSelect,
     BOverlay,
     BDropdown,
-    AddProject,
     BFormInput,
     BPagination,
-    AddDocument,
-    EditProject,
     BDropdownItem,
+    AddCategory,
+    EditCategory,
   },
-  setup(_, { root }) {
+  directives: {
+    'b-tooltip': VBTooltip,
+  },
+  setup(_, context) {
     const {
       busy,
+      categories,
       sortBy,
-      filters,
       perPage,
-      projects,
+      filters,
       dataMeta,
+      fetchCategories,
       respResult,
-      refetchData,
+      deleteCategory,
       searchQuery,
-      tableColumns,
-      currentPage,
       totalRecords,
+      currentPage,
       refListTable,
-      deleteProject,
+      tableColumns,
       isSortDirDesc,
-      fetchProjects,
       perPageOptions,
-    } = useProjects()
+      resolveUserRoleIcon,
+      resolveUserRoleVariant,
+    } = useCategories()
 
-    const { t } = useI18nUtils()
-
-
+    const roleFilter = ref(null)
     onMounted(() => {
-      fetchProjects()
+      fetchCategories()
     })
+
     const isExportActive = ref(false)
-    const isAddProjectActive = ref(false)
-    const isAddDocumentActive = ref(false)
-    const isEditProjectActive = ref(false)
-    const project = ref({})
-    const deleteConfirmed = async id => {
-      await deleteProject(id)
-      if (respResult.value.status === 200) {
-        fetchProjects()
-      }
+    const isAddCategoryActive = ref(false)
+    const isEditCategoryActive = ref(false)
+    const categoryData = ref({})
+
+    const editCategoryRow = item => {
+      categoryData.value = item
+      isEditCategoryActive.value = true
     }
 
-    const editProject = item => {
-      project.value = item
-      isEditProjectActive.value = true
+
+    const deleteUserConfirmed = async id => {
+      await deleteCategory(id)
+      if (respResult.value.status === 200) {
+        fetchCategories()
+      }
     }
 
 
     const confirmDelete = async id => {
-      root.$bvModal
-        .msgBoxConfirm(i18n.t('Please confirm that you want to delete project.'), {
+      context.root.$bvModal
+        .msgBoxConfirm(i18n.t('Please confirm that you want to delete category.'), {
           title: i18n.t('Please Confirm'),
           size: 'sm',
-          okTitle: i18n.t('Confirm'),
-          cancelTitle: i18n.t('Cancel'),
         })
         .then(value => {
           if (value) {
-            deleteConfirmed(id)
+            deleteUserConfirmed(id)
           }
         })
     }
+
     return {
-      t,
       busy,
+      categoryData,
+      route,
+      categories,
       sortBy,
-      filters,
-      project,
       perPage,
-      projects,
+      filters,
       dataMeta,
-      refetchData,
-      editProject,
+      roleFilter,
+      fetchCategories,
       searchQuery,
       currentPage,
       tableColumns,
       totalRecords,
       refListTable,
-      isSortDirDesc,
       confirmDelete,
+      isEditCategoryActive,
+      isSortDirDesc,
+      editCategoryRow,
       perPageOptions,
       isExportActive,
-      fetchProjects,
-      isAddProjectActive,
-      isAddDocumentActive,
-      isEditProjectActive,
+      resolveUserRoleIcon,
+      resolveUserRoleVariant,
+      isAddCategoryActive,
     }
   },
 }
 </script>
-  <style scoped>
-  .per-page-selector {
-    width: 90px;
-  }
-  </style>
 
-  <style lang="scss">
-  @import '~@core/scss/vue/libs/vue-select.scss';
-  </style>
+<style lang="scss" scoped>
+.per-page-selector {
+  width: 90px;
+}
+
+.invoice-filter-select {
+  min-width: 190px;
+
+  ::v-deep .vs__selected-options {
+    flex-wrap: nowrap;
+  }
+
+  ::v-deep .vs__selected {
+    width: 100px;
+  }
+}
+</style>
+
+<style lang="scss">
+@import '~@core/scss/vue/libs/vue-select.scss';
+</style>
