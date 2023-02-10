@@ -14,7 +14,7 @@ class DocumentController extends Controller
     public function index(Request $request){
 
         $documents = Document::query()
-        ->whereType($request->type)
+        // ->whereType($request->type)
         ->latest()
         ->get();
 
