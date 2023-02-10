@@ -396,7 +396,7 @@ export default {
       revision_number: '',
       author: '',
       approved_by: '',
-      //   type: 'procedure',
+        type: '',
       content: '',
     }
 

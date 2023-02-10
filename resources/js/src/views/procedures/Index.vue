@@ -667,7 +667,7 @@ export default {
       author: '',
       approved_by: '',
       approved_date: '',
-      type: 'procedure',
+      type: 'Procedure',
       content: '',
     }
 
@@ -680,7 +680,7 @@ export default {
     }
     const editorContent = ref('')
     onMounted(async () => {
-      filters.type = 'procedure'
+      filters.type = 'Procedure'
       await getDocuments()
     })
 
