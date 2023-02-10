@@ -15,7 +15,7 @@ export default function useDocuments() {
 
   const getDocuments = async () => {
     try {
-      const response = await axios.get(route('documents'), {
+      const response = await axios.get(route('documents.index'), {
         params: {
           q: searchQuery.value,
           ...filters,
@@ -64,7 +64,7 @@ export default function useDocuments() {
     try {
       console.log(data.id)
       busy.value = true
-      const response = await axios.post(route('documents.update', data.id), data)
+      const response = await axios.put(route('documents.update', data.id), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -83,6 +83,24 @@ export default function useDocuments() {
     }
   }
 
+  const deleteDocument = async id => {
+    try {
+      busy.value = true
+      const response = await axios.delete(route('documents.destroy', id))
+      toast.success(response.data.message)
+      respResult.value = response
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+
 
   return {
     busy,
@@ -93,5 +111,6 @@ export default function useDocuments() {
     getDocuments,
     documentsData,
     storeDocument,
+    deleteDocument,
   }
 }

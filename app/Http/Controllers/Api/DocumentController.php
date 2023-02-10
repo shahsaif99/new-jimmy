@@ -11,7 +11,7 @@ class DocumentController extends Controller
 {
     //
 
-    public function getDocuments(Request $request){
+    public function index(Request $request){
 
         $documents = Document::query()
         ->whereType($request->type)
@@ -23,7 +23,7 @@ class DocumentController extends Controller
         return $grouped;
     }
 
-    public function storeDocument(StoreRequest $request){
+    public function store(StoreRequest $request){
 
         Document::create($request->all());
 
@@ -32,7 +32,7 @@ class DocumentController extends Controller
         ], 200);
     }
 
-    public function updateDocument(StoreRequest $request,  $documentId){
+    public function update(StoreRequest $request,  $documentId){
 
         $document = Document::findOrFail($documentId);
 
@@ -40,6 +40,21 @@ class DocumentController extends Controller
 
         return response()->json([
             'message' => 'Document successfully updated.',
+        ], 200);
+    }
+
+     /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Document  $document
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Document $document)
+    {
+        $document->delete();
+
+        return response()->json([
+            'message' => 'Document successfully deleted.',
         ], 200);
     }
 }

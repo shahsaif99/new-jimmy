@@ -63,12 +63,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'competence-courses' => CompetenceCourseController::class,
         'settings' => SettingsController::class,
         'categories' => CategoryController::class,
+        'documents' => DocumentController::class,
 
     ]);
 
-    Route::get('/documents', [DocumentController::class, 'getDocuments'])->name('documents');
-    Route::post('/documents/store', [DocumentController::class, 'storeDocument'])->name('documents.store');
-    Route::post('/documents/update/{id}', [DocumentController::class, 'updateDocument'])->name('documents.update');
+    // Route::get('/documents', [DocumentController::class, 'getDocuments'])->name('documents');
+    // Route::post('/documents/store', [DocumentController::class, 'storeDocument'])->name('documents.store');
+    // Route::post('/documents/update/{id}', [DocumentController::class, 'updateDocument'])->name('documents.update');
+    // Route::delete('/documents/destroy/{id}', [DocumentController::class, 'deleteDocument'])->name('documents.update');
 
     Route::get('/account', [AccountController::class, 'account'])->name('account');
     Route::put('/account/password', [AccountController::class, 'updateAccountPassword'])->name('account.password');

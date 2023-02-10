@@ -38,6 +38,14 @@
           <span class="text-nowrap">{{ $t('Edit') }}</span>
         </b-button>
         <b-button
+          variant="danger"
+          class="mb-1"
+          @click="deleteDocumentEntry"
+          v-if="isDocumentOpen"
+        >
+          <span class="text-nowrap">{{ $t('Delete') }}</span>
+        </b-button>
+        <b-button
           variant="primary"
           class="mb-1"
           @click="addDocumentActive=true"
@@ -91,7 +99,7 @@
                             <a
                               href="javascript:;"
                               @click="getDocument(subCategory)"
-                            >{{ subCategory.document_number }} - {{ subCategory.title }}</a>
+                            >{{ subCategory.document_number }}-{{ subCategory.type.charAt(0) }}-{{ subCategory.title }}</a>
                           </li>
                         </ul>
                       </li>
@@ -110,7 +118,10 @@
                 no-body
                 class="p-1 ck-content"
               >
-                <div v-html="editorContent" />
+                <div
+                  v-html="editorContent"
+                  v-if="documentData.type == 'Procedure'"
+                />
                 <div v-html="documentData.content" />
               </b-card>
             </template>
@@ -217,6 +228,33 @@
                                 :placeholder="$t('SubCategory')"
                                 :state="getValidationState(validationContext)"
                                 trim
+                              />
+                              <b-form-invalid-feedback>
+                                {{ validationContext.errors[0] }}
+                              </b-form-invalid-feedback>
+                            </b-form-group>
+                          </validation-provider>
+                        </b-col>
+
+                        <b-col
+                          cols="6"
+                          md="6"
+                        >
+                          <validation-provider
+                            #default="validationContext"
+                            :name="$t('Document Type')"
+                            rules="required"
+                          >
+                            <b-form-group
+                              :label="$t('Document Type')"
+                              label-for="address"
+                            >
+                              <b-form-select
+                                id="type"
+                                v-model="documentData.type"
+                                :state="getValidationState(validationContext)"
+                                :options="['Procedure', 'Document']"
+                                :placeholder="$t('Document Type')"
                               />
                               <b-form-invalid-feedback>
                                 {{ validationContext.errors[0] }}
@@ -420,6 +458,27 @@
                 >
                   <b-row>
                     <b-col
+                      sm="12"
+                      class="mb-2 justify-content-between d-flex"
+                    >
+                      <!-- <h6>
+                        <strong>{{ $t('Type') }}</strong>
+                      </h6>
+                      <span>{{ documentData.type }}</span> -->
+                      <b-form-group
+                        v-slot="{ ariaDescribedby }"
+                      >
+                        <b-form-radio-group
+                          disabled
+                          id="radio-group-1"
+                          v-model="documentData.type"
+                          :options="['Procedure', 'Document']"
+                          :aria-describedby="ariaDescribedby"
+                          name="radio-options"
+                        />
+                      </b-form-group>
+                    </b-col>
+                    <b-col
                       sm="6"
                       class="mb-2"
                     >
@@ -443,7 +502,7 @@
                       class="mb-2"
                     >
                       <h6>
-                        <strong>{{ $t('Doc. name') }}</strong>
+                        <strong>{{ $t('Document Title') }}</strong>
                       </h6>
                       <span>{{ documentData.title }}</span>
                     </b-col>
@@ -537,7 +596,7 @@
 
 <script>
 import {
-  BButton, BCard, BCol, BRow, BFormGroup, BFormInput, BCollapse, VBToggle, BForm, BFormInvalidFeedback,
+  BButton, BCard, BCol, BRow, BFormGroup, BFormInput, BCollapse, VBToggle, BForm, BFormInvalidFeedback, BFormRadioGroup, BFormSelect,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 // eslint-disable-next-line import/no-cycle
@@ -564,10 +623,12 @@ export default {
     BForm,
     BButton,
     BCollapse,
+    BFormSelect,
     BFormInput,
     BFormGroup,
     addProcedure,
     AddCategory,
+    BFormRadioGroup,
     VuePerfectScrollbar,
     ValidationObserver,
     ValidationProvider,
@@ -577,7 +638,7 @@ export default {
   directives: {
     'b-toggle': VBToggle,
   },
-  setup() {
+  setup(_, context) {
     const isExportActive = ref(false)
     const addDocumentActive = ref(false)
     const isAddCategoryActive = ref(false)
@@ -592,7 +653,7 @@ export default {
       wheelSpeed: 0.3,
     }
     const {
-      getDocuments, documentsData, updateDocument, filters,
+      getDocuments, documentsData, updateDocument, filters, deleteDocument,
     } = useDocuments()
 
     const initialState = {
@@ -634,34 +695,31 @@ height: 100%;
 width: 100%;
 ">
 <tr>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important"><span
-                >${i18n.t('Created Date')}:<br />${documentData.value.created_date}</span
+            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important; font-size: 13px;"><span
+                ><span style="text-transform: uppercase;">${i18n.t('Created Date')}:<br /></span>${documentData.value.created_date}</span
             ></td>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important"><span
-                >${i18n.t('Revised Date')}:<br />${documentData.value.revised_date}</span
+            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;font-size: 13px;"><span
+                ><span style="text-transform: uppercase;">${i18n.t('Revised Date')}:<br /></span>${documentData.value.revised_date}</span
             ></td>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;" colspan="2"><span>${i18n.t('Doc Author')}:<br />${documentData.value.author}</span></td>
+            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;font-size: 13px;" colspan="2"><span><span style="text-transform: uppercase;">${i18n.t('Doc Author')}:<br /></span>${documentData.value.author}</span></td>
                 <td rowspan="2" style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important; border-left: none;"><span style="font-size:20px; color:#186784;">adger energi</span></td>
             </tr>
 
           <tr>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important">	<span
-                >${i18n.t('Doc. no')}:<br />${documentData.value.document_number}</span
+            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;font-size: 13px;"><span
+                ><span style="text-transform: uppercase;">${i18n.t('Doc. no')}:<br /></span>${documentData.value.document_number}-${documentData.value.type.charAt(0)}-${documentData.value.title}</span
             ></td>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important">	<span
-                >${i18n.t('Revised Date')}:<br />${documentData.value.revised_date}</span
+
+            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;font-size: 13px;"><span
+                ><span style="text-transform: uppercase;">${i18n.t('Revised No')}:<br /></span>${documentData.value.revision_number}</span
             ></td>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important"><span
-                >${i18n.t('Revised No')}:<br />${documentData.value.revision_number}</span
-            ></td>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important"><span
-                >${i18n.t('Approved By')}:<br />${documentData.value.revision_number}</span
+            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;font-size: 13px;"><span
+                ><span style="text-transform: uppercase;">${i18n.t('Approved By')}:<br /></span>${documentData.value.revision_number}</span
             ></td>
           </tr>
     <tr>
       <td colspan="5" style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;border-top: none;" class="text-center">
-        <p class="p-0 m-0"><strong>Instruks for arbeid i høyden</strong></p>
-        <span>(stillas. stirre mast/stolpe, tak, lift mm.)</span>
+        <p class="p-0 m-0" ><strong>${documentData.value.title}</strong></p>
       </td>
     </tr>
   </table>`
@@ -697,6 +755,28 @@ width: 100%;
       removePlugins: ['ImageUpload', 'EasyImage'],
     })
 
+    const deleteConfirmed = async () => {
+      await deleteDocument(documentData.value.id)
+      await getDocuments()
+      isDocumentOpen.value = false
+      documentData.value = {}
+    }
+
+    const deleteDocumentEntry = async () => {
+      if (isDocumentOpen.value) {
+        context.root.$bvModal
+          .msgBoxConfirm(i18n.t('Please confirm that you want to delete document.'), {
+            title: i18n.t('Please Confirm'),
+            size: 'sm',
+          })
+          .then(value => {
+            if (value) {
+              deleteConfirmed()
+            }
+          })
+      }
+    }
+
 
     const localStorageData = JSON.parse(useJwt.getUserData())
 
@@ -716,6 +796,7 @@ width: 100%;
       ClassicEditor,
       editorConfig,
       isExportActive,
+      deleteDocumentEntry,
       refFormObserver,
       getValidationState,
       addDocumentActive,
@@ -767,7 +848,7 @@ width: 100%;
   </style>
 
   <style>
-  .ck-content p{
+  /* .ck-content p{
       font-size:12px !important;
-  }
+  } */
   </style>

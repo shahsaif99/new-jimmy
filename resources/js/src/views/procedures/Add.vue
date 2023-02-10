@@ -111,6 +111,33 @@
             >
               <validation-provider
                 #default="validationContext"
+                :name="$t('Document Type')"
+                rules="required"
+              >
+                <b-form-group
+                  :label="$t('Document Type')"
+                  label-for="address"
+                >
+                  <b-form-select
+                    id="type"
+                    v-model="formData.type"
+                    :state="getValidationState(validationContext)"
+                    :options="['Procedure', 'Document']"
+                    :placeholder="$t('Document Type')"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
                 :name="$t('Created Date')"
                 rules="required"
               >
@@ -369,7 +396,7 @@ export default {
       revision_number: '',
       author: '',
       approved_by: '',
-      type: 'procedure',
+      //   type: 'procedure',
       content: '',
     }
 
