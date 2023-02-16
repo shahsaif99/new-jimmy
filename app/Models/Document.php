@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Document extends Model
 {
@@ -23,4 +24,14 @@ class Document extends Model
         'content',
         'type',
     ];
+
+
+    public function scopeApplyFilters($query, Request $request)
+    {
+
+        $query->when($request->q, function ($query, $queryString) {
+            $query->where('title', 'like', '%'.$queryString.'%')
+            ->orWhere('document_number', 'like', '%'.$queryString.'%');
+        });
+    }
 }

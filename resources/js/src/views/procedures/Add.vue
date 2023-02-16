@@ -164,17 +164,17 @@
             >
               <validation-provider
                 #default="validationContext"
-                :name="$t('Doc No.')"
+                :name="$t('Doc. no')"
                 rules="required"
               >
                 <b-form-group
-                  :label="$t('Doc No.')"
+                  :label="$t('Doc. no')"
                   label-for="registered"
                 >
                   <b-form-input
                     trim
                     v-model="formData.document_number"
-                    :placeholder="$t('Doc No.')"
+                    :placeholder="$t('Doc. no')"
                     :state="getValidationState(validationContext)"
                   />
                   <b-form-invalid-feedback>

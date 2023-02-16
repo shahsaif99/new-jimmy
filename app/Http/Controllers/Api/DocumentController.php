@@ -15,6 +15,7 @@ class DocumentController extends Controller
 
         $documents = Document::query()
         // ->whereType($request->type)
+        ->applyFilters($request)
         ->latest()
         ->get();
 

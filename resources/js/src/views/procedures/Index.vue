@@ -10,15 +10,25 @@
       :is-add-category-active.sync="isAddCategoryActive"
     />
 
-
     <div class="row justify-content-between align-items-center mb-2">
       <div class="col-md-3">
-        <b-form-group>
+        <div class="justify-content-between d-flex">
           <b-form-input
             type="text"
+            v-model="searchQuery"
             placeholder="Search"
+            @keyup.enter="search()"
           />
-        </b-form-group>
+          <b-button
+            variant="primary"
+            class="mb-1"
+            @click="search()"
+          >
+            <span
+              class="text-nowrap"
+            >{{ $t('Search...') }}</span>
+          </b-button>
+        </div>
       </div>
 
       <div class="col-auto">
@@ -63,7 +73,7 @@
         class="flat-primary"
         size="sm"
       >
-        <span class="when-open">Close</span><span class="when-closed">Open</span> Document Details
+        <span class="when-open">{{ $t('Close') }}</span><span class="when-closed">{{ $t('Open') }}</span> {{ $t('Document Details') }}
       </b-button>
     </div>
     <div class="mb-2">
@@ -459,24 +469,23 @@
                   <b-row>
                     <b-col
                       sm="12"
-                      class="mb-2 justify-content-between d-flex"
+                      class="mb-2 justify-content-around d-flex"
                     >
-                      <!-- <h6>
-                        <strong>{{ $t('Type') }}</strong>
-                      </h6>
-                      <span>{{ documentData.type }}</span> -->
-                      <b-form-group
-                        v-slot="{ ariaDescribedby }"
-                      >
-                        <b-form-radio-group
-                          disabled
-                          id="radio-group-1"
-                          v-model="documentData.type"
-                          :options="['Procedure', 'Document']"
-                          :aria-describedby="ariaDescribedby"
-                          name="radio-options"
-                        />
-                      </b-form-group>
+                      <label><input
+                        type="radio"
+                        name="type"
+                        disabled
+                        :checked="documentData.type == 'Procedure'"
+                        id=""
+                      >  {{ $t('Procedure') }}</label>
+                      <label><input
+                        type="radio"
+                        name="type"
+                        disabled
+                        :checked="documentData.type == 'Document'"
+                        id=""
+                      >  {{ $t('Document') }}</label>
+
                     </b-col>
                     <b-col
                       sm="6"
@@ -538,7 +547,7 @@
                       class="mb-2"
                     >
                       <h6>
-                        <strong>{{ $t('Revised No') }}</strong>
+                        <strong>{{ $t('Revision No.') }}</strong>
                       </h6>
                       <span>{{ documentData.revision_number }}</span>
                     </b-col>
@@ -597,6 +606,7 @@
 <script>
 import {
   BButton, BCard, BCol, BRow, BFormGroup, BFormInput, BCollapse, VBToggle, BForm, BFormInvalidFeedback, BFormRadioGroup, BFormSelect,
+  BFormRadio,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 // eslint-disable-next-line import/no-cycle
@@ -627,6 +637,7 @@ export default {
     BFormInput,
     BFormGroup,
     addProcedure,
+    BFormRadio,
     AddCategory,
     BFormRadioGroup,
     VuePerfectScrollbar,
@@ -652,9 +663,12 @@ export default {
       wheelPropagation: false,
       wheelSpeed: 0.3,
     }
+
+
     const {
       getDocuments, documentsData, updateDocument, filters, deleteDocument,
     } = useDocuments()
+
 
     const initialState = {
       title: '',
@@ -679,10 +693,17 @@ export default {
       isDocumentEdit.value = true
     }
     const editorContent = ref('')
+    const searchQuery = ref('')
     onMounted(async () => {
     //   filters.type = 'Procedure'
       await getDocuments()
     })
+
+    const search = () => {
+      filters.q = searchQuery.value
+      getDocuments()
+    }
+
 
     const getDocument = data => {
       isDocumentOpen.value = true
@@ -695,30 +716,33 @@ height: 100%;
 width: 100%;
 ">
 <tr>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important; font-size: 13px;"><span
-                ><span style="text-transform: uppercase;">${i18n.t('Created Date')}:<br /></span>${documentData.value.created_date}</span
+            <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important"><span
+                ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Created Date')}:<br /></span><span style="font-size: 15px;">${documentData.value.created_date}</span></span
             ></td>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;font-size: 13px;"><span
-                ><span style="text-transform: uppercase;">${i18n.t('Revised Date')}:<br /></span>${documentData.value.revised_date}</span
+            <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important"><span
+                ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Revised Date')}:<br /></span><span style="font-size: 15px;">${documentData.value.revised_date}</span></span
             ></td>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;font-size: 13px;" colspan="2"><span><span style="text-transform: uppercase;">${i18n.t('Doc Author')}:<br /></span>${documentData.value.author}</span></td>
-                <td rowspan="2" style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important; border-left: none;"><span style="font-size:20px; color:#186784;">adger energi</span></td>
+            <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important" colspan="2"><span><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Doc Author')}:<br /></span>${documentData.value.author}</span></td>
+                <td rowspan="2" style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important; border-left: none;"><span style="font-size:20px; color:#186784;">adger energi</span></td>
             </tr>
 
           <tr>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;font-size: 13px;"><span
-                ><span style="text-transform: uppercase;">${i18n.t('Doc. no')}:<br /></span>${documentData.value.document_number}-${documentData.value.type.charAt(0)}-${documentData.value.title}</span
+            <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important"><span
+                ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Doc. no')}:<br /></span><span style="font-size: 15px;">${documentData.value.document_number}-${documentData.value.type.charAt(0)}</span></span
             ></td>
 
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;font-size: 13px;"><span
-                ><span style="text-transform: uppercase;">${i18n.t('Revised No')}:<br /></span>${documentData.value.revision_number}</span
+            <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important"><span
+                ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Revision No.')}:<br /></span>${documentData.value.revision_number}</span
             ></td>
-            <td style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;font-size: 13px;"><span
-                ><span style="text-transform: uppercase;">${i18n.t('Approved By')}:<br /></span>${documentData.value.revision_number}</span
+            <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important"><span
+                ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Approved By')}:<br /></span><span style="font-size: 15px;">${documentData.value.approved_by}</span></span
+            ></td>
+            <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important"><span
+                ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Approved Date')}:<br /></span><span style="font-size: 15px;">${documentData.value.approved_date}</span></span
             ></td>
           </tr>
     <tr>
-      <td colspan="5" style="border: 1px solid #bfbfbf; padding: 0.3rem 1rem !important;border-top: none;" class="text-center">
+      <td colspan="5" style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important;border-top: none;" class="text-center">
         <p class="p-0 m-0" ><strong>${documentData.value.title}</strong></p>
       </td>
     </tr>
@@ -782,8 +806,10 @@ width: 100%;
 
 
     return {
+      search,
       onSubmit,
       required,
+      searchQuery,
       getDocuments,
       editDocument,
       downloadPdf,

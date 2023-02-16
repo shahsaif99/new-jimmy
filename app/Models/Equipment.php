@@ -58,7 +58,7 @@ class Equipment extends Model
 
     public function scopeApplyFilters($query, Request $request)
     {
-       
+
         $user = auth()->user();
         $query
         ->when($request->sortDesc, function ($query, $sortDesc) {
