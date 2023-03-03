@@ -24,7 +24,6 @@
             md="8"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
-            <label>{{ t('Show') }}</label>
             <v-select
               v-model="perPage"
               :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
@@ -32,7 +31,7 @@
               :clearable="false"
               class="per-page-selector d-inline-block mx-50"
             />
-            <label>{{ t('entries') }}</label>
+            <label>{{ t('records per page') }}</label>
 
 
             <b-button
