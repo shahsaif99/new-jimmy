@@ -3,11 +3,11 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    :title="$t('Edit Category')"
+    title="Add New Category"
     size="lg"
-    @close="$emit('update:is-edit-category-active', false)"
-    :visible="isEditCategoryActive"
-    @hide="$emit('update:is-edit-category-active', false)"
+    @close="$emit('update:is-add-category-active', false)"
+    :visible="isAddCategoryActive"
+    @hide="$emit('update:is-add-category-active', false)"
   >
     <validation-observer
       #default="{ handleSubmit }"
@@ -28,7 +28,6 @@
             <b-col
               cols="6"
               md="12"
-              v-if="form.category_id"
             >
               <validation-provider
                 #default="validationContext"
@@ -143,19 +142,18 @@
 import {
   BForm,
   BFormGroup,
+  BFormSelect,
   BFormInput,
   BFormInvalidFeedback,
   BOverlay,
   BModal,
   BButton,
-  BFormSelect,
   BRow,
   BCol,
 } from 'bootstrap-vue'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import { ref, onMounted } from '@vue/composition-api'
 import { required } from '@validations'
-// import vSelect from 'vue-select'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import useCategories from '@/composables/category'
 
@@ -175,46 +173,43 @@ export default {
     BFormInvalidFeedback,
   },
   model: {
-    prop: 'isEditCategoryActive',
-    event: 'update:is-edit-category-active',
+    prop: 'isAddCategoryActive',
+    event: 'update:is-add-category-active',
   },
   props: {
-    isEditCategoryActive: {
+    isAddCategoryActive: {
       type: Boolean,
-      required: true,
-    },
-    categoryData: {
-      type: Object,
       required: true,
     },
   },
   setup(props, { emit }) {
     const initialState = {
       name: '',
+      category_id: '',
+      number: '',
     }
 
     const form = ref({ ...initialState })
 
     const {
-      busy, updateCategory, respResult, fetchCategories, categories,
+      busy, storeCategory, respResult, fetchCategories, categories,
     } = useCategories()
-
-    onMounted(async () => {
-      if (props.isEditCategoryActive) {
-        await fetchCategories()
-        form.value = props.categoryData
-      }
-    })
 
     const resetplanData = () => {
       form.value = JSON.parse(JSON.stringify(initialState))
     }
 
+    onMounted(() => {
+      if (props.isAddCategoryActive) {
+        fetchCategories()
+      }
+    })
+
     const onSubmit = async () => {
-      await updateCategory(form.value)
+      await storeCategory(form.value)
       if (respResult.value.status === 200) {
         emit('refetch-data')
-        emit('update:is-edit-category-active', false)
+        emit('update:is-add-category-active', false)
         resetplanData()
       }
     }
@@ -234,7 +229,3 @@ export default {
   },
 }
 </script>
-
-<style lang="scss">
-@import "@core/scss/vue/libs/vue-select.scss";
-</style>

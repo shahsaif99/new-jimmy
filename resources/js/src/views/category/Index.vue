@@ -3,6 +3,13 @@
     <AddCategory
       :is-add-category-active.sync="isAddCategoryActive"
       @refetch-data="fetchCategories"
+      :is-subcategory="isSubCategory"
+      v-if="isAddCategoryActive"
+    />
+    <AddSubCategory
+      :is-add-category-active.sync="isAddSubCategoryActive"
+      @refetch-data="fetchCategories"
+      v-if="isAddSubCategoryActive"
     />
     <EditCategory
       v-if="isEditCategoryActive"
@@ -50,141 +57,141 @@
               >
                 <span class="text-nowrap">{{ $t('Add Category') }}</span>
               </b-button>
+              <b-button
+                class="d-inline-block ml-1"
+                variant="primary"
+                @click="isAddSubCategoryActive=true"
+              >
+                <span class="text-nowrap">{{ $t('Add SubCategory') }}</span>
+              </b-button>
             </div>
           </b-col>
         </b-row>
 
       </div>
-      <b-overlay
-        id="overlay-background"
-        :show="busy"
-        variant="transparent"
-        rounded="sm"
+      <vue-good-table
+        mode="remote"
+        @on-page-change="onPageChange"
+        @on-per-page-change="onPerPageChange"
+        :columns="tableColumns"
+        @on-sort-change="onSortChange"
+        @on-column-filter="onColumnFilter"
+        :rows="categories"
+        :is-loading.sync="busy"
+        :total-rows="totalRecords"
+        :sort-options="{
+          enabled: false,
+        }"
+        :search-options="{
+          enabled: true,
+          externalQuery: searchTerm }"
+        :pagination-options="{
+          enabled: true,
+          perPage:pageLength
+        }"
+        :group-options="{
+          enabled: true,
+        }"
       >
-        <b-table
-          ref="refListTable"
-          class="position-relative"
-          :items="categories"
-          responsive
-          :fields="tableColumns"
-          primary-key="id"
-          :sort-by.sync="sortBy"
-          show-empty
-          :empty-text="$t('No matching records found')"
-          :sort-desc.sync="isSortDirDesc"
+
+        <template
+          slot="table-column"
+          slot-scope="props"
         >
-
-          <template #head()="data">
-            <span>{{ $t(data.label) }}</span>
-          </template>
-
-          <!-- Column: Actions -->
-          <template #cell(actions)="data">
-            <b-dropdown
-              variant="link"
-              no-caret
-            >
-
-              <template #button-content>
+          <span
+            class="text-nowrap"
+          >
+            {{ $t(props.column.label) }}
+          </span>
+        </template>
+        <template
+          slot="table-row"
+          slot-scope="props"
+        >
+          <div class="d-flex justify-content-between pl-3">
+            {{ props.row.parent.number }}{{ props.row.number }} {{ props.row.name }}
+            <span>
+              <div
+                class="text-nowrap"
+              >
                 <feather-icon
-                  icon="MoreVerticalIcon"
+                  :id="`user-row-${props.row.id}-pencil-icon`"
+                  icon="EditIcon"
                   size="16"
-                  class="align-middle text-body"
+                  class="mx-1 cursor-pointer"
+                  @click="editCategory(props.row)"
                 />
-              </template>
-              <b-dropdown-item @click="editCategoryRow(data.item)">
-                <feather-icon icon="EditIcon" />
-                <span class="align-middle ml-50">{{ $t('Edit') }}</span>
-              </b-dropdown-item>
-
-              <b-dropdown-item @click="confirmDelete(data.item.id)">
-                <feather-icon icon="TrashIcon" />
-                <span class="align-middle ml-50">{{ $t('Delete') }}</span>
-              </b-dropdown-item>
-
-            </b-dropdown>
-          </template>
-
-        </b-table></b-overlay>
-      <div class="mx-2 mb-2">
-        <b-row>
-
-          <b-col
-            cols="12"
-            sm="6"
-            class="d-flex align-items-center justify-content-center justify-content-sm-start"
-          >
-            <span
-              class="text-muted"
-            >{{ $t('Showing') }} {{ dataMeta.from }} {{ $t('to') }} {{ dataMeta.to }} {{ $t('of') }}
-              {{ dataMeta.of }} {{ $t('entries') }}</span>
-          </b-col>
-          <!-- Pagination -->
-          <b-col
-            cols="12"
-            sm="6"
-            class="d-flex align-items-center justify-content-center justify-content-sm-end"
-          >
-
-            <b-pagination
-              v-model="currentPage"
-              :total-rows="totalRecords"
-              :per-page="perPage"
-              first-number
-              last-number
-              class="mb-0 mt-1 mt-sm-0"
-              prev-class="prev-item"
-              next-class="next-item"
-            >
-              <template #prev-text>
                 <feather-icon
-                  icon="ChevronLeftIcon"
-                  size="18"
+                  @click="confirmDelete(props.row.id)"
+                  :id="`delete-request-${props.row.id}-trash-btn`"
+                  icon="Trash2Icon"
+                  class="cursor-pointer"
+                  size="16"
                 />
-              </template>
-              <template #next-text>
+              </div>
+            </span>
+          </div>
+
+        </template>
+        <template
+          slot="table-header-row"
+          slot-scope="props"
+        >
+          <div class="d-flex justify-content-between ">
+            {{ props.row.label }}
+            <span>
+              <div
+                class="text-nowrap"
+              >
                 <feather-icon
-                  icon="ChevronRightIcon"
-                  size="18"
+                  :id="`user-row-${props.row.id}-pencil-icon`"
+                  icon="EditIcon"
+                  size="16"
+                  class="mx-1 cursor-pointer"
+                  @click="editCategory(props.row)"
                 />
-              </template>
-            </b-pagination>
-
-          </b-col>
-
-        </b-row>
-      </div>
+                <feather-icon
+                  @click="confirmDelete(props.row.id)"
+                  :id="`delete-request-${props.row.id}-trash-btn`"
+                  icon="Trash2Icon"
+                  class="cursor-pointer"
+                  size="16"
+                />
+              </div>
+            </span>
+          </div>
+        </template>
+      </vue-good-table>
     </b-card>
   </div>
 </template>
 
 <script>
 import {
-  BButton, BCard, BCol, BDropdown,
-  BDropdownItem, BFormInput, BOverlay, BPagination, BRow, BTable, VBTooltip,
+  BButton, BCard, BCol, BFormInput, BRow, VBTooltip,
 } from 'bootstrap-vue'
 import vSelect from 'vue-select'
 import route from 'ziggy-js'
 import { ref, onMounted } from '@vue/composition-api'
 import useCategories from '@/composables/category'
 import i18n from '@/libs/i18n'
+import { VueGoodTable } from 'vue-good-table'
 import AddCategory from './add/AddCategory.vue'
+import AddSubCategory from './add/AddSubCategory.vue'
 import EditCategory from './edit/EditCategory.vue'
+import 'vue-good-table/dist/vue-good-table.css'
 
 export default {
   components: {
     BRow,
     BCol,
     BCard,
-    BTable,
+    VueGoodTable,
     BButton,
     vSelect,
-    BOverlay,
-    BDropdown,
     BFormInput,
-    BPagination,
-    BDropdownItem,
     AddCategory,
+    AddSubCategory,
     EditCategory,
   },
   directives: {
@@ -214,15 +221,33 @@ export default {
 
     const roleFilter = ref(null)
     onMounted(() => {
+      filters.group = true
       fetchCategories()
     })
 
+    const searchTerm = ref('')
+    const pageLength = ref(10)
     const isExportActive = ref(false)
     const isAddCategoryActive = ref(false)
+    const isSubCategory = ref(false)
     const isEditCategoryActive = ref(false)
+    const isAddSubCategoryActive = ref(false)
     const categoryData = ref({})
+    const serverParams = ref({
+      columnFilters: {
+      },
+      sort: [
+        {
+          field: '',
+          type: '',
+        },
+      ],
+      page: 1,
+      perPage: 10,
+    })
 
-    const editCategoryRow = item => {
+    const editCategory = item => {
+      console.log(item)
       categoryData.value = item
       isEditCategoryActive.value = true
     }
@@ -235,6 +260,37 @@ export default {
       }
     }
 
+
+    const updateParams = newProps => {
+      serverParams.value = { ...serverParams.value, ...newProps }
+    }
+
+    const onPageChange = params => {
+      updateParams({ page: params.currentPage })
+      fetchCategories(serverParams.value)
+    }
+
+    const onPerPageChange = params => {
+      updateParams({ perPage: params.currentPerPage })
+      fetchCategories(serverParams.value)
+    }
+
+    const onSortChange = params => {
+      updateParams({
+        sort: [
+          {
+            type: params.sortType,
+            field: tableColumns.value[params.columnIndex].field,
+          },
+        ],
+      })
+      fetchCategories(serverParams.value)
+    }
+
+    const onColumnFilter = params => {
+      updateParams(params)
+      fetchCategories(serverParams.value)
+    }
 
     const confirmDelete = async id => {
       context.root.$bvModal
@@ -253,8 +309,15 @@ export default {
       busy,
       categoryData,
       route,
+      onPageChange,
+      onSortChange,
       categories,
+      isSubCategory,
+      onColumnFilter,
       sortBy,
+      searchTerm,
+      pageLength,
+      onPerPageChange,
       perPage,
       filters,
       dataMeta,
@@ -268,9 +331,10 @@ export default {
       confirmDelete,
       isEditCategoryActive,
       isSortDirDesc,
-      editCategoryRow,
+      editCategory,
       perPageOptions,
       isExportActive,
+      isAddSubCategoryActive,
       resolveUserRoleIcon,
       resolveUserRoleVariant,
       isAddCategoryActive,
@@ -278,7 +342,17 @@ export default {
   },
 }
 </script>
-
+<style>
+table.vgt-table td{
+    padding: 0.75em 1.5em 0.75em 0.75em !important;
+    font-size: 14px !important;
+}
+table.vgt-table th{
+    font-size: 14px !important;
+    font-weight: 400;
+    text-transform: none;
+}
+</style>
 <style lang="scss" scoped>
 .per-page-selector {
   width: 90px;
@@ -299,4 +373,18 @@ export default {
 
 <style lang="scss">
 @import '~@core/scss/vue/libs/vue-select.scss';
+</style>
+<style scoped>
+.per-page-selector {
+  width: 90px;
+}
+</style>
+
+<style >
+table.vgt-table{
+  font-size: 1rem;
+}
+table.vgt-table td {
+  border: none !important;
+}
 </style>

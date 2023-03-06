@@ -27,10 +27,22 @@ export default function useCategories() {
   })
 
 
+//   const tableColumns = [
+//     { key: 'name', sortable: true },
+//     { key: 'actions' },
+//   ]
+
   const tableColumns = [
-    { key: 'name', sortable: true },
-    { key: 'actions' },
+    {
+      label: 'Name',
+      field: 'name',
+    },
+    // {
+    //   label: 'Actions',
+    //   field: 'actions',
+    // },
   ]
+
 
 
   const dataMeta = computed(() => {

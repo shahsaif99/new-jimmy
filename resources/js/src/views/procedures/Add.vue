@@ -74,7 +74,8 @@
                     {{ validationContext.errors[0] }}
                   </b-form-invalid-feedback>
                 </b-form-group>
-              </validation-provider></b-col>
+              </validation-provider>
+            </b-col>
             <b-col
               cols="6"
               md="6"

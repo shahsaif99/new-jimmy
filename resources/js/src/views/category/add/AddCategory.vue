@@ -27,16 +27,44 @@
           <b-row>
             <b-col
               cols="12"
-              md="12"
+              md="6"
             >
               <validation-provider
                 #default="validationContext"
-                name="Category Name"
+                :name="$t('Category No.')"
                 rules="required"
               >
-                <b-form-group label="Category Name">
+                <b-form-group :label="$t('Category No.')">
                   <b-form-input
-                    placeholder="Category Name"
+                    :placeholder="$t('Category No.')"
+                    id="number"
+                    v-model="form.number"
+                    :state="
+                      getValidationState(
+                        validationContext
+                      )
+                    "
+                    trim
+                  />
+
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+            <b-col
+              cols="12"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="$t('Subcategory Name')"
+                rules="required"
+              >
+                <b-form-group :label="$t('Subcategory Name')">
+                  <b-form-input
+                    :placeholder="$t('Subcategory Name')"
                     id="name"
                     v-model="form.name"
                     :state="
@@ -123,29 +151,32 @@ export default {
       required: true,
     },
   },
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const initialState = {
       name: '',
+      number: '',
     }
 
     const form = ref({ ...initialState })
 
     const { busy, storeCategory, respResult } = useCategories()
 
-    const resetplanData = () => {
-      form.value = JSON.parse(JSON.stringify(initialState))
+    const resetFormData = () => {
+      form.value = {
+        ...initialState,
+      }
     }
+    const { refFormObserver, getValidationState, resetForm } = formValidation(resetFormData)
 
     const onSubmit = async () => {
       await storeCategory(form.value)
       if (respResult.value.status === 200) {
         emit('refetch-data')
-        emit('update:is-add-category-active', false)
-        resetplanData()
+        resetFormData()
+        resetForm()
       }
     }
 
-    const { refFormObserver, getValidationState, resetForm } = formValidation(resetplanData)
 
     return {
       busy,

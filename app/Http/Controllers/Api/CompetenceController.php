@@ -39,14 +39,6 @@ class CompetenceController extends Controller
 
          });
 
-        // ->transform(function($item){
-        //     return [
-        //         'mode' => 'span',
-        //         'label' => $item->name,
-        //         'children' => $item->competences,
-        //     ];
-        // })
-
         return CompetenceResource::collection($competences);
     }
 

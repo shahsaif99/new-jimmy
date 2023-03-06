@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Category\Store;
+use App\Http\Requests\Category\Update;
 use App\Http\Resources\CategoryResource;
-use App\Http\Requests\CategoryStoreRequest;
 
 class CategoryController extends Controller
 {
@@ -17,14 +18,36 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $categories = Category::query()
+        // $categories = Category::query()
+        //     ->search($request->q)
+        //     // ->applyFilters($request)
+        //     ->when($request->perPage, function ($query, $perPage) {
+        //         return $query->paginate($perPage);
+        //     }, function ($query) {
+        //         return $query->get();
+        //     });
+
+            $categories = Category::query()
             ->search($request->q)
+            ->with('parent')
+            ->whereNull('category_id')
             // ->applyFilters($request)
-            ->when($request->perPage, function ($query, $perPage) {
-                return $query->paginate($perPage);
-            }, function ($query) {
-                return $query->get();
-            });
+            ->get()
+            ->when($request->group, function($query){
+                $query->transform(function($item, $key){
+                     return [
+                         'mode' => 'span',
+                         'label' => $item->number.' '.$item->name,
+                         'category_id' => $item->category_id,
+                         'id' => $item->id,
+                         'name' => $item->name,
+                         'number' => $item->number,
+                         'children' => $item->childrens
+                     ];
+                 });
+
+             });
+
 
         return CategoryResource::collection($categories);
     }
@@ -35,7 +58,7 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CategoryStoreRequest $request)
+    public function store(Store $request)
     {
         $data = $request->validated();
         Category::create($data);
@@ -63,7 +86,7 @@ class CategoryController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(CategoryStoreRequest $request, Category $category)
+    public function update(Update $request, Category $category)
     {
         $data = $request->validated();
         $category->update($data);
