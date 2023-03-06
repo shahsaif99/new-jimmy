@@ -48,6 +48,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/vacations/status/{vacation}', [VacationController::class, 'vacationStatusUpdate'])->name('vacations.status');
     Route::get('/vacations/statistics', [VacationController::class, 'vacationStatistics'])->name('vacations.statistics');
 
+    Route::get('/subcategories', [CategoryController::class, 'fetchSubCategories'])->name('subcategories');
+
     Route::apiResources([
         'users' => UserController::class,
         'roles' => RolesController::class,

@@ -34,7 +34,7 @@
               :clearable="false"
               class="per-page-selector d-inline-block mx-50"
             />
-            <label>{{ t('records per page') }}</label>
+            <label>{{ $t('records per page') }}</label>
 
           </b-col>
 
@@ -246,7 +246,6 @@ export default {
     })
 
     const editCategory = item => {
-      console.log(item)
       categoryData.value = item
       isEditCategoryActive.value = true
     }

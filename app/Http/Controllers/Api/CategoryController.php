@@ -18,20 +18,10 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        // $categories = Category::query()
-        //     ->search($request->q)
-        //     // ->applyFilters($request)
-        //     ->when($request->perPage, function ($query, $perPage) {
-        //         return $query->paginate($perPage);
-        //     }, function ($query) {
-        //         return $query->get();
-        //     });
-
             $categories = Category::query()
             ->search($request->q)
             ->with('parent')
             ->whereNull('category_id')
-            // ->applyFilters($request)
             ->get()
             ->when($request->group, function($query){
                 $query->transform(function($item, $key){
@@ -45,7 +35,6 @@ class CategoryController extends Controller
                          'children' => $item->childrens
                      ];
                  });
-
              });
 
 
@@ -107,5 +96,15 @@ class CategoryController extends Controller
         return response()->json([
             'message' => 'Category successfully deleted.',
         ], 200);
+    }
+
+    public function fetchSubCategories(Request $request){
+
+        $categories = Category::query()
+            ->where('category_id', $request->id)
+            ->get();
+
+        return CategoryResource::collection($categories);
+
     }
 }

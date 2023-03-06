@@ -62,11 +62,12 @@
                 >
                   <b-form-select
                     id="category"
-                    v-model="formData.category"
+                    v-model="formData.categoryId"
                     :state="getValidationState(validationContext)"
                     trim
-                    value-field="name"
+                    value-field="id"
                     text-field="name"
+                    @change="showSubCategories"
                     :options="categories"
                     :placeholder="$t('Category')"
                   />
@@ -96,7 +97,7 @@
                     trim
                     value-field="name"
                     text-field="name"
-                    :options="categories"
+                    :options="subcategories"
                     :placeholder="$t('SubCategory')"
                   />
                   <b-form-invalid-feedback>
@@ -385,10 +386,12 @@ export default {
       refFormObserver, getValidationState, resetForm,
     } = formValidation()
 
-    const { fetchCategories, categories } = useCategories()
-
+    const {
+      fetchCategories, categories, fetchSubCategories, subcategories,
+    } = useCategories()
     const initialState = {
       title: '',
+      categoryId: '',
       category: '',
       subcategory: '',
       created_date: '',
@@ -397,7 +400,7 @@ export default {
       revision_number: '',
       author: '',
       approved_by: '',
-        type: '',
+      type: '',
       content: '',
     }
 
@@ -408,6 +411,11 @@ export default {
     onMounted(async () => {
       await fetchCategories()
     })
+
+    const showSubCategories = id => {
+      fetchSubCategories(id)
+      formData.value.category = categories.value.find(item => item.id === id).name
+    }
 
 
     const contentUpdate = data => {
@@ -432,6 +440,8 @@ export default {
       onSubmit,
       categories,
       resetForm,
+      showSubCategories,
+      subcategories,
       editorConfig,
       contentUpdate,
       ClassicEditor,

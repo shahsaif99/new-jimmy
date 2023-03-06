@@ -9,6 +9,7 @@ export default function useCategories() {
   const busy = ref(false)
   const respResult = ref(null)
   const categories = ref([])
+  const subcategories = ref([])
   const categoryData = ref(null)
   const errors = ref({})
   const toast = toaster()
@@ -27,10 +28,10 @@ export default function useCategories() {
   })
 
 
-//   const tableColumns = [
-//     { key: 'name', sortable: true },
-//     { key: 'actions' },
-//   ]
+  //   const tableColumns = [
+  //     { key: 'name', sortable: true },
+  //     { key: 'actions' },
+  //   ]
 
   const tableColumns = [
     {
@@ -42,7 +43,6 @@ export default function useCategories() {
     //   field: 'actions',
     // },
   ]
-
 
 
   const dataMeta = computed(() => {
@@ -68,6 +68,31 @@ export default function useCategories() {
         },
       })
       categories.value = response.data.data
+      if (response.data.meta) {
+        const { total } = response.data.meta
+        totalRecords.value = total
+      }
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+
+  const fetchSubCategories = async id => {
+    try {
+      busy.value = true
+      const response = await axios.get(route('subcategories'), {
+        params: {
+          id,
+        },
+      })
+      subcategories.value = response.data.data
       if (response.data.meta) {
         const { total } = response.data.meta
         totalRecords.value = total
@@ -184,6 +209,8 @@ export default function useCategories() {
     updateCategory,
     fetchCategories,
     deleteCategory,
+    subcategories,
+    fetchSubCategories,
     currentPage,
     searchQuery,
     totalRecords,
