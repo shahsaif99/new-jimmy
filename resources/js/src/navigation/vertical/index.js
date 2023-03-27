@@ -97,7 +97,7 @@ export default [
       },
       {
         title: 'Handbooks',
-        route: 'handbooks',
+        route: '#',
         icon: 'FolderIcon',
         action: 'document-center',
         resource: 'all',
@@ -125,8 +125,8 @@ export default [
         resource: 'all',
       },
       {
-        title: 'Deviation / RUH',
-        route: '#',
+        title: 'Avvik / RUH',
+        route: 'avvik-listings',
         icon: 'FolderIcon',
         action: 'document-center',
         resource: 'all',
@@ -184,6 +184,12 @@ export default [
         title: 'Categories',
         route: 'categories',
         action: 'manage-categories',
+        resource: 'all',
+      },
+      {
+        title: 'Avvik/RUH',
+        route: 'settings-ruh-types',
+        action: 'manage-settings',
         resource: 'all',
       },
       {

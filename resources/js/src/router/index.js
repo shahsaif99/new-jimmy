@@ -12,6 +12,7 @@ import projectRoutes from './project'
 import equipmentsRoutes from './equipments'
 import employeeRoutes from './employee'
 import documentRoutes from './document'
+import avvikRoutes from './avvik'
 import competenceRoutes from './competence'
 import lendingRoutes from './lending'
 import absenceRoutes from './absence'
@@ -41,6 +42,7 @@ const router = new Router({
       },
       children: [
         ...usersRoutes,
+        ...avvikRoutes,
         ...employeeRoutes,
         ...AccountRoutes,
         ...documentRoutes,

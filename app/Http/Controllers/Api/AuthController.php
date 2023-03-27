@@ -71,10 +71,14 @@ class AuthController extends Controller
                         'password-view',
                         'my-account-view',
                         'overview-view',
-                        'employee',
+                        'employee-overview',
+                        'competence-overview',
                         'document-center',
-                        'equipment-view',
-                        'manage-categories'
+                        'manage-categories',
+                        'avvik-edit',
+                        'avvik-delete',
+                        'avvik-add',
+                        'equipment-view'
                     ],
                 ];
                 break;
@@ -91,6 +95,9 @@ class AuthController extends Controller
                         'competence-overview',
                         'document-center',
                         'manage-categories',
+                        'avvik-edit',
+                        'avvik-delete',
+                        'avvik-add',
                         'equipment-view'
                     ],
                 ];

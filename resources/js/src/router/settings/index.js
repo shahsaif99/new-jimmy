@@ -52,6 +52,24 @@ const routes = [
       ],
     },
   },
+
+  {
+    path: 'settings/ruh-types',
+    name: 'settings-ruh-types',
+    component: () => import('@/views/settings/ruh-types/Index.vue'),
+    meta: {
+      pageTitle: 'Settings: Avvik/RUH',
+      resource: 'all',
+      action: 'manage-settings',
+      auth: true,
+      breadcrumb: [
+        {
+          text: 'Settings: Avvik/RUH',
+          active: true,
+        },
+      ],
+    },
+  },
 ]
 
 export default routes
