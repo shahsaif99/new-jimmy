@@ -10,6 +10,7 @@ export default function useAvvikRuh() {
   const respResult = ref(null)
   const avvikruhListings = ref([])
   const avvikData = ref({})
+  const avvikStatistics = ref({})
   const errors = ref({})
   const toast = toaster()
   const perPage = ref(10)
@@ -25,9 +26,10 @@ export default function useAvvikRuh() {
 
 
   const tableColumns = [
+    { key: 'id', sortable: true },
     { key: 'title', sortable: true },
     { key: 'date', sortable: false },
-    { key: 'event_type', sortable: false, label: 'Type' },
+    { key: 'type', sortable: false, label: 'Type' },
     { key: 'closing_deadline', sortable: false },
     { key: 'status', sortable: false },
     { key: 'close_date', sortable: false },
@@ -185,6 +187,22 @@ export default function useAvvikRuh() {
     }
   }
 
+  const fetchAvvikStatistics = async () => {
+    try {
+      const response = await axios.get(route('avvikruh.statistics'))
+      avvikStatistics.value = response.data
+    } catch (e) {
+      toast.error(e.response.data.message)
+    }
+  }
+
+  const resolveStatus = status => {
+    if (status === 'Closed') {
+      return 'success'
+    } if (status === 'Open') { return 'warning' }
+    return 'primary'
+  }
+
   watch([currentPage, searchQuery, perPage], () => {
     fetchAvvikListings()
   })
@@ -197,6 +215,9 @@ export default function useAvvikRuh() {
     perPage,
     avvikData,
     dataMeta,
+    resolveStatus,
+    avvikStatistics,
+    fetchAvvikStatistics,
     avvikruhListings,
     storeAvvikListing,
     getAvvikListing,

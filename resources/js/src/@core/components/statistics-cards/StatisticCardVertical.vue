@@ -11,9 +11,9 @@
       />
     </b-avatar>
     <div class="truncate">
-      <h2 class="mb-25 font-weight-bolder">
+      <h5 class="mb-25 ">
         {{ statistic }}
-      </h2>
+      </h5>
       <span>{{ statisticTitle }}</span>
     </div>
   </b-card>
@@ -37,7 +37,7 @@ export default {
       required: true,
     },
     statisticTitle: {
-      type: String,
+      type: [Number, String],
       default: '',
     },
     color: {

@@ -1,561 +1,553 @@
 <template>
-  <b-modal
-    cancel-variant="outline-secondary"
-    centered
-    :hide-footer="true"
-    :title="t('Add Avvik / RUH')"
-    size="lg"
-    class="modal-is-add-avvik-listing-active"
-    id="is-add-avvik-listing-active"
-    @close="$emit('update:is-add-avvik-listing-active', false)"
-    :visible="isAddAvvikListingActive"
-    @hide="$emit('update:is-add-avvik-listing-active', false)"
-  >
-    <div>
-      <validation-observer
-        ref="refFormObserver"
-        #default="{ handleSubmit }"
+
+  <div>
+    <validation-observer
+      ref="refFormObserver"
+      #default="{ handleSubmit }"
+    >
+      <b-form
+        @submit.prevent="handleSubmit(onSubmit)"
+        @reset.prevent="resetForm"
       >
-        <b-form
-          @submit.prevent="handleSubmit(onSubmit)"
-          @reset.prevent="resetForm"
-        >
-          <div>
-            <b-row>
-              <b-col
-                cols="6"
-                md="6"
+        <b-card>
+          <b-card-title>
+            {{ t('Details') }}
+          </b-card-title>
+
+          <b-row>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <b-form-group
+                :label="t('Type')"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  :name="t('Type')"
+                  rules="required"
+                  vid="avvik_type"
+                >
+                  <b-form-radio-group
+                    v-model="formData.type"
+                    :options="['Avvik','Uønsket hendelse']"
+                    :state="getValidationState(validationContext)"
+                  />
+
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </validation-provider>
+              </b-form-group>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Title')"
+                rules="required"
               >
                 <b-form-group
-                  :label="t('Type')"
+                  :label="t('Title')"
                 >
-                  <validation-provider
-                    #default="validationContext"
-                    :name="t('Type')"
-                    rules="required"
-                    vid="avvik_type"
-                  >
-                    <b-form-radio-group
-                      v-model="formData.type"
-                      :options="['Avvik','Uønsket hendelse']"
-                      :state="getValidationState(validationContext)"
-                    />
-
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </validation-provider>
-                </b-form-group>
-              </b-col>
-
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Title')"
-                  rules="required"
-                >
-                  <b-form-group
-                    :label="t('Title')"
-                  >
-                    <b-form-input
-                      v-model="formData.title"
-                      :placeholder="t('Title')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Date')"
-                  rules="required"
-                >
-                  <b-form-group
-                    :label="t('Date')"
-                    label-for="validUntil"
-                  >
-                    <b-form-input
-                      type="date"
-                      v-model="formData.date"
-                      placeholder="Date"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Department')"
-                >
-                  <b-form-group
-                    :label="t('Department')"
-                    label-for="department"
-                  >
-                    <b-form-input
-                      v-model="formData.department"
-                      :placeholder="t('Department')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-
-            </b-row>
-            <b-row>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Registered by')"
-                  rules="required"
-                >
-                  <b-form-group
-                    :label="t('Registered by')"
-                    label-for="registered by"
-                  >
-                    <b-form-input
-                      v-model="formData.registered_by"
-                      :placeholder="t('Registered by')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Responsible Person')"
-                  rules="required"
-                >
-                  <b-form-group
-                    :label="t('Responsible Person')"
-                    label-for="serialno"
-                  >
-
-                    <b-form-input
-                      v-model="formData.responsible_person"
-                      :placeholder="t('Responsible Person')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-
-
-            </b-row>
-            <b-row>
-              <b-col sm="6">
-                <ValidationProvider
-                  #default="validationContext"
-                  :name="t('Select Project')"
-                  rules="required"
-                >
-                  <b-form-group
-                    :label="t('Select Project')"
-                    label-for="project"
+                  <b-form-input
+                    v-model="formData.title"
+                    :placeholder="t('Title')"
                     :state="getValidationState(validationContext)"
-                  >
-                    <v-select
-                      v-model="formData.project"
-                      class="w-full"
-                      :placeholder="t('Type here to search projects')"
-                      :options="projects"
-                      :close-on-select="true"
-                      :select-on-tab="true"
-                      :clearable="false"
-                      input-id="project"
-                      :filterable="false"
-                      label="name"
-                      @search="onProjectSearch"
-                      :state="getValidationState(validationContext)"
-                    >
-                      <template slot="no-options">
-                        {{ t('type to search projects..') }}
-                      </template>
-                      <template
-                        slot="option"
-                        slot-scope="option"
-                      >
-                        {{ option.name }}
-                      </template>
-                      <template
-                        slot="selected-option"
-                        slot-scope="option"
-                      >
-                        {{ option.name }}
-                      </template>
-                    </v-select>
-                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </ValidationProvider>
-              </b-col>
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Location')"
-                  rules="required"
-                >
-                  <b-form-group
-                    :label="t('Location')"
-                  >
-                    <b-form-input
-                      v-model="formData.location"
-                      :placeholder="t('Location')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-
-
-              <b-col
-                cols="12"
-              >
-
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Degree of severity')"
-                >
-
-                  <b-form-group
-                    label="Degree of severity"
-                    v-slot="{ ariaDescribedby }"
-                  >
-                    <b-form-radio-group
-                      v-model="formData.severity"
-                      :options="['Ikke definert','Lav','Middels','Høy','Kritisk']"
-                      :aria-describedby="ariaDescribedby"
-                      name="serverity"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-
-              <b-col
-                cols="6"
-                md="12"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Description')"
-                  rules="required"
-                >
-                  <b-form-group
-                    :label="t('Description')"
-                    label-for="description"
-                  >
-                    <b-form-textarea
-                      v-model="formData.description"
-                      :placeholder="t('Description')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-
-              <b-col
-                cols="12"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Date')"
+                rules="required"
               >
                 <b-form-group
-                  label="Event Type*"
+                  :label="t('Date')"
+                  label-for="validUntil"
                 >
-                  <validation-provider
-                    #default="validationContext"
-                    :name="t('Event Type')"
-                    rules="required"
-                  >
-                    <b-form-radio-group
-                      v-model="formData.event_type"
-                      :options="ruhTypes"
-                      value-field="name"
-                      text-field="name"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </validation-provider>
+                  <b-form-input
+                    type="date"
+                    v-model="formData.date"
+                    placeholder="Date"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
                 </b-form-group>
-              </b-col>
-
-
-              <b-col
-                cols="6"
-                md="12"
+              </validation-provider>
+            </b-col>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Department')"
               >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Immediate Action')"
+                <b-form-group
+                  :label="t('Department')"
+                  label-for="department"
                 >
-                  <b-form-group
-                    :label="t('Immediate Action')"
-                    label-for="immediate_action"
-                  >
-                    <b-form-textarea
-                      v-model="formData.immediate_action"
-                      :placeholder="t('Immediate Action')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
+                  <b-form-input
+                    v-model="formData.department"
+                    :placeholder="t('Department')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
 
-              <b-col
-                cols="6"
-                md="12"
+          </b-row>
+          <b-row>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Registered by')"
+                rules="required"
               >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Casual Analysis')"
+                <b-form-group
+                  :label="t('Registered by')"
+                  label-for="registered by"
                 >
-                  <b-form-group
-                    :label="t('Casual Analysis')"
-                    label-for="casual_analysis"
-                  >
-                    <b-form-textarea
-                      v-model="formData.casual_analysis"
-                      :placeholder="t('Casual Analysis')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
+                  <b-form-input
+                    v-model="formData.registered_by"
+                    :placeholder="t('Registered by')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Responsible Person')"
+                rules="required"
+              >
+                <b-form-group
+                  :label="t('Responsible Person')"
+                  label-for="serialno"
+                >
 
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Days of absence')"
-                >
-                  <b-form-group
-                    :label="t('Days of absence')"
-                    label-for="certificateNumber"
-                  >
-                    <b-form-input
-                      v-model="formData.days_of_absence"
-                      :placeholder="t('Days of absence')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
+                  <b-form-input
+                    v-model="formData.responsible_person"
+                    :placeholder="t('Responsible Person')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
 
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Cost')"
-                >
-                  <b-form-group
-                    :label="t('Cost')"
-                  >
-                    <b-form-input
-                      v-model="formData.cost"
-                      :placeholder="t('Cost')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
 
-              <b-col
-                cols="6"
-                md="12"
+          </b-row>
+          <b-row>
+            <b-col sm="6">
+              <ValidationProvider
+                #default="validationContext"
+                :name="t('Select Project')"
+                rules="required"
               >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Corrective Actions')"
+                <b-form-group
+                  :label="t('Select Project')"
+                  label-for="project"
+                  :state="getValidationState(validationContext)"
                 >
-                  <b-form-group
-                    :label="t('Corrective Actions')"
-                    label-for="casual_analysis"
-                  >
-                    <b-form-textarea
-                      v-model="formData.corrective_actions"
-                      :placeholder="t('Corrective Actions')"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Deadline of closing')"
-                >
-                  <b-form-group
-                    :label="t('Deadline of closing')"
-                  >
-                    <b-form-input
-                      type="date"
-                      v-model="formData.closing_deadline"
-                      placeholder="Deadline of closing"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-
-              <b-col
-                cols="6"
-                md="6"
-              >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Date closed')"
-                >
-                  <b-form-group
-                    :label="t('Date closed')"
-                  >
-                    <b-form-input
-                      type="date"
-                      v-model="formData.close_date"
-                      placeholder="Date closed"
-                      :state="getValidationState(validationContext)"
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
-              </b-col>
-              <b-col sm="6">
-                <ValidationProvider
-                  #default="validationContext"
-                  :name="t('Select User')"
-                  rules="required"
-                >
-                  <b-form-group
-                    :label="t('Select User')"
-                    label-for="employee"
+                  <v-select
+                    v-model="formData.project"
+                    class="w-full"
+                    :placeholder="t('Type here to search projects')"
+                    :options="projects"
+                    :close-on-select="true"
+                    :select-on-tab="true"
+                    :clearable="false"
+                    input-id="project"
+                    :filterable="false"
+                    label="name"
+                    @search="onProjectSearch"
                     :state="getValidationState(validationContext)"
                   >
-                    <v-select
-                      v-model="formData.user"
-                      class="w-full"
-                      :placeholder="t('type to search users..')"
-                      :options="users"
-                      :close-on-select="true"
-                      :select-on-tab="true"
-                      :clearable="false"
-                      :filterable="false"
-                      label="name"
-                      @search="onUserSearch"
-                      :state="getValidationState(validationContext)"
+                    <template slot="no-options">
+                      {{ t('type to search projects..') }}
+                    </template>
+                    <template
+                      slot="option"
+                      slot-scope="option"
                     >
-                      <template slot="no-options">
-                        {{ t('type to search users..') }}
-                      </template>
-                      <template
-                        slot="option"
-                        slot-scope="option"
-                      >
-                        {{ option.name }}
-                      </template>
-                      <template
-                        slot="selected-option"
-                        slot-scope="option"
-                      >
-                        {{ option.name }}
-                      </template>
-                    </v-select>
-                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </ValidationProvider>
-              </b-col>
-            </b-row>
-            <b-row>
-              <b-col>
-                <div
-                  class="d-flex align-items-center justify-content-end mt-3"
+                      {{ option.name }}
+                    </template>
+                    <template
+                      slot="selected-option"
+                      slot-scope="option"
+                    >
+                      {{ option.name }}
+                    </template>
+                  </v-select>
+                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </ValidationProvider>
+            </b-col>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Location')"
+                rules="required"
+              >
+                <b-form-group
+                  :label="t('Location')"
                 >
-                  <b-button
-                    variant="primary"
-                    type="submit"
+                  <b-form-input
+                    v-model="formData.location"
+                    :placeholder="t('Location')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+
+            <b-col
+              cols="12"
+            >
+
+              <validation-provider
+                #default="validationContext"
+                :name="t('Degree of severity')"
+              >
+
+                <b-form-group
+                  label="Degree of severity"
+                  v-slot="{ ariaDescribedby }"
+                >
+                  <b-form-radio-group
+                    v-model="formData.severity"
+                    :options="['Ikke definert','Lav','Middels','Høy','Kritisk']"
+                    :aria-describedby="ariaDescribedby"
+                    name="serverity"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="12"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Description')"
+                rules="required"
+              >
+                <b-form-group
+                  :label="t('Description')"
+                  label-for="description"
+                >
+                  <b-form-textarea
+                    v-model="formData.description"
+                    :placeholder="t('Description')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="12"
+            >
+              <b-form-group
+                label="Event Type*"
+              >
+                <validation-provider
+                  #default="validationContext"
+                  :name="t('Event Type')"
+                  rules="required"
+                >
+                  <b-form-radio-group
+                    v-model="formData.event_type"
+                    :options="ruhTypes"
+                    value-field="name"
+                    text-field="name"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </validation-provider>
+              </b-form-group>
+            </b-col>
+
+
+            <b-col
+              cols="6"
+              md="12"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Immediate Action')"
+              >
+                <b-form-group
+                  :label="t('Immediate Action')"
+                  label-for="immediate_action"
+                >
+                  <b-form-textarea
+                    v-model="formData.immediate_action"
+                    :placeholder="t('Immediate Action')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="12"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Casual Analysis')"
+              >
+                <b-form-group
+                  :label="t('Casual Analysis')"
+                  label-for="casual_analysis"
+                >
+                  <b-form-textarea
+                    v-model="formData.casual_analysis"
+                    :placeholder="t('Casual Analysis')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Days of absence')"
+              >
+                <b-form-group
+                  :label="t('Days of absence')"
+                  label-for="certificateNumber"
+                >
+                  <b-form-input
+                    v-model="formData.days_of_absence"
+                    :placeholder="t('Days of absence')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Cost')"
+              >
+                <b-form-group
+                  :label="t('Cost')"
+                >
+                  <b-form-input
+                    v-model="formData.cost"
+                    :placeholder="t('Cost')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="12"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Corrective Actions')"
+              >
+                <b-form-group
+                  :label="t('Corrective Actions')"
+                  label-for="casual_analysis"
+                >
+                  <b-form-textarea
+                    v-model="formData.corrective_actions"
+                    :placeholder="t('Corrective Actions')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Deadline of closing')"
+              >
+                <b-form-group
+                  :label="t('Deadline of closing')"
+                >
+                  <b-form-input
+                    type="date"
+                    v-model="formData.closing_deadline"
+                    placeholder="Deadline of closing"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="t('Date closed')"
+              >
+                <b-form-group
+                  :label="t('Date closed')"
+                >
+                  <b-form-input
+                    type="date"
+                    v-model="formData.close_date"
+                    placeholder="Date closed"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+            <b-col sm="6">
+              <ValidationProvider
+                #default="validationContext"
+                :name="t('Select User')"
+                rules="required"
+              >
+                <b-form-group
+                  :label="t('Select User')"
+                  label-for="employee"
+                  :state="getValidationState(validationContext)"
+                >
+                  <v-select
+                    v-model="formData.user"
+                    class="w-full"
+                    :placeholder="t('type to search users..')"
+                    :options="users"
+                    :close-on-select="true"
+                    :select-on-tab="true"
+                    :clearable="false"
+                    :filterable="false"
+                    label="name"
+                    @search="onUserSearch"
+                    :state="getValidationState(validationContext)"
                   >
-                    <span class="text-nowrap">{{ t('Create') }}</span>
-                  </b-button>
-                </div>
-              </b-col>
-            </b-row>
-          </div>
-        </b-form>
-      </validation-observer>
-    </div>
-  </b-modal>
+                    <template slot="no-options">
+                      {{ t('type to search users..') }}
+                    </template>
+                    <template
+                      slot="option"
+                      slot-scope="option"
+                    >
+                      {{ option.name }}
+                    </template>
+                    <template
+                      slot="selected-option"
+                      slot-scope="option"
+                    >
+                      {{ option.name }}
+                    </template>
+                  </v-select>
+                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </ValidationProvider>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col>
+              <div
+                class="d-flex align-items-center justify-content-end mt-3"
+              >
+                <b-button
+                  variant="primary"
+                  type="submit"
+                >
+                  <span class="text-nowrap">{{ t('Create') }}</span>
+                </b-button>
+              </div>
+            </b-col>
+          </b-row>
+        </b-card>
+      </b-form>
+    </validation-observer>
+  </div>
 </template>
 
 <script>
@@ -564,6 +556,8 @@ import {
   BCol,
   BForm,
   BButton,
+  BCard,
+  BCardTitle,
   BFormInput,
   BFormTextarea,
   BFormRadioGroup,
@@ -589,6 +583,8 @@ export default {
     BForm,
     BButton,
     vSelect,
+    BCard,
+    BCardTitle,
     BFormInput,
     BFormGroup,
     BFormTextarea,
@@ -596,16 +592,6 @@ export default {
     ValidationProvider,
     ValidationObserver,
     BFormInvalidFeedback,
-  },
-  model: {
-    prop: 'isAddAvvikListingActive',
-    event: 'update:is-add-avvik-listing-active',
-  },
-  props: {
-    isAddAvvikListingActive: {
-      type: Boolean,
-      required: true,
-    },
   },
   setup(props, { emit }) {
     const {
@@ -630,9 +616,7 @@ export default {
     const { t } = useI18nUtils()
 
     onMounted(() => {
-      if (props.isAddAvvikListingActive) {
-        fetchRuhTypesList()
-      }
+      fetchRuhTypesList()
     })
 
     const initialState = {
@@ -705,8 +689,8 @@ export default {
       console.log(formData.value)
       await storeAvvikListing(formData.value)
       if (respResult.value.status === 200) {
-        emit('refetch-data')
-        emit('update:is-add-avvik-listing-active', false)
+        // emit('refetch-data')
+        // emit('update:is-add-avvik-listing-active', false)
       }
     }
     return {

@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/vacations/statistics', [VacationController::class, 'vacationStatistics'])->name('vacations.statistics');
 
     Route::get('/subcategories', [CategoryController::class, 'fetchSubCategories'])->name('subcategories');
+    Route::get('/avvikruh/statistics', [AvvikListingsController::class, 'avvikStatistics'])->name('avvikruh.statistics');
 
     Route::apiResources([
         'users' => UserController::class,

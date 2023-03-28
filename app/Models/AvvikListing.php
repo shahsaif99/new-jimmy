@@ -15,7 +15,7 @@ class AvvikListing extends Model
      * @var array<string>
      */
 
-
+     protected $appends = ['close_status'];
 
     protected $fillable = [
       'type',
@@ -38,6 +38,18 @@ class AvvikListing extends Model
       'close_date',
       'user_id',
     ];
+
+    public function getCloseStatusAttribute()
+    {
+        if($this->close_date){
+            return 'Closed';
+        }else{
+            return 'Open';
+        }
+    }
+
+
+
 
     public function scopeApplyFilters($query, Request $request)
     {

@@ -81,4 +81,61 @@ class AvvikListingsController extends Controller
             'message' => 'Avvik Ruh successfully deleted.',
         ], 200);
     }
+
+    public function avvikStatistics(Request $request){
+
+        $avvikListings = AvvikListing::query()
+        ->get();
+
+        $total = $avvikListings->count();
+
+        $avvikHendelse = $avvikListings->where('type', 'Uønsket hendelse')->count();
+        $avvik = $avvikListings->where('type', 'Avvik')->count();
+
+        // filter date_closed is null
+        $avvikOpen = $avvikListings->where('close_date', null)->count();
+
+        $avvikCritic = $avvikListings->where('severity', 'kritisk')->count();
+
+
+        // 6 months of monthly data from current month
+        $avvikListingsMonthlyDeviation = [];
+        $avvikListingsMonthlyUnwantedInnciednt = [];
+        $avvikListingsMonthlyLabels = [];
+
+        for ($i = 0; $i < 6; $i++) {
+            $avvikListingsMonthlyLabels[] = date('M', strtotime("-$i months"));
+            $month = date('m', strtotime("-$i months"));
+            $year = date('Y', strtotime("-$i months"));
+            $avvikListingsMonthlyDeviation[] = $avvikListings->where('created_at', '>=', $year . '-' . $month . '-01 00:00:00')
+                ->where('created_at', '<=', $year . '-' . $month . '-31 23:59:59')
+                ->where('type', 'Avvik')
+                ->count();
+
+                $avvikListingsMonthlyUnwantedInnciednt[] = $avvikListings->where('created_at', '>=', $year . '-' . $month . '-01 00:00:00')
+                ->where('created_at', '<=', $year . '-' . $month . '-31 23:59:59')
+                ->where('type', 'Uønsket hendelse')
+                ->count();
+
+
+        }
+        $avvikListingsMonthlyDeviation = array_reverse($avvikListingsMonthlyDeviation);
+        $avvikListingsMonthlyUnwantedInnciednt = array_reverse($avvikListingsMonthlyUnwantedInnciednt);
+
+        // generate labels for the last 6 months
+
+        $avvikListingsMonthlyLabels = array_reverse($avvikListingsMonthlyLabels);
+
+
+        return response()->json([
+            'avvikHendelse' => $avvikHendelse,
+            'avvikListingsMonthlyDeviation' => $avvikListingsMonthlyDeviation,
+            'avvikListingsMonthlyUnwantedInnciednt' => $avvikListingsMonthlyUnwantedInnciednt,
+            'avvikListingsMonthlyLabels' => $avvikListingsMonthlyLabels,
+            'avvik' => $avvik,
+            'total' => $total,
+            'avvikOpen' => $avvikOpen,
+            'avvikCritic' => $avvikCritic,
+        ], 200);
+    }
 }

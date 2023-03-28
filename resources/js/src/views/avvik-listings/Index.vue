@@ -11,18 +11,63 @@
       v-if="isAddAvvikListingActive"
       @refetch-data="fetchAvvikListings"
     />
-    <!-- <b-row>
+    <b-row>
       <b-col
         cols="12"
-        md="3"
+        md="2"
       >
-        <statistic-card-horizontal
-          icon="CalendarIcon"
-          statistic="test"
-          statistic-title="test"
+        <statistic-card-vertical
+          icon="ListIcon"
+          statistic="Antall avvik"
+          :statistic-title="avvikStatistics.total"
         />
       </b-col>
-    </b-row> -->
+      <b-col
+        cols="12"
+        md="2"
+      >
+        <statistic-card-vertical
+          icon="ListIcon"
+          statistic="Antall uønsket hendelser"
+          :statistic-title="avvikStatistics.avvikHendelse"
+        />
+      </b-col>
+      <b-col
+        cols="12"
+        md="2"
+      >
+        <statistic-card-vertical
+          icon="ListIcon"
+          statistic="Åpne avvik/RUH"
+          :statistic-title="avvikStatistics.avvikOpen"
+        />
+      </b-col>
+
+      <b-col
+        cols="12"
+        md="2"
+      >
+        <statistic-card-vertical
+          icon="ListIcon"
+          statistic="Antall alvorlighetsgrad kritisk"
+          :statistic-title="avvikStatistics.avvikCritic"
+        />
+      </b-col>
+      <b-col
+        cols="12"
+        md="4"
+      >
+        <b-card class="pb-0">
+          <vue-apex-charts
+            type="line"
+            height="240"
+            v-if="!busy"
+            :options="monthlyChart.chartOptions"
+            :series="monthlyChart.series"
+          />
+        </b-card>
+      </b-col>
+    </b-row>
     <b-card
       no-body
       class="mb-0"
@@ -49,7 +94,7 @@
             <label>{{ t('records per page') }}</label>
             <b-button
               variant="primary"
-              @click="isAddAvvikListingActive = true"
+              @click="$router.push({ name: 'avvik-listings-create' })"
               class="ml-2"
             >
               <span class="text-nowrap">Add Avvik / RUH</span>
@@ -126,7 +171,18 @@
             <span>{{ $t(data.label) }}</span>
           </template>
           <template #cell(status)="data">
-            <span>{{ data.item.close_date ? t('Closed') : t('Open') }}</span>
+            <div
+              class="text-nowrap"
+            >
+              <span
+                class="align-text-top text-capitalize"
+                :class="`text-${resolveStatus(data.item.close_status)}`"
+              >
+                <b-badge :variant="resolveStatus(data.item.close_status)">
+                  <span>{{ data.item.close_status }}</span>
+                </b-badge>
+              </span>
+            </div>
           </template>
           <template #cell(lending)="data">
             <b-button
@@ -156,7 +212,7 @@
                 <span class="align-middle ml-50">View</span>
               </b-dropdown-item> -->
               <b-dropdown-item
-                @click="editAvvikListing(data.item)"
+                @click="$router.push({ name: 'avvik-listings-edit', params: { id: data.item.id } })"
                 v-if="$can('avvik-edit', 'all')"
               >
                 <feather-icon icon="EditIcon" />
@@ -228,6 +284,7 @@ import {
   BCard,
   BRow,
   BCol,
+  BBadge,
   BTable,
   BOverlay,
   BFormInput,
@@ -235,16 +292,19 @@ import {
   BButton,
   BDropdown,
   BCardTitle,
+  BCardBody,
   BDropdownItem,
 } from 'bootstrap-vue'
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted, watch } from '@vue/composition-api'
 import vSelect from 'vue-select'
 // eslint-disable-next-line import/no-cycle
 import useAvvikRuh from '@/composables/avvikRuh'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import i18n from '@/libs/i18n'
 import flatPickr from 'vue-flatpickr-component'
-import StatisticCardHorizontal from '@core/components/statistics-cards/StatisticCardHorizontal.vue'
+import StatisticCardVertical from '@core/components/statistics-cards/StatisticCardVertical.vue'
+import VueApexCharts from 'vue-apexcharts'
+import { $themeColors } from '@themeConfig'
 import CreateAvvikListing from './Create.vue'
 import EditAvvikListing from './Edit.vue'
 
@@ -257,15 +317,18 @@ export default {
     BButton,
     vSelect,
     BOverlay,
+    BBadge,
+    BCardBody,
     flatPickr,
     BFormInput,
     BPagination,
     BDropdown,
     BCardTitle,
+    VueApexCharts,
     BDropdownItem,
     EditAvvikListing,
     CreateAvvikListing,
-    StatisticCardHorizontal,
+    StatisticCardVertical,
   },
   setup(_, { root }) {
     const {
@@ -283,17 +346,18 @@ export default {
       tableColumns,
       totalRecords,
       refListTable,
+      resolveStatus,
       isSortDirDesc,
       perPageOptions,
+      avvikStatistics,
+      fetchAvvikStatistics,
       deleteAvvikListing,
       fetchAvvikListings,
     } = useAvvikRuh()
     const { t } = useI18nUtils()
 
-    onMounted(() => {
-      fetchAvvikListings()
-    })
 
+    const avvikTotal = ref(0)
     const isExportActive = ref(false)
     const isAddAvvikListingActive = ref(false)
     const isEditAvvikListingActive = ref(false)
@@ -326,6 +390,116 @@ export default {
         })
     }
 
+    const monthlyChart = ref({
+      series: [
+        {
+          name: 'Number of Avvik',
+          data: [],
+        },
+        {
+          name: 'Number of Uønsket hendelse',
+          data: [-145, -80, -60, -180, -100, -60, -85, -75, -100],
+        },
+      ],
+      chartOptions: {
+        chart: {
+          toolbar: { show: false },
+          zoom: { enabled: false },
+          type: 'line',
+          dropShadow: {
+            enabled: true,
+            top: 18,
+            left: 2,
+            blur: 5,
+            opacity: 0.2,
+          },
+          offsetX: -10,
+        },
+        stroke: {
+          curve: 'smooth',
+          width: 4,
+        },
+        grid: {
+          borderColor: '#ebe9f1',
+          padding: {
+            top: -20,
+            bottom: 5,
+            left: 20,
+          },
+        },
+        legend: {
+          show: false,
+        },
+        colors: ['#df87f2', '#f66d9b'],
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'dark',
+            inverseColors: false,
+            gradientToColors: [$themeColors.primary],
+            shadeIntensity: 1,
+            type: 'horizontal',
+            opacityFrom: 1,
+            opacityTo: 1,
+            stops: [0, 100, 100, 100],
+          },
+        },
+        markers: {
+          size: 0,
+          hover: {
+            size: 5,
+          },
+        },
+        xaxis: {
+          labels: {
+            offsetY: 5,
+            style: {
+              colors: '#b9b9c3',
+              fontSize: '0.857rem',
+            },
+          },
+          axisTicks: {
+            show: false,
+          },
+          categories: [],
+          axisBorder: {
+            show: false,
+          },
+          tickPlacement: 'on',
+        },
+        yaxis: {
+          tickAmount: 5,
+          labels: {
+            style: {
+              colors: '#b9b9c3',
+              fontSize: '0.857rem',
+            },
+            formatter(val) {
+              return val > 999 ? `${(val / 1000).toFixed(1)}k` : val
+            },
+          },
+        },
+        tooltip: {
+          x: { show: false },
+        },
+      },
+    })
+
+    onMounted(async () => {
+      await fetchAvvikStatistics()
+      await fetchAvvikListings()
+    })
+
+    watch(avvikStatistics, () => {
+      if (!busy.value) {
+        monthlyChart.value.series[0].data = avvikStatistics.value.avvikListingsMonthlyDeviation
+        monthlyChart.value.series[1].data = avvikStatistics.value.avvikListingsMonthlyUnwantedInnciednt
+        monthlyChart.value.chartOptions.xaxis.categories = avvikStatistics.value.avvikListingsMonthlyLabels
+      }
+    })
+
+    // watch monthlyChart
+
 
     const filterRecords = () => {
       fetchAvvikListings()
@@ -352,10 +526,14 @@ export default {
       perPage,
       dataMeta,
       avvikData,
+      avvikStatistics,
       filterRecords,
       refetchData,
       resetFilter,
+      avvikTotal,
+      resolveStatus,
       searchQuery,
+      monthlyChart,
       avvikruhListings,
       currentPage,
       tableColumns,
