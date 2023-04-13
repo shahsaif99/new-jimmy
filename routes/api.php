@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RolesController;
 use App\Http\Controllers\Api\AbsenceController;
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\ChapterController;
 use App\Http\Controllers\Api\LendingController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\RuhTypeController;
@@ -54,6 +55,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/subcategories', [CategoryController::class, 'fetchSubCategories'])->name('subcategories');
     Route::get('/avvikruh/statistics', [AvvikListingsController::class, 'avvikStatistics'])->name('avvikruh.statistics');
 
+
+    Route::post('/handbook/chapter/{handbookId}', [HandbookController::class, 'createHandbookChapter'])->name('handbook.store.chapter');
+    Route::get('/handbook/chapters', [HandbookController::class, 'getHandbookChapters'])->name('handbook.get.chapter');
+    // update
+    Route::put('/handbook/chapter/{chapterId}', [HandbookController::class, 'updateHandbookChapter'])->name('handbook.update.chapter');
+
     Route::apiResources([
         'users' => UserController::class,
         'roles' => RolesController::class,
@@ -73,6 +80,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'categories' => CategoryController::class,
         'documents' => DocumentController::class,
         'handbooks' => HandbookController::class,
+        'chapters' => ChapterController::class,
 
     ]);
 

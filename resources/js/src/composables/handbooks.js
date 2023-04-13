@@ -20,18 +20,20 @@ export default function useHandbooks() {
   const sortBy = ref('id')
   const isSortDirDesc = ref(true)
   const refListTable = ref(null)
+  const handbookChapters = ref([])
 
   const filters = reactive({
-    equipmentId: '',
+    handbook_id: '',
   })
 
   const tableColumns = [
     { key: 'id', sortable: false },
-    { key: 'handbook_date', sortable: true },
-    { key: 'returned_date', sortable: false },
-    { key: 'loaned_to', sortable: false },
-    { key: 'equipment.name', sortable: false, label: 'Euipment' },
-    { key: 'registered_by.name', sortable: false, label: 'Registered By' },
+    { key: 'title', sortable: true },
+    { key: 'document_number', sortable: true },
+    { key: 'revision_number', sortable: false },
+    { key: 'scope', sortable: false },
+    { key: 'author', sortable: false },
+    { key: 'revised_date', sortable: false },
     { key: 'actions' },
   ]
 
@@ -116,6 +118,60 @@ export default function useHandbooks() {
     }
   }
 
+  const storeHandbookChapter = async (data, handbookId) => {
+    errors.value = ''
+    try {
+      busy.value = true
+      const response = await axios.post(route('handbook.store.chapter', handbookId), data)
+      respResult.value = response
+      toast.success(response.data.message)
+    } catch (error) {
+      console.log(error)
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        if (error.response.status === 422) {
+          errors.value = error.response.data.errors
+        }
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+
+  //   get handbook chapters by handbook id
+
+  const getHandbookChapters = async () => {
+    try {
+      busy.value = true
+      //   const response = await axios.get(route('handbook.get.chapter', handbookId))
+      const response = await axios.get(route('handbook.get.chapter'), {
+        params: {
+          q: searchQuery.value,
+          ...filters,
+        },
+      })
+      respResult.value = response
+      //   return response.data.data
+      handbookChapters.value = response.data
+    } catch (error) {
+      console.log(error)
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        if (error.response.status === 422) {
+          errors.value = error.response.data.errors
+        }
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+
 
   const updateHandbook = async (data, id) => {
     errors.value = ''
@@ -138,6 +194,32 @@ export default function useHandbooks() {
       busy.value = false
     }
   }
+
+  //   updateHandbookChapter
+
+
+  const updateHandbookChapter = async (data, id) => {
+    errors.value = ''
+    try {
+      busy.value = true
+      const response = await axios.put(route('handbook.update.chapter', id), data)
+      respResult.value = response
+      toast.success(response.data.message)
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        if (error.response.status === 422) {
+          errors.value = error.response.data.errors
+        }
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
+
 
   const deleteHandbook = async id => {
     try {
@@ -194,6 +276,8 @@ export default function useHandbooks() {
     filters,
     handbooks,
     getHandbook,
+    handbookChapters,
+    getHandbookChapters,
     respResult,
     currentPage,
     searchQuery,
@@ -205,6 +289,8 @@ export default function useHandbooks() {
     fetchHandbooks,
     storeHandbook,
     perPageOptions,
+    updateHandbookChapter,
+    storeHandbookChapter,
     fetchHandbooksList,
     resolveHandbookstatus,
   }

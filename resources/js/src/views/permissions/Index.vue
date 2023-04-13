@@ -207,8 +207,8 @@ export default {
     const { t } = useI18nUtils()
 
 
-    onMounted(() => {
-      fetchPermissions()
+    onMounted(async () => {
+      await fetchPermissions()
     })
     const isAddNewPermissionSidebarActive = ref(false)
     const isEditPermissionSidebarActive = ref(false)

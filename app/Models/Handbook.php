@@ -13,11 +13,13 @@ class Handbook extends Model
     protected $fillable = [
         'title',
         'document_number',
-        'revised',
+        'revision_number',
+        'revised_by',
         'scope',
         'author',
-        'approved',
+        'approved_by',
         'revised_date',
+        'approved_date',
     ];
 
 
@@ -29,4 +31,12 @@ class Handbook extends Model
             ->orWhere('document_number', 'like', '%'.$queryString.'%');
         });
     }
+
+     // created at
+     public function getCreatedAtAttribute($value)
+     {
+         return \Carbon\Carbon::parse($value)->format('d-m-Y');
+     }
+
+
 }

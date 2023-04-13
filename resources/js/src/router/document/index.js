@@ -41,6 +41,27 @@ const routes = [
       ],
     },
   },
+  {
+    path: 'handbooks/view/:id',
+    name: 'handbooks-view',
+    component: () => import('@/views/handbooks/ViewHandbook.vue'),
+    meta: {
+      pageTitle: 'Handbooks',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'documentcenter',
+      breadcrumb: [
+        {
+          text: 'Handbooks',
+          active: false,
+        },
+        {
+          text: 'View Handbook',
+          active: true,
+        },
+      ],
+    },
+  },
 ]
 
 export default routes

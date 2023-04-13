@@ -97,7 +97,7 @@ export default [
       },
       {
         title: 'Handbooks',
-        route: '#',
+        route: 'handbooks',
         icon: 'FolderIcon',
         action: 'document-center',
         resource: 'all',
@@ -180,6 +180,12 @@ export default [
     action: 'manage-settings',
     resource: 'all',
     children: [
+    //   {
+    //     title: 'Chapters',
+    //     route: 'settings-chapters',
+    //     action: 'manage-chapters',
+    //     resource: 'all',
+    //   },
       {
         title: 'Categories',
         route: 'categories',

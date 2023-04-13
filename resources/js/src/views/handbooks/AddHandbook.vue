@@ -6,11 +6,11 @@
     title="Add Document"
     size="lg"
     no-enforce-focus
-    class="modal-add-document-active"
-    id="add-document-active"
-    @close="$emit('update:add-document-active', false)"
-    :visible="addDocumentActive"
-    @hide="$emit('update:add-document-active', false)"
+    class="modal-is-add-handbook-active"
+    id="is-add-handbook-active"
+    @close="$emit('update:is-add-handbook-active', false)"
+    :visible="isAddHandbookActive"
+    @hide="$emit('update:is-add-handbook-active', false)"
   >
     <div>
       <validation-observer
@@ -53,82 +53,6 @@
             >
               <validation-provider
                 #default="validationContext"
-                :name="$t('Category')"
-                rules="required"
-              >
-                <b-form-group
-                  :label="$t('Category')"
-                  label-for="cname"
-                >
-                  <b-form-input
-                    v-model="formData.category"
-                    :placeholder="$t('Category')"
-                    :state="getValidationState(validationContext)"
-                    trim
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
-                :name="$t('SubCategory')"
-                rules="required"
-              >
-                <b-form-group
-                  :label="$t('SubCategory')"
-                  label-for="address"
-                >
-                  <b-form-input
-                    v-model="formData.subcategory"
-                    :placeholder="$t('SubCategory')"
-                    :state="getValidationState(validationContext)"
-                    trim
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider>
-            </b-col>
-
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
-                :name="$t('Created Date')"
-                rules="required"
-              >
-                <b-form-group
-                  :label="$t('Created Date')"
-                  label-for="created_date"
-                >
-                  <b-form-input
-                    type="date"
-                    v-model="formData.created_date"
-                    placeholder=""
-                    trim
-                    :state="getValidationState(validationContext)"
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider>
-            </b-col>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <validation-provider
-                #default="validationContext"
                 :name="$t('Doc No.')"
                 rules="required"
               >
@@ -154,8 +78,33 @@
             >
               <validation-provider
                 #default="validationContext"
+                :name="$t('Created Date')"
+              >
+                <b-form-group
+                  :label="$t('Created Date')"
+                  label-for="created_date"
+                >
+                  <b-form-input
+                    type="date"
+                    v-model="formData.created_date"
+                    placeholder=""
+                    trim
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
                 :name="$t('Revised Date')"
-                rules="required"
               >
                 <b-form-group
                   :label="$t('Revised Date')"
@@ -181,7 +130,6 @@
               <validation-provider
                 #default="validationContext"
                 :name="$t('Revision No.')"
-                rules="required"
               >
                 <b-form-group
                   :label="$t('Revision No.')"
@@ -205,8 +153,54 @@
             >
               <validation-provider
                 #default="validationContext"
+                :name="$t('Revised By.')"
+              >
+                <b-form-group
+                  :label="$t('Revised By.')"
+                  label-for="revised_by"
+                >
+                  <b-form-input
+                    trim
+                    v-model="formData.revised_by"
+                    :placeholder="$t('Revised By.')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="$t('Scope')"
+              >
+                <b-form-group
+                  :label="$t('Scope')"
+                  label-for="scope"
+                >
+                  <b-form-input
+                    trim
+                    v-model="formData.scope"
+                    :placeholder="$t('Scope')"
+                    :state="getValidationState(validationContext)"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider></b-col>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
                 :name="$t('Doc Author')"
-                rules="required"
               >
                 <b-form-group
                   :label="$t('Doc Author')"
@@ -230,7 +224,6 @@
               <validation-provider
                 #default="validationContext"
                 :name="$t('Approved By')"
-                rules="required"
               >
                 <b-form-group
                   :label="$t('Approved By')"
@@ -255,7 +248,6 @@
               <validation-provider
                 #default="validationContext"
                 :name="$t('Approved Date')"
-                rules="required"
               >
                 <b-form-group
                   :label="$t('Approved Date')"
@@ -274,7 +266,7 @@
               </validation-provider>
             </b-col>
           </b-row>
-          <b-row>
+          <!-- <b-row>
             <b-col cols="12">
               <ckeditor
                 :editor="ClassicEditor"
@@ -282,7 +274,7 @@
                 v-model="formData.content"
               />
             </b-col>
-          </b-row>
+          </b-row> -->
 
           <div
             class="d-flex align-items-center justify-content-end mt-3"
@@ -314,13 +306,10 @@ import { ref } from '@vue/composition-api'
 import { required } from '@validations'
 import formValidation from '@core/comp-functions/forms/form-validation'
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
-import CKEditor from '@ckeditor/ckeditor5-vue2'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
-import useDocuments from '@/composables/documents'
+import useHandbooks from '@/composables/handbooks'
 
 export default {
   components: {
-    ckeditor: CKEditor.component,
     BCol,
     BRow,
     BForm,
@@ -332,11 +321,11 @@ export default {
     BFormInvalidFeedback,
   },
   model: {
-    prop: 'addDocumentActive',
-    event: 'update:add-document-active',
+    prop: 'isAddHandbookActive',
+    event: 'update:is-add-handbook-active',
   },
   props: {
-    addDocumentActive: {
+    isAddHandbookActive: {
       type: Boolean,
       required: true,
     },
@@ -348,31 +337,31 @@ export default {
 
     const initialState = {
       title: '',
-      category: '',
-      subcategory: '',
-      created_date: '',
       document_number: '',
+      scope: '',
+      created_by: '',
+      created_date: '',
       revised_date: '',
+      revised_by: '',
       revision_number: '',
       author: '',
       approved_by: '',
-      type: 'handbook',
-      content: '',
+      approved_date: '',
     }
 
     const formData = ref({ ...initialState })
 
-    const { storeDocument, respResult } = useDocuments()
+    const { storeHandbook, respResult } = useHandbooks()
 
 
     const contentUpdate = data => {
       formData.value.content = data
     }
     const onSubmit = async () => {
-      await storeDocument(formData.value)
+      await storeHandbook(formData.value)
       if (respResult.value.status === 200) {
         emit('refetch-data')
-        emit('update:add-document-active', false)
+        emit('update:is-add-handbook-active', false)
       }
     }
 
@@ -387,7 +376,6 @@ export default {
       contentUpdate,
       resetForm,
       editorConfig,
-      ClassicEditor,
       refFormObserver,
       getValidationState,
 
@@ -396,7 +384,7 @@ export default {
 }
 </script>
 <style lang="scss">
-#add-document-active___BV_modal_outer_{
+#is-add-handbook-active___BV_modal_outer_{
     z-index: 1000000 !important;
 }
 .per-page-selector {

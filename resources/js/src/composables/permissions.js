@@ -152,6 +152,7 @@ export default function usePermissions() {
     perPage,
     dataMeta,
     respResult,
+    totalRecords,
     currentPage,
     permissions,
     searchQuery,

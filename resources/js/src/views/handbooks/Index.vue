@@ -1,10 +1,14 @@
 <template>
   <div>
+    <add-handbook
+      :is-add-handbook-active.sync="isAddHandbookActive"
+      @refetch-data="fetchHandbooks"
+      v-if="isAddHandbookActive"
+    />
     <b-card
       no-body
       class="mb-0"
     >
-
       <div class="m-2">
         <b-card-title>
           Handbooks
@@ -25,11 +29,10 @@
             <label>{{ t('records per page') }}</label>
             <b-button
               variant="primary"
-              v-if="$can('equipment-add', 'all')"
-              @click="isAddEquipmentActive = true"
+              @click="isAddHandbookActive = true"
               class="ml-2"
             >
-              <span class="text-nowrap">Add New Equipment</span>
+              <span class="text-nowrap">Add New Handbook</span>
             </b-button>
           </b-col>
           <b-col
@@ -66,20 +69,10 @@
           show-empty
           :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
-          @row-clicked="viewEquipment"
           tbody-tr-class="item-row"
         >
           <template #head()="data">
             <span>{{ $t(data.label) }}</span>
-          </template>
-          <template #cell(lending)="data">
-            <b-button
-              variant="flat-primary"
-              size="sm"
-              @click="lendingEquipment(data.item)"
-            >
-              Show
-            </b-button>
           </template>
           <template #cell(actions)="data">
             <b-dropdown
@@ -94,15 +87,17 @@
                 />
               </template>
               <b-dropdown-item
-                @click="viewEquipment(data.item)"
+                :to="{
+                  name: 'handbooks-view',
+                  params: {
+                    id: data.item.id
+                  }
+                }"
               >
                 <feather-icon icon="EyeIcon" />
                 <span class="align-middle ml-50">View</span>
               </b-dropdown-item>
-              <b-dropdown-item
-                @click="editEquipment(data.item)"
-                v-if="$can('handbooks-edit', 'all')"
-              >
+              <!-- <b-dropdown-item>
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">{{ t('Edit') }}</span>
               </b-dropdown-item>
@@ -114,7 +109,7 @@
                   icon="TrashIcon"
                 />
                 <span class="align-middle ml-50">{{ t('Delete') }}</span>
-              </b-dropdown-item>
+              </b-dropdown-item> -->
             </b-dropdown>
           </template>
         </b-table>
@@ -187,6 +182,7 @@ import vSelect from 'vue-select'
 import useHandbooks from '@/composables/handbooks'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import i18n from '@/libs/i18n'
+import AddHandbook from './AddHandbook.vue'
 
 export default {
   components: {
@@ -203,6 +199,7 @@ export default {
     BDropdown,
     BCardTitle,
     BDropdownItem,
+    AddHandbook,
   },
   setup(_, { root }) {
     const {
@@ -232,8 +229,8 @@ export default {
     })
 
     const isExportActive = ref(false)
-    const isAddEquipmentActive = ref(false)
-    const isEditEquipmentActive = ref(false)
+    const isAddHandbookActive = ref(false)
+    const isEditHandbookActive = ref(false)
     const isEquipmentDetailsActive = ref(false)
     const isShowLendingHistoryActive = ref(false)
     const equipment = ref({})
@@ -245,26 +242,9 @@ export default {
       }
     }
 
-
-    const editEquipment = item => {
-      equipment.value = item
-      isEditEquipmentActive.value = true
-    }
-
-    const viewEquipment = data => {
-      isEquipmentDetailsActive.value = true
-      equipment.value = data
-    }
-
-
-    const lendingEquipment = data => {
-      isShowLendingHistoryActive.value = true
-      equipment.value = data
-    }
-
     const confirmDelete = async id => {
       root.$bvModal
-        .msgBoxConfirm(i18n.t('Please confirm that you want to delete equipment.'), {
+        .msgBoxConfirm(i18n.t('Please confirm that you want to delete handbook.'), {
           title: i18n.t('Please Confirm'),
           size: 'sm',
           okTitle: i18n.t('Confirm'),
@@ -295,16 +275,13 @@ export default {
       totalRecords,
       refListTable,
       isSortDirDesc,
-      viewEquipment,
-      editEquipment,
       confirmDelete,
       perPageOptions,
       isExportActive,
       fetchHandbooks,
       deleteEquipment,
-      lendingEquipment,
-      isAddEquipmentActive,
-      isEditEquipmentActive,
+      isAddHandbookActive,
+      isEditHandbookActive,
       isEquipmentDetailsActive,
       isShowLendingHistoryActive,
     }

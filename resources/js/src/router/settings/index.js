@@ -19,6 +19,23 @@ const routes = [
     },
   },
   {
+    path: 'settings/chapters',
+    name: 'settings-chapters',
+    component: () => import('@/views/settings/chapters/Index.vue'),
+    meta: {
+      pageTitle: 'Settings: Absence Types',
+      resource: 'all',
+      action: 'manage-settings',
+      auth: true,
+      breadcrumb: [
+        {
+          text: 'Absence Types',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
     path: 'settings/competence',
     name: 'settings-competence',
     component: () => import('@/views/settings/competence/Index.vue'),
