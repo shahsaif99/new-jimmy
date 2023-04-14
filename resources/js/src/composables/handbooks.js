@@ -177,7 +177,7 @@ export default function useHandbooks() {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.post(route('handbooks.update', id), data)
+      const response = await axios.put(route('handbooks.update', id), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {

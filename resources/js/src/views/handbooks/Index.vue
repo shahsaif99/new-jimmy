@@ -5,6 +5,12 @@
       @refetch-data="fetchHandbooks"
       v-if="isAddHandbookActive"
     />
+    <edit-handbook
+      :is-edit-handbook-active.sync="isEditHandbookActive"
+      @refetch-data="fetchHandbooks"
+      v-if="isEditHandbookActive"
+      :handbook="handbook"
+    />
     <b-card
       no-body
       class="mb-0"
@@ -47,7 +53,6 @@
                 class="d-inline-block mr-1 md-2"
                 :placeholder="t('Search...')"
               />
-
             </div>
           </b-col>
         </b-row>
@@ -97,11 +102,11 @@
                 <feather-icon icon="EyeIcon" />
                 <span class="align-middle ml-50">View</span>
               </b-dropdown-item>
-              <!-- <b-dropdown-item>
+              <b-dropdown-item @click="editHandbook(data.item)">
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">{{ t('Edit') }}</span>
               </b-dropdown-item>
-              <b-dropdown-item
+              <!-- <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
                 v-if="$can('handbooks-delete', 'all')"
               >
@@ -183,6 +188,7 @@ import useHandbooks from '@/composables/handbooks'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import i18n from '@/libs/i18n'
 import AddHandbook from './AddHandbook.vue'
+import EditHandbook from './EditHandbook.vue'
 
 export default {
   components: {
@@ -198,6 +204,7 @@ export default {
     BPagination,
     BDropdown,
     BCardTitle,
+    EditHandbook,
     BDropdownItem,
     AddHandbook,
   },
@@ -233,7 +240,12 @@ export default {
     const isEditHandbookActive = ref(false)
     const isEquipmentDetailsActive = ref(false)
     const isShowLendingHistoryActive = ref(false)
-    const equipment = ref({})
+    const handbook = ref({})
+
+    const editHandbook = handbookObj => {
+      handbook.value = handbookObj
+      isEditHandbookActive.value = true
+    }
 
     const deleteConfirmed = async id => {
       await deleteEquipment(id)
@@ -266,10 +278,11 @@ export default {
       student,
       perPage,
       dataMeta,
-      equipment,
+      handbook,
       refetchData,
       searchQuery,
       handbooks,
+      editHandbook,
       currentPage,
       tableColumns,
       totalRecords,

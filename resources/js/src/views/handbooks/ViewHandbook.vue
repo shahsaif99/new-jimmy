@@ -93,61 +93,7 @@
                   @reset.prevent="resetForm"
                 >
                   <b-card>
-                    <b-row>
-                      <b-col
-                        cols="12"
-                        md="12"
-                      >
-                        <validation-provider
-                          #default="validationContext"
-                          :name="$t('Title')"
-                          rules="required"
-                        >
-                          <b-form-group
-                            :label="$t('Title')"
-                            label-for="oname"
-                          >
-                            <b-form-input
-                              v-model="formData.title"
-                              :state="getValidationState(validationContext)"
-                              trim
-                            />
-                            <b-form-invalid-feedback>
-                              {{ validationContext.errors[0] }}
-                            </b-form-invalid-feedback>
-                          </b-form-group>
-                        </validation-provider>
-                      </b-col>
 
-                      <b-col
-                        cols="12"
-                        md="12"
-                      >
-                        <validation-provider
-                          #default="validationContext"
-                          :name="$t('Chapter')"
-                          rules="required"
-                        >
-                          <b-form-group
-                            :label="$t('Chapter')"
-                            label-for="oname"
-                          >
-                            <b-form-select
-                              :options="chapters"
-                              text-field="name"
-                              value-field="name"
-                              v-model="formData.chapter"
-                              :state="getValidationState(validationContext)"
-                              trim
-                            />
-                            <b-form-invalid-feedback>
-                              {{ validationContext.errors[0] }}
-                            </b-form-invalid-feedback>
-                          </b-form-group>
-                        </validation-provider>
-                      </b-col>
-
-                    </b-row>
                     <ckeditor
                       :editor="ClassicEditor"
                       :config="editorConfig"
@@ -195,80 +141,156 @@
                   id="my-collapse"
                   visible
                 >
-                  <b-row v-if="documentData">
-                    <b-col
-                      sm="6"
-                      class="mb-2"
-                    >
-                      <h6>
-                        <strong>{{ $t('Title') }}</strong>
-                      </h6>
-                      <span>{{ documentData.title }}</span>
-                    </b-col>
-                    <b-col
-                      sm="6"
-                      class="mb-2"
-                    >
-                      <h6>
-                        <strong>{{ $t('Document No.') }}</strong>
-                      </h6>
-                      <span>{{ documentData.document_number }}</span>
-                    </b-col>
-                    <b-col
-                      sm="6"
-                      class="mb-2"
-                    >
-                      <h6>
-                        <strong>{{ $t('Created Date') }}</strong>
-                      </h6>
-                      <span>{{ documentData.created_at }}</span>
-                    </b-col>
-                    <b-col
-                      sm="6"
-                      class="mb-2"
-                    >
-                      <h6>
-                        <strong>{{ $t('Revised Date') }}</strong>
-                      </h6>
-                      <span>{{ documentData.revised_date }}</span>
-                    </b-col>
-                    <b-col
-                      sm="6"
-                      class="mb-2"
-                    >
-                      <h6>
-                        <strong>{{ $t('Revised No') }}</strong>
-                      </h6>
-                      <span>{{ documentData.revision_number }}</span>
-                    </b-col>
-                    <b-col
-                      sm="6"
-                      class="mb-2"
-                    >
-                      <h6>
-                        <strong>{{ $t('Approved By') }}</strong>
-                      </h6>
-                      <span>{{ documentData.approved_by }}</span>
-                    </b-col>
-                    <b-col
-                      sm="6"
-                      class="mb-2"
-                    >
-                      <h6>
-                        <strong>{{ $t('Doc Author') }}</strong>
-                      </h6>
-                      <span>{{ documentData.author }}</span>
-                    </b-col>
-                    <b-col
-                      sm="6"
-                      class="mb-2"
-                    >
-                      <h6>
-                        <strong>{{ $t('Approved Date') }}</strong>
-                      </h6>
-                      <span>{{ documentData.approved_date }}</span>
-                    </b-col>
-                    <!-- <b-col cols="12">
+                  <b-tabs
+                    v-model="tabIndex"
+                  >
+
+                    <!-- general tab -->
+                    <b-tab>
+
+                      <!-- title -->
+                      <template #title>
+                        <span class="font-weight-bold">{{ $t('Document Details') }}</span>
+                      </template>
+
+                      <b-row>
+                        <b-col
+                          cols="12"
+                          md="12"
+                        >
+                          <validation-provider
+                            #default="validationContext"
+                            :name="$t('Title')"
+                            rules="required"
+                          >
+                            <b-form-group
+                              :label="$t('Title')"
+                              label-for="oname"
+                            >
+                              <b-form-input
+                                v-model="formData.title"
+                                :state="getValidationState(validationContext)"
+                                trim
+                              />
+                              <b-form-invalid-feedback>
+                                {{ validationContext.errors[0] }}
+                              </b-form-invalid-feedback>
+                            </b-form-group>
+                          </validation-provider>
+                        </b-col>
+
+                        <b-col
+                          cols="12"
+                          md="12"
+                        >
+                          <validation-provider
+                            #default="validationContext"
+                            :name="$t('Chapter')"
+                            rules="required"
+                          >
+                            <b-form-group
+                              :label="$t('Chapter')"
+                              label-for="oname"
+                            >
+                              <b-form-select
+                                :options="chapters"
+                                text-field="name"
+                                value-field="name"
+                                v-model="formData.chapter"
+                                :state="getValidationState(validationContext)"
+                                trim
+                              />
+                              <b-form-invalid-feedback>
+                                {{ validationContext.errors[0] }}
+                              </b-form-invalid-feedback>
+                            </b-form-group>
+                          </validation-provider>
+                        </b-col>
+
+                      </b-row>
+
+                    </b-tab>
+
+
+                    <!-- change password tab -->
+                    <b-tab>
+                      <template #title>
+                        <span class="font-weight-bold">{{ $t('Handbook Details') }}</span>
+                      </template>
+                      <b-row v-if="documentData">
+                        <b-col
+                          sm="6"
+                          class="mb-2"
+                        >
+                          <h6>
+                            <strong>{{ $t('Title') }}</strong>
+                          </h6>
+                          <span>{{ documentData.title }}</span>
+                        </b-col>
+                        <b-col
+                          sm="6"
+                          class="mb-2"
+                        >
+                          <h6>
+                            <strong>{{ $t('Document No.') }}</strong>
+                          </h6>
+                          <span>{{ documentData.document_number }}</span>
+                        </b-col>
+                        <b-col
+                          sm="6"
+                          class="mb-2"
+                        >
+                          <h6>
+                            <strong>{{ $t('Created Date') }}</strong>
+                          </h6>
+                          <span>{{ documentData.created_at }}</span>
+                        </b-col>
+                        <b-col
+                          sm="6"
+                          class="mb-2"
+                        >
+                          <h6>
+                            <strong>{{ $t('Revised Date') }}</strong>
+                          </h6>
+                          <span>{{ documentData.revised_date }}</span>
+                        </b-col>
+                        <b-col
+                          sm="6"
+                          class="mb-2"
+                        >
+                          <h6>
+                            <strong>{{ $t('Revised No') }}</strong>
+                          </h6>
+                          <span>{{ documentData.revision_number }}</span>
+                        </b-col>
+                        <b-col
+                          sm="6"
+                          class="mb-2"
+                        >
+                          <h6>
+                            <strong>{{ $t('Approved By') }}</strong>
+                          </h6>
+                          <span>{{ documentData.approved_by }}</span>
+                        </b-col>
+                        <b-col
+                          sm="6"
+                          class="mb-2"
+                        >
+                          <h6>
+                            <strong>{{ $t('Doc Author') }}</strong>
+                          </h6>
+                          <span>{{ documentData.author }}</span>
+                        </b-col>
+                        <b-col
+                          sm="6"
+                          class="mb-2"
+                        >
+                          <h6>
+                            <strong>{{ $t('Approved Date') }}</strong>
+                          </h6>
+                          <span>{{ documentData.approved_date }}</span>
+                        </b-col>
+                        <!-- <b-col cols="12">
                       <button
                         class="btn btn-primary"
                         @click="downloadPdf"
@@ -280,7 +302,11 @@
                         {{ $t('Download PDF') }}
                       </button>
                     </b-col> -->
-                  </b-row>
+                      </b-row>
+                    </b-tab>
+
+                  </b-tabs>
+
                 </b-collapse>
               </b-card>
             </div>
@@ -294,7 +320,7 @@
 
 <script>
 import {
-  BButton, BCard, BCol, BRow, BFormGroup, BFormInput, BCollapse, VBToggle, BForm, BFormInvalidFeedback, BFormSelect,
+  BButton, BCard, BCol, BRow, BFormGroup, BFormInput, BCollapse, VBToggle, BForm, BFormInvalidFeedback, BFormSelect, BTab, BTabs,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
 // eslint-disable-next-line import/no-cycle
@@ -320,6 +346,8 @@ export default {
     BCard,
     BForm,
     BButton,
+    BTab,
+    BTabs,
     BCollapse,
     BFormSelect,
     BFormInput,
@@ -415,7 +443,7 @@ export default {
       removePlugins: ['ImageUpload', 'EasyImage'],
     })
 
-
+    const tabIndex = ref(0)
     const localStorageData = JSON.parse(useJwt.getUserData())
 
 
@@ -425,6 +453,7 @@ export default {
       required,
       chapters,
       formData,
+      tabIndex,
       downloadPdf,
       isDocumentOpen,
       getDocumentData,
