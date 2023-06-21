@@ -32,7 +32,7 @@ class CompetenceController extends Controller
             $query->transform(function($item, $key){
                  return [
                      'mode' => 'span',
-                     'label' => $item->first()->name,
+                     'label' => $item->first_name . ' ' . $item->last_name,
                      'children' => $item->competences
                  ];
              });
@@ -41,6 +41,8 @@ class CompetenceController extends Controller
 
         return CompetenceResource::collection($competences);
     }
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -51,6 +53,8 @@ class CompetenceController extends Controller
     public function store(StoreRequest $request)
     {
         // dd($request->all());
+
+        // dd(json_decode($request->employees));
 
         $competence = Competence::create($request->validated());
 

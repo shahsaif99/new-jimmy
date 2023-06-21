@@ -84,87 +84,72 @@
         }"
       >
 
+
         <template
-          slot="table-column"
-          slot-scope="props"
-        >
-          <span
-            class="text-nowrap"
-          >
-            {{ $t(props.column.label) }}
-          </span>
-        </template>
-        <!-- <template
           slot="table-row"
           slot-scope="props"
         >
-          <span
-            v-if="props.column.field === 'name'"
-            class="text-nowrap"
-          >
-            <b-avatar
-              :src="props.row.avatar"
-              class="mx-1"
-            />
+          <span v-if="props.column.field === 'competence'">
+            <p
+              class="font-weight-bold"
+              v-if="props.index=== 0"
+            >   {{ $t('Competence Name') }}
+            </p>
+            {{ props.row.competence.name }}
+          </span>
+          <span v-if="props.column.field === 'completed_date'">
+            <p
+              class="font-weight-bold"
+              v-if="props.index=== 0"
+            >   {{ $t('Completed') }}
+            </p>
+            {{ props.row.competence.valid_until }}
+          </span>
+          <span v-if="props.column.field === 'valid_until'">
+            <p
+              class="font-weight-bold"
+              v-if="props.index=== 0"
+            >   {{ $t('Valid Until') }}
+            </p>
+            {{ props.row.competence.valid_until }}
+          </span>
 
-            <span class="text-nowrap">{{ props.row.user.name }}</span>
-          </span>
-          <span
-            v-else-if="props.column.field === 'days'"
-            class="text-nowrap"
-          >
-            <span class="text-nowrap">{{ props.row.days }} {{ t('day(s)') }}</span>
-          </span>
-          <span v-else-if="props.column.field === 'status'">
-            <b-badge :variant="resolveStatus(props.row.status)">
-              {{ $t(props.row.status) }}
-            </b-badge>
+          <span v-if="props.column.field === 'files'">
+            <p
+              class="font-weight-bold"
+              v-if="props.index=== 0"
+            >   {{ $t('Files') }}
+            </p>
+            <span v-if="props.row.competence.media">
+              {{ props.row.competence.media.length }}
+            </span>
           </span>
 
           <span v-else-if="props.column.field === 'actions'">
+            <p
+              class="font-weight-bold"
+              v-if="props.index=== 0"
+            >   {{ $t('Actions') }}
+            </p>
             <div
               class="text-nowrap"
             >
-              <div v-if="props.row.status == 'pending'">
-                <span class="text-success">
-                  <feather-icon
-                    @click="confirmStatus(props.row.id, 'approved')"
-                    :id="`accept-request-${props.row.id}-check-btn`"
-                    icon="CheckIcon"
-                    class="cursor-pointer ml-1"
-                    size="16"
-                  />
-                </span>
-                <span class="text-danger">
-                  <feather-icon
-                    @click="confirmStatus(props.row.id, 'declined')"
-                    :id="`decline-request-${props.row.id}-cross-btn`"
-                    icon="SlashIcon"
-                    class="cursor-pointer ml-1"
-                    size="16"
-                  />
-                </span>
-              </div>
-
-              <div v-if="props.row.status == 'approved'">
-                <feather-icon
-                  :id="`user-row-${props.row.id}-pencil-icon`"
-                  icon="EditIcon"
-                  size="16"
-                  class="mx-1 cursor-pointer"
-                  @click="editAbsence(props.row.id)"
-                />
-                <feather-icon
-                  @click="confirmDelete(props.row.id)"
-                  :id="`delete-request-${props.row.id}-trash-btn`"
-                  icon="Trash2Icon"
-                  class="cursor-pointer"
-                  size="16"
-                />
-              </div>
+              <feather-icon
+                :id="`user-row-${props.row.id}-pencil-icon`"
+                icon="EditIcon"
+                size="16"
+                class="mx-1 cursor-pointer"
+              />
+              <feather-icon
+                :id="`delete-request-${props.row.id}-trash-btn`"
+                icon="Trash2Icon"
+                class="cursor-pointer"
+                size="16"
+              />
             </div>
           </span>
-        </template> -->
+
+        </template>
       </vue-good-table>
     </b-card>
   </div>
@@ -368,6 +353,9 @@ export default {
   @import '~@core/scss/vue/libs/vue-select.scss';
   </style>
 <style >
+.vgt-table thead{
+    display: none;
+}
 table.vgt-table{
     font-size: 1rem;
 }

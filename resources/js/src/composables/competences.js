@@ -25,26 +25,30 @@ export default function useCompetences() {
   const tableColumns = [
     {
       label: 'Name',
-      field: 'competence.name',
+      field: 'competence',
     },
     {
-      field: 'competence.completed_date',
+      field: 'completed_date',
       label: 'Completed Date',
       type: 'date',
       dateInputFormat: 'yyyy-MM-dd',
       dateOutputFormat: 'MM.dd.yyyy',
     },
     {
-      field: 'competence.valid_until',
+      field: 'valid_until',
       label: 'Valid Until',
       type: 'date',
       dateInputFormat: 'yyyy-MM-dd',
       dateOutputFormat: 'MM.dd.yyyy',
     },
-    // {
-    //   label: 'Actions',
-    //   field: 'actions',
-    // },
+    {
+      label: 'Files',
+      field: 'files',
+    },
+    {
+        label: 'Actions',
+        field: 'actions',
+      },
   ]
 
 

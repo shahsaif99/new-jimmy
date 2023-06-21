@@ -89,29 +89,17 @@
                 cols="6"
                 md="6"
               >
-                <validation-provider
-                  #default="validationContext"
-                  :name="t('Valid Until')"
-                  rules="required"
+
+                <b-form-group
+                  :label="t('Valid Until')"
+                  label-for="enddate"
                 >
-                  <b-form-group
-                    :label="t('Valid Until')"
-                    label-for="enddate"
-                  >
-                    <b-form-input
-                      type="date"
-                      v-model="formData.valid_until"
-                      :state="
-                        getValidationState(
-                          validationContext
-                        )
-                      "
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider></b-col>
+                  <b-form-input
+                    type="date"
+                    v-model="formData.valid_until"
+                  />
+                </b-form-group>
+              </b-col>
               <b-col
                 cols="12"
                 md="12"

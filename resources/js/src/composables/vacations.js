@@ -3,6 +3,7 @@ import {
   computed, ref, watch, reactive,
 } from '@vue/composition-api'
 import route from 'ziggy-js'
+import debounce from 'lodash'
 import toaster from './toaster'
 
 export default function useVacations() {
@@ -267,7 +268,8 @@ export default function useVacations() {
     }
   }
 
-  watch([currentPage, searchQuery, perPage], () => {
+
+  watch([currentPage, perPage, searchQuery], () => {
     fetchVacations()
   })
 

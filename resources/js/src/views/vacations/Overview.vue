@@ -103,11 +103,11 @@
             slot="table-row"
             slot-scope="props"
           >
-            <!-- Column: Name -->
             <span
               v-if="props.column.field === 'name'"
               class="text-nowrap"
             >
+              Name
               <b-avatar
                 :src="props.row.avatar"
                 class="mx-1"
@@ -115,21 +115,70 @@
 
               <span class="text-nowrap">{{ props.row.user.name }}</span>
             </span>
+            <span v-else-if="props.column.field === 'from_date'">
+              <p
+                class="font-weight-bold"
+                v-if="props.index=== 0"
+              >   {{ $t('From Date') }}
+              </p>
+              {{ props.row.from_date }}
+            </span>
+            <span v-else-if="props.column.field === 'to_date'">
+              <p
+                class="font-weight-bold"
+                v-if="props.index=== 0"
+              >   {{ $t('To Date') }}
+              </p>
+              {{ props.row.to_date }}
+            </span>
             <span
               v-else-if="props.column.field === 'days'"
               class="text-nowrap"
             >
+              <p
+                class="font-weight-bold"
+                v-if="props.index=== 0"
+              >   {{ $t('Days') }}
+              </p>
               <span class="text-nowrap">{{ props.row.days }} {{ $t('day(s)') }}</span>
             </span>
             <!-- Column: Status -->
             <span v-else-if="props.column.field === 'status'">
+              <p
+                class="font-weight-bold"
+                v-if="props.index=== 0"
+              >   {{ $t('Status') }}
+              </p>
               <b-badge :variant="resolveStatus(props.row.status)">
                 {{ props.row.status }}
               </b-badge>
             </span>
 
+            <span v-else-if="props.column.field === 'comments'">
+              <p
+                class="font-weight-bold"
+                v-if="props.index=== 0"
+              >   {{ $t('Comments') }}
+              </p>
+              {{ props.row.comments }}
+            </span>
+
+            <span v-else-if="props.column.field === 'approved_date'">
+              <p
+                class="font-weight-bold"
+                v-if="props.index=== 0"
+              >   {{ $t('Approved Date') }}
+              </p>
+              {{ props.row.approved_date }}
+            </span>
+
             <!-- Column: Action -->
             <span v-else-if="props.column.field === 'actions'">
+              <p
+                class="font-weight-bold"
+                v-if="props.index=== 0"
+              >   {{ $t('Actions') }}
+              </p>
               <div
                 class="text-nowrap"
               >

@@ -26,7 +26,7 @@ class UpdateRequest extends FormRequest
         return [
             'name' => ['required','max:255'],
             'completed_date' => ['required','date'],
-            'valid_until' => ['required','date'],
+            'valid_until' => ['nullable','date'],
         ];
     }
 }
