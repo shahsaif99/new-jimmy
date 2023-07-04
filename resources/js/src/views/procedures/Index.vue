@@ -98,19 +98,23 @@
                   >
                     <h4><a href="javascript:;"> {{ getIndex(documentsData, index) }} {{ index }}</a></h4>
                     <ul class="indexing-table list-unstyled">
-                      <li>
-                        <h4><a
-                          href="javascript:;"
-                        >{{ getIndex(documentsData, index) }} {{ getIndex(mainCategory, Object.values(mainCategory)[0].subcategory) }} {{ Object.values(mainCategory)[0].subcategory }}</a></h4>
+                      <li
+                        v-for="(group, index2) in mainCategory"
+                        :key="index2"
+                      >
+                        <h4>
+                          <a
+                            href="javascript:;"
+                          > {{ getIndex(documentsData, index) }}{{ getIndex(mainCategory, index2) }} {{ index2 }} </a></h4>
                         <ul class="list-unstyled">
                           <li
-                            v-for="(subCategory, index2) in mainCategory"
-                            :key="index2"
+                            v-for="(subgroup, index3) in group"
+                            :key="index3"
                           >
                             <a
                               href="javascript:;"
-                              @click="getDocument(subCategory)"
-                            >{{ subCategory.document_number }}-{{ subCategory.type.charAt(0) }}-{{ subCategory.title }}</a>
+                              @click="getDocument(subgroup, `${getIndex(documentsData, index)}${getIndex(mainCategory, index)}-${subgroup.document_number }`)"
+                            > {{ getIndex(documentsData, index) }}{{ getIndex(mainCategory, index2) }}-{{ subgroup.document_number }}-{{ subgroup.type.charAt(0) }}-{{ subgroup.title }}</a>
                           </li>
                         </ul>
                       </li>
@@ -523,7 +527,7 @@
                       <h6>
                         <strong>{{ $t('Doc. no') }}</strong>
                       </h6>
-                      <span>{{ documentData.document_number }}</span>
+                      <span>{{ docNumber }}</span>
                     </b-col>
                     <b-col
                       sm="6"
@@ -705,8 +709,11 @@ export default {
       getDocuments()
     }
 
+    const docNumber = ref('')
 
-    const getDocument = data => {
+
+    const getDocument = (data, docId) => {
+      docNumber.value = docId
       isDocumentOpen.value = true
       isDocumentEdit.value = false
       documentData.value = { ...data }
@@ -729,7 +736,7 @@ width: 100%;
 
           <tr>
             <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important"><span
-                ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Doc. no')}:<br /></span><span style="font-size: 15px;">${documentData.value.document_number}-${documentData.value.type.charAt(0)}</span></span
+                ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Doc. no')}:<br /></span><span style="font-size: 15px;">${docId}-${documentData.value.type.charAt(0)}</span></span
             ></td>
 
             <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important"><span
@@ -778,7 +785,6 @@ width: 100%;
 
     // get object index number
     const getIndex = (obj, value) => {
-      console.log(obj)
       const keys = Object.keys(obj)
 
       //   with 0 if index is less than 10
@@ -786,6 +792,32 @@ width: 100%;
         return `0${keys.indexOf(value) + 1}`
       }
       return keys.indexOf(value) + 1
+    }
+
+    const getIndex2 = (obj, value) => {
+      const keys = Object.keys(obj)
+
+      return keys.indexOf(value) + 1
+    }
+
+    // getIndexByValue
+    const getIndexByValue = (obj, value) => {
+      console.log(value)
+      //  find value in objecct by subcategory name
+      //   const keys = Object.keys(obj)
+      // check subcategory value in object and return index
+      const index = Object.values(obj).findIndex((item, i) => {
+        if (item.subcategory === value) {
+          return i
+        }
+      })
+      console.log(index + 1)
+
+      //   with 0 if index is less than 10
+      if (index + 1 < 10) {
+        return `0${index + 1}`
+      }
+      return index + 1
     }
 
     const editorConfig = ref({
@@ -822,7 +854,9 @@ width: 100%;
       search,
       onSubmit,
       required,
+      getIndex2,
       searchQuery,
+      docNumber,
       getIndex,
       getDocuments,
       editDocument,
@@ -833,6 +867,7 @@ width: 100%;
       editorContent,
       documentData,
       documentsData,
+      getIndexByValue,
       ClassicEditor,
       editorConfig,
       isExportActive,

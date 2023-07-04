@@ -16,10 +16,14 @@ class DocumentController extends Controller
         $documents = Document::query()
         // ->whereType($request->type)
         ->applyFilters($request)
-        ->latest()
         ->get();
 
         $grouped = $documents->groupBy('category', true);
+
+        // groupby subcategory
+        $grouped->transform(function($item, $key){
+            return $item->groupBy('subcategory', true);
+        });
 
         return $grouped;
     }
