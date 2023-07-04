@@ -72,6 +72,10 @@ export default function useAbsences() {
       field: 'days',
     },
     {
+      label: 'Type',
+      field: 'type',
+    },
+    {
       label: 'Status',
       field: 'status',
     },

@@ -157,6 +157,15 @@
               </b-badge>
             </span>
 
+            <span v-else-if="props.column.field === 'type'">
+              <p
+                class="font-weight-bold"
+                v-if="props.index=== 0"
+              >   {{ $t('Type') }}
+              </p>
+              {{ props.row.type }}
+            </span>
+
             <span v-else-if="props.column.field === 'comments'">
               <p
                 class="font-weight-bold"

@@ -3,7 +3,7 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    :title="t('Edit Competence')"
+    :title="$t('Edit Competence')"
     size="lg"
     class="modal-edit-competence-active"
     id="edit-competence-active"
@@ -27,11 +27,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                :name="t('Course Name')"
+                :name="$t('Course Name')"
                 rules="required"
               >
                 <b-form-group
-                  :label="t('Course Name')"
+                  :label="$t('Course Name')"
                   label-for="competencename"
                 >
                   <b-form-select
@@ -42,9 +42,9 @@
                     value-field="name"
                     text-field="name"
                     :options="competencesCourses"
-                    :placeholder="t('Course Name')"
+                    :placeholder="$t('Course Name')"
                   />
-                  <b-form-invalid-feedback>
+                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
                     {{ validationContext.errors[0] }}
                   </b-form-invalid-feedback>
                 </b-form-group>
@@ -56,11 +56,11 @@
             >
               <validation-provider
                 #default="validationContext"
-                :name="t('Completed Date')"
+                :name="$t('Completed Date')"
                 rules="required"
               >
                 <b-form-group
-                  :label="t('Completed Date')"
+                  :label="$t('Completed Date')"
                   label-for="startdate"
                 >
                   <b-form-input
@@ -72,7 +72,7 @@
                       )
                     "
                   />
-                  <b-form-invalid-feedback>
+                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
                     {{ validationContext.errors[0] }}
                   </b-form-invalid-feedback>
                 </b-form-group>
@@ -81,29 +81,17 @@
               cols="6"
               md="6"
             >
-              <validation-provider
-                #default="validationContext"
-                :name="t('Valid Until')"
-                rules="required"
+
+              <b-form-group
+                :label="$t('Valid Until')"
+                label-for="enddate"
               >
-                <b-form-group
-                  :label="t('Valid Until')"
-                  label-for="enddate"
-                >
-                  <b-form-input
-                    type="date"
-                    v-model="formData.valid_until"
-                    :state="
-                      getValidationState(
-                        validationContext
-                      )
-                    "
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
+                <b-form-input
+                  type="date"
+                  v-model="formData.valid_until"
+                />
+              </b-form-group>
+            </b-col>
             <b-col
               cols="12"
               md="12"
@@ -145,20 +133,46 @@
               </b-form-group>
             </b-col>
             <b-col sm="12">
+              <validation-provider
+                #default="validationContext"
+                :name="$t('Status')"
+                rules="required"
+              >
+                <b-form-group
+                  :label="$t('Status')"
+                  label-for="description"
+                  class="mt-2 mb-2"
+                >
+                  <v-select
+                    label="label"
+                    :placeholder="$t('Status')"
+                    v-model="formData.status"
+                    :options="statusOptions"
+                    :reduce="status => status.value"
+                    :clearable="false"
+                    input-id="title"
+                  />
+                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+            <!-- <b-col sm="12">
               <ValidationProvider
                 #default="validationContext"
                 name="Employees"
                 rules="required"
               >
                 <b-form-group
-                  :label="t('Select Employee')"
+                  :label="$t('Select Employee')"
                   label-for="employee"
                   :state="getValidationState(validationContext)"
                 >
                   <v-select
                     v-model="formData.employees"
                     class="w-full"
-                    :placeholder="t('Type here to search employees')"
+                    :placeholder="$t('Type here to search employees')"
                     :options="users"
                     multiple
                     :close-on-select="false"
@@ -171,7 +185,7 @@
                     :state="getValidationState(validationContext)"
                   >
                     <template slot="no-options">
-                      {{ t('type to search employees..') }}
+                      {{ $t('type to search employees..') }}
                     </template>
                     <template
                       slot="option"
@@ -191,7 +205,7 @@
                   </b-form-invalid-feedback>
                 </b-form-group>
               </ValidationProvider>
-            </b-col>
+            </b-col> -->
           </b-row>
           <div class="mb-2">
             <b-row>
@@ -202,7 +216,7 @@
                     class="mt-1"
                     type="submit"
                   >
-                    <span class="text-nowrap">{{ t('Submit') }}</span>
+                    <span class="text-nowrap">{{ $t('Update') }}</span>
                   </b-button>
                 </div>
               </b-col>
@@ -221,6 +235,7 @@ import {
   BForm,
   BBadge,
   BButton,
+  BFormSelect,
   BFormFile,
   BFormInput,
   BFormGroup,
@@ -247,6 +262,7 @@ export default {
     BFormFile,
     BFormInput,
     BFormGroup,
+    BFormSelect,
     ValidationProvider,
     ValidationObserver,
     BFormInvalidFeedback,
@@ -260,6 +276,10 @@ export default {
       type: Boolean,
       required: true,
     },
+    competence: {
+      type: Object,
+      required: true,
+    },
   },
   setup(props, { emit }) {
     const formData = ref({ })
@@ -268,7 +288,7 @@ export default {
       busy: storeBusy,
       respResult,
       competences,
-      storeCompetence,
+      updateCompetence,
 
     } = useCompetences()
 
@@ -310,20 +330,34 @@ export default {
       if (props.competence) {
         formData.value = { ...props.competence }
         fetchCompetenceList()
+        // filters.role = 'Employee'
+        // fetchUsersList()
       }
     })
 
+    const statusOptions = [
+      { label: 'Active', value: 'active' },
+      { label: 'Expire', value: 'expire' },
+    ]
+
 
     const onSubmit = async () => {
+      console.log(formData.value.status)
       const formDataObj = new FormData()
       formDataObj.append('name', formData.value.name)
       formDataObj.append('completed_date', formData.value.completed_date)
-      formDataObj.append('valid_until', formData.value.valid_until)
-      formDataObj.append('employees', JSON.stringify(formData.value.employees.map(item => item.id)))
+      if (formData.value.valid_until) {
+        formDataObj.append('valid_until', formData.value.valid_until)
+      }
+      formDataObj.append('id', formData.value.id)
+      //   formDataObj.append('employees', JSON.stringify(formData.value.employees.map(item => item.id)))
       for (let index = 0; index < files.value.length; index++) {
         formDataObj.append('files[]', files.value[index])
       }
-      await storeCompetence(formDataObj)
+      formDataObj.append('status', formData.value.status)
+      formDataObj.append('_method', 'PUT')
+
+      await updateCompetence(formData.value.id, formDataObj)
       if (respResult.value.status === 200) {
         emit('refetch-data')
         emit('update:is-edit-competence-active', false)
@@ -344,6 +378,7 @@ export default {
       required,
       onSubmit,
       resetForm,
+      statusOptions,
       refFormObserver,
       competencesCourses,
       getValidationState,

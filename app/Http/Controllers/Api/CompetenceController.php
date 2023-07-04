@@ -22,9 +22,15 @@ class CompetenceController extends Controller
     {
         $competences = User::query()
         ->select('id','first_name','last_name')
-        ->has('competences')
         ->with(['competences' => ['competence' => ['media']]])
         ->search($request->q)
+        ->when($request->q, function($query) use ($request){
+            $query->orWhereHas('competences', function($query) use ($request){
+                $query->whereHas('competence', function($query) use ($request){
+                    $query->where('name', 'like', '%' . $request->q . '%');
+                });
+            });
+        })
         ->applyFilters($request)
         ->role('Employee')
         ->get()
@@ -34,6 +40,11 @@ class CompetenceController extends Controller
                      'mode' => 'span',
                      'label' => $item->first_name . ' ' . $item->last_name,
                      'children' => $item->competences
+                        ->transform(function($item, $key){
+                            $item->user_name = $item->user->name;
+                            return $item;
+                        })
+
                  ];
              });
 

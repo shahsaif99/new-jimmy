@@ -42,13 +42,18 @@ export default function useCompetences() {
       dateOutputFormat: 'MM.dd.yyyy',
     },
     {
+      label: 'Status',
+      field: 'status',
+    },
+    {
       label: 'Files',
       field: 'files',
     },
     {
-        label: 'Actions',
-        field: 'actions',
-      },
+      label: 'Actions',
+      field: 'actions',
+    },
+
   ]
 
 
@@ -133,11 +138,11 @@ export default function useCompetences() {
   }
 
 
-  const updateCompetence = async data => {
+  const updateCompetence = async (id, data) => {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.put(route('competences.update', data.id), data)
+      const response = await axios.post(route('competences.update', id), data)
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -219,6 +224,11 @@ export default function useCompetences() {
     }
   }
 
+  const resolveStatus = status => {
+    if (status === 'Active') { return 'success' }
+    if (status === 'Expired') { return 'danger' }
+    return 'primary'
+  }
 
   watch([currentPage, searchQuery, perPage], () => {
     fetchCompetences()
@@ -246,6 +256,7 @@ export default function useCompetences() {
     storeCompetence,
     perPageOptions,
     uploadDocument,
+    resolveStatus,
     fetchCompetencesList,
     resolveCompetencestatus,
   }

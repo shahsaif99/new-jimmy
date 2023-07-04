@@ -22,6 +22,7 @@ class Competence extends Model
         'name',
         'completed_date',
         'valid_until',
+        'status',
     ];
 
 
@@ -85,6 +86,12 @@ class Competence extends Model
     public function usersCompetences(): HasManyThrough
     {
         return $this->hasManyThrough(User::class, Competence::class);
+    }
+
+    // has user through users_competences
+    public function users()
+    {
+        return $this->hasManyThrough(User::class, UsersCompetence::class);
     }
 
 

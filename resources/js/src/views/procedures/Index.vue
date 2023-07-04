@@ -83,24 +83,25 @@
             sm="3"
             class=""
           >
-            <h3>Table Of Contents</h3>
+            <h3>
+              {{ $t('Table Of Contents') }}
+            </h3>
             <b-card>
               <vue-perfect-scrollbar
                 :settings="perfectScrollbarSettings"
                 class="indexing-table-scroller scroll-area"
               >
-
                 <ul class="list-unstyled indexing-table">
                   <li
                     v-for="(mainCategory, index) in documentsData"
                     :key="index"
                   >
-                    <h4><a href="javascript:;">{{ index }}</a></h4>
+                    <h4><a href="javascript:;"> {{ getIndex(documentsData, index) }} {{ index }}</a></h4>
                     <ul class="indexing-table list-unstyled">
                       <li>
                         <h4><a
                           href="javascript:;"
-                        >{{ Object.values(mainCategory)[0].subcategory }}</a></h4>
+                        >{{ getIndex(documentsData, index) }} {{ getIndex(mainCategory, Object.values(mainCategory)[0].subcategory) }} {{ Object.values(mainCategory)[0].subcategory }}</a></h4>
                         <ul class="list-unstyled">
                           <li
                             v-for="(subCategory, index2) in mainCategory"
@@ -775,6 +776,18 @@ width: 100%;
       }
     }
 
+    // get object index number
+    const getIndex = (obj, value) => {
+      console.log(obj)
+      const keys = Object.keys(obj)
+
+      //   with 0 if index is less than 10
+      if (keys.indexOf(value) + 1 < 10) {
+        return `0${keys.indexOf(value) + 1}`
+      }
+      return keys.indexOf(value) + 1
+    }
+
     const editorConfig = ref({
       removePlugins: ['ImageUpload', 'EasyImage'],
     })
@@ -810,6 +823,7 @@ width: 100%;
       onSubmit,
       required,
       searchQuery,
+      getIndex,
       getDocuments,
       editDocument,
       downloadPdf,

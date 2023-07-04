@@ -7,6 +7,13 @@
       @refetch-data="fetchCompetences"
       :user-data="userData"
     />
+    <show-competence
+      :is-show-competence-active.sync="isShowCompetenceActive"
+      v-if="isShowCompetenceActive"
+      :competence="competence"
+      @refetch-data="fetchCompetences"
+      :user-data="userData"
+    />
     <add-competence
       :is-add-competence-active.sync="isAddCompetenceActive"
       v-if="isAddCompetenceActive"
@@ -84,7 +91,6 @@
         }"
       >
 
-
         <template
           slot="table-row"
           slot-scope="props"
@@ -97,13 +103,33 @@
             </p>
             {{ props.row.competence.name }}
           </span>
+
+          <span v-if="props.column.field === 'status'">
+            <p
+              class="font-weight-bold"
+              v-if="props.index=== 0"
+            >   {{ $t('Status') }}
+            </p>
+            <div
+              class="text-nowrap"
+            >
+              <span
+                class="align-text-top text-capitalize"
+                :class="`text-${resolveStatus(props.row.competence.status)}`"
+              >
+                <b-badge :variant="resolveStatus(props.row.competence.status)">
+                  <span>{{ $t(props.row.competence.status) }}</span>
+                </b-badge>
+              </span>
+            </div>
+          </span>
           <span v-if="props.column.field === 'completed_date'">
             <p
               class="font-weight-bold"
               v-if="props.index=== 0"
             >   {{ $t('Completed') }}
             </p>
-            {{ props.row.competence.valid_until }}
+            {{ props.row.competence.completed_date }}
           </span>
           <span v-if="props.column.field === 'valid_until'">
             <p
@@ -113,6 +139,7 @@
             </p>
             {{ props.row.competence.valid_until }}
           </span>
+
 
           <span v-if="props.column.field === 'files'">
             <p
@@ -139,12 +166,25 @@
                 icon="EditIcon"
                 size="16"
                 class="mx-1 cursor-pointer"
+                v-if="$can('competence-edit', 'all')"
+                @click="editCompetence(props.row.competence, props.row.user_name)"
+              />
+
+              <feather-icon
+                :id="`user-row-${props.row.id}-eye-icon`"
+                icon="EyeIcon"
+                size="16"
+                class="mx-1 cursor-pointer"
+                v-if="$can('competence-view', 'all')"
+                @click="showCompetence(props.row.competence, props.row.user_name)"
               />
               <feather-icon
                 :id="`delete-request-${props.row.id}-trash-btn`"
                 icon="Trash2Icon"
                 class="cursor-pointer"
                 size="16"
+                v-if="$can('competence-delete', 'all')"
+                @click="confirmDelete(props.row.competence.id)"
               />
             </div>
           </span>
@@ -161,6 +201,7 @@ import {
   BRow,
   BCol,
   BButton,
+  BBadge,
   BFormInput,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
@@ -171,6 +212,7 @@ import i18n from '@/libs/i18n'
 import { VueGoodTable } from 'vue-good-table'
 import AddCompetence from './dialogs/Add.vue'
 import EditCompetence from './dialogs/Edit.vue'
+import ShowCompetence from './dialogs/Show.vue'
 import 'vue-good-table/dist/vue-good-table.css'
 
 
@@ -181,10 +223,12 @@ export default {
     BCard,
     vSelect,
     BButton,
+    BBadge,
     AddCompetence,
     BFormInput,
     VueGoodTable,
     EditCompetence,
+    ShowCompetence,
   },
   props: {
     userData: {
@@ -210,6 +254,7 @@ export default {
       deleteCompetence,
       isSortDirDesc,
       fetchCompetences,
+      resolveStatus,
       perPageOptions,
     } = useCompetences()
 
@@ -239,6 +284,7 @@ export default {
     const isAddCompetenceActive = ref(false)
     const isAddDocumentActive = ref(false)
     const isEditCompetenceActive = ref(false)
+    const isShowCompetenceActive = ref(false)
     const competence = ref({})
 
     const deleteConfirmed = async id => {
@@ -249,8 +295,15 @@ export default {
     }
 
     const editCompetence = item => {
+      console.log(item)
       competence.value = item
       isEditCompetenceActive.value = true
+    }
+
+    const showCompetence = (item, name) => {
+      competence.value = item
+      competence.value.user_name = name
+      isShowCompetenceActive.value = true
     }
 
     const handleSearch = query => {
@@ -332,13 +385,16 @@ export default {
       refListTable,
       isSortDirDesc,
       confirmDelete,
+      showCompetence,
       editCompetence,
       perPageOptions,
       isExportActive,
+      resolveStatus,
       fetchCompetences,
       isAddCompetenceActive,
       isAddDocumentActive,
       isEditCompetenceActive,
+      isShowCompetenceActive,
     }
   },
 }

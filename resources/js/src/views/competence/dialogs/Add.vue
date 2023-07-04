@@ -34,11 +34,11 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  :name="t('Course Name')"
+                  :name="$t('Course Name')"
                   rules="required"
                 >
                   <b-form-group
-                    :label="t('Course Name')"
+                    :label="$t('Course Name')"
                     label-for="competencename"
                   >
                     <b-form-select
@@ -63,7 +63,7 @@
               >
                 <validation-provider
                   #default="validationContext"
-                  :name="t('Completed Date')"
+                  :name="$t('Completed Date')"
                   rules="required"
                 >
                   <b-form-group
@@ -91,7 +91,7 @@
               >
 
                 <b-form-group
-                  :label="t('Valid Until')"
+                  :label="$t('Valid Until')"
                   label-for="enddate"
                 >
                   <b-form-input
@@ -106,7 +106,7 @@
               >
 
                 <b-form-group
-                  :label="t('Add Documents/Images')"
+                  :label="$t('Add Documents/Images')"
                   label-for="files"
                   class="mt-2"
                 >
@@ -141,20 +141,46 @@
                 </b-form-group>
               </b-col>
               <b-col sm="12">
+                <validation-provider
+                  #default="validationContext"
+                  :name="$t('Status')"
+                  rules="required"
+                >
+                  <b-form-group
+                    :label="$t('Status')"
+                    label-for="description"
+                    class="mt-2 mb-2"
+                  >
+                    <v-select
+                      label="label"
+                      :placeholder="$t('Status')"
+                      v-model="formData.status"
+                      :options="statusOptions"
+                      :reduce="status => status.value"
+                      :clearable="false"
+                      input-id="title"
+                    />
+                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider>
+              </b-col>
+              <b-col sm="12">
                 <ValidationProvider
                   #default="validationContext"
                   name="Employees"
                   rules="required"
                 >
                   <b-form-group
-                    :label="t('Select Employee')"
+                    :label="$t('Select Employee')"
                     label-for="employee"
                     :state="getValidationState(validationContext)"
                   >
                     <v-select
                       v-model="formData.employees"
                       class="w-full"
-                      :placeholder="t('Type here to search employees')"
+                      :placeholder="$t('Type here to search employees')"
                       :options="users"
                       multiple
                       :close-on-select="false"
@@ -167,7 +193,7 @@
                       :state="getValidationState(validationContext)"
                     >
                       <template slot="no-options">
-                        {{ t('type to search employees..') }}
+                        {{ $t('type to search employees..') }}
                       </template>
                       <template
                         slot="option"
@@ -198,7 +224,7 @@
                       class="mt-1"
                       type="submit"
                     >
-                      <span class="text-nowrap">{{ t('Submit') }}</span>
+                      <span class="text-nowrap">{{ $t('Submit') }}</span>
                     </b-button>
                   </div>
                 </b-col>
@@ -272,6 +298,7 @@ export default {
       name: '',
       completed_date: '',
       valid_until: '',
+      status: '',
       employees: [],
     }
     const { t } = useI18nUtils()
@@ -327,6 +354,10 @@ export default {
     const resetForm = () => {
 
     }
+    const statusOptions = [
+      { label: 'Active', value: 'active' },
+      { label: 'Expire', value: 'expire' },
+    ]
 
 
     const onSubmit = async () => {
@@ -334,6 +365,7 @@ export default {
       formDataObj.append('name', formData.value.name)
       formDataObj.append('completed_date', formData.value.completed_date)
       formDataObj.append('valid_until', formData.value.valid_until)
+      formDataObj.append('status', formData.value.status)
       formDataObj.append('employees', JSON.stringify(formData.value.employees.map(item => item.id)))
       for (let index = 0; index < files.value.length; index++) {
         formDataObj.append('files[]', files.value[index])
@@ -360,6 +392,7 @@ export default {
       required,
       onSubmit,
       resetForm,
+      statusOptions,
       refFormObserver,
       competencesCourses,
       getValidationState,
