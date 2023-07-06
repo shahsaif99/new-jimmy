@@ -355,8 +355,8 @@ export default {
 
     }
     const statusOptions = [
-      { label: 'Active', value: 'active' },
-      { label: 'Expire', value: 'expire' },
+      { label: t('Active'), value: 'active' },
+      { label: t('Expire'), value: 'expire' },
     ]
 
 

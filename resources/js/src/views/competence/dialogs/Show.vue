@@ -3,7 +3,7 @@
     cancel-variant="outline-secondary"
     centered
     :hide-footer="true"
-    :title="$t(competence.user_name)"
+    :title="competence.user_name"
     size="lg"
     class="modal-edit-competence-active"
     @close="$emit('update:is-show-competence-active', false)"

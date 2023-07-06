@@ -250,6 +250,7 @@ import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import debounce from 'lodash/debounce'
 import vSelect from 'vue-select'
 import useSettingsCompetence from '@/composables/settingsCompetence'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
 
 export default {
   components: {
@@ -283,6 +284,7 @@ export default {
   },
   setup(props, { emit }) {
     const formData = ref({ })
+    const { t } = useI18nUtils()
     const files = ref([])
     const {
       busy: storeBusy,
@@ -336,8 +338,8 @@ export default {
     })
 
     const statusOptions = [
-      { label: 'Active', value: 'active' },
-      { label: 'Expire', value: 'expire' },
+      { label: t('Active'), value: 'active' },
+      { label: t('Expire'), value: 'expire' },
     ]
 
 
