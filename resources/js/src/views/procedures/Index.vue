@@ -113,7 +113,7 @@
                           >
                             <a
                               href="javascript:;"
-                              @click="getDocument(subgroup, `${getIndex(documentsData, index)}${getIndex(mainCategory, index)}-${subgroup.document_number }`)"
+                              @click="getDocument(subgroup, `${getIndex(documentsData, index)}${getIndex(mainCategory, index2)}-${subgroup.document_number }`)"
                             > {{ getIndex(documentsData, index) }}{{ getIndex(mainCategory, index2) }}-{{ subgroup.document_number }}-{{ subgroup.type.charAt(0) }}-{{ subgroup.title }}</a>
                           </li>
                         </ul>
@@ -713,6 +713,7 @@ export default {
 
 
     const getDocument = (data, docId) => {
+      console.log(docId);
       docNumber.value = docId
       isDocumentOpen.value = true
       isDocumentEdit.value = false

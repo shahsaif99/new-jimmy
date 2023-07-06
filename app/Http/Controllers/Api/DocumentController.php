@@ -25,6 +25,14 @@ class DocumentController extends Controller
             return $item->groupBy('subcategory', true);
         });
 
+        // sort by document_number
+        $grouped->transform(function($item, $key){
+            $item->transform(function($item, $key){
+                return $item->sortBy('document_number');
+            });
+            return $item;
+        });
+
         return $grouped;
     }
 
