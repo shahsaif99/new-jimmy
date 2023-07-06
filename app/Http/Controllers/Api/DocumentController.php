@@ -18,6 +18,10 @@ class DocumentController extends Controller
         ->applyFilters($request)
         ->get();
 
+        // sort by document_number
+
+        $documents = $documents->sortBy('document_number');
+
         $grouped = $documents->groupBy('category', true);
 
         // groupby subcategory
@@ -25,7 +29,6 @@ class DocumentController extends Controller
             return $item->groupBy('subcategory', true);
         });
 
-        // sort by document_number
         $grouped->transform(function($item, $key){
             $item->transform(function($item, $key){
                 return $item->sortBy('document_number');
