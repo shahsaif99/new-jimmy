@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('category');
-            $table->string('subcategory');
+            $table->integer('category_id');
+            $table->integer('subcategory_id');
             $table->date('created_date')->nullable();
             $table->string('document_number')->nullable();
             $table->date('revised_date')->nullable();

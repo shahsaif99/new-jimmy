@@ -25,8 +25,8 @@ class StoreRequest extends FormRequest
     {
         return [
             'title' => ['required','max:255'],
-            'category' => ['required','max:255'],
-            'subcategory' => ['required','max:255'],
+            'category_id' => ['required','max:255'],
+            'subcategory_id' => ['required','max:255'],
             'created_date' => ['nullable','date'],
             'document_number' => ['nullable','max:255'],
             'revised_date' => ['nullable','date'],

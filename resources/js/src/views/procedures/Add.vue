@@ -62,7 +62,7 @@
                 >
                   <b-form-select
                     id="category"
-                    v-model="formData.categoryId"
+                    v-model="formData.category_id"
                     :state="getValidationState(validationContext)"
                     trim
                     value-field="id"
@@ -92,10 +92,10 @@
                 >
                   <b-form-select
                     id="subcategory"
-                    v-model="formData.subcategory"
+                    v-model="formData.subcategory_id"
                     :state="getValidationState(validationContext)"
                     trim
-                    value-field="name"
+                    value-field="id"
                     text-field="name"
                     :options="subcategories"
                     :placeholder="$t('SubCategory')"
@@ -391,9 +391,8 @@ export default {
     } = useCategories()
     const initialState = {
       title: '',
-      categoryId: '',
-      category: '',
-      subcategory: '',
+      category_id: '',
+      subcategory_id: '',
       created_date: '',
       document_number: '',
       revised_date: '',
@@ -414,7 +413,7 @@ export default {
 
     const showSubCategories = id => {
       fetchSubCategories(id)
-      formData.value.category = categories.value.find(item => item.id === id).name
+      // formData.value.category_id = categories.value.find(item => item.id === id)
     }
 
 

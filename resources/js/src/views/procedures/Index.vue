@@ -93,28 +93,38 @@
               >
                 <ul class="list-unstyled indexing-table">
                   <li
-                    v-for="(mainCategory, index) in documentsData"
-                    :key="index"
+                    v-for="(document, key) in documentsData"
+                    :key="key+document.title"
                   >
-                    <h4><a href="javascript:;"> {{ getIndex(documentsData, index) }} {{ index }}</a></h4>
-                    <ul class="indexing-table list-unstyled">
+                    <h4>
+                      <a
+                      >
+                        {{ document.title }}
+                      </a>
+                    </h4>
+                    <ul class="list-unstyled">
                       <li
-                        v-for="(group, index2) in mainCategory"
-                        :key="index2"
+                        v-for="(subDocument, subIndex) in document.documents"
+                        :key="subIndex"
                       >
                         <h4>
                           <a
-                            href="javascript:;"
-                          > {{ getIndex(documentsData, index) }}{{ getIndex(mainCategory, index2) }} {{ index2 }} </a></h4>
+                          >
+                            {{ subDocument.title }}
+                          </a>
+                        </h4>
                         <ul class="list-unstyled">
                           <li
-                            v-for="(subgroup, index3) in group"
-                            :key="index3"
+                            v-for="(subSubDocument, subSubIndex) in subDocument.documents"
+                            :key="subSubIndex"
                           >
-                            <a
-                              href="javascript:;"
-                              @click="getDocument(subgroup, `${getIndex(documentsData, index)}${getIndex(mainCategory, index2)}-${subgroup.document_number }`)"
-                            > {{ getIndex(documentsData, index) }}{{ getIndex(mainCategory, index2) }}-{{ subgroup.document_number }}-{{ subgroup.type.charAt(0) }}-{{ subgroup.title }}</a>
+                            <h4>
+                              <a
+                                @click="getDocument(subSubDocument, subSubDocument.docId)"
+                              >
+                              {{ subSubDocument.docId }}-{{ subSubDocument.title }}
+                              </a>
+                            </h4>
                           </li>
                         </ul>
                       </li>
@@ -202,54 +212,64 @@
                           </validation-provider>
                         </b-col>
                         <b-col
-                          cols="6"
-                          md="6"
-                        >
-                          <validation-provider
-                            #default="validationContext"
-                            :name="$t('Category')"
-                            rules="required"
-                          >
-                            <b-form-group
-                              :label="$t('Category')"
-                              label-for="cname"
-                            >
-                              <b-form-input
-                                v-model="documentData.category"
-                                :placeholder="$t('Category')"
-                                :state="getValidationState(validationContext)"
-                                trim
-                              />
-                              <b-form-invalid-feedback>
-                                {{ validationContext.errors[0] }}
-                              </b-form-invalid-feedback>
-                            </b-form-group>
-                          </validation-provider></b-col>
-                        <b-col
-                          cols="6"
-                          md="6"
-                        >
-                          <validation-provider
-                            #default="validationContext"
-                            :name="$t('SubCategory')"
-                            rules="required"
-                          >
-                            <b-form-group
-                              :label="$t('SubCategory')"
-                              label-for="address"
-                            >
-                              <b-form-input
-                                v-model="documentData.subcategory"
-                                :placeholder="$t('SubCategory')"
-                                :state="getValidationState(validationContext)"
-                                trim
-                              />
-                              <b-form-invalid-feedback>
-                                {{ validationContext.errors[0] }}
-                              </b-form-invalid-feedback>
-                            </b-form-group>
-                          </validation-provider>
-                        </b-col>
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="$t('Category')"
+                rules="required"
+              >
+                <b-form-group
+                  :label="$t('Category')"
+                  label-for="cname"
+                >
+                  <b-form-select
+                    id="category"
+                    v-model="documentData.category_id"
+                    :state="getValidationState(validationContext)"
+                    trim
+                    value-field="id"
+                    text-field="name"
+                    @change="showSubCategories"
+                    :options="categories"
+                    :placeholder="$t('Category')"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <validation-provider
+                #default="validationContext"
+                :name="$t('SubCategory')"
+                rules="required"
+              >
+                <b-form-group
+                  :label="$t('SubCategory')"
+                  label-for="address"
+                >
+                  <b-form-select
+                    id="subcategory"
+                    v-model="documentData.subcategory_id"
+                    :state="getValidationState(validationContext)"
+                    trim
+                    value-field="id"
+                    text-field="name"
+                    :options="subcategories"
+                    :placeholder="$t('SubCategory')"
+                  />
+                  <b-form-invalid-feedback>
+                    {{ validationContext.errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </validation-provider>
+            </b-col>
 
                         <b-col
                           cols="6"
@@ -499,7 +519,7 @@
                       <h6>
                         <strong>{{ $t('Category') }}</strong>
                       </h6>
-                      <span>{{ documentData.category }}</span>
+                      <span>{{ documentData.category.name }}</span>
                     </b-col>
                     <b-col
                       sm="6"
@@ -508,7 +528,7 @@
                       <h6>
                         <strong>{{ $t('SubCategory') }}</strong>
                       </h6>
-                      <span>{{ documentData.subcategory }}</span>
+                      <span>{{ documentData.subcategory.name }}</span>
                     </b-col>
 
                     <b-col
@@ -628,6 +648,7 @@ import html2pdf from 'html2pdf.js'
 import i18n from '@/libs/i18n'
 import addProcedure from './Add.vue'
 import AddCategory from '../category/add/AddCategory.vue'
+import useCategories from '@/composables/category'
 
 export default {
   components: {
@@ -674,6 +695,10 @@ export default {
       getDocuments, documentsData, updateDocument, filters, deleteDocument,
     } = useDocuments()
 
+    const {
+      fetchCategories, categories, fetchSubCategories, subcategories,
+    } = useCategories()
+
 
     const initialState = {
       title: '',
@@ -713,7 +738,8 @@ export default {
 
 
     const getDocument = (data, docId) => {
-      console.log(docId);
+      fetchCategories()
+      fetchSubCategories(data.category_id)
       docNumber.value = docId
       isDocumentOpen.value = true
       isDocumentEdit.value = false
@@ -737,7 +763,7 @@ width: 100%;
 
           <tr>
             <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important"><span
-                ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Doc. no')}:<br /></span><span style="font-size: 15px;">${docId}-${documentData.value.type.charAt(0)}</span></span
+                ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Doc. no')}:<br /></span><span style="font-size: 15px;">${docId}</span></span
             ></td>
 
             <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important"><span
@@ -762,6 +788,7 @@ width: 100%;
       await updateDocument(documentData.value)
       getDocument(documentData.value)
       getDocuments()
+      console.log(documentsData);
     }
 
     const downloadPdf = () => {
@@ -782,6 +809,11 @@ width: 100%;
         const htmlContent = `${contentHtml.value}`
         html2pdf().set(opt).from(htmlContent).save()
       }
+    }
+
+    const showSubCategories = id => {
+      fetchSubCategories(id)
+      // formData.value.category_id = categories.value.find(item => item.id === id)
     }
 
     // get object index number
@@ -862,6 +894,9 @@ width: 100%;
       getDocuments,
       editDocument,
       downloadPdf,
+      categories,
+      showSubCategories,
+      subcategories,
       isDocumentEdit,
       isDocumentOpen,
       getDocument,

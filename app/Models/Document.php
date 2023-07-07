@@ -12,8 +12,8 @@ class Document extends Model
 
     protected $fillable = [
         'title',
-        'category',
-        'subcategory',
+        'category_id',
+        'subcategory_id',
         'created_date',
         'document_number',
         'revised_date',
@@ -25,6 +25,12 @@ class Document extends Model
         'type',
     ];
 
+    // cast
+    protected $casts = [
+        'category_id' => 'integer',
+        'subcategory_id' => 'integer',
+    ];
+
 
     public function scopeApplyFilters($query, Request $request)
     {
@@ -33,5 +39,15 @@ class Document extends Model
             $query->where('title', 'like', '%'.$queryString.'%')
             ->orWhere('document_number', 'like', '%'.$queryString.'%');
         });
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function subcategory()
+    {
+        return $this->belongsTo(Category::class);
     }
 }
