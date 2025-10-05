@@ -74,7 +74,7 @@ class UserController extends Controller
         $user = User::with(['permissions', 'roles.permissions'])->withSum(['vacations' => function ($query) {
             $query->whereStatus('approved');
         }], 'days')
-        ->findOrFail($userId);
+            ->findOrFail($userId);
 
         return new UserResource($user);
     }
@@ -148,4 +148,23 @@ class UserController extends Controller
             ->toArray();
     }
 
+    public function unreadNotifications()
+    {
+        $user = auth()->user();
+        $unreadNotifications = $user->unreadNotifications;
+        return response()->json($unreadNotifications);
+    }
+    public function readNotifications()
+    {
+        $user = auth()->user();
+        $readNotifications = $user->readNotifications;
+        return response()->json($readNotifications);
+    }
+    public function markAllAsReadNotifications()
+    {
+        $user = auth()->user();
+        $user->unreadNotifications->markAsRead();
+
+        return response()->json('Read all notiifications Successfully');
+    }
 }

@@ -27,11 +27,11 @@ export default function useLendings() {
 
   const tableColumns = [
     { key: 'id', sortable: false },
-    { key: 'lending_date', sortable: true },
-    { key: 'returned_date', sortable: false },
     { key: 'loaned_to', sortable: false },
     { key: 'equipment.name', sortable: false, label: 'Euipment' },
-    { key: 'registered_by.name', sortable: false, label: 'Registered By' },
+    { key: 'returned_at', sortable: false, label: 'Returned At' },
+    { key: 'registered_by.name', sortable: false, label: 'Loan By' },
+    { key: 'return_by.name', sortable: false, label: 'Return By' },
     { key: 'actions' },
   ]
 
@@ -116,6 +116,28 @@ export default function useLendings() {
     }
   }
 
+  const returnLending = async (equipmentId) => {
+    errors.value = ''
+    try {
+      busy.value = true
+      const response = await axios.post(route('lendings.returnEquipment', { equipment_id:equipmentId }))
+      respResult.value = response
+      fetchLendings()
+      toast.success(response.data.message)
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        toast.error(error.message)
+      } else {
+        if (error.response.status === 422) {
+          errors.value = error.response.data.errors
+        }
+        respResult.value = error
+        toast.error(error.response.data.message)
+      }
+    } finally {
+      busy.value = false
+    }
+  }
 
   const updateLending = async (data, id) => {
     errors.value = ''
@@ -217,6 +239,7 @@ export default function useLendings() {
     attachmentFields,
     fetchLendingsList,
     resolveLendingstatus,
+    returnLending
   }
 }
 

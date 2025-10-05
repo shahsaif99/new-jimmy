@@ -13,7 +13,7 @@
       </div>
       <b-avatar
         size="40"
-        :src="userData.avatar_url"
+        :src="userData.avatar_url ? userData.avatar_url : '' "
         variant="light-primary"
         badge
         class="badge-minimal"
@@ -84,7 +84,7 @@ export default {
     const userData = reactive(
       JSON.parse(localStorage.getItem('userData')),
     )
-    console.log(userData.avatar_url)
+    // console.log(userData.avatar_url)
     const toast = toaster()
     const logout = async () => {
       await axios.get(route('logout')).then(() => {

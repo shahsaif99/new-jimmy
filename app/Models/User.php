@@ -95,7 +95,7 @@ class User extends Authenticatable
      // get user avatar from media library
      public function getAvatarUrlAttribute($value)
      {
-         return '/storage/'.$this->avatar;
+         return $this->avatar ? '/storage/'.$this->avatar : '';
      }
 
     /**
@@ -169,6 +169,19 @@ class User extends Authenticatable
     public function competences()
     {
         return $this->hasMany(UsersCompetence::class, 'user_id');
+    }
+
+    public function userCheckLists ()
+    {
+        return $this->belongsToMany(UserChecklist::class, 'user_checklist_pivots');
+    }
+    public function receivesBroadcastNotificationsOn()
+    {
+        return 'users.'.$this->id;
+    }
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'task_users', 'user_id', 'task_id');
     }
 
 }

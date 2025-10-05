@@ -23,12 +23,14 @@ class Document extends Model
         'approved_date',
         'content',
         'type',
+        'tag_ids'
     ];
 
     // cast
     protected $casts = [
         'category_id' => 'integer',
         'subcategory_id' => 'integer',
+        'tag_ids' => 'array',
     ];
 
 

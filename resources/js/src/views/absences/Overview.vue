@@ -377,7 +377,6 @@ export default {
     }
 
     const onSortChange = params => {
-      console.log(params.columnIndex)
       updateParams({
         sort: [
           {

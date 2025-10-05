@@ -12,10 +12,11 @@
 
 
   <!-- Splash Screen/Loader Styles -->
-  <link rel="stylesheet" type="text/css" href="{{ asset(mix('css/loader.css')) }}" />
+  <link rel="stylesheet" type="text/css" href="{{ asset('css/loader.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ asset('richtexteditor/rte_theme_default.css') }}" />
 
   <!-- Styles -->
-  <link rel="stylesheet" href="{{ asset(mix('css/app.css')) }}">
+  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
   <!-- Favicon -->
   <link rel="shortcut icon" href="{{ asset('images/logo/favicon.png') }}">
@@ -44,8 +45,11 @@
   <div id="app">
   </div>
   @routes
-  <script src="{{ asset(mix('js/app.js')) }}"></script>
+  <script src="{{ asset('js/app.js') }}"></script>
+  <script src="{{ asset('richtexteditor/rte.js') }}"></script>
+  <script src="{{ asset('richtexteditor/plugins/all_plugins.js') }}"></script>
 
 </body>
 
+</html>
 </html>

@@ -17,6 +17,11 @@
       @refetch-data="fetchCategories"
       :category-data="categoryData"
     />
+    <ManageDialog
+        v-if="tagDialog.show"
+        :showing="tagDialog.show"
+        @closeDialog="tagDialog.toggleDialog"
+        />
     <b-card
       no-body
       class="mb-0 mt-2"
@@ -25,7 +30,7 @@
         <b-row>
           <b-col
             cols="12"
-            md="8"
+            md="4"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
             <v-select
@@ -41,7 +46,7 @@
           <!-- Search -->
           <b-col
             cols="12"
-            md="4"
+            md="8"
           >
             <div class="d-flex align-items-center justify-content-end">
               <b-form-input
@@ -49,6 +54,13 @@
                 class="d-inline-block mr-1"
                 placeholder="Search..."
               />
+              <b-button
+                   class="d-inline-block ml-1"
+                      variant="primary"
+                      @click="tagDialog.toggleDialog"
+                    >
+                      <span class="text-nowrap">{{ $t('Manage Tags') }}</span>
+                    </b-button>
               <b-button
                 class="d-inline-block ml-1"
                 variant="primary"
@@ -179,6 +191,8 @@ import AddCategory from './add/AddCategory.vue'
 import AddSubCategory from './add/AddSubCategory.vue'
 import EditCategory from './edit/EditCategory.vue'
 import 'vue-good-table/dist/vue-good-table.css'
+import ManageDialog from "@/views/procedures/dialogs/ManageTags.vue";
+import useTags from "@/composables/tags";
 
 export default {
   components: {
@@ -192,6 +206,7 @@ export default {
     AddCategory,
     AddSubCategory,
     EditCategory,
+    ManageDialog
   },
   directives: {
     'b-tooltip': VBTooltip,
@@ -219,9 +234,14 @@ export default {
     } = useCategories()
 
     const roleFilter = ref(null)
+
+    const {  tagDialog, getTags,tags } =
+    useTags();
+
     onMounted(() => {
       filters.group = true
       fetchCategories()
+      getTags()
     })
 
     const searchTerm = ref('')
@@ -336,6 +356,8 @@ export default {
       resolveUserRoleIcon,
       resolveUserRoleVariant,
       isAddCategoryActive,
+      tagDialog,
+      tags
     }
   },
 }

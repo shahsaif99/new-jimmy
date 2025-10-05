@@ -37,7 +37,20 @@ export default [
       },
     ],
   },
-
+  {
+    title: 'Checklist',
+    icon: 'CheckCircleIcon',
+    action: 'checklist',
+    resource: 'all',
+    route: 'checklist',
+  },
+  {
+    title: 'Tasks',
+    icon: 'BookIcon',
+    action: 'tasks',
+    resource: 'all',
+    route: 'tasks',
+  },
   {
     title: 'Attendance',
     icon: 'CalendarIcon',
@@ -150,9 +163,21 @@ export default [
   {
     title: 'Projects',
     icon: 'InboxIcon',
-    action: 'projects-listings',
     resource: 'all',
-    route: 'projects',
+    children: [
+      {
+        title: 'Project Overview',
+        route: 'projects-overview',
+        action: 'projects-listings',
+        resource: 'all',
+      },
+      {
+        title: 'Customer/Supplier',
+        route: 'customer-supplier',
+        action: 'projects-listings',
+        resource: 'all',
+      },
+    ],
   },
   {
     title: 'Authentication',
@@ -186,12 +211,24 @@ export default [
     //     action: 'manage-chapters',
     //     resource: 'all',
     //   },
-      {
-        title: 'Categories',
-        route: 'categories',
-        action: 'manage-categories',
-        resource: 'all',
-      },
+    {
+      title: 'Procedures',
+      route: 'settings-procedures',
+      action: 'manage-settings',
+      resource: 'all',
+    },
+    {
+      title: 'Equipment Categories',
+      route: 'settings-equipment-categories',
+      action: 'manage-settings',
+      resource: 'all',
+    },
+    {
+      title: 'Storage Locations',
+      route: 'settings-storage-locations',
+      action: 'manage-settings',
+      resource: 'all',
+    },
       {
         title: 'Avvik/RUH',
         route: 'settings-ruh-types',

@@ -82,3 +82,13 @@ body {
     opacity: 1;
   }
 }
+
+
+.completed {
+  background-color: #dbfce8;
+  color: #00c95a;
+}
+.incompleted {
+  background-color: #fdf3c8;
+  color: #fb9700;
+}

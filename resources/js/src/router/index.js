@@ -21,6 +21,8 @@ import rolesRoutes from './roles'
 import categoryRoutes from './category'
 import settingsRoutes from './settings'
 import permissionsRoutes from './permissions'
+import checklistRoutes from './checklist'
+import taskRoutes from './tasks'
 // routes
 
 Vue.use(Router)
@@ -56,6 +58,8 @@ const router = new Router({
         ...categoryRoutes,
         ...competenceRoutes,
         ...absenceRoutes,
+        ...checklistRoutes,
+        ...taskRoutes,
         ...generalRoutes,
       ],
     },

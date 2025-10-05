@@ -24,10 +24,22 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'lending_date' => ['required', 'date'],
-            'returned_date' => ['required','date'],
-            'loaned_to' => ['required','max:150'],
-            'equipment_id' => ['required'],
+            'loaned_to' => ['nullable', 'max:150'], // Nullable to allow self-loan cases
+            'equipment_id' => ['required', 'exists:equipment,id'], // Ensure equipment exists
+            'returned_at' => ['nullable', 'date'], // Allow nullable return date
+        ];
+    }
+
+    /**
+     * Custom messages for validation errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages()
+    {
+        return [
+            'equipment_id.required' => 'Equipment is required.',
+            'equipment_id.exists' => 'The selected equipment does not exist.',
         ];
     }
 }

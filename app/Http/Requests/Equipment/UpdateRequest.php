@@ -24,13 +24,20 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'project_id' => ['nullable'],
-            'name' => ['required','max:255'],
-            'valid_until' => ['nullable','date'],
-            'supplier' => ['nullable','max:150'],
-            'category' => ['nullable','max:150'],
-            'serial_number' => ['nullable', 'max:150'],
-            'certificate_number' => ['nullable','max:150'],
+            'project_id' => ['nullable', 'integer'],
+            'name' => ['required', 'string', 'max:255'],
+            'valid_until' => ['nullable', 'date'],
+            'supplier' => ['required', 'string', 'max:150'],
+            'category_id' => ['nullable', 'integer', 'exists:equipment_categories,id'], 
+            'serial_number' => ['nullable', 'string', 'max:150'],
+            'certificate_number' => ['nullable', 'string', 'max:150'],
+            'storage_location_id' => ['integer', 'exists:storage_locations,id'],
+            'checklist_id' => ['nullable', 'integer', 'exists:checklists,id'],
+            'procedure_id' => ['nullable', 'integer', 'exists:documents,id'],
+            'level_of_training' => ['nullable', 'string', 'max:150'],
+            'qr_code' => ['required', 'in:true,false,1,0'],
+            'files_to_delete' => ['nullable', 'array'],
+            'files_to_delete.*' => ['string'],
         ];
     }
 }

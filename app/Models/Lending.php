@@ -12,58 +12,58 @@ class Lending extends Model
 {
     use HasFactory, Mediable;
 
-      /**
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'lending_date',
-        'returned_date',
         'loaned_to',
         'equipment_id',
         'registered_by',
+        'returned_at',
+        'return_by',
     ];
 
-
-    // created at
+    /**
+     * Accessor for the created_at attribute
+     *
+     * @param  string  $value
+     * @return string
+     */
     public function getCreatedAtAttribute($value)
     {
         return \Carbon\Carbon::parse($value)->format('d-m-Y');
     }
 
-
-    // public function scopeSearch($query, $queryString)
-    // {
-    //     return $query
-    //         ->where('name', 'like', '%'.$queryString.'%')
-    //         ->OrWhere('customer', 'like', '%'.$queryString.'%');
-    // }
-
-
+    /**
+     * Scope to apply various filters to the query
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
     public function scopeApplyFilters($query, Request $request)
     {
-        $user = auth()->user();
-        // $isCompany = $user->hasRole('Company');
         $query
-        ->when($request->sortDesc, function ($query, $sortDesc) {
-            $query->orderByDesc('id');
-        })
-        ->when($request->equipmentId, function ($query, $equipmentId) {
-            $query->where('equipment_id', $equipmentId);
-        })
-        ->when($request->userId, function ($query, $userId) {
-            $query->where('user_id', $userId);
-        })
-        ->when($request->sortBy, function ($query, $sortBy) {
-            $query->orderBy($sortBy);
-        }, function ($query) {
-            $query->latest();
-        });
+            ->when($request->sortDesc, function ($query, $sortDesc) {
+                $query->orderByDesc('id');
+            })
+            ->when($request->equipmentId, function ($query, $equipmentId) {
+                $query->where('equipment_id', $equipmentId);
+            })
+            ->when($request->userId, function ($query, $userId) {
+                $query->where('return_by', $userId);
+            })
+            ->when($request->sortBy, function ($query, $sortBy) {
+                $query->orderBy($sortBy);
+            }, function ($query) {
+                $query->latest();
+            });
     }
 
     /**
-     * Get the registeredBy that owns the Lending
+     * Get the user who registered the lending
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -73,7 +73,7 @@ class Lending extends Model
     }
 
     /**
-     * Get the equipment that owns the Lending
+     * Get the equipment associated with the lending
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -82,4 +82,13 @@ class Lending extends Model
         return $this->belongsTo(Equipment::class);
     }
 
+    /**
+     * Get the user who returned the equipment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function returnBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'return_by');
+    }
 }
