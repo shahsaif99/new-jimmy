@@ -1,0 +1,98 @@
+<template>
+  <b-tabs
+    vertical
+    content-class="col-12 col-md-9 mt-1 mt-md-0"
+    pills
+    nav-wrapper-class="col-md-3 col-12"
+    nav-class="nav-left"
+    v-model="tabIndex"
+  >
+
+    <!-- general tab -->
+    <b-tab>
+
+      <!-- title -->
+      <template #title>
+        <feather-icon
+          icon="UserIcon"
+          size="18"
+          class="mr-50"
+        />
+        <span class="font-weight-bold">{{ t('General') }}</span>
+      </template>
+
+      <account-setting-general />
+    </b-tab>
+
+
+    <!-- change password tab -->
+    <b-tab>
+      <template #title>
+        <feather-icon
+          icon="LockIcon"
+          size="18"
+          class="mr-50"
+        />
+        <span class="font-weight-bold">{{ t('Change Password') }}</span>
+      </template>
+
+      <account-setting-password :account-data="accountData" />
+    </b-tab>
+
+  </b-tabs>
+</template>
+
+<script>
+import { BTabs, BTab } from 'bootstrap-vue'
+import { onMounted, ref, watch } from '@vue/composition-api'
+// eslint-disable-next-line import/no-cycle
+import useAccount from '@/composables/account'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import AccountSettingGeneral from './AccountSettingGeneral.vue'
+import AccountSettingPassword from './AccountSettingPassword.vue'
+
+
+export default {
+  components: {
+    BTabs,
+    BTab,
+    AccountSettingGeneral,
+    AccountSettingPassword,
+  },
+
+  setup(_, { root }) {
+    const {
+      fetchAccount,
+      accountData,
+    } = useAccount()
+
+    const tabIndex = ref(0)
+    const { t } = useI18nUtils()
+    const activeTab = () => {
+      if (root.$route.name === 'account-password') {
+        tabIndex.value = 1
+      } else {
+        tabIndex.value = 0
+      }
+    }
+
+    // eslint-disable-next-line no-unused-vars
+    watch(() => root.$route.meta.tab, async status => {
+      activeTab()
+    }, {
+      immediate: true,
+    })
+
+    onMounted(
+      fetchAccount,
+    )
+    return {
+      t,
+      tabIndex,
+      accountData,
+      fetchAccount,
+    }
+  },
+
+}
+</script>

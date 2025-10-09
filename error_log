@@ -1,0 +1,2 @@
+[25-Feb-2025 17:42:00 UTC] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.31. in /home/kvalstbx/public_html/vendor/composer/platform_check.php on line 28
+[02-Mar-2025 11:28:05 UTC] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.31. in /home/kvalstbx/public_html/vendor/composer/platform_check.php on line 28
