@@ -435,7 +435,6 @@
                          class="text-center"
                        >
                          <div v-if="getCompetenceForUserAndCourse(user.id, course.name)">
-                            {{ getCompetenceForUserAndCourse(user.id, course.name) }}
                                <b-badge :variant="resolveStatus( getCompetenceForUserAndCourse(user.id, course.name).status)">
                                 <span>{{ $t( getCompetenceForUserAndCourse(user.id, course.name).valid_until) }}</span>
                             </b-badge>
@@ -777,24 +776,19 @@ export default {
     }
 
     const getCompetenceForUserAndCourse = (userId, courseName) => {
-    console.log('Getting competence for userId:', userId, 'and courseName:', courseName,'competence data:', competences.value);
       // Find competence group for this user
       const userCompetences = competences.value.find(group => {
-        console.log('Checking usercompetences group:', group.children, 'for userId:', userId);
         return group.children && group.children.some(child => child.user_id == userId)
       })
 
       if (!userCompetences || !userCompetences.children) {
-        console.log('No user competences found for userId:', userId);
         return null
       }
 
       // Find specific competence for this course
       const competence = userCompetences.children.find(child => {
-        console.log('Checking child competence:', child, 'for courseName:', courseName);
-        return child.user_id === userId && child.competence && child.competence.name === courseName
+        return child.user_id == userId && child.competence && child.competence.name === courseName
       })
-      console.log('Found competence:', competence);
       return competence ? competence.competence : null
     }
 
