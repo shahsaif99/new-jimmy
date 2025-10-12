@@ -10,8 +10,14 @@ class CompetenceCourse extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name'
+        'name',
+        'category_id'
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(CompetenceCategory::class, 'category_id');
+    }
 
     public function scopeSearch($query, $queryString)
     {

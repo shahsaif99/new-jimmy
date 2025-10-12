@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\VacationController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EquipmentController;
 use App\Http\Controllers\Api\CompetenceController;
+use App\Http\Controllers\Api\CompetenceCategoryController;
 use App\Http\Controllers\Api\AbsenceTypeController;
 use App\Http\Controllers\Api\PermissionsController;
 use App\Http\Controllers\Api\AvvikListingsController;
@@ -60,6 +61,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/users/status/{id}', [UserController::class, 'updateStatus'])->name('users.status');
     Route::get('/users/stats', [UserController::class, 'usersStats'])->name('users.stats');
     Route::post('/projects/documents/upload/{project}', [ProjectController::class, 'uploadDocuments'])->name('projects.upload.documents');
+    Route::get('/competences/{competence}/download', [CompetenceController::class, 'downloadFiles'])->name('competences.download');
     Route::get('/dashboard/statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
     Route::get('/absences/statistics', [AbsenceController::class, 'absenceStatistics'])->name('absences.statistics');
     Route::post('/absences/status/{absence}', [AbsenceController::class, 'absenceStatusUpdate'])->name('absences.status');
@@ -82,6 +84,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'projects' => ProjectController::class,
         'equipments' => EquipmentController::class,
         'competences' => CompetenceController::class,
+        'competence-categories' => CompetenceCategoryController::class,
         'lendings' => LendingController::class,
         'boardinformation' => BoardInformationController::class,
         'absences' => AbsenceController::class,

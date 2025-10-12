@@ -21,6 +21,7 @@ export default function useSettingsCompetence() {
 
   const tableColumns = [
     { key: 'name', sortable: true },
+    { key: 'category', label: 'Category', sortable: false },
     { key: 'actions' },
   ]
 

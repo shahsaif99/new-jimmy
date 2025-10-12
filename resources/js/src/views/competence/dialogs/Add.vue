@@ -101,6 +101,21 @@
                 </b-form-group>
               </b-col>
               <b-col
+                cols="6"
+                md="6"
+              >
+
+                <b-form-group
+                  :label="$t('Planned Date')"
+                  label-for="planneddate"
+                >
+                  <b-form-input
+                    type="date"
+                    v-model="formData.planned_date"
+                  />
+                </b-form-group>
+              </b-col>
+              <b-col
                 cols="12"
                 md="12"
               >
@@ -159,6 +174,32 @@
                       :reduce="status => status.value"
                       :clearable="false"
                       input-id="title"
+                    />
+                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                      {{ validationContext.errors[0] }}
+                    </b-form-invalid-feedback>
+                  </b-form-group>
+                </validation-provider>
+              </b-col>
+              <b-col sm="12">
+                <validation-provider
+                  #default="validationContext"
+                  :name="$t('Level')"
+                  rules="required"
+                >
+                  <b-form-group
+                    :label="$t('Level')"
+                    label-for="level"
+                    class="mt-2 mb-2"
+                  >
+                    <v-select
+                      label="label"
+                      :placeholder="$t('Level')"
+                      v-model="formData.level"
+                      :options="levelOptions"
+                      :reduce="level => level.value"
+                      :clearable="false"
+                      input-id="level"
                     />
                     <b-form-invalid-feedback :state="getValidationState(validationContext)">
                       {{ validationContext.errors[0] }}
@@ -298,7 +339,9 @@ export default {
       name: '',
       completed_date: '',
       valid_until: '',
+      planned_date: '',
       status: '',
+      level: '',
       employees: [],
     }
     const { t } = useI18nUtils()
@@ -359,13 +402,27 @@ export default {
       { label: t('Expire'), value: 'expire' },
     ]
 
+    const levelOptions = [
+      { label: t('Level 0: Not relevant'), value: 0 },
+      { label: t('Level 1: Has some competence and can complete the work with support'), value: 1 },
+      { label: t('Level 2: Has good skills and can work independently'), value: 2 },
+      { label: t('Level 3: Very good competence'), value: 3 },
+      { label: t('Level 4: Expert, can teach'), value: 4 },
+    ]
+
 
     const onSubmit = async () => {
       const formDataObj = new FormData()
       formDataObj.append('name', formData.value.name)
       formDataObj.append('completed_date', formData.value.completed_date)
       formDataObj.append('valid_until', formData.value.valid_until)
+      if (formData.value.planned_date) {
+        formDataObj.append('planned_date', formData.value.planned_date)
+      }
       formDataObj.append('status', formData.value.status)
+      if (formData.value.level !== null && formData.value.level !== undefined && formData.value.level !== '') {
+        formDataObj.append('level', formData.value.level)
+      }
       formDataObj.append('employees', JSON.stringify(formData.value.employees.map(item => item.id)))
       for (let index = 0; index < files.value.length; index++) {
         formDataObj.append('files[]', files.value[index])
@@ -393,6 +450,7 @@ export default {
       onSubmit,
       resetForm,
       statusOptions,
+      levelOptions,
       refFormObserver,
       competencesCourses,
       getValidationState,

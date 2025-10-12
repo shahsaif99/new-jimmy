@@ -56,6 +56,17 @@
               </b-form-group>
             </b-col>
             <b-col
+              cols="6"
+              md="6"
+            >
+              <b-form-group
+                :label="$t('Planned Date')"
+                label-for="planneddate"
+              >
+                {{ formData.planned_date }}
+              </b-form-group>
+            </b-col>
+            <b-col
               cols="12"
               md="12"
             >
@@ -66,50 +77,43 @@
                 class="mt-2"
               >
                 <!-- files list in table -->
-
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th scope="col">
-                        File Name
-                      </th>
-                      <th scope="col">
-                        File Type
-                      </th>
-                      <th scope="col">
-                        File Size
-                      </th>
-                      <!-- <th scope="col">
-                        Action
-                      </th> -->
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="(file, index) in formData.media"
-                      :key="index"
-                    >
-                      <td>
-                        <a
-                          :href="`/storage/competence/${formData.id}/${file.filename}.${file.extension}`"
-                          target="_blank"
-                        >
-                          {{ file.filename }}
-                        </a>
-                      </td>
-                      <td>{{ file.extension }}</td>
-                      <td>{{ file.size }}</td>
-                      <!-- <td>
-                        <b-button
-                          variant="danger"
-                          @click="removeFile(index)"
-                        >
-                          <i class="fa fa-trash" />
-                        </b-button>
-                      </td> -->
-                    </tr>
-                  </tbody>
-                </table>
+                <div v-if="formData.media && formData.media.length > 0">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th scope="col">
+                          File Name
+                        </th>
+                        <th scope="col">
+                          File Type
+                        </th>
+                        <th scope="col">
+                          File Size
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(file, index) in formData.media"
+                        :key="index"
+                      >
+                        <td>
+                          <a
+                            :href="`/storage/competence/${formData.id}/${file.filename}.${file.extension}`"
+                            target="_blank"
+                          >
+                            {{ file.filename }}.{{ file.extension }}
+                          </a>
+                        </td>
+                        <td>{{ file.extension }}</td>
+                        <td>{{ (file.size / 1024).toFixed(2) }} KB</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div v-else class="text-muted">
+                  No documents/images uploaded
+                </div>
               </b-form-group>
             </b-col>
             <b-col sm="12">
@@ -138,6 +142,15 @@
                   </b-form-invalid-feedback>
                 </b-form-group>
               </validation-provider>
+            </b-col>
+            <b-col sm="12">
+              <b-form-group
+                :label="$t('Level')"
+                label-for="level"
+                class="mt-2 mb-2"
+              >
+                {{ getLevelLabel(formData.level) }}
+              </b-form-group>
             </b-col>
           </b-row>
         </b-form>
@@ -252,6 +265,19 @@ export default {
       { label: 'Expire', value: 'expire' },
     ]
 
+    const levelOptions = [
+      { label: 'Level 0: Not relevant', value: 0 },
+      { label: 'Level 1: Has some competence and can complete the work with support', value: 1 },
+      { label: 'Level 2: Has good skills and can work independently', value: 2 },
+      { label: 'Level 3: Very good competence', value: 3 },
+      { label: 'Level 4: Expert, can teach', value: 4 },
+    ]
+
+    const getLevelLabel = level => {
+      const levelOption = levelOptions.find(opt => opt.value === level)
+      return levelOption ? levelOption.label : ''
+    }
+
     const updateStatus = value => {
       formData.value.status = value
     }
@@ -282,6 +308,8 @@ export default {
       resetForm,
       updateStatus,
       statusOptions,
+      levelOptions,
+      getLevelLabel,
       refFormObserver,
       competencesCourses,
       getValidationState,

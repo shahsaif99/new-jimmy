@@ -18,6 +18,7 @@ class CompetenceCourseController extends Controller
     {
 
         $competenceCourses = CompetenceCourse::query()
+        ->with('category')
         ->search($request->q)
         ->when($request->perPage, function ($query, $perPage) {
             return $query->paginate($perPage);
@@ -39,7 +40,8 @@ class CompetenceCourseController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'unique:competence_courses']
+            'name' => ['required', 'unique:competence_courses'],
+            'category_id' => ['required', 'exists:competence_categories,id']
         ]);
 
         CompetenceCourse::create($data);
@@ -70,7 +72,8 @@ class CompetenceCourseController extends Controller
     public function update(Request $request, CompetenceCourse $competenceCourse)
     {
         $data = $request->validate([
-            'name' => ['required', 'unique:competence_courses,name,'.$competenceCourse->id]
+            'name' => ['required', 'unique:competence_courses,name,'.$competenceCourse->id],
+            'category_id' => ['required', 'exists:competence_categories,id']
         ]);
 
         $competenceCourse->update($data);

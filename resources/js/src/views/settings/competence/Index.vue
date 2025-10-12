@@ -11,6 +11,11 @@
       v-if="isAddCompetenceActive"
       @refetch-data="fetchCompetences"
     />
+    <add-category
+      :is-add-category-active.sync="isAddCategoryActive"
+      v-if="isAddCategoryActive"
+      @refetch-data="fetchCategories"
+    />
     <b-card
       no-body
       class="mb-0"
@@ -37,6 +42,14 @@
               class="ml-3"
             >
               <span class="text-nowrap">{{ $t('Add Competence Course') }}</span>
+            </b-button>
+            <b-button
+              variant="primary"
+              @click="isAddCategoryActive = true"
+              v-if="$can('manage-settings', 'all')"
+              class="ml-1"
+            >
+              <span class="text-nowrap">{{ $t('Add Category') }}</span>
             </b-button>
           </b-col>
           <b-col
@@ -73,6 +86,15 @@
           :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
         >
+          <template #cell(category)="data">
+            <span v-if="data.item.category">
+              {{ data.item.category.name }}
+            </span>
+            <span v-else class="text-muted">
+              -
+            </span>
+          </template>
+
           <template #cell(actions)="data">
             <b-dropdown
               variant="link"
@@ -171,6 +193,10 @@ import i18n from '@/libs/i18n'
 import useSettingsCompetence from '@/composables/settingsCompetence'
 import AddCompetence from './dialogs/AddCompetence.vue'
 import EditCompetence from './dialogs/EditCompetence.vue'
+import AddCategory from './dialogs/AddCategory.vue'
+import axios from '@axios'
+import route from 'ziggy-js'
+import toaster from '@/composables/toaster'
 
 export default {
   components: {
@@ -187,6 +213,7 @@ export default {
     BDropdownItem,
     AddCompetence,
     EditCompetence,
+    AddCategory,
   },
   setup(_, { root }) {
     const {
@@ -213,11 +240,24 @@ export default {
 
     onMounted(() => {
       fetchCompetences()
+      fetchCategories()
     })
     const isExportActive = ref(false)
     const isAddCompetenceActive = ref(false)
     const isEditCompetenceActive = ref(false)
+    const isAddCategoryActive = ref(false)
     const competence = ref({})
+    const categories = ref([])
+    const toast = toaster()
+
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(route('competence-categories.index'))
+        categories.value = response.data.data
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Failed to fetch categories')
+      }
+    }
     const deleteConfirmed = async id => {
       await deleteCompetence(id)
       if (respResult.value.status === 200) {
@@ -265,8 +305,11 @@ export default {
       perPageOptions,
       isExportActive,
       fetchCompetences,
+      fetchCategories,
       isAddCompetenceActive,
       isEditCompetenceActive,
+      isAddCategoryActive,
+      categories,
     }
   },
 }

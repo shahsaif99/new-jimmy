@@ -20,9 +20,12 @@ class Competence extends Model
      */
     protected $fillable = [
         'name',
+        'category_id',
         'completed_date',
         'valid_until',
+        'planned_date',
         'status',
+        'level'
     ];
 
 
@@ -65,6 +68,14 @@ class Competence extends Model
     public function employees()
     {
         return $this->belongsToMany(User::class, 'users_competences', 'competence_id', 'user_id');
+    }
+
+    /**
+     * Get the category for the competence
+     */
+    public function category()
+    {
+        return $this->belongsTo(CompetenceCategory::class, 'category_id');
     }
 
     /**

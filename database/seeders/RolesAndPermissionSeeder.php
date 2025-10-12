@@ -19,12 +19,12 @@ class RolesAndPermissionSeeder extends Seeder
         //
 
         $arrayOfPermissionNames = [
-            'manage-permissions', 'manage-roles', 'projects-listings', 'dashboard','boardinformation-add',
+            'manage-settings','manage-categories','manage-permissions', 'manage-roles', 'projects-listings', 'dashboard','boardinformation-add',
             'authentication', 'manage-users', 'document-center', 'equipments-listings','employees-listings',
             'documentcenter', 'projects-add-documents', 'projects-add','equipment-add','equipments-edit',
             'equipments-delete','employee-details','absences-add','absences-listings','competence-listings',
             'employee-delete','employee-edit','employee-add','my-profile-view','password-view','competence-add','settings',
-            'lendings-history','checklist','tasks','employee-status','vacations-overview','absence-overview','vacations-add','my-absence','my-vacations'
+            'lendings-history','checklist','tasks','employee-status','vacations-overview','absence-overview','vacations-add','my-absence','my-vacations','competence-view','competence-delete','competence-edit',
         ];
 
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {
@@ -37,15 +37,16 @@ class RolesAndPermissionSeeder extends Seeder
         $role2 = Role::create(['name' => 'Employee','guard_name' => 'sanctum']);
         $role3 = Role::create(['name' => 'User','guard_name' => 'sanctum']);
 
-        foreach ($permissions as $permission) {
-                $role1->givePermissionTo($permission['name']);
+        $adminPermissions = Permission::all();
+        foreach ($adminPermissions as $permission) {
+                $role1->givePermissionTo($permission->name);
         }
 
         $employeePermissionsArray = [
             'projects-listings', 'dashboard','lendings-history', 'checklist',
             'authentication', 'document-center', 'equipments-listings','employees-listings',
             'documentcenter', 'projects-add-documents','employee-details','my-absence','my-vacations',
-            'competence-listings','my-profile-view','password-view','absences-add','absences-listings','vacations-add','tasks',
+            'competence-listings','my-profile-view','password-view','absences-add','absences-listings','vacations-add','tasks','competence-view','competence-edit',
         ];
 
 
