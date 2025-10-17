@@ -133,6 +133,11 @@ class CompetenceController extends Controller
     public function update(UpdateRequest $request, Competence $competence)
     {
         $competence->update($request->validated());
+        if($request->hasFile('files')){
+
+            $this->uploadDocuments($request, $competence);
+        }
+
 
         return response()->json(['message' => 'Competence successfully updated.'], 200);
 
@@ -146,7 +151,7 @@ class CompetenceController extends Controller
      */
     public function destroy(Competence $competence)
     {
-        // $competence->employees()->delete();
+        $competence->delete();
 
         return response()->json([
             'message' => 'Competence successfully deleted.',

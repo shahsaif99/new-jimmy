@@ -134,6 +134,17 @@ export default function useCompetences() {
       field: 'competence',
     },
     {
+      label: 'Status',
+      field: 'status',
+    },
+    {
+      field: 'planned_date',
+      label: 'Planned Date',
+      type: 'date',
+      dateInputFormat: 'yyyy-MM-dd',
+      dateOutputFormat: 'MM.dd.yyyy',
+    },
+    {
       field: 'completed_date',
       label: 'Completed Date',
       type: 'date',
@@ -148,19 +159,8 @@ export default function useCompetences() {
       dateOutputFormat: 'MM.dd.yyyy',
     },
     {
-      field: 'planned_date',
-      label: 'Planned Date',
-      type: 'date',
-      dateInputFormat: 'yyyy-MM-dd',
-      dateOutputFormat: 'MM.dd.yyyy',
-    },
-    {
       label: 'Level',
       field: 'level',
-    },
-    {
-      label: 'Status',
-      field: 'status',
     },
     {
       label: 'Files',
@@ -342,9 +342,11 @@ export default function useCompetences() {
   }
 
   const resolveStatus = status => {
-    if (status === 'Active') { return 'success' }
-    if (status === 'Expired') { return 'danger' }
-    return 'primary'
+    const lowerStatus = status?.toLowerCase()
+    if (lowerStatus === 'valid') { return 'success' } // Green
+    if (lowerStatus === 'expiring') { return 'warning' } // Yellow
+    if (lowerStatus === 'expired') { return 'danger' } // Red
+    return 'secondary' // Default gray for unknown status
   }
 
   const getLevelLabel = level => {

@@ -61,30 +61,18 @@
                 cols="6"
                 md="6"
               >
-                <validation-provider
-                  #default="validationContext"
-                  :name="$t('Completed Date')"
-                  rules="required"
+
+                <b-form-group
+                  :label="t('Completed Date')"
+                  label-for="startdate"
                 >
-                  <b-form-group
-                    :label="t('Completed Date')"
-                    label-for="startdate"
-                  >
-                    <b-form-input
-                      type="date"
-                      v-model="formData.completed_date"
-                      :placeholder="t('Completed Date')"
-                      :state="
-                        getValidationState(
-                          validationContext
-                        )
-                      "
-                    />
-                    <b-form-invalid-feedback>
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider></b-col>
+                  <b-form-input
+                    type="date"
+                    v-model="formData.completed_date"
+                    :placeholder="t('Completed Date')"
+                  />
+                </b-form-group>
+              </b-col>
               <b-col
                 cols="6"
                 md="6"
@@ -369,9 +357,6 @@ export default {
     } = useUsers()
 
     onMounted(() => {
-      if (props.userData) {
-        formData.value.employees = [props.userData]
-      }
       fetchCompetenceList()
     })
 

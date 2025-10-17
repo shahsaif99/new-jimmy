@@ -1,60 +1,66 @@
 <template>
-  <b-modal
-    cancel-variant="outline-secondary"
-    centered
-    :hide-footer="true"
-    :title="competence.user_name"
-    size="lg"
-    class="modal-edit-competence-active"
-    @close="$emit('update:is-show-competence-active', false)"
+  <b-sidebar
+    id="sidebar-show-competence"
     :visible="isShowCompetenceActive"
-    @hide="$emit('update:is-show-competence-active', false)"
+    bg-variant="white"
+    sidebar-class="sidebar-lg"
+    shadow
+    backdrop
+    no-header
+    right
+    @change="(val) => $emit('update:is-show-competence-active', val)"
   >
-    <div>
-      <validation-observer
-        ref="refFormObserver"
-        #default="{ handleSubmit }"
-      >
-        <b-form
-          @submit.prevent="handleSubmi$t(onSubmit)"
-          @reset.prevent="resetForm"
+    <template #default="{ hide }">
+      <div class="d-flex justify-content-between align-items-center content-sidebar-header px-2 py-1">
+        <h5 class="mb-0">
+          {{ competence.user_name }}
+        </h5>
+        <feather-icon
+          class="ml-1 cursor-pointer"
+          icon="XIcon"
+          size="16"
+          @click="hide"
+        />
+      </div>
+      <div class="p-2">
+        <validation-observer
+          ref="refFormObserver"
+          #default="{ handleSubmit }"
         >
+          <b-form
+            @submit.prevent="handleSubmit(onSubmit)"
+            @reset.prevent="resetForm"
+          >
           <b-row>
             <b-col
-              cols="6"
-              md="6"
+              cols="12"
+              md="12"
             >
-
               <b-form-group
                 :label="$t('Competence Name')"
                 label-for="competencename"
               >
-                {{ formData.name }}
+                <div class="font-weight-bold">
+                  {{ formData.name }}
+                </div>
               </b-form-group>
             </b-col>
-            <b-col
-              cols="6"
-              md="6"
-            >
 
+            <b-col sm="12">
               <b-form-group
-                :label="$t('Completed Date')"
-                label-for="startdate"
+                :label="$t('Status')"
+                label-for="status"
+                class="mb-2"
               >
-                {{ formData.completed_date }}
+                <b-badge
+                  :variant="resolveStatus(formData.status)"
+                  class="text-capitalize"
+                >
+                  {{ $t(formData.status) }}
+                </b-badge>
               </b-form-group>
             </b-col>
-            <b-col
-              cols="6"
-              md="6"
-            >
-              <b-form-group
-                :label="$t('Valid Until')"
-                label-for="enddate"
-              >
-                {{ formData.valid_until }}
-              </b-form-group>
-            </b-col>
+
             <b-col
               cols="6"
               md="6"
@@ -63,16 +69,57 @@
                 :label="$t('Planned Date')"
                 label-for="planneddate"
               >
-                {{ formData.planned_date }}
+                <div>{{ formData.planned_date || '-' }}</div>
               </b-form-group>
             </b-col>
+
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <b-form-group
+                :label="$t('Completed Date')"
+                label-for="startdate"
+              >
+                <div>{{ formData.completed_date || '-' }}</div>
+              </b-form-group>
+            </b-col>
+
+            <b-col
+              cols="6"
+              md="6"
+            >
+              <b-form-group
+                :label="$t('Valid Until')"
+                label-for="enddate"
+              >
+                <div>{{ formData.valid_until || '-' }}</div>
+              </b-form-group>
+            </b-col>
+
+            <b-col sm="6">
+              <b-form-group
+                :label="$t('Level')"
+                label-for="level"
+                class="mb-2"
+              >
+                <img
+                  v-if="formData.level !== null && formData.level !== undefined"
+                  :src="`/images/level-${formData.level}.svg`"
+                  :alt="`Level ${formData.level}`"
+                  :title="getLevelLabel(formData.level)"
+                  style="height: 30px; width: auto;"
+                />
+                <span v-else class="text-muted">-</span>
+              </b-form-group>
+            </b-col>
+
             <b-col
               cols="12"
               md="12"
             >
-
               <b-form-group
-                label="Documents/Images"
+                :label="$t('Documents/Images')"
                 label-for="files"
                 class="mt-2"
               >
@@ -82,13 +129,13 @@
                     <thead>
                       <tr>
                         <th scope="col">
-                          File Name
+                          {{ $t('File Name') }}
                         </th>
                         <th scope="col">
-                          File Type
+                          {{ $t('File Type') }}
                         </th>
                         <th scope="col">
-                          File Size
+                          {{ $t('File Size') }}
                         </th>
                       </tr>
                     </thead>
@@ -112,51 +159,16 @@
                   </table>
                 </div>
                 <div v-else class="text-muted">
-                  No documents/images uploaded
+                  {{ $t('No documents/images uploaded') }}
                 </div>
-              </b-form-group>
-            </b-col>
-            <b-col sm="12">
-              <validation-provider
-                #default="validationContext"
-                :name="$t('Status')"
-                rules="required"
-              >
-                <b-form-group
-                  :label="$t('Status')"
-                  label-for="description"
-                  class="mt-2 mb-2"
-                >
-                  <v-select
-                    label="label"
-                    :placeholder="$t('Status')"
-                    v-model="formData.status"
-                    :options="statusOptions"
-                    :reduce="status => status.value"
-                    :clearable="false"
-                    input-id="title"
-                    @input="updateStatus"
-                  />
-                  <b-form-invalid-feedback>
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider>
-            </b-col>
-            <b-col sm="12">
-              <b-form-group
-                :label="$t('Level')"
-                label-for="level"
-                class="mt-2 mb-2"
-              >
-                {{ getLevelLabel(formData.level) }}
               </b-form-group>
             </b-col>
           </b-row>
         </b-form>
       </validation-observer>
     </div>
-  </b-modal>
+    </template>
+  </b-sidebar>
 </template>
 
 <script>
@@ -166,6 +178,7 @@ import {
   BForm,
   BBadge,
   BButton,
+  BSidebar,
   BFormSelect,
   BFormFile,
   BFormInput,
@@ -188,6 +201,7 @@ export default {
     BRow,
     BForm,
     vSelect,
+    BSidebar,
     BFormGroup,
     ValidationProvider,
     ValidationObserver,
@@ -215,6 +229,7 @@ export default {
       respResult,
       competences,
       updateCompetence,
+      resolveStatus,
     } = useCompetences()
 
     const {
@@ -310,6 +325,7 @@ export default {
       statusOptions,
       levelOptions,
       getLevelLabel,
+      resolveStatus,
       refFormObserver,
       competencesCourses,
       getValidationState,
@@ -320,6 +336,15 @@ export default {
   <style lang="scss" scoped>
   .per-page-selector {
       width: 90px;
+  }
+
+  .content-sidebar-header {
+    border-bottom: 1px solid #ebe9f1;
+    padding: 1.5rem 1.5rem !important;
+  }
+
+  ::v-deep .sidebar-lg {
+    width: 500px !important;
   }
   </style>
 

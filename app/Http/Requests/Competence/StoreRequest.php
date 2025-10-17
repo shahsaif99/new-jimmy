@@ -26,7 +26,7 @@ class StoreRequest extends FormRequest
         return [
             'name' => ['required','max:255'],
             'category_id' => ['nullable','exists:competence_categories,id'],
-            'completed_date' => ['required','date'],
+            'completed_date' => ['nullable','date'],
             'planned_date' => ['nullable','date'],
             'valid_until' => ['nullable','date'],
             'level' => ['nullable'],

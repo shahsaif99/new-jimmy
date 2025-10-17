@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('competences', function (Blueprint $table) {
             $table->id();
             $table->string('name', 255);
-            $table->date('completed_date');
+            $table->date('completed_date')->nullable();
             $table->date('valid_until');
             $table->timestamps();
         });

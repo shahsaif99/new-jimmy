@@ -236,6 +236,7 @@
         :columns="tableColumns"
         @on-sort-change="onSortChange"
         @on-column-filter="onColumnFilter"
+        @on-row-click="onRowClick"
         :rows="competences"
         :is-loading.sync="busy"
         :total-rows="totalRecords"
@@ -338,7 +339,7 @@
                 icon="PaperclipIcon"
                 size="18"
                 class="cursor-pointer text-primary"
-                @click="downloadFiles(props.row.competence)"
+                @click.stop="downloadFiles(props.row.competence)"
               />
             </span>
           </span>
@@ -358,7 +359,7 @@
                 size="16"
                 class="mx-1 cursor-pointer"
                 v-if="$can('competence-edit', 'all')"
-                @click="editCompetence(props.row.competence, props.row.user_name)"
+                @click.stop="editCompetence(props.row.competence, props.row.user_name)"
               />
 
               <feather-icon
@@ -367,7 +368,7 @@
                 size="16"
                 class="mx-1 cursor-pointer"
                 v-if="$can('competence-view', 'all')"
-                @click="showCompetence(props.row.competence, props.row.user_name)"
+                @click.stop="showCompetence(props.row.competence, props.row.user_name)"
               />
               <feather-icon
                 :id="`delete-request-${props.row.id}-trash-btn`"
@@ -375,7 +376,7 @@
                 class="cursor-pointer"
                 size="16"
                 v-if="$can('competence-delete', 'all')"
-                @click="confirmDelete(props.row.competence.id)"
+                @click.stop="confirmDelete(props.row.competence.id)"
               />
             </div>
           </span>
@@ -384,7 +385,7 @@
       </vue-good-table>
     </b-card>
          </b-tab>
-         <b-tab title="Competence Matrix">
+         <b-tab title="Competence Matrix" v-if="$can('competence-matrix','all')">
            <b-card no-body class="mb-0">
              <div class="m-2">
                <div class="d-flex justify-content-end mb-2">
@@ -755,6 +756,12 @@ export default {
       fetchCompetences(serverParams.value)
     }
 
+    const onRowClick = params => {
+      // Only open if the row has competence data and is not a group header
+      if (params.row.competence && params.row.user_name) {
+        showCompetence(params.row.competence, params.row.user_name)
+      }
+    }
 
     const confirmDelete = async id => {
       root.$bvModal
@@ -836,6 +843,7 @@ export default {
       handleSearch,
       onSortChange,
       onColumnFilter,
+      onRowClick,
       updateParams,
       onPerPageChange,
       onPageChange,
