@@ -226,14 +226,14 @@
           </b-row>
           <b-row>
             <b-col class="editor" cols="12">
-              <!-- <ckeditor
-             
+              <ckeditor
+
                 :editor="ClassicEditor"
                 :config="editorConfig"
                 v-model="formData.content"
-              /> -->
+              />
 
-              <div style="width: 100%" ref="rteref"><!--Don't change Inner HTML because VUE will delete RTE UI--></div>
+              <!-- <div style="width: 100%" ref="rteref">Don't change Inner HTML because VUE will delete RTE UI</div> -->
             </b-col>
           </b-row>
 
@@ -351,8 +351,7 @@ export default {
       formData.value.content = data
     }
     const onSubmit = async () => {
-
-      formData.value.content = rte.value.getHTMLCode()
+      formData.value.content = formData.value.content
 
       await storeDocument(formData.value)
 

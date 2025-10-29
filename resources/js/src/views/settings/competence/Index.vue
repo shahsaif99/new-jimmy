@@ -11,11 +11,7 @@
       v-if="isAddCompetenceActive"
       @refetch-data="fetchCompetences"
     />
-    <add-category
-      :is-add-category-active.sync="isAddCategoryActive"
-      v-if="isAddCategoryActive"
-      @refetch-data="fetchCategories"
-    />
+    <manage-categories />
     <b-card
       no-body
       class="mb-0"
@@ -45,11 +41,12 @@
             </b-button>
             <b-button
               variant="primary"
-              @click="isAddCategoryActive = true"
+              @click="categoryDialog.toggleDialog"
               v-if="$can('manage-settings', 'all')"
               class="ml-1"
             >
-              <span class="text-nowrap">{{ $t('Add Category') }}</span>
+              <feather-icon icon="SettingsIcon" size="16" class="mr-50" />
+              <span class="text-nowrap">{{ $t('Manage Categories') }}</span>
             </b-button>
           </b-col>
           <b-col
@@ -193,7 +190,8 @@ import i18n from '@/libs/i18n'
 import useSettingsCompetence from '@/composables/settingsCompetence'
 import AddCompetence from './dialogs/AddCompetence.vue'
 import EditCompetence from './dialogs/EditCompetence.vue'
-import AddCategory from './dialogs/AddCategory.vue'
+import ManageCategories from '@/views/competence/dialogs/ManageCategories.vue'
+import useCompetenceCategories from '@/composables/competenceCategories'
 import axios from '@axios'
 import route from 'ziggy-js'
 import toaster from '@/composables/toaster'
@@ -213,7 +211,7 @@ export default {
     BDropdownItem,
     AddCompetence,
     EditCompetence,
-    AddCategory,
+    ManageCategories,
   },
   setup(_, { root }) {
     const {
@@ -237,15 +235,16 @@ export default {
     } = useSettingsCompetence()
 
     const { t } = useI18nUtils()
+    const { categoryDialog, getCategories: getCategoriesFromComposable } = useCompetenceCategories()
 
     onMounted(() => {
       fetchCompetences()
       fetchCategories()
+      getCategoriesFromComposable()
     })
     const isExportActive = ref(false)
     const isAddCompetenceActive = ref(false)
     const isEditCompetenceActive = ref(false)
-    const isAddCategoryActive = ref(false)
     const competence = ref({})
     const categories = ref([])
     const toast = toaster()
@@ -308,8 +307,8 @@ export default {
       fetchCategories,
       isAddCompetenceActive,
       isEditCompetenceActive,
-      isAddCategoryActive,
       categories,
+      categoryDialog,
     }
   },
 }

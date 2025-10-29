@@ -20,7 +20,8 @@
       @refetch-data="fetchCompetences"
       :user-data="userData"
     />
-    <b-tabs>
+    <manage-categories />
+    <b-tabs :no-nav-style="is_profile_view" :class="{ 'hide-nav': is_profile_view }">
                    <b-tab title="Competence Overview" active>
     <b-card
       no-body
@@ -385,7 +386,7 @@
       </vue-good-table>
     </b-card>
          </b-tab>
-         <b-tab title="Competence Matrix" v-if="$can('competence-matrix','all')">
+         <b-tab title="Competence Matrix" v-if="!is_profile_view && $can('competence-matrix','all')">
            <b-card no-body class="mb-0">
              <div class="m-2">
                <div class="d-flex justify-content-end mb-2">
@@ -446,6 +447,31 @@
                    </tbody>
                  </table>
                </div>
+             </div>
+           </b-card>
+         </b-tab>
+         <b-tab title="Settings" v-if="$can('competence-settings','all')">
+           <b-card no-body class="mb-0">
+             <div class="m-2">
+               <div class="d-flex justify-content-between align-items-center mb-3">
+                 <h4 class="mb-0">{{ $t('Competence Settings') }}</h4>
+               </div>
+
+               <b-card class="mb-2">
+                 <div class="d-flex justify-content-between align-items-center">
+                   <div>
+                     <h5 class="mb-1">{{ $t('Manage Categories') }}</h5>
+                     <p class="text-muted mb-0">{{ $t('Add, edit, or delete competence categories') }}</p>
+                   </div>
+                   <b-button
+                     variant="outline-primary"
+                     @click="categoryDialog.toggleDialog"
+                   >
+                     <feather-icon icon="SettingsIcon" size="16" class="mr-50" />
+                     {{ $t('Manage Categories') }}
+                   </b-button>
+                 </div>
+               </b-card>
              </div>
            </b-card>
          </b-tab>
@@ -593,8 +619,10 @@ import { VueGoodTable } from 'vue-good-table'
 import AddCompetence from './dialogs/Add.vue'
 import EditCompetence from './dialogs/Edit.vue'
 import ShowCompetence from './dialogs/Show.vue'
+import ManageCategories from './dialogs/ManageCategories.vue'
 import 'vue-good-table/dist/vue-good-table.css'
 import useJwt from "@/auth/jwt/useJwt";
+import useCompetenceCategories from '@/composables/competenceCategories'
 
 
 export default {
@@ -616,6 +644,7 @@ export default {
     VueGoodTable,
     EditCompetence,
     ShowCompetence,
+    ManageCategories,
     BTab,
     BTabs,
     BModal,
@@ -648,10 +677,12 @@ export default {
 
     const { competences: competenceCourses, fetchCompetenceList } = useSettingsCompetence()
     const { fetchUsers, users, resolveUserRoleVariant } = useUsers()
+    const { categoryDialog, getCategories } = useCompetenceCategories()
     const { t } = useI18nUtils()
     const searchTerm = ref('')
     const userData = ref(null)
     const pageLength = ref(10)
+    const is_profile_view = ref(false);
     const serverParams = ref({
       columnFilters: {
       },
@@ -674,7 +705,19 @@ export default {
       const query = Object.fromEntries(urlParams.entries())
     userData.value = JSON.parse(useJwt.getUserData());
       filters.group = true
-      if (userData.value && userData.value.role !== 'Admin') {
+    //   get current url
+      const currentUrl = window.location.href
+    //   check if currenturl contains /users/edit/2
+        if (currentUrl.includes('/users/edit/')) {
+            is_profile_view.value = true;
+        }else{
+            is_profile_view.value = false;
+        }
+        console.log('here',is_profile_view.value)
+      if (is_profile_view.value) {
+        const userId = currentUrl.split('/users/edit/')[1]
+        filters.userId = userId
+      }else if (userData.value && userData.value.role !== 'Admin') {
         filters.userId = userData.value.id
       }
 
@@ -801,10 +844,13 @@ export default {
 
     // Computed properties for visible users and courses
     const visibleUsers = computed(() => {
-      if (visibleUserIds.value.length === 0) {
-        return users.value
-      }
-      return users.value.filter(user => visibleUserIds.value.includes(user.id))
+    const list =
+        visibleUserIds.value.length === 0
+        ? users.value
+        : users.value.filter(user => visibleUserIds.value.includes(user.id))
+
+    // Return a sorted copy (ascending by name)
+    return [...list].sort((a, b) => a.name.localeCompare(b.name))
     })
 
     const visibleCourses = computed(() => {
@@ -883,6 +929,9 @@ export default {
       visibleCourses,
       toggleAllUsers,
       toggleAllCourses,
+      categoryDialog,
+      getCategories,
+      is_profile_view
     }
   },
 }
@@ -952,5 +1001,8 @@ table.vgt-table th {
 }
 table.vgt-table td {
     border: none !important;
+}
+.hide-nav .nav{
+    display: none;
 }
 </style>

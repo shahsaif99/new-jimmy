@@ -104,13 +104,4 @@ class Competence extends Model
     {
         return $this->hasManyThrough(User::class, UsersCompetence::class);
     }
-
-
-    protected static function booted()
-    {
-        static::deleting(function ($item) {
-            $item->employees()->delete();
-        });
-    }
-
 }

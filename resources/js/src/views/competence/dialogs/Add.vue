@@ -61,6 +61,23 @@
                 cols="6"
                 md="6"
               >
+                <b-form-group
+                  label-for="plannedcompetence"
+                >
+                  <b-form-checkbox
+                    id="plannedcompetence"
+                    v-model="isPlannedCompetence"
+                    class="mt-2"
+                  >
+                    {{ $t('Planned Competence') }}
+                  </b-form-checkbox>
+                </b-form-group>
+              </b-col>
+              <b-col
+                v-if="!isPlannedCompetence"
+                cols="6"
+                md="6"
+              >
 
                 <b-form-group
                   :label="t('Completed Date')"
@@ -74,6 +91,7 @@
                 </b-form-group>
               </b-col>
               <b-col
+                v-if="!isPlannedCompetence"
                 cols="6"
                 md="6"
               >
@@ -89,6 +107,7 @@
                 </b-form-group>
               </b-col>
               <b-col
+                v-if="isPlannedCompetence"
                 cols="6"
                 md="6"
               >
@@ -142,32 +161,6 @@
                     </b-form-invalid-feedback>
                   </validation-provider>
                 </b-form-group>
-              </b-col>
-              <b-col sm="12">
-                <validation-provider
-                  #default="validationContext"
-                  :name="$t('Status')"
-                  rules="required"
-                >
-                  <b-form-group
-                    :label="$t('Status')"
-                    label-for="description"
-                    class="mt-2 mb-2"
-                  >
-                    <v-select
-                      label="label"
-                      :placeholder="$t('Status')"
-                      v-model="formData.status"
-                      :options="statusOptions"
-                      :reduce="status => status.value"
-                      :clearable="false"
-                      input-id="title"
-                    />
-                    <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                      {{ validationContext.errors[0] }}
-                    </b-form-invalid-feedback>
-                  </b-form-group>
-                </validation-provider>
               </b-col>
               <b-col sm="12">
                 <validation-provider
@@ -278,6 +271,7 @@ import {
   BFormInput,
   BFormSelect,
   BFormGroup,
+  BFormCheckbox,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
@@ -304,6 +298,7 @@ export default {
     BFormInput,
     BFormGroup,
     BFormSelect,
+    BFormCheckbox,
     ValidationProvider,
     ValidationObserver,
     BFormInvalidFeedback,
@@ -336,6 +331,7 @@ export default {
 
     const formData = ref({ ...initialState })
     const files = ref([])
+    const isPlannedCompetence = ref(false)
     const {
       busy: storeBusy,
       respResult,
@@ -365,7 +361,7 @@ export default {
         competences.value = []
         return
       }
-      filters.role = 'Employee'
+    //   filters.role = 'Employee'
       fetchUsersList(name)
       loading(false)
     }, 350)
@@ -439,6 +435,7 @@ export default {
       refFormObserver,
       competencesCourses,
       getValidationState,
+      isPlannedCompetence,
     }
   },
 }

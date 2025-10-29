@@ -54,11 +54,32 @@
               cols="6"
               md="6"
             >
-              <validation-provider
-                #default="validationContext"
-                :name="$t('Completed Date')"
-                rules="required"
+              <b-form-group
+                label-for="plannedcompetence"
               >
+                <b-form-checkbox
+                  id="plannedcompetence"
+                  v-model="isPlannedCompetence"
+                  @change="() => {
+                    if (isPlannedCompetence) {
+                      formData.completed_date = null
+                      formData.valid_until = null
+                    } else {
+                      formData.planned_date = null
+                    }
+                  }"
+                  class="mt-2"
+                >
+                  {{ $t('Planned Competence') }}
+                </b-form-checkbox>
+              </b-form-group>
+            </b-col>
+            <b-col
+              v-if="!isPlannedCompetence"
+              cols="6"
+              md="6"
+            >
+
                 <b-form-group
                   :label="$t('Completed Date')"
                   label-for="startdate"
@@ -66,18 +87,12 @@
                   <b-form-input
                     type="date"
                     v-model="formData.completed_date"
-                    :state="
-                      getValidationState(
-                        validationContext
-                      )
-                    "
                   />
-                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider></b-col>
+                  </b-form-group>
+
+            </b-col>
             <b-col
+              v-if="!isPlannedCompetence"
               cols="6"
               md="6"
             >
@@ -93,6 +108,7 @@
               </b-form-group>
             </b-col>
             <b-col
+              v-if="isPlannedCompetence"
               cols="6"
               md="6"
             >
@@ -146,32 +162,6 @@
                   </b-form-invalid-feedback>
                 </validation-provider>
               </b-form-group>
-            </b-col>
-            <b-col sm="12">
-              <validation-provider
-                #default="validationContext"
-                :name="$t('Status')"
-                rules="required"
-              >
-                <b-form-group
-                  :label="$t('Status')"
-                  label-for="description"
-                  class="mt-2 mb-2"
-                >
-                  <v-select
-                    label="label"
-                    :placeholder="$t('Status')"
-                    v-model="formData.status"
-                    :options="statusOptions"
-                    :reduce="status => status.value"
-                    :clearable="false"
-                    input-id="title"
-                  />
-                  <b-form-invalid-feedback :state="getValidationState(validationContext)">
-                    {{ validationContext.errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </validation-provider>
             </b-col>
             <b-col sm="12">
               <validation-provider
@@ -280,6 +270,7 @@ import {
   BFormFile,
   BFormInput,
   BFormGroup,
+  BFormCheckbox,
   BFormInvalidFeedback,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
@@ -305,6 +296,7 @@ export default {
     BFormInput,
     BFormGroup,
     BFormSelect,
+    BFormCheckbox,
     ValidationProvider,
     ValidationObserver,
     BFormInvalidFeedback,
@@ -327,6 +319,7 @@ export default {
     const formData = ref({ })
     const { t } = useI18nUtils()
     const files = ref([])
+    const isPlannedCompetence = ref(false)
     const {
       busy: storeBusy,
       respResult,
@@ -372,6 +365,10 @@ export default {
     onMounted(() => {
       if (props.competence) {
         formData.value = { ...props.competence }
+        // Auto-check planned competence checkbox if planned_date exists
+        if (props.competence.planned_date) {
+          isPlannedCompetence.value = true
+        }
         fetchCompetenceList()
         // filters.role = 'Employee'
         // fetchUsersList()
@@ -396,7 +393,9 @@ export default {
       console.log(formData.value.status)
       const formDataObj = new FormData()
       formDataObj.append('name', formData.value.name)
+        if (formData.value.completed_date) {
       formDataObj.append('completed_date', formData.value.completed_date)
+        }
       if (formData.value.valid_until) {
         formDataObj.append('valid_until', formData.value.valid_until)
       }
@@ -440,6 +439,7 @@ export default {
       refFormObserver,
       competencesCourses,
       getValidationState,
+      isPlannedCompetence,
     }
   },
 }

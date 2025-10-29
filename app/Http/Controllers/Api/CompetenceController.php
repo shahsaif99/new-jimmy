@@ -10,6 +10,7 @@ use App\Models\Competence;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Plank\Mediable\Facades\MediaUploader;
 use ZipArchive;
@@ -26,6 +27,7 @@ class CompetenceController extends Controller
         $this->updateStatuses();
         $competences = User::query()
         ->select('id','first_name','last_name')
+        ->orderBy('first_name','asc')
         ->with(['competences' => ['competence' => ['media', 'category']]])
         ->search($request->q)
         ->when($request->q, function($query) use ($request){
@@ -64,7 +66,6 @@ class CompetenceController extends Controller
             });
         })
         ->applyFilters($request)
-        ->role('Employee')
         ->get()
         ->when($request->group, function($query){
             $query->transform(function($item, $key){
@@ -81,7 +82,6 @@ class CompetenceController extends Controller
              });
 
          });
-
         return CompetenceResource::collection($competences);
     }
 
@@ -96,7 +96,6 @@ class CompetenceController extends Controller
     public function store(StoreRequest $request)
     {
 
-        // dd(json_decode($request->employees));
 
         $competence = Competence::create($request->validated());
 
@@ -132,7 +131,21 @@ class CompetenceController extends Controller
      */
     public function update(UpdateRequest $request, Competence $competence)
     {
-        $competence->update($request->validated());
+        $data = $request->validated();
+        $competence->update([
+            'name' => $data['name'],
+            'completed_date' => $data['completed_date'] ?? null,
+            'planned_date' => $data['planned_date'] ?? null,
+            'valid_until' => $data['valid_until'] ?? null,
+            'level' => $data['level'] ?? null,
+        ]);
+        // if($data['is_planned_date']){
+        //     $competence->planned_date = $data['planned_date'];
+        //     $competence->save();
+        // }else{
+        //     $competence->planned_date = null;
+        //     $competence->save();
+        // }
         if($request->hasFile('files')){
 
             $this->uploadDocuments($request, $competence);
@@ -151,6 +164,7 @@ class CompetenceController extends Controller
      */
     public function destroy(Competence $competence)
     {
+        $competence->employees()->detach();
         $competence->delete();
 
         return response()->json([
@@ -183,11 +197,18 @@ class CompetenceController extends Controller
         foreach($competences as $competence){
             if(Carbon::parse($competence->valid_until)->diffInDays($now) <= 90){
                 $competence->status = 'expiring';
-            }elseif(Carbon::parse($competence->valid_until)->isFuture()){
+            }
+            if(Carbon::parse($competence->valid_until)->isFuture()){
                 $competence->status = 'valid';
             }
-            else{
+            if(Carbon::parse($competence->valid_until)->isPast()){
                 $competence->status = 'expired';
+            }
+            if($competence->planned_date){
+                $competence->status = 'planned';
+            }
+            if(!$competence->valid_until && !$competence->planned_date){
+                $competence->status = 'valid';
             }
             $competence->save();
         }
