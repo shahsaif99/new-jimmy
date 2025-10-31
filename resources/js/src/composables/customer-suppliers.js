@@ -713,6 +713,8 @@ export default function useCustomerSupplier() {
             } else {
                 errorHandler(error);
             }
+            // Re-throw error so component can handle it
+            throw error;
         } finally {
             apiHelpers.loading = false;
         }
@@ -767,6 +769,8 @@ export default function useCustomerSupplier() {
             } else {
                 errorHandler(error);
             }
+            // Re-throw error so component can handle it
+            throw error;
         } finally {
             apiHelpers.loading = false;
         }

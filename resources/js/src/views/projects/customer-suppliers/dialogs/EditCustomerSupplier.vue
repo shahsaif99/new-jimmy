@@ -399,9 +399,14 @@ export default {
         };
 
         const updateCustomerSupplier = async () => {
-            await updateCustomerSupplierBase(uploadedFiles.value);
-            // Clear uploaded files after successful submission
-            uploadedFiles.value = [];
+            try {
+                await updateCustomerSupplierBase(uploadedFiles.value);
+                // Clear uploaded files only after successful submission
+                uploadedFiles.value = [];
+            } catch (error) {
+                // Keep files populated if there's a validation error
+                // Error is already handled by the base function
+            }
         };
 
         const formatFileSize = (bytes) => {

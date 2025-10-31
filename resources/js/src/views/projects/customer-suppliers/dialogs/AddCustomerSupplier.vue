@@ -338,9 +338,14 @@ export default {
         };
 
         const addCustomerSupplier = async () => {
-            await addCustomerSupplierBase(uploadedFiles.value);
-            // Clear uploaded files after successful submission
-            uploadedFiles.value = [];
+            try {
+                await addCustomerSupplierBase(uploadedFiles.value);
+                // Clear uploaded files only after successful submission
+                uploadedFiles.value = [];
+            } catch (error) {
+                // Keep files populated if there's a validation error
+                // Error is already handled by the base function
+            }
         };
 
         return {
