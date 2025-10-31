@@ -415,6 +415,37 @@ const form = reactive({
         };
     },
 
+    getFormData(files = []) {
+        const formData = new FormData();
+        const data = this.getData();
+
+        // Append all form fields to FormData
+        Object.keys(data).forEach((key) => {
+            if (data[key] !== null && data[key] !== undefined) {
+                if (Array.isArray(data[key])) {
+                    if (key === 'supplier_evaluation') {
+                        formData.append(key, JSON.stringify(data[key]));
+                    } else {
+                        data[key].forEach((item, index) => {
+                            formData.append(`${key}[${index}]`, item);
+                        });
+                    }
+                } else {
+                    formData.append(key, data[key]);
+                }
+            }
+        });
+
+        // Append files
+        if (files && files.length > 0) {
+            files.forEach((file) => {
+                formData.append('documents[]', file);
+            });
+        }
+
+        return formData;
+    },
+
     set(data) {
         Object.keys(data).forEach((key) => {
             if (key in this) {
@@ -643,7 +674,7 @@ export default function useCustomerSupplier() {
         }
     };
 
-    const addCustomerSupplier = async () => {
+    const addCustomerSupplier = async (files = []) => {
         try {
             apiHelpers.loading = true;
 
@@ -651,9 +682,22 @@ export default function useCustomerSupplier() {
                 abortEarly: false,
             });
 
+            const requestData = files && files.length > 0
+                ? form.getFormData(files)
+                : form.getData();
+
+            const config = files && files.length > 0
+                ? {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+                : {};
+
             await axios.post(
                 route("customers-suppliers.store"),
-                form.getData()
+                requestData,
+                config
             );
 
             form.reset();
@@ -674,7 +718,7 @@ export default function useCustomerSupplier() {
         }
     };
 
-    const updateCustomerSupplier = async () => {
+    const updateCustomerSupplier = async (files = []) => {
         try {
             apiHelpers.loading = true;
 
@@ -682,12 +726,33 @@ export default function useCustomerSupplier() {
                 abortEarly: false,
             });
 
-            await axios.put(
-                route("customers-suppliers.update", {
-                    id: dialog.temp.customerSupplier.id,
-                }),
-                form.getData()
-            );
+            const requestData = files && files.length > 0
+                ? form.getFormData(files)
+                : form.getData();
+
+            // For file uploads with PUT, we need to use POST with _method
+            if (files && files.length > 0) {
+                requestData.append('_method', 'PUT');
+
+                await axios.post(
+                    route("customers-suppliers.update", {
+                        id: dialog.temp.customerSupplier.id,
+                    }),
+                    requestData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                );
+            } else {
+                await axios.put(
+                    route("customers-suppliers.update", {
+                        id: dialog.temp.customerSupplier.id,
+                    }),
+                    requestData
+                );
+            }
 
             fetchCustomerSuppliers();
 

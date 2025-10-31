@@ -30,7 +30,7 @@ class CustomerSupplierResource extends JsonResource
                 ? $this->evaluations->map(function ($evaluation) {
                     return [
                         'performed_by' => $evaluation->performed_by,
-                        'performed_by_name' => optional($evaluation->performedByUser)->name, 
+                        'performed_by_name' => optional($evaluation->performedByUser)->name,
                         'total_score' => $evaluation->total_score,
                         'evaluation_date' => $evaluation->evaluation_date,
                         'status' => $evaluation->status,
@@ -38,6 +38,19 @@ class CustomerSupplierResource extends JsonResource
                     ];
                 })
                 : null,
+
+            'documents' => $this->documents
+                ? $this->documents->map(function ($document) {
+                    return [
+                        'id' => $document->id,
+                        'file_name' => $document->file_name,
+                        'file_path' => $document->file_path,
+                        'file_type' => $document->file_type,
+                        'file_size' => $document->file_size,
+                        'created_at' => $document->created_at,
+                    ];
+                })
+                : [],
 
             'created_at' => $this->created_at,
             'latest_evaluation' => $this->updated_at,

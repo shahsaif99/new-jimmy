@@ -1,4 +1,5 @@
 <template>
+    <div>
     <b-modal cancel-variant="outline-secondary" centered :hide-footer="true" :title="t('Assign Checklist')" size="lg"
         class="modal-is-add-document-active" id="is-add-document-active" :visible="showing" :hide-header="true"
         @hide="onModalHide">
@@ -339,11 +340,7 @@
 
             <div v-if="!id" class="text-center d-flex justify-content-center w-100">
                 <button v-if="!assign.checklist.data"
-                    class="btn btn-primary d-flex justify-content-center align-items-center mt-1 w-100" @click="
-                        $router.push({
-                            name: 'attach-checklist',
-                        })
-                        ">
+                    class="btn btn-primary d-flex justify-content-center align-items-center mt-1 w-100" @click="openChecklistDialog">
                     <i class="bi bi-check mr-1" style="font-size: x-large"></i>
                     Add checklist
                 </button>
@@ -388,11 +385,7 @@
             </div>
             <div v-if="!id" class="text-center d-flex justify-content-center  w-100">
                 <button v-if="!assign.project.data"
-                    class="btn btn-primary d-flex justify-content-center align-items-center mt-1 w-100" @click="
-                        $router.push({
-                            name: 'attach-projects',
-                        })
-                        ">
+                    class="btn btn-primary d-flex justify-content-center align-items-center mt-1 w-100" @click="openProjectDialog">
                     <i class="bi bi-check mr-1" style="font-size: x-large"></i>
                     Add Project
                 </button>
@@ -474,6 +467,23 @@
             </button>
         </template>
     </b-modal>
+
+    <!-- Checklist Selection Dialog -->
+    <ChecklistSelectionDialog
+        :show="showChecklistDialog"
+        :selected-id="assign.checklist.id"
+        @select="handleChecklistSelection"
+        @close="closeChecklistDialog"
+    />
+
+    <!-- Project Selection Dialog -->
+    <ProjectSelectionDialog
+        :show="showProjectDialog"
+        :selected-id="assign.project.id"
+        @select="handleProjectSelection"
+        @close="closeProjectDialog"
+    />
+    </div>
 </template>
 <script>
 import {
@@ -505,9 +515,13 @@ import useTasks from "@/composables/tasks";
 import useCategories from "@/composables/categories";
 
 import { avatarText } from "@core/utils/filter";
+import ChecklistSelectionDialog from "./ChecklistSelectionDialog.vue";
+import ProjectSelectionDialog from "./ProjectSelectionDialog.vue";
 
 export default {
     components: {
+        ChecklistSelectionDialog,
+        ProjectSelectionDialog,
         BDropdown,
         BDropdownItem,
         BIcon,
@@ -582,6 +596,39 @@ export default {
 
         const searchCat = ref("");
 
+        const showChecklistDialog = ref(false);
+        const showProjectDialog = ref(false);
+
+        const openChecklistDialog = () => {
+            showChecklistDialog.value = true;
+        };
+
+        const closeChecklistDialog = () => {
+            showChecklistDialog.value = false;
+        };
+
+        const handleChecklistSelection = (checklist) => {
+            assign.value.checklist.data = checklist;
+            assign.value.checklist.id = checklist.id;
+            assign.value.checklist.temp = checklist.name;
+            closeChecklistDialog();
+        };
+
+        const openProjectDialog = () => {
+            showProjectDialog.value = true;
+        };
+
+        const closeProjectDialog = () => {
+            showProjectDialog.value = false;
+        };
+
+        const handleProjectSelection = (project) => {
+            assign.value.project.data = project;
+            assign.value.project.id = project.id;
+            assign.value.project.temp = project.name;
+            closeProjectDialog();
+        };
+
         onMounted(async () => {
             await fetchUsers();
             getCategories();
@@ -601,9 +648,7 @@ export default {
             }
         });
         const employees = computed(() => {
-            return users.value.filter((user) =>
-                user.roles.some((role) => role.name === "Employee")
-            );
+            return users.value;
         });
         const filteredEmployees = computed(() => {
             return employees.value.filter((user) =>
@@ -716,6 +761,14 @@ export default {
             urlImageConverter,
             isFile,
             apiHelpers,
+            showChecklistDialog,
+            showProjectDialog,
+            openChecklistDialog,
+            closeChecklistDialog,
+            handleChecklistSelection,
+            openProjectDialog,
+            closeProjectDialog,
+            handleProjectSelection,
         };
     },
 };

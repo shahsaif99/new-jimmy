@@ -120,7 +120,7 @@
                 <b-col cols="6" md="6">
 
                   <b-form-group :label="t('Checklist')" label-for="checklist">
-                    <b-button v-if="!checklistSidebar.data" @click.prevent="checklistSidebar.open"
+                    <b-button v-if="!selectedChecklist" @click.prevent="showChecklistDialog = true"
                       variant="outline-secondary" class="w-100">
                       <i class="bi bi-paperclip"></i>
 
@@ -131,7 +131,7 @@
                     <div v-else class="d-flex align-items-center justify-content-between  w-100 card-custom">
                       <div class="d-flex align-items-center" style="gap: 10px">
                         <div style="height: 50px; width: 50px; position: relative">
-                          <i :class="checklistSidebar.data.icon" :style="{ background: checklistSidebar.data.color }"
+                          <i :class="selectedChecklist.icon" :style="{ background: selectedChecklist.color }"
                             class="bi bi-list-check svg-icon title-icon" style="
                                     height: 100% !important;
                                     width: 100% !important;
@@ -139,10 +139,10 @@
                                 "></i>
                         </div>
                         <div style="font-weight: medium; font-size: 18px">
-                          {{ checklistSidebar.data.name }}
+                          {{ selectedChecklist.name }}
                         </div>
                       </div>
-                      <i @click="checklistSidebar.reset" :style="{
+                      <i @click="removeChecklist" :style="{
                         fontSize: '20px',
                         cursor: 'pointer',
                       }" class="bi bi-dash-circle-fill"></i>
@@ -152,7 +152,7 @@
                 </b-col>
                 <b-col cols="6" md="6">
                   <b-form-group :label="t('Procedure')" label-for="procedure">
-                    <b-button v-if="!procedureSidebar.data" @click.prevent="procedureSidebar.open"
+                    <b-button v-if="!selectedProcedure" @click.prevent="showProcedureDialog = true"
                       variant="outline-secondary" class="w-100">
                       <i class="bi bi-paperclip"></i>
 
@@ -170,10 +170,10 @@
                               "></i>
                         </div>
                         <div style="font-weight: medium; font-size: 18px">
-                          {{ procedureSidebar.data.data.title }}
+                          {{ selectedProcedure.title }}
                         </div>
                       </div>
-                      <i @click="procedureSidebar.reset" :style="{
+                      <i @click="removeProcedure" :style="{
                         fontSize: '20px',
                         cursor: 'pointer',
                       }" class="bi bi-dash-circle-fill"></i>
@@ -251,8 +251,10 @@
       </div>
     </b-modal>
     <Qrcode :is-qrcode-active.sync="isQrcodeActive" :qrText="formData.id" v-if="isQrcodeActive" />
-    <Checklist :isOpen="checklistSidebar.isOpen" @attach="checklistSidebar.attach" @close="checklistSidebar.close" />
-    <Procedure :isOpen="procedureSidebar.isOpen" @attach="procedureSidebar.attach" @close="procedureSidebar.close" />
+    <ChecklistSelectionDialog :show="showChecklistDialog" :selectedId="formData.checklist" @select="handleChecklistSelect"
+      @close="showChecklistDialog = false" />
+    <ProcedureSelectionDialog :show="showProcedureDialog" :selectedId="formData.procedure" @select="handleProcedureSelect"
+      @close="showProcedureDialog = false" />
   </div>
 </template>
 
@@ -282,8 +284,8 @@ import Qrcode from "./Qrcode.vue";
 import useEquipmentCategories from "@/composables/equipment-categories";
 import useStorageLocations from "@/composables/storage-location";
 import InfiniteScrollSelect from "../components/InfiniteScrollSelect.vue";
-import Checklist from "./sidebar/Checklist.vue";
-import Procedure from "./sidebar/Procedure.vue";
+import ChecklistSelectionDialog from "@/views/checklist/dialogs/ChecklistSelectionDialog.vue";
+import ProcedureSelectionDialog from "@/views/checklist/dialogs/ProcedureSelectionDialog.vue";
 import toaster from "@/composables/toaster";
 
 export default {
@@ -304,8 +306,8 @@ export default {
     BFormInvalidFeedback,
     Qrcode,
     InfiniteScrollSelect,
-    Checklist,
-    Procedure
+    ChecklistSelectionDialog,
+    ProcedureSelectionDialog
   },
   model: {
     prop: "isAddEquipmentActive",
@@ -331,49 +333,32 @@ export default {
       getStorageLocations,
     } = useStorageLocations();
 
-    const checklistSidebar = reactive({
-      data: null,
-      isOpen: false,
-      open() {
-        procedureSidebar.isOpen = false
-        this.isOpen = true
-      },
-      close() {
-        checklistSidebar.isOpen = false
-      },
-      attach(value) {
-        checklistSidebar.isOpen = false
-        formData.value.checklist = value.id
-        checklistSidebar.data = value
-      },
-      reset() {
-        formData.value.checklist = null
-        checklistSidebar.data = null
-      }
+    const showChecklistDialog = ref(false);
+    const showProcedureDialog = ref(false);
+    const selectedChecklist = ref(null);
+    const selectedProcedure = ref(null);
 
-    });
+    const handleChecklistSelect = (checklist) => {
+      selectedChecklist.value = checklist;
+      formData.value.checklist = checklist.id;
+      showChecklistDialog.value = false;
+    };
 
-    const procedureSidebar = reactive({
-      data: null,
-      isOpen: false,
-      open() {
-        checklistSidebar.isOpen = false
-        this.isOpen = true
-      },
-      close() {
-        procedureSidebar.isOpen = false
-      },
-      attach(value) {
-        procedureSidebar.isOpen = false
-        formData.value.procedure = value.id
-        procedureSidebar.data = value
-      },
-      reset() {
-        formData.value.procedure = null
-        procedureSidebar.data = null
-      }
+    const handleProcedureSelect = (procedure) => {
+      selectedProcedure.value = procedure;
+      formData.value.procedure = procedure.id;
+      showProcedureDialog.value = false;
+    };
 
-    });
+    const removeChecklist = () => {
+      selectedChecklist.value = null;
+      formData.value.checklist = null;
+    };
+
+    const removeProcedure = () => {
+      selectedProcedure.value = null;
+      formData.value.procedure = null;
+    };
 
     const levelOfTrainingOptions = [{
       label: 'Instruction',
@@ -509,8 +494,14 @@ export default {
       storageApiHelpers,
       storageLocations,
       getStorageLocations,
-      checklistSidebar,
-      procedureSidebar,
+      showChecklistDialog,
+      showProcedureDialog,
+      selectedChecklist,
+      selectedProcedure,
+      handleChecklistSelect,
+      handleProcedureSelect,
+      removeChecklist,
+      removeProcedure,
       levelOfTrainingOptions
     };
   },

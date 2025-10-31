@@ -45,4 +45,9 @@ class CustomerSupplier extends Model
     {
         return $this->belongsTo(User::class, 'customer_manager_id');
     }
+
+    public function documents()
+    {
+        return $this->hasMany(CustomerSupplierDocument::class);
+    }
 }

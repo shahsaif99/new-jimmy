@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CustomerSupplier;
+use App\Models\CustomerSupplierDocument;
 use App\Models\SupplierEvaluation;
 use App\Http\Requests\CustomerSupplier\StoreCustomerSupplierRequest;
 use App\Http\Requests\StoreSupplierEvaluationRequest;
 use App\Http\Resources\CustomerSupplierResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 
 class CustomerSupplierController extends Controller
@@ -34,7 +36,22 @@ class CustomerSupplierController extends Controller
                 $customerSupplier->evaluations()->createMany($supplierEvaluationsData);
             }
 
-            return response()->json($customerSupplier->load('evaluations'), 201);
+            // Handle document uploads
+            if ($request->hasFile('documents')) {
+                foreach ($request->file('documents') as $file) {
+                    $fileName = time() . '_' . $file->getClientOriginalName();
+                    $filePath = $file->storeAs('customer_supplier_documents', $fileName, 'public');
+
+                    $customerSupplier->documents()->create([
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_path' => $filePath,
+                        'file_type' => $file->getClientMimeType(),
+                        'file_size' => $file->getSize(),
+                    ]);
+                }
+            }
+
+            return response()->json($customerSupplier->load(['evaluations', 'documents']), 201);
         });
     }
 
@@ -63,15 +80,30 @@ class CustomerSupplierController extends Controller
             if (!empty($supplierEvaluationsData)) {
                 $customerSupplier->evaluations()->createMany($supplierEvaluationsData);
             }
+
+            // Handle document uploads
+            if ($request->hasFile('documents')) {
+                foreach ($request->file('documents') as $file) {
+                    $fileName = time() . '_' . $file->getClientOriginalName();
+                    $filePath = $file->storeAs('customer_supplier_documents', $fileName, 'public');
+
+                    $customerSupplier->documents()->create([
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_path' => $filePath,
+                        'file_type' => $file->getClientMimeType(),
+                        'file_size' => $file->getSize(),
+                    ]);
+                }
+            }
         });
 
-        return response()->json($customerSupplier->load('evaluations'), 200);
+        return response()->json($customerSupplier->load(['evaluations', 'documents']), 200);
     }
 
     // Show a specific CustomerSupplier with its evaluations
     public function show($id)
     {
-        $customerSupplier = CustomerSupplier::with('evaluations')->findOrFail($id);
+        $customerSupplier = CustomerSupplier::with(['evaluations', 'documents'])->findOrFail($id);
 
         return response()->json($customerSupplier);
     }
@@ -79,7 +111,7 @@ class CustomerSupplierController extends Controller
     // Get a list of all CustomerSuppliers
     public function index(Request $request)
     {
-        $query = CustomerSupplier::query();
+        $query = CustomerSupplier::with('documents');
 
         // Apply filters based on request parameters
         if ($request->has('type')) {
@@ -144,7 +176,17 @@ class CustomerSupplierController extends Controller
     // Delete a specific CustomerSupplier and its SupplierEvaluations
     public function destroy($id)
     {
-        $customerSupplier = CustomerSupplier::findOrFail($id);
+        $customerSupplier = CustomerSupplier::with('documents')->findOrFail($id);
+
+        // Delete associated document files from storage
+        foreach ($customerSupplier->documents as $document) {
+            if (Storage::disk('public')->exists($document->file_path)) {
+                Storage::disk('public')->delete($document->file_path);
+            }
+        }
+
+        // Delete associated documents
+        $customerSupplier->documents()->delete();
 
         // Delete associated evaluations
         $customerSupplier->evaluations()->delete();
@@ -153,5 +195,21 @@ class CustomerSupplierController extends Controller
         $customerSupplier->delete();
 
         return response()->json(null, 204);
+    }
+
+    // Delete a specific document
+    public function deleteDocument($id)
+    {
+        $document = CustomerSupplierDocument::findOrFail($id);
+
+        // Delete the file from storage
+        if (Storage::disk('public')->exists($document->file_path)) {
+            Storage::disk('public')->delete($document->file_path);
+        }
+
+        // Delete the document record
+        $document->delete();
+
+        return response()->json(['message' => 'Document deleted successfully'], 200);
     }
 }

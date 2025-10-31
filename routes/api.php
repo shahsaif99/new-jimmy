@@ -106,6 +106,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'task-comments' => TaskCommentController::class,
     ]);
 
+    Route::delete('/customer-supplier-documents/{id}', [CustomerSupplierController::class, 'deleteDocument'])->name('customer-supplier-documents.destroy');
+
     // Route::get('/documents', [DocumentController::class, 'getDocuments'])->name('documents');
     // Route::post('/documents/store', [DocumentController::class, 'storeDocument'])->name('documents.store');
     // Route::post('/documents/update/{id}', [DocumentController::class, 'updateDocument'])->name('documents.update');

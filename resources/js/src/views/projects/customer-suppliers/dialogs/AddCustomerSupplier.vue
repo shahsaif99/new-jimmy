@@ -1,5 +1,8 @@
 <template>
     <b-modal v-model="dialog.show.customerSupplier.add" title="Customer/supplier details" size="lg">
+        <b-tabs content-class="mt-3">
+            <!-- Detail Tab -->
+            <b-tab title="Detail" active>
         <b-form>
             <!-- Type and Status -->
             <b-row>
@@ -150,6 +153,48 @@
                 </template>
             </b-table>
         </div>
+            </b-tab>
+
+            <!-- Non-conformance Tab -->
+            <b-tab title="Non-conformance">
+                <div class="text-center py-5">
+                    <h4 class="text-muted">Coming Soon</h4>
+                    <p class="text-muted">Non-conformance tracking will be available soon.</p>
+                </div>
+            </b-tab>
+
+            <!-- Documents Tab -->
+            <b-tab title="Documents">
+                <b-form-group label="Upload Documents" label-size="md">
+                    <b-form-file
+                        multiple
+                        v-model="uploadedFiles"
+                        placeholder="Choose files or drop them here..."
+                        drop-placeholder="Drop files here..."
+                    >
+                        <template slot="file-name" slot-scope="{ names }">
+                            <b-badge variant="primary">{{ names[0] }}</b-badge>
+                            <b-badge v-if="names.length > 1" variant="primary">
+                                + {{ names.length - 1 }} More file(s)
+                            </b-badge>
+                        </template>
+                    </b-form-file>
+                </b-form-group>
+
+                <div v-if="uploadedFiles.length > 0" class="mt-3">
+                    <h5>Selected Files:</h5>
+                    <ul class="list-unstyled">
+                        <li v-for="(file, index) in uploadedFiles" :key="index" class="d-flex align-items-center mb-2">
+                            <feather-icon icon="FileIcon" size="16" class="mr-1" />
+                            <span>{{ file.name }}</span>
+                            <b-button variant="link" size="sm" class="ml-auto text-danger" @click="removeFile(index)">
+                                <feather-icon icon="XIcon" size="16" />
+                            </b-button>
+                        </li>
+                    </ul>
+                </div>
+            </b-tab>
+        </b-tabs>
 
         <template #modal-footer>
             <div class="d-flex align-items-center">
@@ -188,7 +233,11 @@ import {
     BTable,
     BDropdown,
     BDropdownItem,
-    BSpinner
+    BSpinner,
+    BTabs,
+    BTab,
+    BFormFile,
+    BBadge
 } from "bootstrap-vue";
 import useUsers from "@/composables/users";
 import { onMounted, computed, watch, ref } from "@vue/composition-api";
@@ -210,7 +259,11 @@ export default {
         BTable,
         BDropdown,
         BDropdownItem,
-        BSpinner
+        BSpinner,
+        BTabs,
+        BTab,
+        BFormFile,
+        BBadge
     },
     setup() {
         const {
@@ -223,7 +276,7 @@ export default {
             customerManagers,
             statusOptions,
             columnsSupplierEval,
-            addCustomerSupplier,
+            addCustomerSupplier: addCustomerSupplierBase,
             type
         } = useCustomerSupplier();
 
@@ -278,6 +331,18 @@ export default {
             }))
         }, { deep: true });
 
+        const uploadedFiles = ref([]);
+
+        const removeFile = (index) => {
+            uploadedFiles.value.splice(index, 1);
+        };
+
+        const addCustomerSupplier = async () => {
+            await addCustomerSupplierBase(uploadedFiles.value);
+            // Clear uploaded files after successful submission
+            uploadedFiles.value = [];
+        };
+
         return {
             isNextPageAvailable,
             columnsSupplierEval,
@@ -301,6 +366,8 @@ export default {
             searchUsers,
             deleteEval,
             editEval,
+            uploadedFiles,
+            removeFile,
         };
     },
 };

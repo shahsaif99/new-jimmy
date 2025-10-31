@@ -1,5 +1,8 @@
 <template>
     <b-modal v-model="dialog.show.customerSupplier.edit" title="Edit Customer/supplier details" size="lg">
+        <b-tabs content-class="mt-3">
+            <!-- Detail Tab -->
+            <b-tab title="Detail" active>
         <b-form>
             <!-- Type and Status -->
             <b-row>
@@ -151,6 +154,86 @@
                 </template>
             </b-table>
         </div>
+            </b-tab>
+
+            <!-- Non-conformance Tab -->
+            <b-tab title="Non-conformance">
+                <div class="text-center py-5">
+                    <h4 class="text-muted">Coming Soon</h4>
+                    <p class="text-muted">Non-conformance tracking will be available soon.</p>
+                </div>
+            </b-tab>
+
+            <!-- Documents Tab -->
+            <b-tab title="Documents">
+                <!-- Existing Documents -->
+                <div v-if="existingDocuments.length > 0" class="mb-4">
+                    <h5>Uploaded Documents:</h5>
+                    <b-table-simple responsive class="mt-2">
+                        <b-thead>
+                            <b-tr>
+                                <b-th>File Name</b-th>
+                                <b-th>Size</b-th>
+                                <b-th>Uploaded</b-th>
+                                <b-th>Actions</b-th>
+                            </b-tr>
+                        </b-thead>
+                        <b-tbody>
+                            <b-tr v-for="doc in existingDocuments" :key="doc.id">
+                                <b-td>
+                                    <feather-icon icon="FileIcon" size="16" class="mr-1" />
+                                    {{ doc.file_name }}
+                                </b-td>
+                                <b-td>{{ formatFileSize(doc.file_size) }}</b-td>
+                                <b-td>{{ formatDate(doc.created_at) }}</b-td>
+                                <b-td>
+                                    <b-button variant="link" size="sm" class="text-primary" @click="downloadDocument(doc)">
+                                        <feather-icon icon="EyeIcon" size="16" />
+                                    </b-button>
+                                    <b-button variant="link" size="sm" class="text-danger" @click="deleteDocument(doc.id)">
+                                        <feather-icon icon="TrashIcon" size="16" />
+                                    </b-button>
+                                </b-td>
+                            </b-tr>
+                        </b-tbody>
+                    </b-table-simple>
+                </div>
+
+                <div v-else class="mb-4">
+                    <p class="text-muted">No documents uploaded yet.</p>
+                </div>
+
+                <!-- Upload New Documents -->
+                <b-form-group label="Upload New Documents" label-size="md">
+                    <b-form-file
+                        multiple
+                        v-model="uploadedFiles"
+                        placeholder="Choose files or drop them here..."
+                        drop-placeholder="Drop files here..."
+                    >
+                        <template slot="file-name" slot-scope="{ names }">
+                            <b-badge variant="primary">{{ names[0] }}</b-badge>
+                            <b-badge v-if="names.length > 1" variant="primary">
+                                + {{ names.length - 1 }} More file(s)
+                            </b-badge>
+                        </template>
+                    </b-form-file>
+                </b-form-group>
+
+                <div v-if="uploadedFiles.length > 0" class="mt-3">
+                    <h5>New Files to Upload:</h5>
+                    <ul class="list-unstyled">
+                        <li v-for="(file, index) in uploadedFiles" :key="index" class="d-flex align-items-center mb-2">
+                            <feather-icon icon="FileIcon" size="16" class="mr-1" />
+                            <span>{{ file.name }}</span>
+                            <b-button variant="link" size="sm" class="ml-auto text-danger" @click="removeFile(index)">
+                                <feather-icon icon="XIcon" size="16" />
+                            </b-button>
+                        </li>
+                    </ul>
+                </div>
+            </b-tab>
+        </b-tabs>
 
         <template #modal-footer>
             <div class="d-flex align-items-center">
@@ -174,6 +257,9 @@
 import useCustomerSupplier from "@/composables/customer-suppliers";
 import InfiniteScrollSelect from "@/views/components/InfiniteScrollSelect.vue";
 import moment from "moment";
+import axios from "@axios";
+import toaster from "@/composables/toaster";
+import route from "ziggy-js";
 
 import {
     BModal,
@@ -189,7 +275,17 @@ import {
     BTable,
     BDropdown,
     BDropdownItem,
-    BSpinner
+    BSpinner,
+    BTabs,
+    BTab,
+    BFormFile,
+    BBadge,
+    BTableSimple,
+    BThead,
+    BTbody,
+    BTr,
+    BTh,
+    BTd
 } from "bootstrap-vue";
 import useUsers from "@/composables/users";
 import { onMounted, computed, watch, ref, onUnmounted } from "@vue/composition-api";
@@ -211,7 +307,17 @@ export default {
         BTable,
         BDropdown,
         BDropdownItem,
-        BSpinner
+        BSpinner,
+        BTabs,
+        BTab,
+        BFormFile,
+        BBadge,
+        BTableSimple,
+        BThead,
+        BTbody,
+        BTr,
+        BTh,
+        BTd
     },
     setup() {
         const {
@@ -224,7 +330,7 @@ export default {
             customerManagers,
             statusOptions,
             columnsSupplierEval,
-            updateCustomerSupplier,
+            updateCustomerSupplier: updateCustomerSupplierBase,
             type
         } = useCustomerSupplier();
 
@@ -285,6 +391,62 @@ export default {
             }))
         }, { deep: true });
 
+        const uploadedFiles = ref([]);
+        const existingDocuments = ref([]);
+
+        const removeFile = (index) => {
+            uploadedFiles.value.splice(index, 1);
+        };
+
+        const updateCustomerSupplier = async () => {
+            await updateCustomerSupplierBase(uploadedFiles.value);
+            // Clear uploaded files after successful submission
+            uploadedFiles.value = [];
+        };
+
+        const formatFileSize = (bytes) => {
+            if (!bytes) return 'N/A';
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        };
+
+        const formatDate = (date) => {
+            return moment(date).format('L LT');
+        };
+
+        const downloadDocument = (doc) => {
+            const url = `/storage/${doc.file_path}`;
+            window.open(url, '_blank');
+        };
+
+        const deleteDocument = async (docId) => {
+            if (!confirm('Are you sure you want to delete this document?')) {
+                return;
+            }
+
+            try {
+                apiHelpers.loading = true;
+                await axios.delete(route('customer-supplier-documents.destroy', docId));
+                // Remove from local array
+                existingDocuments.value = existingDocuments.value.filter(doc => doc.id !== docId);
+                toaster().success('Document deleted successfully.');
+            } catch (error) {
+                toaster().error('Failed to delete document.');
+            } finally {
+                apiHelpers.loading = false;
+            }
+        };
+
+        // Watch for dialog data changes to load documents
+        watch(() => dialog.temp.customerSupplier.data, (newData) => {
+            if (newData && newData.documents) {
+                existingDocuments.value = [...newData.documents];
+            } else {
+                existingDocuments.value = [];
+            }
+        }, { immediate: true, deep: true });
+
         return {
             isNextPageAvailable,
             columnsSupplierEval,
@@ -308,6 +470,13 @@ export default {
             searchUsers,
             deleteEval,
             editEval,
+            uploadedFiles,
+            removeFile,
+            existingDocuments,
+            formatFileSize,
+            formatDate,
+            downloadDocument,
+            deleteDocument,
         };
     },
 };

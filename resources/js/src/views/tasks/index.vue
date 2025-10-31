@@ -3,6 +3,21 @@
         <b-card>
             <QuickOptions />
 
+            <div class="d-flex mt-2 mb-3">
+                <button
+                    class="btn d-flex align-items-center"
+                    :class="showMyTasks ? 'btn-primary' : 'btn-light'"
+                    @click="toggleTaskView(true)">
+                    My tasks
+                </button>
+                <button
+                    class="btn d-flex align-items-center ml-2"
+                    :class="!showMyTasks ? 'btn-primary' : 'btn-light'"
+                    @click="toggleTaskView(false)">
+                    All tasks
+                </button>
+            </div>
+
             <b-overlay id="overlay-background" variant="transparent" rounded="sm">
                 <b-table ref="refTaskTable" id="taskTable" class="position-relative" :items="availableData.rows"
                     responsive :fields="availableData.columns" show-empty :key="availableData.rows.length"
@@ -236,10 +251,12 @@ export default {
             setAssignToEdit,
             getUnreadNotifications,
             markAllAsReadNotifications,
+            filters,
         } = useTasks();
 
         const selectedTask = ref(null);
         const isTaskDetailsActive = ref(false);
+        const showMyTasks = ref(false);
 
         const userData = JSON.parse(useJwt.getUserData());
         const { t } = useI18nUtils();
@@ -253,12 +270,33 @@ export default {
             return Math.floor(Math.random() * categoryStyles.length);
         };
 
+        const toggleTaskView = (isMyTasks) => {
+            showMyTasks.value = isMyTasks;
+
+            // Find the user_id filter in the accordion
+            const userFilter = filters.accordion.find(item => item.key === 'user_id');
+
+            if (isMyTasks) {
+                // Set filter to current user's ID for "My tasks"
+                if (userFilter) {
+                    userFilter.model = userData.id;
+                }
+            } else {
+                // Clear the filter for "All tasks"
+                if (userFilter) {
+                    userFilter.model = '';
+                }
+            }
+        };
+
         const openSideBar = (id) => {
             selectedTask.value = id;
             isTaskDetailsActive.value = true;
         };
 
         onMounted(async () => {
+            // Initialize with "All tasks" view
+            toggleTaskView(false);
             getTasks(router.history.current.query);
             getCategories();
             markAllAsReadNotifications();
@@ -338,7 +376,9 @@ export default {
             skin,
             selectedTask,
             isTaskDetailsActive,
-            openSideBar
+            openSideBar,
+            showMyTasks,
+            toggleTaskView
         };
     },
 };
