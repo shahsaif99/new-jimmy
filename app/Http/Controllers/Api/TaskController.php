@@ -16,7 +16,7 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $query = Task::query()->with(['checklist', 'project', 'assignedUsers']);
-        
+
         if (!auth()->user()->hasRole('Admin')) {
             $query->whereHas('assignedUsers', function ($query) {
                 $query->where('user_id', auth()->id());
@@ -107,7 +107,7 @@ class TaskController extends Controller
             'title' => 'required|string',
             'description' => 'nullable|string',
             'status' => 'nullable|string',
-            'checklist_id' => 'nullable|integer',
+            'checklist_id' => 'nullable',
             'category_id' => 'required|string|exists:api_categories,id',
             'project_id' => 'nullable|string|exists:projects,id',
             'priority' => 'required|string',
@@ -158,7 +158,7 @@ class TaskController extends Controller
         $task = Task::with(['checklist', 'project', 'assignedUsers'])->findOrFail($id);
         return response()->json(new TaskResource($task));
     }
-    
+
     public function update(Request $request, $id)
     {
         if (!auth()->user()->hasRole('Admin')) {

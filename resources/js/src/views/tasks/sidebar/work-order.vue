@@ -287,7 +287,7 @@
                                         </div>
                                     </b-card>
                                     <ul class="list-unstyled">
-                                        <li class="mb-2">
+                                        <li class="mb-2" v-if="task.data.project">
                                             <strong>Project No:</strong>
                                             {{ task.data.project.project_no }}
                                         </li>

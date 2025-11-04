@@ -31,6 +31,10 @@
                         <b-form-radio v-model="selectedProcedureId" :value="data.item.id" name="procedure-selection" />
                     </template>
 
+                    <template #cell(document_number)="data">
+                        {{ data.item.document_number || 'N/A' }}
+                    </template>
+
                     <template #cell(document_name)="data">
                         {{ data.item.title || 'N/A' }}
                     </template>
@@ -102,6 +106,7 @@ export default {
 
         const tableFields = [
             { key: "select", label: "" },
+            { key: "document_number", label: "Document Number", sortable: true },
             { key: "document_name", label: "Document Name", sortable: true },
             { key: "rev_no", label: "Rev No", sortable: true },
             { key: "approved_date", label: "Approved Date", sortable: true },
@@ -125,10 +130,12 @@ export default {
             const filtered = q
                 ? list.filter((p) => {
                     const title = p.title ?? '';
+                    // const docNumber = p.document_number ?? '';
                     const revNo = p.revision_number ?? '';
                     const approvedBy = p.approved_by ?? '';
                     return (
                         title.toLowerCase().includes(q) ||
+                        // docNumber.toLowerCase().includes(q) ||
                         revNo.toString().toLowerCase().includes(q) ||
                         approvedBy.toLowerCase().includes(q)
                     );

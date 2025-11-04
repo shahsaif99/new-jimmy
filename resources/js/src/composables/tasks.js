@@ -87,21 +87,29 @@ const assign = ref({
         };
     },
     get() {
-        return {
+        const data = {
             title: this.name,
             assign_to: this.assign_to,
             description: this.description,
             priority: this.priority,
             due_date: this.due_date,
             user_ids: this.assign_to,
-            checklist_id: this.checklist.id,
-            project_id: this.project.id,
             category_id: JSON.stringify(this.work_order.id),
             img: this.file === "" ? null : this.file,
             floor: this.work_location.floor,
             area: this.work_location.area,
             room: this.work_location.room,
         };
+
+        if (this.checklist.id != null) {
+            data.checklist_id = this.checklist.id;
+        }
+
+        if (this.project.id != null) {
+            data.project_id = this.project.id;
+        }
+
+        return data;
     },
     getFormData(method) {
         const formData = new FormData();
@@ -117,7 +125,10 @@ const assign = ref({
             formData.append(`user_ids[${index}]`, user_id);
         });
 
-        formData.append("checklist_id", this.checklist.id);
+        if (this.checklist.id != null) {
+            formData.append("checklist_id", this.checklist.id);
+        }
+
         if (this.project.id == null) {
             formData.append("project_id", "");
         } else {
