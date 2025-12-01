@@ -102464,7 +102464,7 @@ var routes = [{
   path: 'absences',
   name: 'absences',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(27), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(21), __webpack_require__.e(39), __webpack_require__.e(90)]).then(__webpack_require__.bind(null, /*! @/views/absences/Index.vue */ "./resources/js/src/views/absences/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(4), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(21), __webpack_require__.e(38), __webpack_require__.e(89)]).then(__webpack_require__.bind(null, /*! @/views/absences/Index.vue */ "./resources/js/src/views/absences/Index.vue"));
   },
   meta: {
     pageTitle: 'My Absense',
@@ -102480,7 +102480,7 @@ var routes = [{
   path: 'absences/overview',
   name: 'absences-overview',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(15), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(21), __webpack_require__.e(39), __webpack_require__.e(79)]).then(__webpack_require__.bind(null, /*! @/views/absences/Overview.vue */ "./resources/js/src/views/absences/Overview.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(15), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(21), __webpack_require__.e(38), __webpack_require__.e(78)]).then(__webpack_require__.bind(null, /*! @/views/absences/Overview.vue */ "./resources/js/src/views/absences/Overview.vue"));
   },
   meta: {
     pageTitle: 'Absences Overview',
@@ -102519,7 +102519,7 @@ var routes = [{
   path: 'account',
   name: 'account',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(8), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(40)]).then(__webpack_require__.bind(null, /*! @/views/account/AccountSetting.vue */ "./resources/js/src/views/account/AccountSetting.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(8), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(39)]).then(__webpack_require__.bind(null, /*! @/views/account/AccountSetting.vue */ "./resources/js/src/views/account/AccountSetting.vue"));
   },
   meta: {
     pageTitle: 'Account',
@@ -102536,7 +102536,7 @@ var routes = [{
   path: 'account/password',
   name: 'account-password',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(8), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(40)]).then(__webpack_require__.bind(null, /*! @/views/account/AccountSetting.vue */ "./resources/js/src/views/account/AccountSetting.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(8), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(39)]).then(__webpack_require__.bind(null, /*! @/views/account/AccountSetting.vue */ "./resources/js/src/views/account/AccountSetting.vue"));
   },
   meta: {
     pageTitle: 'Account',
@@ -102576,7 +102576,7 @@ var routes = [{
   path: 'avvik-listings',
   name: 'avvik-listings',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(13), __webpack_require__.e(27), __webpack_require__.e(101), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(18), __webpack_require__.e(23), __webpack_require__.e(29), __webpack_require__.e(46), __webpack_require__.e(45), __webpack_require__.e(83)]).then(__webpack_require__.bind(null, /*! @/views/avvik-listings/Index.vue */ "./resources/js/src/views/avvik-listings/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(13), __webpack_require__.e(31), __webpack_require__.e(32), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(109), __webpack_require__.e(74), __webpack_require__.e(45), __webpack_require__.e(44), __webpack_require__.e(111)]).then(__webpack_require__.bind(null, /*! @/views/avvik-listings/Index.vue */ "./resources/js/src/views/avvik-listings/Index.vue"));
   },
   meta: {
     pageTitle: 'Avvik / RUH',
@@ -102592,7 +102592,7 @@ var routes = [{
   path: 'avvik-listings/create',
   name: 'avvik-listings-create',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(13), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(18), __webpack_require__.e(23), __webpack_require__.e(29), __webpack_require__.e(45), __webpack_require__.e(106)]).then(__webpack_require__.bind(null, /*! @/views/avvik-listings/Create.vue */ "./resources/js/src/views/avvik-listings/Create.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(13), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(109), __webpack_require__.e(74), __webpack_require__.e(44), __webpack_require__.e(102)]).then(__webpack_require__.bind(null, /*! @/views/avvik-listings/Create.vue */ "./resources/js/src/views/avvik-listings/Create.vue"));
   },
   meta: {
     pageTitle: 'Avvik / RUH Add New',
@@ -102608,7 +102608,7 @@ var routes = [{
   path: 'avvik-listings/edit/:id',
   name: 'avvik-listings-edit',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(13), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(18), __webpack_require__.e(23), __webpack_require__.e(29), __webpack_require__.e(46), __webpack_require__.e(107)]).then(__webpack_require__.bind(null, /*! @/views/avvik-listings/Edit.vue */ "./resources/js/src/views/avvik-listings/Edit.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(13), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(109), __webpack_require__.e(74), __webpack_require__.e(45), __webpack_require__.e(103)]).then(__webpack_require__.bind(null, /*! @/views/avvik-listings/Edit.vue */ "./resources/js/src/views/avvik-listings/Edit.vue"));
   },
   meta: {
     pageTitle: 'Avvik / RUH Edit',
@@ -102647,7 +102647,7 @@ var routes = [{
   path: 'categories',
   name: 'categories',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(15), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(25), __webpack_require__.e(36)]).then(__webpack_require__.bind(null, /*! @/views/category/Index.vue */ "./resources/js/src/views/category/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(15), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(51), __webpack_require__.e(35)]).then(__webpack_require__.bind(null, /*! @/views/category/Index.vue */ "./resources/js/src/views/category/Index.vue"));
   },
   meta: {
     pageTitle: 'Categories',
@@ -102689,7 +102689,7 @@ var routes = [{
   path: 'checklist',
   name: 'checklist',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(17), __webpack_require__.e(1), __webpack_require__.e(6), __webpack_require__.e(14), __webpack_require__.e(22), __webpack_require__.e(24), __webpack_require__.e(61)]).then(__webpack_require__.bind(null, /*! @/views/checklist/Index.vue */ "./resources/js/src/views/checklist/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(17), __webpack_require__.e(18), __webpack_require__.e(108), __webpack_require__.e(14), __webpack_require__.e(22), __webpack_require__.e(23), __webpack_require__.e(66)]).then(__webpack_require__.bind(null, /*! @/views/checklist/Index.vue */ "./resources/js/src/views/checklist/Index.vue"));
   },
   meta: {
     pageTitle: 'Checklist',
@@ -102705,7 +102705,7 @@ var routes = [{
   path: 'checklist/create/:param?',
   name: 'add-checklist',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(48), __webpack_require__.e(85), __webpack_require__.e(1), __webpack_require__.e(6), __webpack_require__.e(14), __webpack_require__.e(91)]).then(__webpack_require__.bind(null, /*! @/views/checklist/Add.vue */ "./resources/js/src/views/checklist/Add.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(50), __webpack_require__.e(93), __webpack_require__.e(18), __webpack_require__.e(108), __webpack_require__.e(14), __webpack_require__.e(90)]).then(__webpack_require__.bind(null, /*! @/views/checklist/Add.vue */ "./resources/js/src/views/checklist/Add.vue"));
   },
   meta: {
     pageTitle: 'Add checklist',
@@ -102721,7 +102721,7 @@ var routes = [{
   path: 'checklist/attach',
   name: 'attach-checklist',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(1), __webpack_require__.e(6), __webpack_require__.e(14), __webpack_require__.e(81)]).then(__webpack_require__.bind(null, /*! @/views/tasks/attach.vue */ "./resources/js/src/views/tasks/attach.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(18), __webpack_require__.e(108), __webpack_require__.e(14), __webpack_require__.e(85)]).then(__webpack_require__.bind(null, /*! @/views/tasks/attach.vue */ "./resources/js/src/views/tasks/attach.vue"));
   },
   meta: {
     pageTitle: 'Attach Checklist',
@@ -102737,7 +102737,7 @@ var routes = [{
   path: 'projects/attach',
   name: 'attach-projects',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(1), __webpack_require__.e(6), __webpack_require__.e(14), __webpack_require__.e(18), __webpack_require__.e(76)]).then(__webpack_require__.bind(null, /*! @/views/tasks/attach-project.vue */ "./resources/js/src/views/tasks/attach-project.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(18), __webpack_require__.e(108), __webpack_require__.e(14), __webpack_require__.e(109), __webpack_require__.e(81)]).then(__webpack_require__.bind(null, /*! @/views/tasks/attach-project.vue */ "./resources/js/src/views/tasks/attach-project.vue"));
   },
   meta: {
     pageTitle: 'Attach Projects',
@@ -102776,7 +102776,7 @@ var routes = [{
   path: 'competence',
   name: 'competence',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(15), __webpack_require__.e(17), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(26), __webpack_require__.e(34)]).then(__webpack_require__.bind(null, /*! @/views/competence/Index.vue */ "./resources/js/src/views/competence/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(15), __webpack_require__.e(17), __webpack_require__.e(41), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(26), __webpack_require__.e(34)]).then(__webpack_require__.bind(null, /*! @/views/competence/Index.vue */ "./resources/js/src/views/competence/Index.vue"));
   },
   meta: {
     pageTitle: 'Competence',
@@ -102815,7 +102815,7 @@ var routes = [{
   path: 'procedures',
   name: 'procedures',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(10), __webpack_require__.e(16), __webpack_require__.e(32), __webpack_require__.e(33), __webpack_require__.e(49), __webpack_require__.e(44), __webpack_require__.e(73), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(25), __webpack_require__.e(51), __webpack_require__.e(75)]).then(__webpack_require__.bind(null, /*! @/views/procedures/Index.vue */ "./resources/js/src/views/procedures/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(10), __webpack_require__.e(16), __webpack_require__.e(31), __webpack_require__.e(32), __webpack_require__.e(48), __webpack_require__.e(110), __webpack_require__.e(43), __webpack_require__.e(1), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(51), __webpack_require__.e(76), __webpack_require__.e(112)]).then(__webpack_require__.bind(null, /*! @/views/procedures/Index.vue */ "./resources/js/src/views/procedures/Index.vue"));
   },
   meta: {
     pageTitle: 'Procedures',
@@ -102834,7 +102834,7 @@ var routes = [{
   path: 'handbooks',
   name: 'handbooks',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(53), __webpack_require__.e(66)]).then(__webpack_require__.bind(null, /*! @/views/handbooks/Index.vue */ "./resources/js/src/views/handbooks/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(53), __webpack_require__.e(69)]).then(__webpack_require__.bind(null, /*! @/views/handbooks/Index.vue */ "./resources/js/src/views/handbooks/Index.vue"));
   },
   meta: {
     pageTitle: 'Handbooks',
@@ -102853,7 +102853,7 @@ var routes = [{
   path: 'handbooks/view/:id',
   name: 'handbooks-view',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(10), __webpack_require__.e(32), __webpack_require__.e(33), __webpack_require__.e(49), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(37), __webpack_require__.e(53), __webpack_require__.e(80)]).then(__webpack_require__.bind(null, /*! @/views/handbooks/ViewHandbook.vue */ "./resources/js/src/views/handbooks/ViewHandbook.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(10), __webpack_require__.e(31), __webpack_require__.e(32), __webpack_require__.e(48), __webpack_require__.e(110), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(36), __webpack_require__.e(53), __webpack_require__.e(113)]).then(__webpack_require__.bind(null, /*! @/views/handbooks/ViewHandbook.vue */ "./resources/js/src/views/handbooks/ViewHandbook.vue"));
   },
   meta: {
     pageTitle: 'Handbooks',
@@ -102898,7 +102898,7 @@ var routes = [{
   path: 'employees',
   name: 'employees',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(42), __webpack_require__.e(47), __webpack_require__.e(87)]).then(__webpack_require__.bind(null, /*! @/views/employees/Index.vue */ "./resources/js/src/views/employees/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(42), __webpack_require__.e(46), __webpack_require__.e(86)]).then(__webpack_require__.bind(null, /*! @/views/employees/Index.vue */ "./resources/js/src/views/employees/Index.vue"));
   },
   meta: {
     pageTitle: 'Employees',
@@ -102914,7 +102914,7 @@ var routes = [{
   path: 'employee/add',
   name: 'employee-add',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(47), __webpack_require__.e(104)]).then(__webpack_require__.bind(null, /*! @/views/employees/add/Add.vue */ "./resources/js/src/views/employees/add/Add.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(46), __webpack_require__.e(105)]).then(__webpack_require__.bind(null, /*! @/views/employees/add/Add.vue */ "./resources/js/src/views/employees/add/Add.vue"));
   },
   meta: {
     pageTitle: 'Add Employee',
@@ -102938,7 +102938,7 @@ var routes = [{
   resource: 'all',
   action: 'employee-edit',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(42)]).then(__webpack_require__.bind(null, /*! @/views/employees/edit/Edit.vue */ "./resources/js/src/views/employees/edit/Edit.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(42)]).then(__webpack_require__.bind(null, /*! @/views/employees/edit/Edit.vue */ "./resources/js/src/views/employees/edit/Edit.vue"));
   },
   props: function props(route) {
     return {
@@ -102967,7 +102967,7 @@ var routes = [{
   resource: 'all',
   action: 'employee-details',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(1), __webpack_require__.e(6), __webpack_require__.e(98)]).then(__webpack_require__.bind(null, /*! @/views/employees/Details.vue */ "./resources/js/src/views/employees/Details.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(18), __webpack_require__.e(108), __webpack_require__.e(98)]).then(__webpack_require__.bind(null, /*! @/views/employees/Details.vue */ "./resources/js/src/views/employees/Details.vue"));
   },
   props: function props(route) {
     return {
@@ -103017,7 +103017,7 @@ var routes = [{
   path: 'equipments',
   name: 'equipments',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(12), __webpack_require__.e(13), __webpack_require__.e(16), __webpack_require__.e(19), __webpack_require__.e(44), __webpack_require__.e(48), __webpack_require__.e(62), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(22), __webpack_require__.e(30), __webpack_require__.e(28), __webpack_require__.e(38), __webpack_require__.e(51), __webpack_require__.e(52), __webpack_require__.e(54), __webpack_require__.e(57)]).then(__webpack_require__.bind(null, /*! @/views/equipments/index.vue */ "./resources/js/src/views/equipments/index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(12), __webpack_require__.e(13), __webpack_require__.e(16), __webpack_require__.e(19), __webpack_require__.e(43), __webpack_require__.e(50), __webpack_require__.e(60), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(22), __webpack_require__.e(29), __webpack_require__.e(28), __webpack_require__.e(37), __webpack_require__.e(76), __webpack_require__.e(52), __webpack_require__.e(54), __webpack_require__.e(57)]).then(__webpack_require__.bind(null, /*! @/views/equipments/index.vue */ "./resources/js/src/views/equipments/index.vue"));
   },
   meta: {
     pageTitle: 'Equipments',
@@ -103067,7 +103067,7 @@ var routes = [{
   path: 'login',
   name: 'login',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(78)]).then(__webpack_require__.bind(null, /*! @/views/auth/Login.vue */ "./resources/js/src/views/auth/Login.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(77)]).then(__webpack_require__.bind(null, /*! @/views/auth/Login.vue */ "./resources/js/src/views/auth/Login.vue"));
   },
   meta: {
     layout: 'full',
@@ -103078,7 +103078,7 @@ var routes = [{
   path: 'dashboard',
   name: 'dashboard',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(10), __webpack_require__.e(12), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(30), __webpack_require__.e(60)]).then(__webpack_require__.bind(null, /*! @/views/Dashboard.vue */ "./resources/js/src/views/Dashboard.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(10), __webpack_require__.e(12), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(29), __webpack_require__.e(61)]).then(__webpack_require__.bind(null, /*! @/views/Dashboard.vue */ "./resources/js/src/views/Dashboard.vue"));
   },
   meta: {
     pageTitle: 'Dashboard',
@@ -103096,7 +103096,7 @@ var routes = [{
   name: 'password-reset',
   props: true,
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(84)]).then(__webpack_require__.bind(null, /*! @/views/auth/ResetPassword.vue */ "./resources/js/src/views/auth/ResetPassword.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(83)]).then(__webpack_require__.bind(null, /*! @/views/auth/ResetPassword.vue */ "./resources/js/src/views/auth/ResetPassword.vue"));
   },
   meta: {
     layout: 'full',
@@ -103107,7 +103107,7 @@ var routes = [{
   path: 'forgot-password',
   name: 'forgot-password',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(86)]).then(__webpack_require__.bind(null, /*! @/views/auth/ForgotPassword.vue */ "./resources/js/src/views/auth/ForgotPassword.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(84)]).then(__webpack_require__.bind(null, /*! @/views/auth/ForgotPassword.vue */ "./resources/js/src/views/auth/ForgotPassword.vue"));
   },
   meta: {
     layout: 'full',
@@ -103118,7 +103118,7 @@ var routes = [{
   path: 'not-authorized',
   name: 'not-authorized',
   component: function component() {
-    return __webpack_require__.e(/*! import() */ 95).then(__webpack_require__.bind(null, /*! @/views/pages/NotAuthorized.vue */ "./resources/js/src/views/pages/NotAuthorized.vue"));
+    return __webpack_require__.e(/*! import() */ 96).then(__webpack_require__.bind(null, /*! @/views/pages/NotAuthorized.vue */ "./resources/js/src/views/pages/NotAuthorized.vue"));
   },
   meta: {
     layout: 'full',
@@ -103129,7 +103129,7 @@ var routes = [{
   path: 'error-404',
   name: 'error-404',
   component: function component() {
-    return __webpack_require__.e(/*! import() */ 94).then(__webpack_require__.bind(null, /*! @/views/pages/Error404.vue */ "./resources/js/src/views/pages/Error404.vue"));
+    return __webpack_require__.e(/*! import() */ 95).then(__webpack_require__.bind(null, /*! @/views/pages/Error404.vue */ "./resources/js/src/views/pages/Error404.vue"));
   },
   meta: {
     layout: 'full'
@@ -103228,7 +103228,7 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_6__["default"]({
   routes: [{
     path: '/',
     component: function component() {
-      return Promise.all(/*! import() */[__webpack_require__.e(100), __webpack_require__.e(103)]).then(__webpack_require__.bind(null, /*! @/layouts/Main.vue */ "./resources/js/src/layouts/Main.vue"));
+      return Promise.all(/*! import() */[__webpack_require__.e(100), __webpack_require__.e(104)]).then(__webpack_require__.bind(null, /*! @/layouts/Main.vue */ "./resources/js/src/layouts/Main.vue"));
     },
     meta: {
       requiresAuth: false
@@ -103288,7 +103288,7 @@ var routes = [{
   path: 'lending-history',
   name: 'lending-history',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(10), __webpack_require__.e(12), __webpack_require__.e(13), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(30), __webpack_require__.e(38), __webpack_require__.e(105)]).then(__webpack_require__.bind(null, /*! @/views/lending/Index.vue */ "./resources/js/src/views/lending/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(10), __webpack_require__.e(12), __webpack_require__.e(13), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(29), __webpack_require__.e(37), __webpack_require__.e(106)]).then(__webpack_require__.bind(null, /*! @/views/lending/Index.vue */ "./resources/js/src/views/lending/Index.vue"));
   },
   meta: {
     pageTitle: 'Lending History',
@@ -103327,7 +103327,7 @@ var routes = [{
   path: 'permissions',
   name: 'permissions',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(64)]).then(__webpack_require__.bind(null, /*! @/views/permissions/Index.vue */ "./resources/js/src/views/permissions/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(65)]).then(__webpack_require__.bind(null, /*! @/views/permissions/Index.vue */ "./resources/js/src/views/permissions/Index.vue"));
   },
   meta: {
     pageTitle: 'Permissions',
@@ -103369,7 +103369,7 @@ var routes = [{
   path: 'projects-overview',
   name: 'projects-overview',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(16), __webpack_require__.e(19), __webpack_require__.e(20), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(18), __webpack_require__.e(28), __webpack_require__.e(50), __webpack_require__.e(58)]).then(__webpack_require__.bind(null, /*! @/views/projects/Index.vue */ "./resources/js/src/views/projects/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(9), __webpack_require__.e(11), __webpack_require__.e(16), __webpack_require__.e(19), __webpack_require__.e(20), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(109), __webpack_require__.e(28), __webpack_require__.e(49), __webpack_require__.e(58)]).then(__webpack_require__.bind(null, /*! @/views/projects/Index.vue */ "./resources/js/src/views/projects/Index.vue"));
   },
   meta: {
     pageTitle: 'Project Overview',
@@ -103391,7 +103391,7 @@ var routes = [{
   path: 'customer-supplier',
   name: 'customer-supplier',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(16), __webpack_require__.e(15), __webpack_require__.e(19), __webpack_require__.e(20), __webpack_require__.e(89), __webpack_require__.e(1), __webpack_require__.e(6), __webpack_require__.e(28), __webpack_require__.e(50), __webpack_require__.e(59)]).then(__webpack_require__.bind(null, /*! @/views/projects/customer-suppliers/index.vue */ "./resources/js/src/views/projects/customer-suppliers/index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(16), __webpack_require__.e(15), __webpack_require__.e(19), __webpack_require__.e(20), __webpack_require__.e(92), __webpack_require__.e(18), __webpack_require__.e(108), __webpack_require__.e(28), __webpack_require__.e(49), __webpack_require__.e(59)]).then(__webpack_require__.bind(null, /*! @/views/projects/customer-suppliers/index.vue */ "./resources/js/src/views/projects/customer-suppliers/index.vue"));
   },
   meta: {
     pageTitle: 'Customer/Supplier',
@@ -103413,7 +103413,7 @@ var routes = [{
   path: 'project/:id',
   name: 'project',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(15), __webpack_require__.e(17), __webpack_require__.e(20), __webpack_require__.e(43), __webpack_require__.e(1), __webpack_require__.e(6), __webpack_require__.e(14), __webpack_require__.e(18), __webpack_require__.e(22), __webpack_require__.e(24), __webpack_require__.e(35), __webpack_require__.e(96)]).then(__webpack_require__.bind(null, /*! @/views/projects/project.vue */ "./resources/js/src/views/projects/project.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(15), __webpack_require__.e(17), __webpack_require__.e(20), __webpack_require__.e(47), __webpack_require__.e(18), __webpack_require__.e(108), __webpack_require__.e(14), __webpack_require__.e(109), __webpack_require__.e(22), __webpack_require__.e(23), __webpack_require__.e(33), __webpack_require__.e(97)]).then(__webpack_require__.bind(null, /*! @/views/projects/project.vue */ "./resources/js/src/views/projects/project.vue"));
   },
   meta: {
     pageTitle: 'Project',
@@ -103458,7 +103458,7 @@ var routes = [{
   path: 'roles',
   name: 'roles',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(31), __webpack_require__.e(63)]).then(__webpack_require__.bind(null, /*! @/views/roles/Index.vue */ "./resources/js/src/views/roles/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(30), __webpack_require__.e(62)]).then(__webpack_require__.bind(null, /*! @/views/roles/Index.vue */ "./resources/js/src/views/roles/Index.vue"));
   },
   meta: {
     pageTitle: 'Roles',
@@ -103500,7 +103500,7 @@ var routes = [{
   path: 'settings/absence-types',
   name: 'settings-absence-types',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(65)]).then(__webpack_require__.bind(null, /*! @/views/settings/absence-types/Index.vue */ "./resources/js/src/views/settings/absence-types/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(67)]).then(__webpack_require__.bind(null, /*! @/views/settings/absence-types/Index.vue */ "./resources/js/src/views/settings/absence-types/Index.vue"));
   },
   meta: {
     pageTitle: 'Settings: Absence Types',
@@ -103516,7 +103516,7 @@ var routes = [{
   path: 'settings/chapters',
   name: 'settings-chapters',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(37)]).then(__webpack_require__.bind(null, /*! @/views/settings/chapters/Index.vue */ "./resources/js/src/views/settings/chapters/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(36)]).then(__webpack_require__.bind(null, /*! @/views/settings/chapters/Index.vue */ "./resources/js/src/views/settings/chapters/Index.vue"));
   },
   meta: {
     pageTitle: 'Settings: Absence Types',
@@ -103532,7 +103532,7 @@ var routes = [{
   path: 'settings/competence',
   name: 'settings-competence',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(26), __webpack_require__.e(71)]).then(__webpack_require__.bind(null, /*! @/views/settings/competence/Index.vue */ "./resources/js/src/views/settings/competence/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(26), __webpack_require__.e(71)]).then(__webpack_require__.bind(null, /*! @/views/settings/competence/Index.vue */ "./resources/js/src/views/settings/competence/Index.vue"));
   },
   meta: {
     pageTitle: 'Settings: Competence',
@@ -103548,7 +103548,7 @@ var routes = [{
   path: 'settings/holiday',
   name: 'settings-holiday',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(102)]).then(__webpack_require__.bind(null, /*! @/views/settings/Holiday.vue */ "./resources/js/src/views/settings/Holiday.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(101)]).then(__webpack_require__.bind(null, /*! @/views/settings/Holiday.vue */ "./resources/js/src/views/settings/Holiday.vue"));
   },
   meta: {
     pageTitle: 'Settings: Holiday',
@@ -103564,7 +103564,7 @@ var routes = [{
   path: 'settings/ruh-types',
   name: 'settings-ruh-types',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(23), __webpack_require__.e(72)]).then(__webpack_require__.bind(null, /*! @/views/settings/ruh-types/Index.vue */ "./resources/js/src/views/settings/ruh-types/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(68)]).then(__webpack_require__.bind(null, /*! @/views/settings/ruh-types/Index.vue */ "./resources/js/src/views/settings/ruh-types/Index.vue"));
   },
   meta: {
     pageTitle: 'Settings: Avvik/RUH',
@@ -103580,7 +103580,7 @@ var routes = [{
   path: 'settings/procedures',
   name: 'settings-procedures',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(15), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(25), __webpack_require__.e(36)]).then(__webpack_require__.bind(null, /*! @/views/category/Index.vue */ "./resources/js/src/views/category/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(15), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(51), __webpack_require__.e(35)]).then(__webpack_require__.bind(null, /*! @/views/category/Index.vue */ "./resources/js/src/views/category/Index.vue"));
   },
   meta: {
     pageTitle: 'Settings Procedures',
@@ -103599,7 +103599,7 @@ var routes = [{
   path: 'settings/equipment-categories',
   name: 'settings-equipment-categories',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(5), __webpack_require__.e(16), __webpack_require__.e(19), __webpack_require__.e(1), __webpack_require__.e(52), __webpack_require__.e(69)]).then(__webpack_require__.bind(null, /*! @/views/settings/equipment-categories/index.vue */ "./resources/js/src/views/settings/equipment-categories/index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(5), __webpack_require__.e(16), __webpack_require__.e(19), __webpack_require__.e(18), __webpack_require__.e(52), __webpack_require__.e(63)]).then(__webpack_require__.bind(null, /*! @/views/settings/equipment-categories/index.vue */ "./resources/js/src/views/settings/equipment-categories/index.vue"));
   },
   meta: {
     pageTitle: 'Settings Equipment Categories',
@@ -103618,7 +103618,7 @@ var routes = [{
   path: 'settings/storage-locations',
   name: 'settings-storage-locations',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(5), __webpack_require__.e(16), __webpack_require__.e(19), __webpack_require__.e(1), __webpack_require__.e(54), __webpack_require__.e(70)]).then(__webpack_require__.bind(null, /*! @/views/settings/storage-locations/index.vue */ "./resources/js/src/views/settings/storage-locations/index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(5), __webpack_require__.e(16), __webpack_require__.e(19), __webpack_require__.e(18), __webpack_require__.e(54), __webpack_require__.e(64)]).then(__webpack_require__.bind(null, /*! @/views/settings/storage-locations/index.vue */ "./resources/js/src/views/settings/storage-locations/index.vue"));
   },
   meta: {
     pageTitle: 'Settings Storage Locations',
@@ -103660,7 +103660,7 @@ var routes = [{
   path: "tasks",
   name: "tasks",
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(15), __webpack_require__.e(17), __webpack_require__.e(20), __webpack_require__.e(43), __webpack_require__.e(1), __webpack_require__.e(6), __webpack_require__.e(14), __webpack_require__.e(22), __webpack_require__.e(24), __webpack_require__.e(35)]).then(__webpack_require__.bind(null, /*! @/views/tasks/index.vue */ "./resources/js/src/views/tasks/index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(15), __webpack_require__.e(17), __webpack_require__.e(20), __webpack_require__.e(47), __webpack_require__.e(18), __webpack_require__.e(108), __webpack_require__.e(14), __webpack_require__.e(22), __webpack_require__.e(23), __webpack_require__.e(33)]).then(__webpack_require__.bind(null, /*! @/views/tasks/index.vue */ "./resources/js/src/views/tasks/index.vue"));
   },
   meta: {
     pageTitle: "Tasks",
@@ -103676,7 +103676,7 @@ var routes = [{
   path: "tasks/:id/overview",
   name: "overview",
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(1), __webpack_require__.e(6), __webpack_require__.e(14), __webpack_require__.e(77)]).then(__webpack_require__.bind(null, /*! @/views/tasks/attempt/overview.vue */ "./resources/js/src/views/tasks/attempt/overview.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(18), __webpack_require__.e(108), __webpack_require__.e(14), __webpack_require__.e(82)]).then(__webpack_require__.bind(null, /*! @/views/tasks/attempt/overview.vue */ "./resources/js/src/views/tasks/attempt/overview.vue"));
   },
   meta: {
     pageTitle: "Tasks Overview",
@@ -103692,7 +103692,7 @@ var routes = [{
   path: "tasks/:id/perform-task",
   name: "overview",
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(17), __webpack_require__.e(1), __webpack_require__.e(6), __webpack_require__.e(14), __webpack_require__.e(67)]).then(__webpack_require__.bind(null, /*! @/views/tasks/attempt/inspection.vue */ "./resources/js/src/views/tasks/attempt/inspection.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(7), __webpack_require__.e(10), __webpack_require__.e(9), __webpack_require__.e(8), __webpack_require__.e(11), __webpack_require__.e(12), __webpack_require__.e(17), __webpack_require__.e(18), __webpack_require__.e(108), __webpack_require__.e(14), __webpack_require__.e(72)]).then(__webpack_require__.bind(null, /*! @/views/tasks/attempt/inspection.vue */ "./resources/js/src/views/tasks/attempt/inspection.vue"));
   },
   meta: {
     pageTitle: "Tasks Inspection",
@@ -103734,7 +103734,7 @@ var routes = [{
   path: 'users',
   name: 'users',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(8), __webpack_require__.e(17), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(74)]).then(__webpack_require__.bind(null, /*! @/views/users/Index.vue */ "./resources/js/src/views/users/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(8), __webpack_require__.e(17), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(75)]).then(__webpack_require__.bind(null, /*! @/views/users/Index.vue */ "./resources/js/src/views/users/Index.vue"));
   },
   meta: {
     pageTitle: 'Employee Overview',
@@ -103750,7 +103750,7 @@ var routes = [{
   path: 'users/add',
   name: 'users-add',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(31), __webpack_require__.e(88)]).then(__webpack_require__.bind(null, /*! @/views/users/add/AddUser.vue */ "./resources/js/src/views/users/add/AddUser.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(30), __webpack_require__.e(87)]).then(__webpack_require__.bind(null, /*! @/views/users/add/AddUser.vue */ "./resources/js/src/views/users/add/AddUser.vue"));
   },
   meta: {
     pageTitle: 'Add Employee',
@@ -103774,7 +103774,7 @@ var routes = [{
   resource: 'all',
   action: 'users-edit',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(15), __webpack_require__.e(17), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(26), __webpack_require__.e(31), __webpack_require__.e(34), __webpack_require__.e(68)]).then(__webpack_require__.bind(null, /*! @/views/users/edit/Index.vue */ "./resources/js/src/views/users/edit/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(15), __webpack_require__.e(17), __webpack_require__.e(41), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(26), __webpack_require__.e(30), __webpack_require__.e(34), __webpack_require__.e(70)]).then(__webpack_require__.bind(null, /*! @/views/users/edit/Index.vue */ "./resources/js/src/views/users/edit/Index.vue"));
   },
   props: function props(route) {
     return {
@@ -103824,7 +103824,7 @@ var routes = [{
   path: 'vacations',
   name: 'vacations',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(16), __webpack_require__.e(27), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(21), __webpack_require__.e(41), __webpack_require__.e(92)]).then(__webpack_require__.bind(null, /*! @/views/vacations/Index.vue */ "./resources/js/src/views/vacations/Index.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(16), __webpack_require__.e(4), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(21), __webpack_require__.e(40), __webpack_require__.e(91)]).then(__webpack_require__.bind(null, /*! @/views/vacations/Index.vue */ "./resources/js/src/views/vacations/Index.vue"));
   },
   meta: {
     pageTitle: 'Holiday Overview',
@@ -103840,7 +103840,7 @@ var routes = [{
   path: 'vacations/overview',
   name: 'vacations-overview',
   component: function component() {
-    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(16), __webpack_require__.e(15), __webpack_require__.e(1), __webpack_require__.e(4), __webpack_require__.e(6), __webpack_require__.e(21), __webpack_require__.e(41), __webpack_require__.e(82)]).then(__webpack_require__.bind(null, /*! @/views/vacations/Overview.vue */ "./resources/js/src/views/vacations/Overview.vue"));
+    return Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(2), __webpack_require__.e(3), __webpack_require__.e(5), __webpack_require__.e(7), __webpack_require__.e(8), __webpack_require__.e(13), __webpack_require__.e(16), __webpack_require__.e(15), __webpack_require__.e(18), __webpack_require__.e(25), __webpack_require__.e(108), __webpack_require__.e(21), __webpack_require__.e(40), __webpack_require__.e(80)]).then(__webpack_require__.bind(null, /*! @/views/vacations/Overview.vue */ "./resources/js/src/views/vacations/Overview.vue"));
   },
   meta: {
     pageTitle: 'Holiday Overview',

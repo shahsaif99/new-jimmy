@@ -26,16 +26,15 @@ export default function useAvvikRuh() {
 
 
   const tableColumns = [
-    { key: 'id', sortable: true },
-    { key: 'title', sortable: true },
-    { key: 'date', sortable: false },
+    { key: 'id', sortable: true, label: 'ID' },
+    { key: 'title', sortable: true, label: 'Title' },
     { key: 'type', sortable: false, label: 'Type' },
-    { key: 'closing_deadline', sortable: false },
-    { key: 'status', sortable: false },
-    { key: 'close_date', sortable: false },
-    { key: 'severity', sortable: false },
+    { key: 'date', sortable: false, label: 'Registration Date' },
+    { key: 'status', sortable: false, label: 'Status' },
+    { key: 'user.name', sortable: false, label: 'Responsible' },
+    { key: 'severity', sortable: false, label: 'Severity' },
     { key: 'project.name', sortable: false, label: 'Project' },
-    { key: 'actions' },
+    { key: 'actions', label: 'Actions' },
   ]
 
 
@@ -98,11 +97,37 @@ export default function useAvvikRuh() {
   }
 
 
-  const storeAvvikListing = async data => {
+  const storeAvvikListing = async (data, files = []) => {
     errors.value = ''
     try {
       busy.value = true
-      const response = await axios.post(route('avvikruh.store'), data)
+      const formData = new FormData()
+
+      // Append all data fields
+      Object.keys(data).forEach(key => {
+        if (data[key] !== null && data[key] !== undefined) {
+          if (typeof data[key] === 'object' && !(data[key] instanceof File)) {
+            formData.append(key, JSON.stringify(data[key]))
+          } else if (typeof data[key] === 'boolean') {
+            formData.append(key, data[key] ? '1' : '0')
+          } else {
+            formData.append(key, data[key])
+          }
+        }
+      })
+
+      // Append files
+      if (files && files.length > 0) {
+        files.forEach((file, index) => {
+          formData.append(`files[${index}]`, file)
+        })
+      }
+
+      const response = await axios.post(route('avvikruh.store'), formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
@@ -121,18 +146,50 @@ export default function useAvvikRuh() {
   }
 
 
-  const updateAvvikListing = async (data, id) => {
-    console.log(data)
-    console.log(id)
+  const updateAvvikListing = async (data, id, files = [], filesToDelete = []) => {
     errors.value = ''
     try {
-      console.log(data)
       busy.value = true
-      const response = await axios.put(route('avvikruh.update', id), data)
+      const formData = new FormData()
+
+      // Append all data fields
+      Object.keys(data).forEach(key => {
+        if (data[key] !== null && data[key] !== undefined) {
+          if (typeof data[key] === 'object' && !(data[key] instanceof File)) {
+            formData.append(key, JSON.stringify(data[key]))
+          } else if (typeof data[key] === 'boolean') {
+            formData.append(key, data[key] ? '1' : '0')
+          } else {
+            formData.append(key, data[key])
+          }
+        }
+      })
+
+      // Append files
+      if (files && files.length > 0) {
+        files.forEach((file, index) => {
+          formData.append(`files[${index}]`, file)
+        })
+      }
+
+      // Append files to delete
+      if (filesToDelete && filesToDelete.length > 0) {
+        filesToDelete.forEach((filename, index) => {
+          formData.append(`files_to_delete[${index}]`, filename)
+        })
+      }
+
+      // Use POST with _method for file uploads (Laravel doesn't support PUT with multipart/form-data)
+      formData.append('_method', 'PUT')
+
+      const response = await axios.post(route('avvikruh.update', id), formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
       respResult.value = response
       toast.success(response.data.message)
     } catch (error) {
-      console.log(error)
       if (error.message === 'Network Error') {
         toast.error(error.message)
       } else {
@@ -228,6 +285,7 @@ export default function useAvvikRuh() {
     searchQuery,
     totalRecords,
     tableColumns,
+    refListTable,
     deleteAvvikListing,
     isSortDirDesc,
     perPageOptions,

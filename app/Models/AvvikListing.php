@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Http\Request;
+use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AvvikListing extends Model
 {
-    use HasFactory;
+    use HasFactory, Mediable;
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +22,7 @@ class AvvikListing extends Model
       'type',
       'title',
       'date',
+      'time_of_incident',
       'department',
       'registered_by',
       'responsible_person',
@@ -36,7 +38,15 @@ class AvvikListing extends Model
       'closing_deadline',
       'corrective_actions',
       'close_date',
+      'status',
+      'closed_by_id',
+      'close_comment',
       'user_id',
+      'supplier_id',
+      'equipment_id',
+      'economic_consequences',
+      'resulted_in_absence',
+      'medical_treatment_needed',
     ];
 
     public function getCloseStatusAttribute()
@@ -72,6 +82,21 @@ class AvvikListing extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(CustomerSupplier::class, 'supplier_id');
+    }
+
+    public function equipment()
+    {
+        return $this->belongsTo(Equipment::class);
+    }
+
+    public function closedBy()
+    {
+        return $this->belongsTo(User::class, 'closed_by_id');
     }
 
 }

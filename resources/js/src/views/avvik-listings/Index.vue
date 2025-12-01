@@ -1,5 +1,12 @@
 <template>
   <div>
+    <!-- Details Sidebar -->
+    <avvik-details-sidebar
+      :is-visible.sync="isDetailsSidebarVisible"
+      :avvik-details="selectedAvvikDetails"
+      :loading="detailsLoading"
+    />
+
     <EditAvvikListing
       :is-edit-avvik-listing-active.sync="isEditAvvikListingActive"
       v-if="isEditAvvikListingActive"
@@ -11,7 +18,7 @@
       v-if="isAddAvvikListingActive"
       @refetch-data="fetchAvvikListings"
     />
-    <b-row>
+    <!-- <b-row>
       <b-col
         cols="12"
         md="2"
@@ -67,16 +74,16 @@
           />
         </b-card>
       </b-col>
-    </b-row>
+    </b-row> -->
     <b-card
       no-body
       class="mb-0"
     >
 
       <div class="m-2">
-        <b-card-title>
+        <!-- <b-card-title>
           Avvik / RUH
-        </b-card-title>
+        </b-card-title> -->
         <b-row>
 
           <b-col
@@ -165,7 +172,8 @@
           show-empty
           :empty-text="t('No matching records found')"
           :sort-desc.sync="isSortDirDesc"
-          tbody-tr-class="item-row"
+          tbody-tr-class="item-row cursor-pointer"
+          @row-clicked="onRowClicked"
         >
           <template #head()="data">
             <span>{{ $t(data.label) }}</span>
@@ -197,6 +205,7 @@
             <b-dropdown
               variant="link"
               no-caret
+              @click.native.stop
             >
               <template #button-content>
                 <feather-icon
@@ -307,6 +316,7 @@ import VueApexCharts from 'vue-apexcharts'
 import { $themeColors } from '@themeConfig'
 import CreateAvvikListing from './Create.vue'
 import EditAvvikListing from './Edit.vue'
+import AvvikDetailsSidebar from './sidebar/AvvikDetailsSidebar.vue'
 
 export default {
   components: {
@@ -329,6 +339,7 @@ export default {
     EditAvvikListing,
     CreateAvvikListing,
     StatisticCardVertical,
+    AvvikDetailsSidebar,
   },
   setup(_, { root }) {
     const {
@@ -339,6 +350,7 @@ export default {
       student,
       dataMeta,
       avvikruhListings,
+      avvikData: avvikDataFromComposable,
       respResult,
       refetchData,
       searchQuery,
@@ -350,9 +362,10 @@ export default {
       isSortDirDesc,
       perPageOptions,
       avvikStatistics,
-      fetchAvvikStatistics,
+    //   fetchAvvikStatistics,
       deleteAvvikListing,
       fetchAvvikListings,
+      getAvvikListing,
     } = useAvvikRuh()
     const { t } = useI18nUtils()
 
@@ -362,6 +375,21 @@ export default {
     const isAddAvvikListingActive = ref(false)
     const isEditAvvikListingActive = ref(false)
     const avvikData = ref({})
+
+    // Sidebar state
+    const isDetailsSidebarVisible = ref(false)
+    const selectedAvvikDetails = ref(null)
+    const detailsLoading = ref(false)
+
+    const onRowClicked = async (item) => {
+      isDetailsSidebarVisible.value = true
+      detailsLoading.value = true
+      selectedAvvikDetails.value = null
+
+      await getAvvikListing(item.id)
+      selectedAvvikDetails.value = avvikDataFromComposable.value
+      detailsLoading.value = false
+    }
 
     const deleteConfirmed = async id => {
       await deleteAvvikListing(id)
@@ -486,17 +514,17 @@ export default {
     })
 
     onMounted(async () => {
-      await fetchAvvikStatistics()
+    //   await fetchAvvikStatistics()
       await fetchAvvikListings()
     })
 
-    watch(avvikStatistics, () => {
-      if (!busy.value) {
-        monthlyChart.value.series[0].data = avvikStatistics.value.avvikListingsMonthlyDeviation
-        monthlyChart.value.series[1].data = avvikStatistics.value.avvikListingsMonthlyUnwantedInnciednt
-        monthlyChart.value.chartOptions.xaxis.categories = avvikStatistics.value.avvikListingsMonthlyLabels
-      }
-    })
+    // watch(avvikStatistics, () => {
+    //   if (!busy.value) {
+    //     monthlyChart.value.series[0].data = avvikStatistics.value.avvikListingsMonthlyDeviation
+    //     monthlyChart.value.series[1].data = avvikStatistics.value.avvikListingsMonthlyUnwantedInnciednt
+    //     monthlyChart.value.chartOptions.xaxis.categories = avvikStatistics.value.avvikListingsMonthlyLabels
+    //   }
+    // })
 
     // watch monthlyChart
 
@@ -549,6 +577,10 @@ export default {
       deleteAvvikListing,
       isAddAvvikListingActive,
       isEditAvvikListingActive,
+      isDetailsSidebarVisible,
+      selectedAvvikDetails,
+      detailsLoading,
+      onRowClicked,
     }
   },
 }
@@ -556,6 +588,9 @@ export default {
 <style lang="scss" >
     .per-page-selector {
         width: 90px;
+    }
+    .cursor-pointer {
+        cursor: pointer;
     }
 </style>
 
