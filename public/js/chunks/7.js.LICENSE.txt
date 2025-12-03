@@ -1,0 +1,7 @@
+/**
+  * vee-validate v3.4.5
+  * (c) 2020 Abdelrahman Awad
+  * @license MIT
+  */
+
+//! invalid number
