@@ -16,6 +16,9 @@
         <div class="header-section p-2">
           <div class="d-flex justify-content-between align-items-start">
             <div>
+                <h2 class="brand-text pt-2">
+              {{ appName }}
+            </h2>
               <!-- Title -->
               <h4 class="font-weight-bolder mb-0">{{ avvikDetails.title || 'Deviation title' }}</h4>
               <!-- Type -->
@@ -152,6 +155,7 @@ import {
 } from 'bootstrap-vue'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import html2pdf from 'html2pdf.js'
+import { $themeConfig } from '@themeConfig'
 
 export default {
   components: {
@@ -192,7 +196,7 @@ export default {
       }
       return 'bg-primary'
     }
-
+    const { appName, appLogoImage } = $themeConfig.app
     const generatePdfHtml = () => {
       const data = props.avvikDetails
       if (!data) return ''
@@ -202,7 +206,11 @@ export default {
           <!-- Header -->
           <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 50px;">
             <h1 style="margin: 0; font-size: 18px; ">${data.type || 'HSE DEVIATION'}</h1>
-            <div style="text-align: right; color: #666;">[LOGO]</div>
+            <div style="text-align: right; color: #666;">
+                <h2 class="brand-text pt-2">
+                ${appName}
+                </h2>
+                </div>
           </div>
 
           <!-- Border after header -->
@@ -355,6 +363,7 @@ export default {
       getStatusDotClass,
       viewReport,
       downloadReport,
+        appName,
     }
   },
 }
