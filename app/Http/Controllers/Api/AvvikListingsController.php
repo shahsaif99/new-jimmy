@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AvvikListing\Store;
 use App\Http\Requests\AvvikListing\Update;
 use App\Http\Resources\AvvikListingsResource;
+use Plank\Mediable\Facades\MediaUploader;
+use Illuminate\Support\Facades\Storage;
 
 class AvvikListingsController extends Controller
 {
@@ -28,10 +30,31 @@ class AvvikListingsController extends Controller
     public function store(Store $request){
 
         $data = $request->validated();
-        $data['user_id'] = $request->validated()['user']['id'];
-        $data['project_id'] = $request->validated()['project']['id'];
+        $data['user_id'] = json_decode($request->validated()['user'], true)['id'];
+        $data['project_id'] = json_decode($request->validated()['project'], true)['id'];
 
-        AvvikListing::create($data);
+        // Handle supplier and equipment IDs
+        if (isset($data['supplier']) && $data['supplier']) {
+            $supplier = json_decode($data['supplier'], true);
+            $data['supplier_id'] = $supplier['id'] ?? null;
+        }
+        if (isset($data['equipment']) && $data['equipment']) {
+            $equipment = json_decode($data['equipment'], true);
+            $data['equipment_id'] = $equipment['id'] ?? null;
+        }
+
+        // Handle closed_by ID
+        if (isset($data['closed_by']) && $data['closed_by']) {
+            $closedBy = json_decode($data['closed_by'], true);
+            $data['closed_by_id'] = $closedBy['id'] ?? null;
+        }
+
+        $avvikListing = AvvikListing::create($data);
+
+        // Handle file uploads
+        if ($request->hasFile('files')) {
+            $this->uploadDocuments($request, $avvikListing);
+        }
 
         return response()->json([
             'message' => 'Avvik Ruh successfully created.',
@@ -41,12 +64,49 @@ class AvvikListingsController extends Controller
     public function update(Update $request,  $avvikId){
 
         $data = $request->validated();
-        $data['user_id'] = $request->validated()['user']['id'];
-        $data['project_id'] = $request->validated()['project']['id'];
+        $data['user_id'] = json_decode($request->validated()['user'], true)['id'];
+        $data['project_id'] = json_decode($request->validated()['project'], true)['id'];
+
+        // Handle supplier and equipment IDs
+        if (isset($data['supplier']) && $data['supplier']) {
+            $supplier = json_decode($data['supplier'], true);
+            $data['supplier_id'] = $supplier['id'] ?? null;
+        } else {
+            $data['supplier_id'] = null;
+        }
+        if (isset($data['equipment']) && $data['equipment']) {
+            $equipment = json_decode($data['equipment'], true);
+            $data['equipment_id'] = $equipment['id'] ?? null;
+        } else {
+            $data['equipment_id'] = null;
+        }
+
+        // Handle closed_by ID
+        if (isset($data['closed_by']) && $data['closed_by']) {
+            $closedBy = json_decode($data['closed_by'], true);
+            $data['closed_by_id'] = $closedBy['id'] ?? null;
+        } else {
+            $data['closed_by_id'] = null;
+        }
 
         $avvikData = AvvikListing::findOrFail($avvikId);
 
         $avvikData->update($data);
+
+        // Handle file deletions
+        if ($request->has('files_to_delete') && is_array($request->files_to_delete)) {
+            foreach ($request->files_to_delete as $fileName) {
+                $media = $avvikData->getMedia('avvik_documents')->where('filename', $fileName)->first();
+                if ($media) {
+                    $media->delete();
+                }
+            }
+        }
+
+        // Handle file uploads
+        if ($request->hasFile('files')) {
+            $this->uploadDocuments($request, $avvikData);
+        }
 
         return response()->json([
             'message' => 'Avvik Ruh successfully updated.',
@@ -61,7 +121,14 @@ class AvvikListingsController extends Controller
      */
     public function show($avvikId)
     {
-        $avvikData = AvvikListing::query()->with(['user', 'project'])->findOrFail($avvikId);
+        $avvikData = AvvikListing::query()->with(['user', 'project', 'supplier', 'equipment', 'closedBy', 'media'])->findOrFail($avvikId);
+
+        // Add URLs to media files
+        if ($avvikData->media) {
+            $avvikData->media->each(function ($media) {
+                $media->url = Storage::disk($media->disk)->url($media->directory . '/' . $media->filename . '.' . $media->extension);
+            });
+        }
 
         return new AvvikListingsResource($avvikData);
     }
@@ -95,7 +162,7 @@ class AvvikListingsController extends Controller
         // filter date_closed is null
         $avvikOpen = $avvikListings->where('close_date', null)->count();
 
-        $avvikCritic = $avvikListings->where('severity', 'kritisk')->count();
+        $avvikCritic = $avvikListings->where('severity', 'Critical')->count();
 
 
         // 6 months of monthly data from current month
@@ -137,5 +204,25 @@ class AvvikListingsController extends Controller
             'avvikOpen' => $avvikOpen,
             'avvikCritic' => $avvikCritic,
         ], 200);
+    }
+
+    /**
+     * Upload documents for an avvik listing.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\AvvikListing  $avvikListing
+     * @return void
+     */
+    public function uploadDocuments(Request $request, AvvikListing $avvikListing)
+    {
+        foreach ($request->file('files') as $file) {
+            // Save the file to the specified disk
+            $media = MediaUploader::fromSource($file)
+                ->useOriginalFilename()
+                ->toDirectory('avvik_listings/' . $avvikListing->id)
+                ->upload();
+
+            $avvikListing->attachMedia($media, 'avvik_documents');
+        }
     }
 }
