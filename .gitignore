@@ -50,3 +50,5 @@ yarn-error.log*
 
 *.zip
 *.rar
+/public/js/*
+/public/mix-manifest.json
