@@ -25,6 +25,7 @@ class RolesAndPermissionSeeder extends Seeder
             'equipments-delete','employee-details','absences-add','absences-listings','competence-listings',
             'employee-delete','employee-edit','employee-add','my-profile-view','password-view','competence-add','settings',
             'lendings-history','checklist','tasks','employee-status','vacations-overview','absence-overview','vacations-add','my-absence','my-vacations','competence-view','competence-delete','competence-edit','competence-matrix',
+            'avvik-process','avvik-edit','avvik-delete'
         ];
 
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {
