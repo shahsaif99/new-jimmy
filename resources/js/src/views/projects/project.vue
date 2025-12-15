@@ -233,10 +233,10 @@
             </BTab>
 
             <BTab title="Deviation">
-                <BCard no-body class="p-2">
-                    <BCardTitle>Deviation</BCardTitle>
-                    <BCardText>Deviation tracking content goes here</BCardText>
-                </BCard>
+                <ProjectDeviations
+                    v-if="projectData && projectData.id"
+                    :project-id="projectData.id"
+                />
             </BTab>
 
             <BTab title="Crew list">
@@ -261,6 +261,7 @@ import { onMounted, ref, watch, computed } from "@vue/composition-api";
 import useProjects from "@/composables/projects";
 import router from "@/router";
 import Tasks from "@/views/tasks/index.vue";
+import ProjectDeviations from "./ProjectDeviations.vue";
 import {
     BTabs,
     BTab,
@@ -290,6 +291,7 @@ export default {
         BCardText,
         Tasks,
         BSkeleton,
+        ProjectDeviations,
     },
 
     setup() {

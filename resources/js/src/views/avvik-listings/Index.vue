@@ -228,6 +228,13 @@
                 <span class="align-middle ml-50">{{ t('Edit') }}</span>
               </b-dropdown-item>
               <b-dropdown-item
+                @click="$router.push({ name: 'avvik-listings-edit', params: { id: data.item.id }, query: { process: 'true' } })"
+                v-if="$can('avvik-process', 'all')"
+              >
+                <feather-icon icon="CheckCircleIcon" />
+                <span class="align-middle ml-50">{{ t('Process') }}</span>
+              </b-dropdown-item>
+              <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
                 v-if="$can('avvik-delete', 'all')"
               >

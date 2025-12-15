@@ -158,10 +158,10 @@
 
             <!-- Non-conformance Tab -->
             <b-tab title="Non-conformance">
-                <div class="text-center py-5">
-                    <h4 class="text-muted">Coming Soon</h4>
-                    <p class="text-muted">Non-conformance tracking will be available soon.</p>
-                </div>
+                <SupplierDeviations
+                    v-if="dialog.temp.customerSupplier.id"
+                    :supplier-id="dialog.temp.customerSupplier.id"
+                />
             </b-tab>
 
             <!-- Documents Tab -->
@@ -256,6 +256,7 @@
 <script>
 import useCustomerSupplier from "@/composables/customer-suppliers";
 import InfiniteScrollSelect from "@/views/components/InfiniteScrollSelect.vue";
+import SupplierDeviations from "../SupplierDeviations.vue";
 import moment from "moment";
 import axios from "@axios";
 import toaster from "@/composables/toaster";
@@ -317,7 +318,8 @@ export default {
         BTbody,
         BTr,
         BTh,
-        BTd
+        BTd,
+        SupplierDeviations,
     },
     setup() {
         const {

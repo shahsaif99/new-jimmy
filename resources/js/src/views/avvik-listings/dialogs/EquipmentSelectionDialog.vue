@@ -65,10 +65,6 @@
           <template #cell(supplier)="data">
             {{ data.item.supplier || 'N/A' }}
           </template>
-
-          <template #cell(status)="data">
-            {{ data.item.status || 'N/A' }}
-          </template>
         </b-table>
       </div>
 
@@ -131,7 +127,6 @@ export default {
       { key: 'serial_number', label: 'Serial Number', sortable: true },
       { key: 'category', label: 'Category', sortable: true },
       { key: 'supplier', label: 'Supplier', sortable: true },
-      { key: 'status', label: 'Status', sortable: true },
     ]
 
     const filteredEquipments = computed(() => {

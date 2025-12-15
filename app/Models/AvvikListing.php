@@ -71,6 +71,10 @@ class AvvikListing extends Model
             $date1 = trim($dates[0]);
             $date2 = trim($dates[1]);
             $query->whereBetween('close_date', [$date1, $date2]);
+        })->when($request->project_id, function ($query, $projectId) {
+            $query->where('project_id', $projectId);
+        })->when($request->supplier_id, function ($query, $supplierId) {
+            $query->where('supplier_id', $supplierId);
         });
     }
 

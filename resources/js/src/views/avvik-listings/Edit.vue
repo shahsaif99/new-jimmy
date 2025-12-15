@@ -91,6 +91,7 @@
                   <validation-provider
                     #default="validationContext"
                     :name="t('Time of incident')"
+                    rules="required"
                   >
                     <b-form-group
                       :label="t('Time of incident')"
@@ -462,6 +463,7 @@
                   <validation-provider
                     #default="validationContext"
                     :name="t('Planned closing date')"
+                    rules="required"
                   >
                     <b-form-group
                       :label="t('Planned closing date')"
@@ -958,6 +960,10 @@ export default {
       // Load existing media files
       if (avvikData.value.media && avvikData.value.media.length > 0) {
         existingFiles.value = avvikData.value.media
+      }
+      // Check if coming from "Process" action - set status to closed
+      if (root.$route.query.process === 'true') {
+        formData.value.status = 'closed'
       }
     })
 
