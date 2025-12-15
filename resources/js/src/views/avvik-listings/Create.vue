@@ -91,6 +91,7 @@
                   <validation-provider
                     #default="validationContext"
                     :name="t('Time of incident')"
+                    rules="required"
                   >
                     <b-form-group
                       :label="t('Time of incident')"
@@ -439,6 +440,7 @@
                   <validation-provider
                     #default="validationContext"
                     :name="t('Planned closing date')"
+                    rules="required"
                   >
                     <b-form-group
                       :label="t('Planned closing date')"
@@ -634,6 +636,7 @@ import debounce from 'lodash/debounce'
 import vSelect from 'vue-select'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import useUsers from '@/composables/users'
+import useJwt from '@/auth/jwt/useJwt'
 import SupplierSelectionDialog from './dialogs/SupplierSelectionDialog.vue'
 import EquipmentSelectionDialog from './dialogs/EquipmentSelectionDialog.vue'
 
@@ -670,6 +673,22 @@ export default {
     } = useUsers()
 
     const { t } = useI18nUtils()
+
+    // Get current user data
+    const userData = JSON.parse(useJwt.getUserData())
+
+    // Helper function to format date as YYYY-MM-DD
+    const formatDate = (date) => {
+      const d = new Date(date)
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+
+    // Get today's date and 7 days from now
+    const today = formatDate(new Date())
+    const sevenDaysFromNow = formatDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
 
     const typeOptions = [
       'Undesired Event',
@@ -738,19 +757,19 @@ export default {
     const initialState = {
       type: '',
       title: '',
-      time_of_incident: '',
-      date: '',
+      time_of_incident: today,
+      date: today,
       project: null,
       location: '',
       user: null,
-      registered_by: '',
-      severity: '',
+      registered_by: userData?.name || '',
+      severity: 'Not defined',
       event_type: '',
       description: '',
       immediate_action: '',
       casual_analysis: '',
       corrective_actions: '',
-      closing_deadline: '',
+      closing_deadline: sevenDaysFromNow,
       // Information card fields
       supplier: null,
       equipment: null,
