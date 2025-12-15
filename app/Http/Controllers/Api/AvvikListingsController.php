@@ -17,9 +17,13 @@ class AvvikListingsController extends Controller
     //
 
     public function index(Request $request){
+        $user = auth()->user();
 
         $avvikListings = AvvikListing::query()
         ->with(['user', 'project'])
+        ->when(!$user->hasRole(['Admin', 'Super Admin']), function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
         ->applyFilters($request)
         ->latest()
         ->get();

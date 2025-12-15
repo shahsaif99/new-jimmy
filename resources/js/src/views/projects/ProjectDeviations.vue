@@ -60,6 +60,12 @@
             </b-badge>
           </template>
 
+          <template #cell(status)="data">
+            <b-badge :variant="getStatusVariant(data.item.close_status)">
+              {{ data.item.close_status }}
+            </b-badge>
+          </template>
+
           <template #cell(responsible)="data">
             {{ data.item.user ? data.item.user.name : 'N/A' }}
           </template>
@@ -135,6 +141,7 @@ export default {
       { key: 'type', label: 'Type', sortable: true },
       { key: 'date', label: 'Date', sortable: true },
       { key: 'severity', label: 'Severity', sortable: true },
+      { key: 'status', label: 'Status', sortable: true },
       { key: 'responsible', label: 'Responsible', sortable: false },
       { key: 'actions', label: 'Actions', sortable: false },
     ]
@@ -209,6 +216,12 @@ export default {
       }
     }
 
+    const getStatusVariant = (status) => {
+      if (status === 'Closed') return 'success'
+      if (status === 'Open') return 'warning'
+      return 'secondary'
+    }
+
     onMounted(() => {
       if (props.projectId) {
         fetchDeviations()
@@ -233,6 +246,7 @@ export default {
       filteredDeviations,
       formatDate,
       getSeverityVariant,
+      getStatusVariant,
       isDetailsSidebarVisible,
       selectedAvvikDetails,
       detailsLoading,

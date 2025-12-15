@@ -222,21 +222,21 @@
               </b-dropdown-item> -->
               <b-dropdown-item
                 @click="$router.push({ name: 'avvik-listings-edit', params: { id: data.item.id } })"
-                v-if="$can('avvik-edit', 'all')"
+                v-if="$can('avvik-edit', 'all') && canModifyDeviation(data.item)"
               >
                 <feather-icon icon="EditIcon" />
                 <span class="align-middle ml-50">{{ t('Edit') }}</span>
               </b-dropdown-item>
               <b-dropdown-item
                 @click="$router.push({ name: 'avvik-listings-edit', params: { id: data.item.id }, query: { process: 'true' } })"
-                v-if="$can('avvik-process', 'all')"
+                v-if="$can('avvik-process', 'all') && canModifyDeviation(data.item)"
               >
                 <feather-icon icon="CheckCircleIcon" />
                 <span class="align-middle ml-50">{{ t('Process') }}</span>
               </b-dropdown-item>
               <b-dropdown-item
                 @click="confirmDelete(data.item.id)"
-                v-if="$can('avvik-delete', 'all')"
+                v-if="$can('avvik-delete', 'all') && canModifyDeviation(data.item)"
               >
                 <feather-icon
                   icon="TrashIcon"
@@ -324,6 +324,7 @@ import { $themeColors } from '@themeConfig'
 import CreateAvvikListing from './Create.vue'
 import EditAvvikListing from './Edit.vue'
 import AvvikDetailsSidebar from './sidebar/AvvikDetailsSidebar.vue'
+import useJwt from '@/auth/jwt/useJwt'
 
 export default {
   components: {
@@ -376,6 +377,14 @@ export default {
     } = useAvvikRuh()
     const { t } = useI18nUtils()
 
+    // Get current user data for permission checks
+    const userData = JSON.parse(useJwt.getUserData())
+
+    // Check if user can modify a deviation (admin/super admin can modify all, others only their own)
+    const canModifyDeviation = (item) => {
+      if (userData.role === 'Admin' || userData.role === 'Super Admin') return true
+      return item.user_id === userData.id
+    }
 
     const avvikTotal = ref(0)
     const isExportActive = ref(false)
@@ -588,6 +597,7 @@ export default {
       selectedAvvikDetails,
       detailsLoading,
       onRowClicked,
+      canModifyDeviation,
     }
   },
 }
