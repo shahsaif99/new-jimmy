@@ -107,6 +107,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     ]);
 
     Route::delete('/customer-supplier-documents/{id}', [CustomerSupplierController::class, 'deleteDocument'])->name('customer-supplier-documents.destroy');
+    Route::get('/supplier-evaluations', [CustomerSupplierController::class, 'getSupplierEvaluations'])->name('supplier-evaluations.index');
 
     // Route::get('/documents', [DocumentController::class, 'getDocuments'])->name('documents');
     // Route::post('/documents/store', [DocumentController::class, 'storeDocument'])->name('documents.store');

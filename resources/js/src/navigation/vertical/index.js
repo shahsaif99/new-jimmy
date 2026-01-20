@@ -180,6 +180,13 @@ export default [
     ],
   },
   {
+    title: 'Reports',
+    icon: 'PieChartIcon',
+    action: 'reports',
+    resource: 'all',
+    route: 'reports',
+  },
+  {
     title: 'Authentication',
     icon: 'LockIcon',
     action: 'authentication',

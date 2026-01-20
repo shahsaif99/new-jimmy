@@ -197,6 +197,44 @@ class CustomerSupplierController extends Controller
         return response()->json(null, 204);
     }
 
+    // Get all supplier evaluations for reports
+    public function getSupplierEvaluations(Request $request)
+    {
+        $query = SupplierEvaluation::with(['supplier', 'performedByUser']);
+
+        // Filter by year if provided
+        if ($request->has('year')) {
+            $year = $request->input('year');
+            $query->whereYear('evaluation_date', $year);
+        }
+
+        $evaluations = $query->orderBy('evaluation_date', 'desc')->get();
+
+        return response()->json([
+            'evaluations' => $evaluations->map(function ($evaluation) {
+                return [
+                    'id' => $evaluation->id,
+                    'supplier_id' => $evaluation->supplier_id,
+                    'supplier' => $evaluation->supplier ? [
+                        'id' => $evaluation->supplier->id,
+                        'name' => $evaluation->supplier->name,
+                        'type' => $evaluation->supplier->type,
+                        'management_systems' => $evaluation->supplier->management_systems,
+                        'supplier_of' => $evaluation->supplier->supplier_of,
+                        'status' => $evaluation->supplier->status,
+                    ] : null,
+                    'performed_by' => $evaluation->performed_by,
+                    'performed_by_name' => optional($evaluation->performedByUser)->name,
+                    'evaluation_date' => $evaluation->evaluation_date,
+                    'total_score' => $evaluation->total_score,
+                    'status' => $evaluation->status,
+                    'evaluation_criteria' => $evaluation->evaluation_criteria,
+                    'created_at' => $evaluation->created_at,
+                ];
+            }),
+        ]);
+    }
+
     // Delete a specific document
     public function deleteDocument($id)
     {
