@@ -350,7 +350,7 @@ export default {
         },
       },
       xaxis: {
-        categories: ['ISO 9001', 'ISO 14001', 'ISO 45001', 'Miljøfyrtårn'],
+        categories: ['ISO 9001', 'ISO 14001', 'ISO 45001', 'Miljøfyrtårn', 'EMAS'],
       },
       yaxis: {
         labels: {
@@ -371,6 +371,7 @@ export default {
         'ISO 14001': 0,
         'ISO 45001': 0,
         'Miljofyrtan': 0,
+        'EMAS': 0,
       }
 
       // Use allSuppliers instead of uniqueSuppliers (not dependent on evaluations)
@@ -386,7 +387,7 @@ export default {
 
       return [{
         name: t('Suppliers'),
-        data: [systems['ISO 9001'], systems['ISO 14001'], systems['ISO 45001'], systems['Miljofyrtan']],
+        data: [systems['ISO 9001'], systems['ISO 14001'], systems['ISO 45001'], systems['Miljofyrtan'], systems['EMAS']],
       }]
     })
 
@@ -416,6 +417,7 @@ export default {
           'Comprehensive service',
           'Hiring of personnel',
           'Delivery of critical goods/components',
+          'Delivery of non-critical goods',
           'Subcontractors',
         ],
       },
@@ -467,6 +469,7 @@ export default {
           counts.comprehensive_service,
           counts.hiring_of_personnel,
           counts.delivery_of_critical_goods_components,
+          counts.delivery_of_non_critical_goods,
           counts.subcontractors,
         ],
       }]
