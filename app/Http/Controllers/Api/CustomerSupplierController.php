@@ -120,12 +120,12 @@ class CustomerSupplierController extends Controller
 
         if ($request->has('date')) {
             $date = $request->input('date');
-        
+
             // Ensure the date array exists and has valid start & end values
             if (is_array($date) && count($date) === 2 && strtotime($date[0]) && strtotime($date[1])) {
                 $startDate = $date[0] . ' 00:00:00'; // Start of the day
                 $endDate = $date[1] . ' 23:59:59';   // End of the day
-        
+
                 $query->whereBetween('created_at', [$startDate, $endDate]);
             }
         }
@@ -150,12 +150,12 @@ class CustomerSupplierController extends Controller
         if ($request->has('sortBy')) {
             $sortBy = $request->input('sortBy');
             $sortDesc = $request->input('sortDesc') === 'true' ? 'desc' : 'asc';
-        
+
             $query->orderBy($sortBy, $sortDesc);
         } else {
             $query->orderBy('id', 'desc'); // Default sorting
         }
-        
+
 
         // Fetch filtered results
         $customerSuppliers = $query->paginate(10);
@@ -212,7 +212,7 @@ class CustomerSupplierController extends Controller
 
         // Get all suppliers (type = 'supplier') for management systems and supplier_of charts
         // These are not dependent on evaluations
-        $allSuppliers = CustomerSupplier::where('type', 'supplier')->get();
+        $allSuppliers = CustomerSupplier::where('type', 'supplier')->orWhere('type','both')->get();
 
         return response()->json([
             'evaluations' => $evaluations->map(function ($evaluation) {
