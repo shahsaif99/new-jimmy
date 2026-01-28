@@ -210,6 +210,10 @@ class CustomerSupplierController extends Controller
 
         $evaluations = $query->orderBy('evaluation_date', 'desc')->get();
 
+        // Get all suppliers (type = 'supplier') for management systems and supplier_of charts
+        // These are not dependent on evaluations
+        $allSuppliers = CustomerSupplier::where('type', 'supplier')->get();
+
         return response()->json([
             'evaluations' => $evaluations->map(function ($evaluation) {
                 return [
@@ -230,6 +234,16 @@ class CustomerSupplierController extends Controller
                     'status' => $evaluation->status,
                     'evaluation_criteria' => $evaluation->evaluation_criteria,
                     'created_at' => $evaluation->created_at,
+                ];
+            }),
+            'suppliers' => $allSuppliers->map(function ($supplier) {
+                return [
+                    'id' => $supplier->id,
+                    'name' => $supplier->name,
+                    'type' => $supplier->type,
+                    'management_systems' => $supplier->management_systems,
+                    'supplier_of' => $supplier->supplier_of,
+                    'status' => $supplier->status,
                 ];
             }),
         ]);

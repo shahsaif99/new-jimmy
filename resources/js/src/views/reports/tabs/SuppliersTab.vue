@@ -189,6 +189,7 @@ export default {
 
     // Local state for reports
     const evaluations = ref([])
+    const allSuppliers = ref([])
     const loading = ref(false)
 
     // Modal state
@@ -212,6 +213,7 @@ export default {
           },
         })
         evaluations.value = response.data.evaluations || []
+        allSuppliers.value = response.data.suppliers || []
       } catch (error) {
         console.error('Error fetching supplier evaluations:', error)
       } finally {
@@ -242,19 +244,8 @@ export default {
       }
     )
 
-    // Get unique suppliers from evaluations
-    const uniqueSuppliers = computed(() => {
-      const supplierMap = new Map()
-      evaluations.value.forEach(evaluation => {
-        if (evaluation.supplier && !supplierMap.has(evaluation.supplier_id)) {
-          supplierMap.set(evaluation.supplier_id, evaluation.supplier)
-        }
-      })
-      return Array.from(supplierMap.values())
-    })
-
-    // Statistics
-    const totalSuppliers = computed(() => uniqueSuppliers.value.length)
+    // Statistics - use all suppliers count (not dependent on evaluations)
+    const totalSuppliers = computed(() => allSuppliers.value.length)
 
     // Supplier Evaluations Pie Chart (Meets requirements vs Not meet requirements)
     const evaluationChartOptions = ref({
@@ -382,7 +373,8 @@ export default {
         'Miljofyrtan': 0,
       }
 
-      uniqueSuppliers.value.forEach(supplier => {
+      // Use allSuppliers instead of uniqueSuppliers (not dependent on evaluations)
+      allSuppliers.value.forEach(supplier => {
         if (supplier.management_systems && Array.isArray(supplier.management_systems)) {
           supplier.management_systems.forEach(system => {
             if (system in systems) {
@@ -449,7 +441,8 @@ export default {
         delivery_of_non_critical_goods: 0,
       }
 
-      uniqueSuppliers.value.forEach(supplier => {
+      // Use allSuppliers instead of uniqueSuppliers (not dependent on evaluations)
+      allSuppliers.value.forEach(supplier => {
         if (supplier.supplier_of) {
           const supplierOfArray = Array.isArray(supplier.supplier_of)
             ? supplier.supplier_of
