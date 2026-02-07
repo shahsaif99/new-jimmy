@@ -180,6 +180,28 @@ export default [
     ],
   },
   {
+    title: 'Company',
+    icon: 'BriefcaseIcon',
+    resource: 'all',
+    action: 'company-view',
+    children: [
+      {
+        title: 'Company Information',
+        route: 'company-information',
+        icon: 'InfoIcon',
+        action: 'company-view',
+        resource: 'all',
+      },
+      {
+        title: 'Locations',
+        route: 'company-locations',
+        icon: 'MapPinIcon',
+        action: 'company-view',
+        resource: 'all',
+      },
+    ],
+  },
+  {
     title: 'Reports',
     icon: 'PieChartIcon',
     action: 'reports',

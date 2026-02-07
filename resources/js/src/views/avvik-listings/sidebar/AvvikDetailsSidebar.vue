@@ -153,9 +153,11 @@ import {
   BDropdown,
   BDropdownItem,
 } from 'bootstrap-vue'
+import { onMounted } from '@vue/composition-api'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import html2pdf from 'html2pdf.js'
 import { $themeConfig } from '@themeConfig'
+import useCompanyInformation from '@/composables/company-information'
 
 export default {
   components: {
@@ -186,6 +188,11 @@ export default {
   },
   setup(props) {
     const { t } = useI18nUtils()
+    const { companyInfo, getCompanyInfo } = useCompanyInformation()
+
+    onMounted(() => {
+      getCompanyInfo()
+    })
 
     const getStatusDotClass = status => {
       if (status === 'Closed') {
@@ -201,15 +208,17 @@ export default {
       const data = props.avvikDetails
       if (!data) return ''
 
+      const logoHtml = companyInfo.value && companyInfo.value.logo_url
+        ? `<img src="${companyInfo.value.logo_url}" style="max-height: 150px; max-width: 180px;" crossorigin="anonymous" />`
+        : `<h2 style="margin: 0;">${appName}</h2>`
+
       return `
         <div style="font-family: Arial, sans-serif; padding: 20px; font-size: 12px;">
           <!-- Header -->
           <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 50px;">
             <h1 style="margin: 0; font-size: 18px; ">${data.type || 'HSE DEVIATION'}</h1>
-            <div style="text-align: right; color: #666;">
-                <h2 class="brand-text pt-2">
-                ${appName}
-                </h2>
+            <div style="text-align: right;">
+                ${logoHtml}
                 </div>
           </div>
 

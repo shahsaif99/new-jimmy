@@ -24,6 +24,7 @@ import permissionsRoutes from './permissions'
 import checklistRoutes from './checklist'
 import taskRoutes from './tasks'
 import reportsRoutes from './reports'
+import companyRoutes from './company'
 // routes
 
 Vue.use(Router)
@@ -62,6 +63,7 @@ const router = new Router({
         ...checklistRoutes,
         ...taskRoutes,
         ...reportsRoutes,
+        ...companyRoutes,
         ...generalRoutes,
       ],
     },

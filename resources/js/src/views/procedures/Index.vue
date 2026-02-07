@@ -30,7 +30,7 @@
                       </template>
                       <template  #option="{ documentsFlat,  }">
                           <div @click="selectSearchDocument(subItem,subItem.docId)" class="d-flex w-100 justify-content-between py-1" v-for="subItem in documentsFlat" :key="subItem.id">
-                          <div style="width: 300px;" class="d-block text-truncate" v-html="boldContent(subItem.title)"></div> 
+                          <div style="width: 300px;" class="d-block text-truncate" v-html="boldContent(subItem.title)"></div>
                             <div>
                               <b-badge pill v-if="subItem.title_hits > 0" variant="warning"> {{subItem.title_hits}} TREFF | TITTEL  </b-badge>
                               <b-badge pill v-if="subItem.content_hits > 0"  variant="primary">{{ subItem.content_hits }} TITTLE</b-badge>
@@ -39,8 +39,8 @@
                       </template>
                     </v-select>
                     <v-select  v-model="filters.tags" :getOptionLabel="(item) => item.label"  placeholder="Filters: tags"  :reduce="option => option.value" :options="tags.options" multiple style="width:250px" />
-                     
-    
+
+
                   </div>
                   <div class="col-auto">
                     <b-button
@@ -91,7 +91,7 @@
         <div class="split" :class="!isDocumentOpen && !isDocumentEdit ? 'show-gutter':''" >
           <div
             id="split-0"
-     
+
           >
             <h3>
               {{ $t('Table Of Contents') }}
@@ -112,7 +112,7 @@
                       style="font-weight: 700; font-size: 16px;"
                       class="d-block text-truncate"
                       >
-                        {{ document.title }} 
+                        {{ document.title }}
                       </a>
                     </h4>
                     <ul class="list-unstyled">
@@ -141,7 +141,7 @@
                               >
                               {{ subSubDocument.docId }}-{{ subSubDocument.title }}
                               </a>
-   
+
                             </h4>
                           </li>
                         </ul>
@@ -163,7 +163,7 @@
             <h3 class="d-block text-truncate" id="tooltip-target-1">{{ documentData.title }}</h3>
             <template v-if="isDocumentOpen">
               <b-card
-              
+
                 no-body
                 class="p-1 ck-content"
               >
@@ -181,7 +181,7 @@
                 v-model="documentData.content"
               /> -->
               <!-- <div style="width: 100%" id="rteref" ref="rteref"></div> -->
-             <textarea v-if="isDocumentEdit && !isDocumentOpen" v-model="documentData.content" style="width: 100%" id="rteref" ref="rteref" /> 
+             <textarea v-if="isDocumentEdit && !isDocumentOpen" v-model="documentData.content" style="width: 100%" id="rteref" ref="rteref" />
             </template>
             <!-- <div v-else>
               <h4 class="p-4">
@@ -198,8 +198,8 @@
                 {{ documentData.title }}
               </h3>
 
-              
-              
+
+
               <b-collapse
               id="my-collapse"
               visible
@@ -223,7 +223,7 @@
                         <b-col
                       sm="12"
                       class="justify-content-start d-flex"
-                    >  
+                    >
 
                         <i
                                 class="bi bi-x cursor-pointer"
@@ -530,7 +530,7 @@
                             </b-form-group>
                           </validation-provider>
                         </b-col>
-                        
+
 
                         <b-col
                           cols="6"
@@ -581,7 +581,7 @@
                             </b-form-group>
                           </validation-provider>
                         </b-col>
-                        
+
 
                         <b-col
                           cols="12"
@@ -591,14 +591,14 @@
 
                           <v-select  v-model="documentData.tag_ids" :getOptionLabel="(item) => item.name"  placeholder="Add tags"   :options="tags.data" multiple  />
                         </b-col>
-                     
+
                       </b-row>
 
                       <div class="mt-2 justify-content-end d-flex">
                         <b-button
                           variant="primary"
                           class="mb-1"
-                        
+
                         >
                           <span class="text-nowrap">Send for approval</span>
                         </b-button>
@@ -615,10 +615,10 @@
                 </validation-observer>
               </div>
               </b-collapse>
-              
-            
+
+
                 <b-collapse
-              
+
                   id="my-collapse"
                   visible
                 >
@@ -715,7 +715,7 @@
                       </h6>
                       <span>{{ revisionNumberFormatter(documentData.revision_number) }}</span>
                     </b-col>
-                    
+
                     <b-col
                       sm="6"
                       class="mb-2"
@@ -735,7 +735,7 @@
                       </h6>
                       <span>Published</span>
                     </b-col>
-                 
+
                     <b-col
                     sm="6"
                     class="mb-2"
@@ -745,7 +745,7 @@
                     </h6>
                     <span>{{ documentData.approved_date }}</span>
                   </b-col>
-                  
+
                     <b-col
                       sm="6"
                       class="mb-2"
@@ -756,7 +756,7 @@
                       <span>{{ documentData.approved_by }}</span>
                     </b-col>
 
-                
+
                     <b-col cols="12">
                       <strong>{{ $t('Tags') }}</strong>
                       <div style="gap:5px" class="d-flex align-item-center text-capitalize mt-1">
@@ -780,7 +780,7 @@
                   </b-row>
                 </b-card>
                 </b-collapse>
-     
+
             </div>
           </div>
         </div>
@@ -812,6 +812,7 @@ import addProcedure from './Add.vue'
 import AddCategory from '../category/add/AddCategory.vue'
 import ManageDialog from "@/views/procedures/dialogs/ManageTags.vue";
 import useCategories from '@/composables/category'
+import useCompanyInformation from '@/composables/company-information'
 import useTags from "@/composables/tags";
 import vSelect from 'vue-select'
 import { debounce } from 'lodash';
@@ -873,6 +874,8 @@ export default {
     const {  tagDialog, getTags,tags } =
     useTags();
 
+    const { companyInfo, getCompanyInfo: fetchCompanyInfo } = useCompanyInformation()
+
 
     const initialState = {
       title: '',
@@ -920,8 +923,8 @@ export default {
       }
       return false;
     });
-    
-    }) 
+
+    })
 
     const setRevisionNumber = (value) => {
     if(value === null) return
@@ -936,7 +939,7 @@ export default {
     watch(()=>filters, (newVal) => {
         filterDocuments();
     },{deep:true})
-   
+
     const documentData = ref({ ...initialState })
     const isDocumentOpen = ref(false)
     const isDocumentEdit = ref(false)
@@ -974,6 +977,7 @@ export default {
     //   filters.type = 'Procedure'
       await getDocuments()
       getTags()
+      fetchCompanyInfo()
       Split(['#split-0', '#split-1', '#split-2'],{
         gutterSize: 7,
         minSize: 400,
@@ -1012,7 +1016,7 @@ export default {
           getDocument(doc,doc.docId)
         }
       }
-   
+
     })
 
     const search = () => {
@@ -1036,7 +1040,11 @@ export default {
       isDocumentEdit.value = false
       documentData.value = { ...data }
       setRevisionNumber(documentData.value.revision_number)
-      editorContent.value = `<table style="
+      const logoAboveTable = companyInfo.value && companyInfo.value.logo_url
+        ? `<div style="text-align: center; margin-bottom: 10px;"><img src="${companyInfo.value.logo_url}" style="max-height: 150px; max-width: 180px;" /></div>`
+        : (companyInfo.value && companyInfo.value.display_name ? `<div style="text-align: center; margin-bottom: 10px;"><span style="font-size:20px; color:#186784;">${companyInfo.value.display_name}</span></div>` : '')
+
+      editorContent.value = `${logoAboveTable}<table style="
 border-collapse: collapse;
 border-spacing: 0;
 height: 100%;
@@ -1050,7 +1058,6 @@ width: 100%;
                 ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Revised Date')}:<br /></span><span style="font-size: 15px;">${documentData.value.revised_date}</span></span
             ></td>
             <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important" colspan="2"><span><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Doc Author')}:<br /></span>${documentData.value.author}</span></td>
-                <td rowspan="2" style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important; border-left: none;"><span style="font-size:20px; color:#186784;">adger energi</span></td>
             </tr>
 
           <tr>
@@ -1069,7 +1076,7 @@ width: 100%;
             ></td>
           </tr>
     <tr>
-      <td colspan="5" style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important;border-top: none;" class="text-center">
+      <td colspan="4" style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important;border-top: none;" class="text-center">
         <p class="p-0 m-0" ><strong>${documentData.value.title}</strong></p>
       </td>
     </tr>
@@ -1258,7 +1265,7 @@ width: 100%;
       }else{
         return content
       }
-      
+
     };
 
     const revisionNumberFormatter = (number) => {
@@ -1275,7 +1282,7 @@ width: 100%;
       }
       return digits.join('.');
     }
-    
+
     return {
       highlightedContent,
       revisionNumberFormatter,

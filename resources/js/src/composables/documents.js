@@ -13,6 +13,34 @@ export default function useDocuments() {
     const filters = reactive({});
     const respResult = ref(null);
     const searchQuery = ref("");
+    const companyLogoDataUrl = ref(null);
+
+    const loadCompanyLogo = async () => {
+        try {
+            const response = await axios.get(route("company-information.show"));
+            const info = response.data.data;
+            if (info && info.logo_url) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = "anonymous";
+                    img.onload = () => {
+                        const canvas = document.createElement("canvas");
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext("2d");
+                        ctx.drawImage(img, 0, 0);
+                        companyLogoDataUrl.value = canvas.toDataURL("image/png");
+                        resolve(companyLogoDataUrl.value);
+                    };
+                    img.onerror = () => resolve(null);
+                    img.src = info.logo_url;
+                });
+            }
+        } catch (e) {
+            // Silently fail - PDF will be generated without logo
+        }
+        return null;
+    };
 
     const searchDocumentOptions = ref([]);
 
@@ -149,8 +177,13 @@ export default function useDocuments() {
         }
     };
 
-    const generatePDF = (documentData) => {
+    const generatePDF = async (documentData) => {
         if (!!deleteDocument.value) return;
+
+        // Load company logo if not already loaded
+        if (!companyLogoDataUrl.value) {
+            await loadCompanyLogo();
+        }
 
         const doc = new jsPDF();
 
@@ -159,15 +192,29 @@ export default function useDocuments() {
         const headerHeight = 8;
         const tableWidth = doc.internal.pageSize.width - 2 * 14;
 
+        // Add company logo at top-right if available
+        let logoStartY = 10;
+        if (companyLogoDataUrl.value) {
+            try {
+                const logoMaxH = 15;
+                const logoMaxW = 50;
+                doc.addImage(companyLogoDataUrl.value, "PNG", doc.internal.pageSize.width - 14 - logoMaxW, 10, logoMaxW, logoMaxH);
+                logoStartY = 10 + logoMaxH + 3;
+            } catch (e) {
+                // If logo fails, continue without it
+                logoStartY = 10;
+            }
+        }
+
         const pdfTop = `${documentData.category.number} ${documentData.category.name} ${documentData.subcategory.number} ${documentData.subcategory.name}`;
 
         doc.setFontSize(12);
         doc.setTextColor(...textColor);
         doc.setFillColor(...headerColor);
-        doc.rect(14, 10, tableWidth, headerHeight, "F");
-        doc.text(pdfTop, 15, 15);
+        doc.rect(14, logoStartY, tableWidth, headerHeight, "F");
+        doc.text(pdfTop, 15, logoStartY + 5);
 
-        let startY = 10 + headerHeight;
+        let startY = logoStartY + headerHeight;
 
         documentsData.value.forEach((category) => {
             category.documents.forEach((subcategory) => {

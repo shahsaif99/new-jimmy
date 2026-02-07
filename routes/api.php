@@ -36,6 +36,8 @@ use App\Http\Controllers\UserChecklistController;
 use App\Http\Controllers\Api\EquipmentCategoryController;
 use App\Http\Controllers\Api\StorageLocationController;
 use App\Http\Controllers\Api\CustomerSupplierController;
+use App\Http\Controllers\Api\CompanyInformationController;
+use App\Http\Controllers\Api\CompanyLocationController;
 use App\Http\Controllers\Api\TaskCommentController;
 use Illuminate\Http\Request;
 
@@ -108,6 +110,20 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::delete('/customer-supplier-documents/{id}', [CustomerSupplierController::class, 'deleteDocument'])->name('customer-supplier-documents.destroy');
     Route::get('/supplier-evaluations', [CustomerSupplierController::class, 'getSupplierEvaluations'])->name('supplier-evaluations.index');
+
+    // Company Information routes
+    Route::get('/company-information', [CompanyInformationController::class, 'show'])->name('company-information.show');
+    Route::post('/company-information', [CompanyInformationController::class, 'update'])->name('company-information.update');
+    Route::post('/company-information/logo', [CompanyInformationController::class, 'uploadLogo'])->name('company-information.upload-logo');
+    Route::post('/company-information/documents', [CompanyInformationController::class, 'uploadDocuments'])->name('company-information.upload-documents');
+    Route::delete('/company-information/documents/{id}', [CompanyInformationController::class, 'deleteDocument'])->name('company-information.delete-document');
+
+    // Company Location routes
+    Route::get('/company-locations', [CompanyLocationController::class, 'index'])->name('company-locations.index');
+    Route::post('/company-locations', [CompanyLocationController::class, 'store'])->name('company-locations.store');
+    Route::put('/company-locations/{id}', [CompanyLocationController::class, 'update'])->name('company-locations.update');
+    Route::delete('/company-locations/{id}', [CompanyLocationController::class, 'destroy'])->name('company-locations.destroy');
+    Route::delete('/company-location-attachments/{id}', [CompanyLocationController::class, 'deleteAttachment'])->name('company-location-attachments.destroy');
 
     // Route::get('/documents', [DocumentController::class, 'getDocuments'])->name('documents');
     // Route::post('/documents/store', [DocumentController::class, 'storeDocument'])->name('documents.store');
