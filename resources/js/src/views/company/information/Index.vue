@@ -168,9 +168,12 @@
               :key="doc.id"
               class="d-flex justify-content-between align-items-center py-50 border-bottom"
             >
-              <div class="d-flex align-items-center">
-                <feather-icon icon="FileTextIcon" size="16" class="mr-50 text-primary" />
-                <a :href="doc.url" target="_blank">{{ doc.filename }}.{{ doc.extension }}</a>
+              <div>
+                <div v-if="doc.title" class="font-weight-bold">{{ doc.title }}</div>
+                <div class="d-flex align-items-center">
+                  <feather-icon icon="FileTextIcon" size="16" class="mr-50 text-primary" />
+                  <a :href="doc.url" target="_blank">{{ doc.filename }}.{{ doc.extension }}</a>
+                </div>
               </div>
               <b-button
                 v-if="$can('company-edit', 'all')"

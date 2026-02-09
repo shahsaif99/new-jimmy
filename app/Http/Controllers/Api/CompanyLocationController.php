@@ -15,7 +15,7 @@ class CompanyLocationController extends Controller
      */
     public function index()
     {
-        $locations = CompanyLocation::with('media')->orderBy('id', 'desc')->get();
+        $locations = CompanyLocation::with('media')->orderBy('title', 'asc')->get();
 
         $locations->each(function ($location) {
             if ($location->media) {

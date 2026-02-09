@@ -1,33 +1,46 @@
 <template>
   <b-modal
     :visible="show"
-    :title="t('Upload Company Logo')"
+    :title="t('Add Logo')"
     @hidden="$emit('update:show', false)"
   >
-    <b-form-group :label="t('Logo Image')">
-      <b-form-file
-        v-model="file"
-        :placeholder="t('Choose a file or drop it here...')"
-        accept="image/*"
-        @input="onFileChange"
-      />
+    <b-form-group :label="t('Preview')">
+      <div class="preview-box text-center">
+        <img v-if="preview" :src="preview" alt="Preview" class="img-fluid" style="max-height: 150px;" />
+        <span v-else class="text-muted">{{ t('No image selected') }}</span>
+      </div>
     </b-form-group>
-    <div v-if="preview" class="text-center mt-1">
-      <img :src="preview" alt="Preview" class="img-fluid" style="max-height: 150px;" />
-    </div>
+
+    <b-form-group :label="t('Attach Documents')">
+      <div
+        class="drop-zone"
+        :class="{ 'drop-zone--dragging': isDragging }"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="onDrop"
+        @click="$refs.fileInput.click()"
+      >
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/*"
+          style="display: none"
+          @change="onFileSelect"
+        />
+        <div class="drop-zone__content">
+          <feather-icon icon="UploadIcon" size="28" class="drop-zone__icon" />
+          <p class="drop-zone__text mb-0 mt-1">{{ t('Drag and Drop here') }}</p>
+          <p class="drop-zone__or mb-0">{{ t('or') }}</p>
+          <p class="drop-zone__browse mb-0">{{ t('Browse files') }}</p>
+        </div>
+      </div>
+    </b-form-group>
 
     <template #modal-footer>
-      <div class="d-flex align-items-center">
-        <b-button variant="primary" size="sm" class="mr-1" :disabled="busy || !preview" @click="save">
-          <b-spinner v-if="busy" label="Spinning" small />
-          <feather-icon v-else icon="UploadIcon" size="16" />
-          {{ t('Upload') }}
-        </b-button>
-        <b-button variant="outline-primary" size="sm" :disabled="busy" @click="$emit('update:show', false)">
-          <feather-icon icon="XIcon" size="16" />
-          {{ t('Close') }}
-        </b-button>
-      </div>
+      <b-button variant="primary" block :disabled="busy || !preview" @click="save">
+        <b-spinner v-if="busy" label="Spinning" small class="mr-50" />
+        {{ t('Upload') }}
+      </b-button>
     </template>
   </b-modal>
 </template>
@@ -36,7 +49,6 @@
 import {
   BModal,
   BFormGroup,
-  BFormFile,
   BButton,
   BSpinner,
 } from "bootstrap-vue";
@@ -48,7 +60,6 @@ export default {
   components: {
     BModal,
     BFormGroup,
-    BFormFile,
     BButton,
     BSpinner,
   },
@@ -64,6 +75,7 @@ export default {
 
     const file = ref(null);
     const preview = ref(null);
+    const isDragging = ref(false);
 
     watch(
       () => props.show,
@@ -75,16 +87,31 @@ export default {
       }
     );
 
-    const onFileChange = (f) => {
-      if (f) {
+    const processFile = (f) => {
+      if (f && f.type.startsWith("image/")) {
+        file.value = f;
         const reader = new FileReader();
         reader.onload = (e) => {
           preview.value = e.target.result;
         };
         reader.readAsDataURL(f);
-      } else {
-        preview.value = null;
       }
+    };
+
+    const onDrop = (e) => {
+      isDragging.value = false;
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile) {
+        processFile(droppedFile);
+      }
+    };
+
+    const onFileSelect = (e) => {
+      const selectedFile = e.target.files[0];
+      if (selectedFile) {
+        processFile(selectedFile);
+      }
+      e.target.value = '';
     };
 
     const save = async () => {
@@ -101,9 +128,58 @@ export default {
       file,
       preview,
       busy,
-      onFileChange,
       save,
+      isDragging,
+      onDrop,
+      onFileSelect,
     };
   },
 };
 </script>
+
+<style scoped>
+.preview-box {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.drop-zone {
+  border: 2px dashed #c8c8c8;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.drop-zone:hover,
+.drop-zone--dragging {
+  border-color: #7367f0;
+  background-color: #f8f7ff;
+}
+.drop-zone__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.drop-zone__icon {
+  color: #5e5873;
+}
+.drop-zone__text {
+  font-weight: 600;
+  color: #5e5873;
+  font-size: 14px;
+}
+.drop-zone__or {
+  color: #b9b9c3;
+  font-size: 13px;
+}
+.drop-zone__browse {
+  color: #7367f0;
+  font-weight: 600;
+  font-size: 14px;
+}
+</style>

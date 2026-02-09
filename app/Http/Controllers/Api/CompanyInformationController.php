@@ -111,6 +111,7 @@ class CompanyInformationController extends Controller
         $request->validate([
             'files' => 'required|array',
             'files.*' => 'file',
+            'title' => 'nullable|string|max:255',
         ]);
 
         $company = CompanyInformation::first();
@@ -119,11 +120,18 @@ class CompanyInformationController extends Controller
             $company = CompanyInformation::create([]);
         }
 
+        $title = $request->input('title');
+
         foreach ($request->file('files') as $file) {
             $media = MediaUploader::fromSource($file)
                 ->useOriginalFilename()
                 ->toDirectory('company/documents')
                 ->upload();
+
+            if ($title) {
+                $media->title = $title;
+                $media->save();
+            }
 
             $company->attachMedia($media, 'company-documents');
         }
