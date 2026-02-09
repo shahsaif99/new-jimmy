@@ -1040,11 +1040,13 @@ export default {
       isDocumentEdit.value = false
       documentData.value = { ...data }
       setRevisionNumber(documentData.value.revision_number)
-      const logoAboveTable = companyInfo.value && companyInfo.value.logo_url
-        ? `<div style="text-align: center; margin-bottom: 10px;"><img src="${companyInfo.value.logo_url}" style="max-height: 150px; max-width: 180px;" /></div>`
-        : (companyInfo.value && companyInfo.value.display_name ? `<div style="text-align: center; margin-bottom: 10px;"><span style="font-size:20px; color:#186784;">${companyInfo.value.display_name}</span></div>` : '')
+      const logoCell = companyInfo.value && companyInfo.value.logo_url
+        ? `<td rowspan="2" style="border: 1px solid #bfbfbf; padding:0.3rem; text-align: center; vertical-align: middle;"><img src="${companyInfo.value.logo_url}" style="max-height: 80px; max-width: 120px;" /></td>`
+        : (companyInfo.value && companyInfo.value.display_name ? `<td rowspan="2" style="border: 1px solid #bfbfbf; padding:0.3rem; text-align: center; vertical-align: middle;"><span style="font-size:16px; color:#186784;">${companyInfo.value.display_name}</span></td>` : '')
 
-      editorContent.value = `${logoAboveTable}<table style="
+      const totalColspan = logoCell ? 5 : 4
+
+      editorContent.value = `<table style="
 border-collapse: collapse;
 border-spacing: 0;
 height: 100%;
@@ -1058,6 +1060,7 @@ width: 100%;
                 ><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Revised Date')}:<br /></span><span style="font-size: 15px;">${documentData.value.revised_date}</span></span
             ></td>
             <td style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important" colspan="2"><span><span style="text-transform: uppercase;font-size: 11px;">${i18n.t('Doc Author')}:<br /></span>${documentData.value.author}</span></td>
+            ${logoCell}
             </tr>
 
           <tr>
@@ -1076,7 +1079,7 @@ width: 100%;
             ></td>
           </tr>
     <tr>
-      <td colspan="4" style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important;border-top: none;" class="text-center">
+      <td colspan="${totalColspan}" style="border: 1px solid #bfbfbf; padding:0.1rem 0.1rem !important;border-top: none;" class="text-center">
         <p class="p-0 m-0" ><strong>${documentData.value.title}</strong></p>
       </td>
     </tr>
