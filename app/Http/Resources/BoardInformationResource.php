@@ -14,6 +14,24 @@ class BoardInformationResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'content' => $this->content,
+            'visible_to' => $this->visible_to,
+            'status' => $this->status,
+            'user_id' => $this->user_id,
+            'user' => $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'first_name' => $this->user->first_name,
+                    'last_name' => $this->user->last_name,
+                ];
+            }),
+            'publish_at' => $this->publish_at,
+            'push_notification' => $this->push_notification,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
     }
 }

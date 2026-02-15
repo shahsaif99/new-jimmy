@@ -199,6 +199,13 @@ export default [
         action: 'company-view',
         resource: 'all',
       },
+      {
+        title: 'Information Board',
+        route: 'information-board',
+        icon: 'ClipboardIcon',
+        action: 'company-view',
+        resource: 'all',
+      },
     ],
   },
   {

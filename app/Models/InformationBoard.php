@@ -10,21 +10,48 @@ class InformationBoard extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'content'];
+    protected $fillable = ['user_id', 'title', 'content', 'visible_to', 'status', 'publish_at', 'push_notification'];
 
     protected $table = 'information_board';
 
+    protected $casts = [
+        'visible_to' => 'array',
+        'push_notification' => 'boolean',
+    ];
 
-    // created at
     public function getCreatedAtAttribute($value)
     {
-        return \Carbon\Carbon::parse($value)->format('d-m-Y');
+        return \Carbon\Carbon::parse($value)->format('d.m.Y - H:i');
     }
 
-     public function scopeSearch($query, $queryString)
+    public function scopeSearch($query, $queryString)
     {
-        return $query
-            ->where('content', 'like', '%'.$queryString.'%') ;
+        if (!$queryString) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($queryString) {
+            $q->where('title', 'like', '%' . $queryString . '%')
+              ->orWhere('content', 'like', '%' . $queryString . '%');
+        });
+    }
+
+    public function scopeFilterStatus($query, $status)
+    {
+        if (!$status) {
+            return $query;
+        }
+
+        return $query->where('status', $status);
+    }
+
+    public function scopeFilterVisibleTo($query, $visibleTo)
+    {
+        if (!$visibleTo) {
+            return $query;
+        }
+
+        return $query->whereJsonContains('visible_to', $visibleTo);
     }
 
 

@@ -637,6 +637,7 @@ import vSelect from 'vue-select'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import useUsers from '@/composables/users'
 import useJwt from '@/auth/jwt/useJwt'
+import { useRouter } from '@core/utils/utils'
 import SupplierSelectionDialog from './dialogs/SupplierSelectionDialog.vue'
 import EquipmentSelectionDialog from './dialogs/EquipmentSelectionDialog.vue'
 
@@ -786,6 +787,14 @@ export default {
     }
 
     const formData = ref({ ...initialState })
+
+    // Pre-select type from query parameter
+    const { route: currentRoute } = useRouter()
+    const queryType = currentRoute.value.query.type
+    if (queryType && typeOptions.includes(queryType)) {
+      formData.value.type = queryType
+    }
+
     const { fetchProjectsList, projects } = useProjects()
 
     // Dialog states

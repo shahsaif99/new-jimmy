@@ -130,7 +130,7 @@
               </b-col>
               <b-col
                 cols="12"
-                md="6"
+                md="3"
               >
                 <validation-provider
                   #default="validationContext"
@@ -154,6 +154,22 @@
                     </b-form-invalid-feedback>
                   </b-form-group>
                 </validation-provider>
+              </b-col>
+              <b-col
+                cols="12"
+                md="3"
+              >
+                <b-form-group
+                  :label="t('Dashboard')"
+                >
+                  <v-select
+                    v-model="formData.dashboard_type"
+                    :options="dashboardOptions"
+                    :reduce="opt => opt.value"
+                    :clearable="false"
+                    :placeholder="t('Select Dashboard')"
+                  />
+                </b-form-group>
               </b-col>
             </b-row>
           </b-card>
@@ -284,6 +300,13 @@ export default {
       { label: 'Active', value: true },
       { label: 'Inactive', value: false },
     ]
+    const dashboardOptions = [
+      { label: 'Administrator dashboard', value: 'administrator' },
+    ]
+
+    if (!formData.value.dashboard_type) {
+      formData.value.dashboard_type = 'administrator'
+    }
     const { t } = useI18nUtils()
 
     const {
@@ -349,6 +372,7 @@ export default {
       permissions,
       selectRole,
       statusOptions,
+      dashboardOptions,
       componentKey,
       refFormObserver,
       generatePassword,

@@ -35,6 +35,24 @@ const routes = [
       ],
     },
   },
+  {
+    path: 'information-board',
+    name: 'information-board',
+    component: () => import('@/views/company/information-board/Index.vue'),
+    meta: {
+      pageTitle: 'Information Board',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'company-view',
+      auth: true,
+      breadcrumb: [
+        {
+          text: 'Information Board',
+          active: true,
+        },
+      ],
+    },
+  },
 ]
 
 export default routes

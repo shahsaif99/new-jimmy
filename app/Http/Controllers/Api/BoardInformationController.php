@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Models\BoardInformation;
 use App\Models\InformationBoard;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BoardInformationResource;
@@ -17,14 +16,30 @@ class BoardInformationController extends Controller
      */
     public function index(Request $request)
     {
-        $items = InformationBoard::query()
-        ->with('user:id,first_name,last_name')
-        ->search($request->q)
-            ->when($request->perPage, function ($query, $perPage) {
-                return $query->paginate($perPage);
-            }, function ($query) {
-                return $query->get();
-            });
+        $query = InformationBoard::query()
+            ->with('user:id,first_name,last_name')
+            ->search($request->q)
+            ->filterStatus($request->status)
+            ->filterVisibleTo($request->visible_to)
+            ->orderBy('created_at', 'desc');
+
+        if ($request->perPage) {
+            $items = $query->paginate($request->perPage);
+
+            return response()->json([
+                'data' => BoardInformationResource::collection($items),
+                'pagination' => [
+                    'total' => $items->total(),
+                    'count' => $items->count(),
+                    'per_page' => $items->perPage(),
+                    'current_page' => $items->currentPage(),
+                    'total_pages' => $items->lastPage(),
+                    'has_more_pages' => $items->hasMorePages(),
+                ],
+            ]);
+        }
+
+        $items = $query->get();
 
         return BoardInformationResource::collection($items);
     }
@@ -37,45 +52,80 @@ class BoardInformationController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        InformationBoard::create(array_merge($request->all(), ['user_id' => auth()->id()]));
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'nullable|string',
+            'visible_to' => 'nullable|array',
+            'visible_to.*' => 'string|in:Administrator,Employee,User',
+            'status' => 'required|in:published,draft',
+            'publish_at' => 'nullable|date',
+            'push_notification' => 'nullable|boolean',
+        ]);
+
+        $item = InformationBoard::create(array_merge($request->all(), ['user_id' => auth()->id()]));
 
         return response()->json([
             'message' => 'Information successfully added.',
-        ], 200);
+            'data' => new BoardInformationResource($item->load('user:id,first_name,last_name')),
+        ], 201);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\BoardInformation  $boardInformation
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(InformationBoard $boardInformation)
+    public function show($id)
     {
-        //
+        $item = InformationBoard::with('user:id,first_name,last_name')->findOrFail($id);
+
+        return response()->json([
+            'data' => new BoardInformationResource($item),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\BoardInformation  $boardInformation
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, InformationBoard $boardInformation)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'nullable|string',
+            'visible_to' => 'nullable|array',
+            'visible_to.*' => 'string|in:Administrator,Employee,User',
+            'status' => 'required|in:published,draft',
+            'publish_at' => 'nullable|date',
+            'push_notification' => 'nullable|boolean',
+        ]);
+
+        $item = InformationBoard::findOrFail($id);
+        $item->update($request->all());
+
+        return response()->json([
+            'message' => 'Information successfully updated.',
+            'data' => new BoardInformationResource($item->load('user:id,first_name,last_name')),
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\BoardInformation  $boardInformation
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(InformationBoard $boardInformation)
+    public function destroy($id)
     {
-        //
+        $item = InformationBoard::findOrFail($id);
+        $item->delete();
+
+        return response()->json([
+            'message' => 'Information successfully deleted.',
+        ]);
     }
 }
