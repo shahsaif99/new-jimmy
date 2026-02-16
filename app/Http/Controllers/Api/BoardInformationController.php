@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\InformationBoard;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BoardInformationResource;
+use Carbon\Carbon;
 
 class BoardInformationController extends Controller
 {
@@ -16,11 +17,23 @@ class BoardInformationController extends Controller
      */
     public function index(Request $request)
     {
+        // Promote scheduled items whose publish_at has passed
+        InformationBoard::where('status', 'scheduled')
+            ->whereNotNull('publish_at')
+            ->where('publish_at', '<=', Carbon::now())
+            ->update(['status' => 'published']);
+
+        $user = auth()->user();
+        $userRole = $user->getRoleNames()->first();
+
         $query = InformationBoard::query()
             ->with('user:id,first_name,last_name')
             ->search($request->q)
             ->filterStatus($request->status)
             ->filterVisibleTo($request->visible_to)
+            ->when(!$user->hasRole('Admin'), function ($q) use ($userRole) {
+                $q->whereJsonContains('visible_to', $userRole);
+            })
             ->orderBy('created_at', 'desc');
 
         if ($request->perPage) {
@@ -55,9 +68,9 @@ class BoardInformationController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'visible_to' => 'nullable|array',
-            'visible_to.*' => 'string|in:Administrator,Employee,User',
-            'status' => 'required|in:published,draft',
+            'visible_to' => 'required|array|min:1',
+            'visible_to.*' => 'string|in:Admin,Employee,User',
+            'status' => 'required|in:published,draft,scheduled',
             'publish_at' => 'nullable|date',
             'push_notification' => 'nullable|boolean',
         ]);
@@ -97,9 +110,9 @@ class BoardInformationController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'visible_to' => 'nullable|array',
-            'visible_to.*' => 'string|in:Administrator,Employee,User',
-            'status' => 'required|in:published,draft',
+            'visible_to' => 'required|array|min:1',
+            'visible_to.*' => 'string|in:Admin,Employee,User',
+            'status' => 'required|in:published,draft,scheduled',
             'publish_at' => 'nullable|date',
             'push_notification' => 'nullable|boolean',
         ]);

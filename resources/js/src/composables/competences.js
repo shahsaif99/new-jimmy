@@ -49,7 +49,11 @@ export default function useCompetences() {
         id: 3,
         key: 'status',
         label: 'status',
-        options: ['active', 'expire', 'expired'],
+        options: [
+          { label: 'Active', value: 'valid' },
+          { label: 'Expire', value: 'expiring' },
+          { label: 'Expired', value: 'expired' },
+        ],
         model: null,
         isExpand: false,
         computedHeight: 0,

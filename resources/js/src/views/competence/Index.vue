@@ -156,12 +156,12 @@
                         </b-form-radio>
                         <b-form-radio
                           v-for="(option, index) in item.options"
-                          :value="option"
+                          :value="option.value"
                           class="mt-1 text-capitalize"
                           v-model="item.model"
                           :key="index"
                         >
-                          {{ $t(option) }}
+                          {{ $t(option.label) }}
                         </b-form-radio>
                       </b-form-group>
                     </div>

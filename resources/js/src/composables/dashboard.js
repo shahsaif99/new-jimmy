@@ -21,6 +21,7 @@ export default function useDashboard() {
     expiring_competence_diff: 0,
     my_tasks: [],
     board_items: [],
+    user:[]
   })
   const isDataFetched = ref(false)
 

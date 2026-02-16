@@ -98,19 +98,29 @@
                 <!-- Visible to -->
                 <b-row>
                     <b-col cols="12">
-                        <b-form-group label-for="visible_to">
-                            <template #label>
-                                <strong>{{ t('Visible to:') }}</strong>
-                            </template>
-                            <v-select
-                                v-model="form.visible_to"
-                                :options="visibleToOptions"
-                                :reduce="option => option.value"
-                                label="label"
-                                multiple
-                                :placeholder="t('Select...')"
-                            />
-                        </b-form-group>
+                        <validation-provider
+                            #default="validationContext"
+                            :name="t('Visible to')"
+                            rules="required"
+                        >
+                            <b-form-group label-for="visible_to">
+                                <template #label>
+                                    <strong>{{ t('Visible to:') }}</strong>
+                                </template>
+                                <v-select
+                                    v-model="form.visible_to"
+                                    :options="visibleToOptions"
+                                    :reduce="option => option.value"
+                                    label="label"
+                                    multiple
+                                    :placeholder="t('Select...')"
+                                    :class="{ 'is-invalid': validationContext.errors.length }"
+                                />
+                                <b-form-invalid-feedback :state="getValidationState(validationContext)">
+                                    {{ validationContext.errors[0] }}
+                                </b-form-invalid-feedback>
+                            </b-form-group>
+                        </validation-provider>
                     </b-col>
                 </b-row>
 

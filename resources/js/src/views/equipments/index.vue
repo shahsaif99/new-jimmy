@@ -245,6 +245,11 @@ export default {
         const { t } = useI18nUtils();
 
         onMounted(() => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = Object.fromEntries(urlParams.entries());
+            if (Object.keys(query).length > 0) {
+                filters.initFromQuery(query);
+            }
             fetchEquipments();
         });
 

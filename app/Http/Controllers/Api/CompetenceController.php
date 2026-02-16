@@ -28,7 +28,14 @@ class CompetenceController extends Controller
         $competences = User::query()
         ->select('id','first_name','last_name')
         ->orderBy('first_name','asc')
-        ->with(['competences' => ['competence' => ['media', 'category']]])
+        ->with(['competences' => function($query) use ($request) {
+            $query->with(['competence' => ['media', 'category']]);
+            if ($request->status) {
+                $query->whereHas('competence', function($q) use ($request) {
+                    $q->where('status', $request->status);
+                });
+            }
+        }])
         ->search($request->q)
         ->when($request->q, function($query) use ($request){
             $query->orWhereHas('competences', function($query) use ($request){
@@ -198,7 +205,7 @@ class CompetenceController extends Controller
             if(Carbon::parse($competence->valid_until)->diffInDays($now) <= 90){
                 $competence->status = 'expiring';
             }
-            if(Carbon::parse($competence->valid_until)->isFuture()){
+            if(Carbon::parse($competence->valid_until)->isFuture() && Carbon::parse($competence->valid_until)->diffInDays($now) > 90){
                 $competence->status = 'valid';
             }
             if(Carbon::parse($competence->valid_until)->isPast()){

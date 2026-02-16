@@ -284,6 +284,12 @@ export default {
             getComputedHeight();
             getEquipmentCategories();
             getStorageLocations();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = Object.fromEntries(urlParams.entries());
+            if (Object.keys(query).length > 0) {
+                filters.initFromQuery(query);
+            }
         });
 
         return {

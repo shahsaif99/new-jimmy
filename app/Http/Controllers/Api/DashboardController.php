@@ -107,11 +107,21 @@ class DashboardController extends Controller
                 ];
             });
 
-        // --- Information board (latest published) ---
+        // --- Information board (promote scheduled items whose publish_at has passed) ---
+        InformationBoard::where('status', 'scheduled')
+            ->whereNotNull('publish_at')
+            ->where('publish_at', '<=', $now)
+            ->update(['status' => 'published']);
+
+        $userRole = $user->getRoleNames()->first();
+
         $boardItems = InformationBoard::where('status', 'published')
+            ->when(!$user->hasRole('Admin'), function ($q) use ($userRole) {
+                $q->whereJsonContains('visible_to', $userRole);
+            })
             ->with('user')
             ->orderBy('created_at', 'desc')
-            ->limit(5)
+            ->limit(3)
             ->get()
             ->map(function ($item) {
                 return [
@@ -138,6 +148,11 @@ class DashboardController extends Controller
             'expiring_competence_diff' => $expiringCompetenceDiff,
             'my_tasks' => $myTasks,
             'board_items' => $boardItems,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
         ]);
     }
 

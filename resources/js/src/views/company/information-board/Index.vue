@@ -14,6 +14,8 @@
                     show-empty
                     :empty-text="t('No matching records found')"
                     style="min-height: 60vh"
+                    @row-clicked="viewMessage"
+                    tbody-tr-class="cursor-pointer"
                 >
                     <template #table-busy>
                         <div class="text-center text-danger my-2">
@@ -39,13 +41,15 @@
                     </template>
 
                     <template #cell(status)="data">
-                        <b-badge :variant="data.value === 'published' ? 'light-success' : 'light-warning'">
-                            {{ data.value === 'published' ? t('Published') : t('Draft') }}
+                        <b-badge
+                            :variant="data.value === 'published' ? 'light-success' : data.value === 'scheduled' ? 'light-info' : 'light-warning'"
+                        >
+                            {{ data.value === 'published' ? t('Published') : data.value === 'scheduled' ? t('Scheduled') : t('Draft') }}
                         </b-badge>
                     </template>
 
                     <template #cell(action)="data">
-                        <b-dropdown variant="link" no-caret>
+                        <b-dropdown :disabled="!$can('company-edit', 'all')" variant="link" no-caret>
                             <template #button-content>
                                 <feather-icon icon="MoreVerticalIcon" size="16" class="align-middle text-body" />
                             </template>
@@ -108,6 +112,13 @@
             :showing="dialog.show.edit"
             @closeDialog="dialog.toggleDialog('edit')"
         />
+
+        <ViewMessage
+            v-if="showViewMessage"
+            :showing="showViewMessage"
+            :item="selectedMessage"
+            @close="showViewMessage = false"
+        />
     </div>
 </template>
 
@@ -116,6 +127,7 @@ import { onMounted, ref, watch } from '@vue/composition-api'
 import QuickOptions from './QuickOptions.vue'
 import AddInformation from './AddInformation.vue'
 import EditInformation from './EditInformation.vue'
+import ViewMessage from './ViewMessage.vue'
 import {
     BCard,
     BOverlay,
@@ -146,6 +158,7 @@ export default {
         BBadge,
         AddInformation,
         EditInformation,
+        ViewMessage,
     },
     setup() {
         const refTable = ref(null)
@@ -188,6 +201,14 @@ export default {
             fetchBoardInformation()
         }
 
+        const showViewMessage = ref(false)
+        const selectedMessage = ref({})
+
+        const viewMessage = (item) => {
+            selectedMessage.value = item
+            showViewMessage.value = true
+        }
+
         const editItem = (item) => {
             dialog.temp.data = item
             dialog.temp.id = item.id
@@ -207,6 +228,9 @@ export default {
             dataMeta,
             onPagination,
             editItem,
+            viewMessage,
+            showViewMessage,
+            selectedMessage,
             deleteInformation,
         }
     },
@@ -219,13 +243,4 @@ export default {
     padding: 0.72rem 1rem !important;
 }
 
-#infoBoardTable {
-    th:first-child {
-        display: none !important;
-    }
-
-    td:first-child {
-        display: none !important;
-    }
-}
 </style>

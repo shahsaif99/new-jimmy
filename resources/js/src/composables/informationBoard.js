@@ -4,7 +4,7 @@ import route from 'ziggy-js'
 import toaster from './toaster'
 
 const visibleToOptions = [
-  { value: 'Administrator', label: 'Administrator' },
+  { value: 'Admin', label: 'Admin' },
   { value: 'Employee', label: 'Employee' },
   { value: 'User', label: 'User' },
 ]
@@ -12,6 +12,7 @@ const visibleToOptions = [
 const statusOptions = [
   { value: 'published', text: 'Published' },
   { value: 'draft', text: 'Draft' },
+  { value: 'scheduled', text: 'Scheduled' },
 ]
 
 const columns = ref([
@@ -30,7 +31,7 @@ const filters = reactive({
       id: 1,
       key: 'status',
       label: 'Status',
-      options: ['published', 'draft'],
+      options: ['published', 'draft', 'scheduled'],
       model: '',
       isExpand: false,
       computedHeight: 0,
@@ -39,7 +40,7 @@ const filters = reactive({
       id: 2,
       key: 'visible_to',
       label: 'Visible to',
-      options: ['Administrator', 'Employee', 'User'],
+      options: ['Admin', 'Employee', 'User'],
       model: '',
       isExpand: false,
       computedHeight: 0,
@@ -96,21 +97,25 @@ const form = reactive({
   push_notification: false,
 
   getData() {
-    const data = {
+    let status = 'draft'
+    let publish_at = null
+
+    if (this.publishing === 'now') {
+      status = 'published'
+      publish_at = new Date().toISOString().slice(0, 19).replace('T', ' ')
+    } else if (this.publishing === 'scheduled') {
+      status = 'scheduled'
+      publish_at = this.publish_at || null
+    }
+
+    return {
       title: this.title,
       content: this.content,
       visible_to: this.visible_to,
-      status: this.publishing === 'draft' ? 'draft' : 'published',
+      status,
+      publish_at,
       push_notification: this.push_notification,
     }
-
-    if (this.publishing === 'scheduled' && this.publish_at) {
-      data.publish_at = this.publish_at
-    } else {
-      data.publish_at = null
-    }
-
-    return data
   },
 
   set(data) {
@@ -123,7 +128,7 @@ const form = reactive({
 
     if (data.status === 'draft') {
       this.publishing = 'draft'
-    } else if (data.publish_at) {
+    } else if (data.status === 'scheduled') {
       this.publishing = 'scheduled'
     } else {
       this.publishing = 'now'

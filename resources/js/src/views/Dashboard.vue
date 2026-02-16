@@ -3,8 +3,9 @@
   <b-overlay :show="busy" rounded="sm">
     <b-row>
       <!-- LEFT COLUMN -->
-      <b-col md="7">
+      <b-col md="7" class="d-flex flex-column">
         <!-- Action Buttons -->
+        <h3 class="pb-2 pt-1 bold">{{ t('Welcome, ') }}{{ statistics.user.name }}</h3>
         <div class="d-flex flex-wrap mb-2" style="gap: 0.75rem;">
           <b-button
             variant="warning"
@@ -57,7 +58,7 @@
         </b-row>
 
         <!-- Information Board -->
-        <b-card class="mb-0">
+        <b-card class="mb-0 flex-grow-1">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <h4 class="font-weight-bold mb-0">{{ t('Information Board') }}</h4>
             <span
@@ -72,7 +73,8 @@
             <div
               v-for="item in statistics.board_items"
               :key="item.id"
-              class="border-bottom py-1"
+              class="border-bottom py-1 cursor-pointer"
+              @click="viewMessage(item)"
             >
               <div class="d-flex justify-content-between">
                 <div>
@@ -95,7 +97,7 @@
       </b-col>
 
       <!-- RIGHT COLUMN -->
-      <b-col md="5">
+      <b-col md="5" class="d-flex flex-column">
         <!-- Stat Cards -->
         <b-row class="mb-2">
           <b-col cols="4">
@@ -140,11 +142,11 @@
         </b-card>
 
         <!-- Expiring Cards -->
-        <b-row>
+        <b-row class="mt-auto">
           <b-col cols="6">
             <b-card
               class="text-center mb-0 h-100 cursor-pointer"
-              @click="$router.push({ name: 'equipments' })"
+              @click="$router.push({ name: 'equipments', query: { status: 'expires' } })"
             >
               <feather-icon icon="BriefcaseIcon" size="28" class="mb-1 text-warning" />
               <h5 class="mb-50">{{ t('Expiring Equipment') }}</h5>
@@ -158,7 +160,7 @@
           <b-col cols="6">
             <b-card
               class="text-center mb-0 h-100 cursor-pointer"
-              @click="$router.push({ name: 'competence' })"
+              @click="$router.push({ name: 'competence', query: { status: 'expiring' } })"
             >
               <feather-icon icon="AwardIcon" size="28" class="mb-1 text-info" />
               <h5 class="mb-50">{{ t('Expiring Competence') }}</h5>
@@ -220,17 +222,24 @@
         </b-card>
       </b-col>
     </b-row>
+    <ViewMessage
+      v-if="showViewMessage"
+      :showing="showViewMessage"
+      :item="selectedMessage"
+      @close="showViewMessage = false"
+    />
   </b-overlay>
 </template>
 
 <script>
-import { computed, onMounted } from '@vue/composition-api'
+import { computed, onMounted, ref } from '@vue/composition-api'
 import {
   BRow, BCol, BCard, BButton, BTable, BBadge, BOverlay,
 } from 'bootstrap-vue'
 import VueApexCharts from 'vue-apexcharts'
 import { useUtils as useI18nUtils } from '@core/libs/i18n'
 import useDashboard from '@/composables/dashboard'
+import ViewMessage from '@/views/company/information-board/ViewMessage.vue'
 
 export default {
   components: {
@@ -242,6 +251,7 @@ export default {
     BBadge,
     BOverlay,
     VueApexCharts,
+    ViewMessage,
   },
   setup() {
     const { t } = useI18nUtils()
@@ -341,6 +351,14 @@ export default {
       },
     ])
 
+    const showViewMessage = ref(false)
+    const selectedMessage = ref({})
+
+    const viewMessage = item => {
+      selectedMessage.value = item
+      showViewMessage.value = true
+    }
+
     onMounted(() => {
       fetchStatistics()
     })
@@ -356,12 +374,18 @@ export default {
       chartSeries,
       getStatusColor,
       stripHtml,
+      viewMessage,
+      showViewMessage,
+      selectedMessage,
     }
   },
 }
 </script>
 
 <style scoped>
+.bold{
+    font-weight: bold;
+}
 .small{
     font-weight: bold;
 }

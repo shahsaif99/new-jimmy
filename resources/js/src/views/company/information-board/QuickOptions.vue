@@ -56,7 +56,7 @@
         </div>
         <div class="d-flex flex-wrap align-items-center">
             <div style="gap: 10px" class="d-flex">
-                <b-button @click="dialog.toggleDialog('add')" variant="primary" size="sm">
+                <b-button v-if="$can('company-edit', 'all')" @click="dialog.toggleDialog('add')" variant="primary" size="sm">
                     <feather-icon icon="PlusIcon" size="16" /> {{ t('Add') }}
                 </b-button>
             </div>

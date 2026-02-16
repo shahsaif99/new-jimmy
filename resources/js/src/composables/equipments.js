@@ -104,6 +104,26 @@ export default function useEquipments() {
 
             return data;
         },
+        initFromQuery(query) {
+            [...this.accordion, ...this.selects].forEach((item) => {
+                if (query[item.key] !== undefined) {
+                    item.model = query[item.key];
+                    item.isExpand = true;
+                }
+            });
+
+            if (query.q) {
+                searchQuery.value = query.q;
+            }
+
+            if (query.page) {
+                currentPage.value = Number(query.page);
+            }
+
+            if (query.perPage) {
+                perPage.value = Number(query.perPage);
+            }
+        },
     });
 
     const tableColumns = [
