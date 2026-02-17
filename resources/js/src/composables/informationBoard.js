@@ -17,7 +17,7 @@ const statusOptions = [
 
 const columns = ref([
   { key: 'title', label: 'Title', sortable: true },
-  { key: 'created_at', label: 'Date', sortable: true },
+  { key: 'display_date', label: 'Date', sortable: true },
   { key: 'author', label: 'Author', sortable: false },
   { key: 'visible_to', label: 'Visible to', sortable: false },
   { key: 'status', label: 'Status', sortable: true },

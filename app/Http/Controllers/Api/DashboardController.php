@@ -128,7 +128,9 @@ class DashboardController extends Controller
                     'id' => $item->id,
                     'title' => $item->title,
                     'content' => $item->content,
-                    'created_at' => \Carbon\Carbon::parse($item->getRawOriginal('created_at'))->format('d.m.Y'),
+                    'created_at' => $item->publish_at
+                        ? \Carbon\Carbon::parse($item->publish_at)->format('d.m.Y')
+                        : \Carbon\Carbon::parse($item->getRawOriginal('created_at'))->format('d.m.Y'),
                     'author' => $item->user ? $item->user->name : 'Unknown',
                 ];
             });

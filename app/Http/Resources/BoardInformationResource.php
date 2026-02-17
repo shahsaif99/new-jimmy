@@ -30,6 +30,9 @@ class BoardInformationResource extends JsonResource
             }),
             'publish_at' => $this->publish_at,
             'push_notification' => $this->push_notification,
+            'display_date' => $this->publish_at
+                ? \Carbon\Carbon::parse($this->publish_at)->format('d.m.Y - H:i')
+                : $this->created_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

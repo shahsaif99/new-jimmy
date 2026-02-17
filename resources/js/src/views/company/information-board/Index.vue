@@ -28,7 +28,7 @@
                         <span>{{ data.value }}</span>
                     </template>
 
-                    <template #cell(created_at)="data">
+                    <template #cell(display_date)="data">
                         <span>{{ data.value }}</span>
                     </template>
 
