@@ -239,6 +239,20 @@
                 />
             </BTab>
 
+            <BTab title="WPS">
+                <ProjectWps
+                    v-if="projectData && projectData.id"
+                    :project-id="projectData.id"
+                />
+            </BTab>
+
+            <BTab title="Weld Log">
+                <ProjectWeldLog
+                    v-if="projectData && projectData.id"
+                    :project-id="projectData.id"
+                />
+            </BTab>
+
             <BTab title="Crew list">
                 <BCard no-body class="p-2">
                     <BCardTitle>Crew List</BCardTitle>
@@ -262,6 +276,8 @@ import useProjects from "@/composables/projects";
 import router from "@/router";
 import Tasks from "@/views/tasks/index.vue";
 import ProjectDeviations from "./ProjectDeviations.vue";
+import ProjectWps from "./ProjectWps.vue";
+import ProjectWeldLog from "./ProjectWeldLog.vue";
 import {
     BTabs,
     BTab,
@@ -292,6 +308,8 @@ export default {
         Tasks,
         BSkeleton,
         ProjectDeviations,
+        ProjectWps,
+        ProjectWeldLog,
     },
 
     setup() {

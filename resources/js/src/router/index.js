@@ -25,6 +25,7 @@ import checklistRoutes from './checklist'
 import taskRoutes from './tasks'
 import reportsRoutes from './reports'
 import companyRoutes from './company'
+import weldRoutes from './weld'
 // routes
 
 Vue.use(Router)
@@ -64,6 +65,7 @@ const router = new Router({
         ...taskRoutes,
         ...reportsRoutes,
         ...companyRoutes,
+        ...weldRoutes,
         ...generalRoutes,
       ],
     },

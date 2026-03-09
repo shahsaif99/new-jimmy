@@ -161,6 +161,25 @@ export default [
     route: 'lending-history',
   },
   {
+    title: 'Weld',
+    icon: 'ToolIcon',
+    resource: 'all',
+    children: [
+      {
+        title: 'WPS Overview',
+        route: 'wps-overview',
+        action: 'wps-overview',
+        resource: 'all',
+      },
+      {
+        title: 'Welding Log',
+        route: 'weld-log-overview',
+        action: 'weld-log-overview',
+        resource: 'all',
+      },
+    ],
+  },
+  {
     title: 'Projects',
     icon: 'InboxIcon',
     resource: 'all',

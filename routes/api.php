@@ -39,6 +39,9 @@ use App\Http\Controllers\Api\CustomerSupplierController;
 use App\Http\Controllers\Api\CompanyInformationController;
 use App\Http\Controllers\Api\CompanyLocationController;
 use App\Http\Controllers\Api\TaskCommentController;
+use App\Http\Controllers\Api\WpsController;
+use App\Http\Controllers\Api\WeldLogController;
+use App\Http\Controllers\Api\WeldController;
 use Illuminate\Http\Request;
 
 /*
@@ -149,6 +152,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('user-checklist/{userChecklist}', [UserChecklistController::class, 'destroy'])->name('user-checklist.destroy');
     Route::post('user-checklist/{userChecklist}', [UserChecklistController::class, 'update'])->name('user-checklist.update');
     Route::get('user-checklist-start/{userChecklist}', [UserChecklistController::class, 'start'])->name('user-checklist.start');
+
+    Route::apiResource('wps', WpsController::class);
+    Route::post('wps/{wp}/add-to-project', [WpsController::class, 'addToProject'])->name('wps.add-to-project');
+    Route::apiResource('weld-logs', WeldLogController::class);
+    Route::apiResource('welds', WeldController::class)->only(['store', 'update', 'destroy']);
+    Route::get('weld-logs/{weldLog}/export-pdf', [WeldLogController::class, 'exportPdf'])->name('weld-logs.export-pdf');
+    Route::get('weld-logs/{weldLog}/export-xlsx', [WeldLogController::class, 'exportXlsx'])->name('weld-logs.export-xlsx');
 
     Route::apiResource('task', TaskController::class);
     Route::put('task-update-status/{id}', [TaskController::class, 'updateStatus'])->name('task.update.status');
