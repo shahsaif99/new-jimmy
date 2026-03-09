@@ -4,6 +4,7 @@
       <div class="d-flex justify-content-between align-items-center mb-2">
         <b-card-title class="mb-0">Weld Log</b-card-title>
         <b-button
+          v-if="$can('weld-log-create', 'all')"
           variant="primary"
           size="sm"
           @click="openNewWeldLogModal"
@@ -47,6 +48,7 @@
 
           <template #cell(actions)="data">
             <b-button
+              v-if="$can('weld-log-delete', 'all')"
               variant="flat-danger"
               size="sm"
               @click.stop="handleDeleteWeldLog(data.item.id)"

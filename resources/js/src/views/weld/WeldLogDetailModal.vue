@@ -22,6 +22,7 @@
             PDF
           </b-button>
           <b-button
+            v-if="$can('weld-log-create', 'all')"
             variant="primary"
             size="sm"
             @click="openRegisterWeldModal"
@@ -112,6 +113,7 @@
 
         <template #cell(actions)="data">
           <b-button
+            v-if="$can('weld-log-edit', 'all')"
             variant="flat-primary"
             size="sm"
             @click="openEditWeldModal(data.item)"
@@ -119,6 +121,7 @@
             <feather-icon icon="EditIcon" size="14" />
           </b-button>
           <b-button
+            v-if="$can('weld-log-delete', 'all')"
             variant="flat-danger"
             size="sm"
             @click="handleDeleteWeld(data.item.id)"

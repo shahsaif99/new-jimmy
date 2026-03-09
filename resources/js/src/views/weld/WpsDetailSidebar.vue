@@ -45,7 +45,7 @@
                 <template #button-content>
                   <feather-icon icon="MoreVerticalIcon" size="18" class="text-body" />
                 </template>
-                <b-dropdown-item @click="$emit('edit', wpsDetails)">
+                <b-dropdown-item v-if="$can('wps-edit', 'all')" @click="$emit('edit', wpsDetails)">
                   <feather-icon icon="EditIcon" size="14" class="mr-50" />
                   Edit
                 </b-dropdown-item>

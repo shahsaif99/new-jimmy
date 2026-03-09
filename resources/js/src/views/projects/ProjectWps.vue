@@ -105,11 +105,11 @@
               <template #button-content>
                 <feather-icon icon="MoreVerticalIcon" size="16" class="align-middle text-body" />
               </template>
-              <b-dropdown-item @click.stop="openEditModal(data.item)">
+              <b-dropdown-item v-if="$can('wps-edit', 'all')" @click.stop="openEditModal(data.item)">
                 <feather-icon icon="EditIcon" size="14" class="mr-50" />
                 Edit
               </b-dropdown-item>
-              <b-dropdown-item @click.stop="handleDelete(data.item.id)">
+              <b-dropdown-item v-if="$can('wps-delete', 'all')" @click.stop="handleDelete(data.item.id)">
                 <feather-icon icon="TrashIcon" size="14" class="mr-50" />
                 Delete
               </b-dropdown-item>
