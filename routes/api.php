@@ -155,6 +155,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::apiResource('wps', WpsController::class);
     Route::post('wps/{wp}/add-to-project', [WpsController::class, 'addToProject'])->name('wps.add-to-project');
+    Route::post('wps/{wp}/remove-from-project', [WpsController::class, 'removeFromProject'])->name('wps.remove-from-project');
     Route::apiResource('weld-logs', WeldLogController::class);
     Route::apiResource('welds', WeldController::class)->only(['store', 'update', 'destroy']);
     Route::get('weld-logs/{weldLog}/export-pdf', [WeldLogController::class, 'exportPdf'])->name('weld-logs.export-pdf');

@@ -122,4 +122,13 @@ class WpsController extends Controller
             'data' => new WpsResource($wp->load(['project', 'preparedByUser'])),
         ]);
     }
+
+    public function removeFromProject(Wps $wp)
+    {
+        $wp->update(['project_id' => null]);
+
+        return response()->json([
+            'message' => 'WPS successfully removed from project.',
+        ]);
+    }
 }

@@ -109,9 +109,9 @@
                 <feather-icon icon="EditIcon" size="14" class="mr-50" />
                 Edit
               </b-dropdown-item>
-              <b-dropdown-item v-if="$can('wps-delete', 'all')" @click.stop="handleDelete(data.item.id)">
-                <feather-icon icon="TrashIcon" size="14" class="mr-50" />
-                Delete
+              <b-dropdown-item v-if="$can('wps-delete', 'all')" @click.stop="handleRemoveFromProject(data.item.id)">
+                <feather-icon icon="XIcon" size="14" class="mr-50" />
+                Remove from project
               </b-dropdown-item>
             </b-dropdown>
           </template>
@@ -193,7 +193,7 @@ export default {
       apiHelpers,
       fetchWps,
       getWps,
-      deleteWps,
+      removeFromProject,
     } = useWps()
 
     const showFilters = ref(false)
@@ -265,9 +265,9 @@ export default {
       fetchWps(props.projectId)
     }
 
-    const handleDelete = async (id) => {
-      if (!confirm('Are you sure you want to delete this WPS?')) return
-      const success = await deleteWps(id)
+    const handleRemoveFromProject = async (id) => {
+      if (!confirm('Are you sure you want to remove this WPS from the project?')) return
+      const success = await removeFromProject(id)
       if (success) fetchWps(props.projectId)
     }
 
@@ -326,7 +326,7 @@ export default {
       onEditFromSidebar,
       closeFormModal,
       onFormSaved,
-      handleDelete,
+      handleRemoveFromProject,
       downloadOverview,
     }
   },

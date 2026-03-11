@@ -27,7 +27,7 @@
           </b-form-group>
         </b-col>
         <b-col md="6">
-          <b-form-group label="Weld No." label-for="w-weld-no">
+          <b-form-group label="Weld No." label-for="w-weld-no" :state="isDuplicateWeldNo ? false : null" invalid-feedback="This weld number already exists">
             <b-form-input
               id="w-weld-no"
               v-model.number="weldForm.weld_no"
@@ -35,6 +35,7 @@
               min="1"
               placeholder="Enter weld number"
               required
+              :state="isDuplicateWeldNo ? false : null"
             />
           </b-form-group>
         </b-col>
@@ -114,7 +115,7 @@
         <b-button variant="secondary" class="mr-1" @click="onClose">
           Cancel
         </b-button>
-        <b-button type="submit" variant="primary" :disabled="apiHelpers.loading">
+        <b-button type="submit" variant="primary" :disabled="apiHelpers.loading || isDuplicateWeldNo">
           {{ editWeld ? 'Update' : 'Register' }}
         </b-button>
       </div>
@@ -134,7 +135,7 @@ import {
   BRow,
   BCol,
 } from 'bootstrap-vue'
-import { ref, onMounted, watch } from '@vue/composition-api'
+import { ref, computed, watch } from '@vue/composition-api'
 import useWeldLogs from '@/composables/weldLogs'
 import useWps from '@/composables/wps'
 
@@ -188,12 +189,23 @@ export default {
       { value: 'rejected', text: 'Rejected' },
     ]
 
+    const isDuplicateWeldNo = computed(() => {
+      const welds = props.weldLog?.welds || []
+      const currentNo = weldForm.weld_no
+      if (!currentNo) return false
+      return welds.some((w) => {
+        if (props.editWeld && w.id === props.editWeld.id) return false
+        return Number(w.weld_no) === Number(currentNo)
+      })
+    })
+
     const loadWps = async () => {
       const projectId = props.weldLog?.project_id
       await fetchWps(projectId)
+      const sorted = [...wpsList.value].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
       wpsOptions.value = [
         { value: null, text: 'Select WPS' },
-        ...wpsList.value.map((w) => ({
+        ...sorted.map((w) => ({
           value: w.id,
           text: w.name,
         })),
@@ -201,6 +213,7 @@ export default {
     }
 
     const handleSubmit = async () => {
+      if (isDuplicateWeldNo.value) return
       let success
       if (props.editWeld) {
         dialog.temp.weld.id = props.editWeld.id
@@ -240,6 +253,7 @@ export default {
           } else if (props.weldLog) {
             weldForm.reset()
             weldForm.weld_log_id = props.weldLog.id
+            weldForm.weld_date = new Date().toISOString().slice(0, 10)
           }
         }
       }
@@ -248,6 +262,7 @@ export default {
     return {
       weldForm,
       apiHelpers,
+      isDuplicateWeldNo,
       wpsOptions,
       visualOptions,
       ndtResultOptions,

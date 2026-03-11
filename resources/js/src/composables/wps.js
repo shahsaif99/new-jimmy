@@ -361,6 +361,20 @@ export default function useWps() {
         }
     };
 
+    const removeFromProject = async (wpsId) => {
+        try {
+            apiHelpers.loading = true;
+            await axios.post(route("wps.remove-from-project", { wp: wpsId }));
+            toast.success("WPS successfully removed from project.");
+            return true;
+        } catch (error) {
+            errorHandler(error);
+            return false;
+        } finally {
+            apiHelpers.loading = false;
+        }
+    };
+
     return {
         wpsList,
         currentWps,
@@ -375,5 +389,6 @@ export default function useWps() {
         updateWps,
         deleteWps,
         addToProject,
+        removeFromProject,
     };
 }

@@ -16,7 +16,10 @@ class StoreRequest extends FormRequest
     {
         return [
             'weld_log_id' => ['required', 'exists:weld_logs,id'],
-            'weld_no' => ['required', 'integer', 'min:1'],
+            'weld_no' => [
+                'required', 'integer', 'min:1',
+                Rule::unique('welds')->where('weld_log_id', $this->weld_log_id),
+            ],
             'wps_id' => ['nullable', 'exists:wps,id'],
             'welder_id' => ['required', 'string', 'max:4'],
             'weld_date' => ['required', 'date'],

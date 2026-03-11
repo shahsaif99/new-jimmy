@@ -3,6 +3,7 @@
     :visible="visible"
     title="Weld Log Detail"
     size="xl"
+    centered
     hide-footer
     @hidden="onClose"
   >
@@ -63,8 +64,8 @@
       </b-row>
 
       <b-table
-        v-if="weldLog.welds && weldLog.welds.length"
-        :items="weldLog.welds"
+        v-if="sortedWelds.length"
+        :items="sortedWelds"
         :fields="weldFields"
         responsive
         hover
@@ -112,22 +113,23 @@
         </template>
 
         <template #cell(actions)="data">
-          <b-button
-            v-if="$can('weld-log-edit', 'all')"
-            variant="flat-primary"
-            size="sm"
-            @click="openEditWeldModal(data.item)"
+          <b-dropdown
+            variant="link"
+            no-caret
+            right
           >
-            <feather-icon icon="EditIcon" size="14" />
-          </b-button>
-          <b-button
-            v-if="$can('weld-log-delete', 'all')"
-            variant="flat-danger"
-            size="sm"
-            @click="handleDeleteWeld(data.item.id)"
-          >
-            <feather-icon icon="TrashIcon" size="14" />
-          </b-button>
+            <template #button-content>
+              <feather-icon icon="MoreVerticalIcon" size="16" class="align-middle text-body" />
+            </template>
+            <b-dropdown-item v-if="$can('weld-log-edit', 'all')" @click="openEditWeldModal(data.item)">
+              <feather-icon icon="EditIcon" size="14" class="mr-50" />
+              Edit
+            </b-dropdown-item>
+            <b-dropdown-item v-if="$can('weld-log-delete', 'all')" @click="handleDeleteWeld(data.item.id)">
+              <feather-icon icon="TrashIcon" size="14" class="mr-50" />
+              Delete
+            </b-dropdown-item>
+          </b-dropdown>
         </template>
       </b-table>
 
@@ -158,8 +160,10 @@ import {
   BBadge,
   BRow,
   BCol,
+  BDropdown,
+  BDropdownItem,
 } from 'bootstrap-vue'
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, computed, onMounted } from '@vue/composition-api'
 import useWeldLogs from '@/composables/weldLogs'
 import useCompanyInformation from '@/composables/company-information'
 import html2pdf from 'html2pdf.js'
@@ -174,6 +178,8 @@ export default {
     BBadge,
     BRow,
     BCol,
+    BDropdown,
+    BDropdownItem,
     RegisterWeldModal,
   },
   props: {
@@ -198,6 +204,15 @@ export default {
 
     const showRegisterWeld = ref(false)
     const editingWeld = ref(null)
+
+    const sortedWelds = computed(() => {
+      const welds = props.weldLog?.welds || []
+      return [...welds].sort((a, b) => {
+        const aNo = parseInt(a.weld_no) || 0
+        const bNo = parseInt(b.weld_no) || 0
+        return aNo - bNo
+      })
+    })
 
     const weldFields = [
       { key: 'weld_no', label: 'Weld No.', sortable: true, thClass: 'text-center', tdClass: 'text-center' },
@@ -264,7 +279,7 @@ export default {
       const wl = props.weldLog
       if (!wl) return ''
 
-      const welds = wl.welds || []
+      const welds = [...(wl.welds || [])].sort((a, b) => (parseInt(a.weld_no) || 0) - (parseInt(b.weld_no) || 0))
 
       const logoHtml = companyInfo.value && companyInfo.value.logo_url
         ? `<img src="${companyInfo.value.logo_url}" style="max-height: 60px; max-width: 200px;" crossorigin="anonymous" />`
@@ -409,6 +424,7 @@ export default {
 
     return {
       weldFields,
+      sortedWelds,
       showRegisterWeld,
       editingWeld,
       formatDate,

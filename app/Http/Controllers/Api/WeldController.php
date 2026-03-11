@@ -24,7 +24,10 @@ class WeldController extends Controller
     public function update(Request $request, Weld $weld)
     {
         $weld->update($request->validate([
-            'weld_no' => ['sometimes', 'required', 'integer', 'min:1'],
+            'weld_no' => [
+                'sometimes', 'required', 'integer', 'min:1',
+                Rule::unique('welds')->where('weld_log_id', $weld->weld_log_id)->ignore($weld->id),
+            ],
             'wps_id' => ['nullable', 'exists:wps,id'],
             'welder_id' => ['sometimes', 'required', 'string', 'max:4'],
             'weld_date' => ['sometimes', 'required', 'date'],
