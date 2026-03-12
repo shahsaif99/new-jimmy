@@ -175,12 +175,14 @@ const filters = reactive({
     search: "",
     welding_process: "",
     material_group: "",
+    joint_type: "",
     project_id: "",
     get(pagination) {
         const data = {};
         if (this.search) data.search = this.search;
         if (this.welding_process) data.welding_process = this.welding_process;
         if (this.material_group) data.material_group = this.material_group;
+        if (this.joint_type) data.joint_type = this.joint_type;
         if (this.project_id) data.project_id = this.project_id;
         if (pagination) {
             data.page = pagination.current_page || 1;

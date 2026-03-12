@@ -32,6 +32,7 @@
           responsive
           hover
           striped
+          small
           class="mb-0"
           tbody-tr-class="cursor-pointer"
           @row-clicked="openDetailModal"

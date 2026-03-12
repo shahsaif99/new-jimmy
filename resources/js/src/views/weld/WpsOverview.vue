@@ -76,6 +76,16 @@
               />
             </b-form-group>
           </b-col>
+          <b-col md="3">
+            <b-form-group label="Joint Type" label-size="sm">
+              <b-form-select
+                v-model="filters.joint_type"
+                :options="jointTypeOpts"
+                size="sm"
+                @change="fetchWps()"
+              />
+            </b-form-group>
+          </b-col>
         </b-row>
       </b-collapse>
 
@@ -91,6 +101,7 @@
           :fields="tableFields"
           responsive
           hover
+          small
           class="mb-0"
           tbody-tr-class="cursor-pointer"
           @row-clicked="onRowClicked"
@@ -187,6 +198,7 @@ import {
   BCollapse,
 } from 'bootstrap-vue'
 import { ref, onMounted } from '@vue/composition-api'
+import { utils, writeFile } from 'xlsx'
 import useWps, {
   weldingProcessOptions,
   materialGroupOptions,
@@ -240,6 +252,11 @@ export default {
 
     const weldingProcessOpts = weldingProcessOptions
     const materialGroupOpts = materialGroupOptions
+    const jointTypeOpts = [
+      { value: '', text: 'All' },
+      { value: 'BW', text: 'BW' },
+      { value: 'FW', text: 'FW' },
+    ]
 
     const tableFields = [
       { key: 'name', label: 'Name', sortable: true },
@@ -318,30 +335,49 @@ export default {
     }
 
     const downloadOverview = () => {
-      // Build CSV for download
-      const headers = ['Name', 'Process', 'Joint', 'Group', 'Thickness', 'Diameter', 'Standard']
-      const rows = wpsList.value.map((w) => [
-        w.name,
-        w.welding_process,
-        (w.joint_type || []).join(' / '),
-        w.material_group,
-        w.thickness || '',
-        w.diameter || '',
-        (w.standard || []).join(', '),
-      ])
-      const csv = [headers.join(','), ...rows.map((r) => r.map((c) => `"${c || ''}"`).join(','))].join('\n')
-      const blob = new Blob([csv], { type: 'text/csv' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'wps-overview.csv'
-      a.click()
-      URL.revokeObjectURL(url)
+      const data = wpsList.value.map((w) => ({
+        Name: w.name || '',
+        'Welding Process': w.welding_process || '',
+        'Joint Type': (w.joint_type || []).join(', '),
+        'Material Group': w.material_group || '',
+        Thickness: w.thickness || '',
+        Diameter: w.diameter || '',
+        Standard: (w.standard || []).join(', '),
+      }))
+      const ws = utils.json_to_sheet(data)
+      const wb = utils.book_new()
+      utils.book_append_sheet(wb, ws, 'WPS Overview')
+      writeFile(wb, 'wps-overview.xlsx')
     }
 
-    const onDownload = (item) => {
-      // Download single WPS as CSV
-      downloadOverview()
+    const formatSides = (sides) => {
+      if (sides === 'bs') return 'Both Sides'
+      if (sides === 'ss') return 'Single Side'
+      return sides || '-'
+    }
+
+    const onDownload = (wps) => {
+      if (!wps) return
+      const data = [{
+        'Name': wps.name || '-',
+        'Welding Process': wps.welding_process || '-',
+        'WPQR Number': wps.wpqr || '-',
+        'Thickness': wps.thickness || '-',
+        'Diameter': wps.diameter || '-',
+        'Joint Type': (wps.joint_type || []).join(', ') || '-',
+        'Material Group': wps.material_group || '-',
+        'Welding Position': (wps.welding_position || []).join(', ') || '-',
+        'Layer': wps.layer || '-',
+        'Side': formatSides(wps.sides),
+        'Standard': (wps.standard || []).join(', ') || '-',
+        'Ref. Standard': (wps.ref_spec || []).join(', ') || '-',
+        'Prepared Date': wps.prepared_date || '-',
+        'Prepared By': wps.prepared_by_name || '-',
+      }]
+      const ws = utils.json_to_sheet(data)
+      const wb = utils.book_new()
+      utils.book_append_sheet(wb, ws, 'WPS Detail')
+      writeFile(wb, `wps-${wps.name || 'detail'}.xlsx`)
     }
 
     onMounted(() => {
@@ -362,6 +398,7 @@ export default {
       editingWps,
       weldingProcessOpts,
       materialGroupOpts,
+      jointTypeOpts,
       tableFields,
       debouncedFetch,
       fetchWps,

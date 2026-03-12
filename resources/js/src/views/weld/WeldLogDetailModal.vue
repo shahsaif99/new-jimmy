@@ -70,6 +70,7 @@
         responsive
         hover
         striped
+        small
         class="mb-0"
       >
         <template #cell(weld_date)="data">
@@ -84,22 +85,18 @@
 
         <template #cell(ndt_rt)="data">
           <feather-icon v-if="data.item.ndt_rt" icon="CheckIcon" class="text-success" size="16" />
-          <feather-icon v-else icon="XIcon" class="text-danger" size="16" />
         </template>
 
         <template #cell(ndt_mt)="data">
           <feather-icon v-if="data.item.ndt_mt" icon="CheckIcon" class="text-success" size="16" />
-          <feather-icon v-else icon="XIcon" class="text-danger" size="16" />
         </template>
 
         <template #cell(ndt_pt)="data">
           <feather-icon v-if="data.item.ndt_pt" icon="CheckIcon" class="text-success" size="16" />
-          <feather-icon v-else icon="XIcon" class="text-danger" size="16" />
         </template>
 
         <template #cell(ndt_vt)="data">
           <feather-icon v-if="data.item.ndt_vt" icon="CheckIcon" class="text-success" size="16" />
-          <feather-icon v-else icon="XIcon" class="text-danger" size="16" />
         </template>
 
         <template #cell(ndt_accepted)="data">
@@ -275,69 +272,51 @@ export default {
       }
     }
 
-    const generatePdfHtml = () => {
-      const wl = props.weldLog
-      if (!wl) return ''
+    const ROWS_PER_PAGE = 22
 
-      const welds = [...(wl.welds || [])].sort((a, b) => (parseInt(a.weld_no) || 0) - (parseInt(b.weld_no) || 0))
+    const buildWeldRow = (w, cellBorder, cellPad, centerText) => {
+      const date = w.weld_date ? formatDate(w.weld_date) : ''
+      const visual = w.visual_inspection === 'ok' ? 'OK' : 'Not OK'
+      const rt = w.ndt_rt ? '&#10003;' : ''
+      const pt = w.ndt_pt ? '&#10003;' : ''
+      const mt = w.ndt_mt ? '&#10003;' : ''
+      const vt = w.ndt_vt ? '&#10003;' : ''
+      const accepted = w.ndt_accepted === 'accepted' ? 'Acc.' : (w.ndt_accepted === 'rejected' ? 'Rej.' : '')
+      return `<tr>
+        <td style="${cellBorder} ${cellPad} ${centerText}">${w.weld_no || ''}</td>
+        <td style="${cellBorder} ${cellPad} ${centerText}">${w.welder_id || ''}</td>
+        <td style="${cellBorder} ${cellPad} ${centerText}">${w.wps_name || ''}</td>
+        <td style="${cellBorder} ${cellPad} ${centerText}">${date}</td>
+        <td style="${cellBorder} ${cellPad} ${centerText}">${visual}</td>
+        <td style="${cellBorder} ${cellPad} ${centerText}">${rt}</td>
+        <td style="${cellBorder} ${cellPad} ${centerText}">${pt}</td>
+        <td style="${cellBorder} ${cellPad} ${centerText}">${mt}</td>
+        <td style="${cellBorder} ${cellPad} ${centerText}">${vt}</td>
+        <td style="${cellBorder} ${cellPad} ${centerText}">${accepted}</td>
+      </tr>`
+    }
 
-      const logoHtml = companyInfo.value && companyInfo.value.logo_url
-        ? `<img src="${companyInfo.value.logo_url}" style="max-height: 60px; max-width: 200px;" crossorigin="anonymous" />`
-        : `<span style="font-size: 14px; font-weight: bold;">${appName}</span>`
+    const buildEmptyRow = (cellBorder, cellPad) => {
+      return `<tr>
+        <td style="${cellBorder} ${cellPad}">&nbsp;</td>
+        <td style="${cellBorder} ${cellPad}">&nbsp;</td>
+        <td style="${cellBorder} ${cellPad}">&nbsp;</td>
+        <td style="${cellBorder} ${cellPad}">&nbsp;</td>
+        <td style="${cellBorder} ${cellPad}">&nbsp;</td>
+        <td style="${cellBorder} ${cellPad}">&nbsp;</td>
+        <td style="${cellBorder} ${cellPad}">&nbsp;</td>
+        <td style="${cellBorder} ${cellPad}">&nbsp;</td>
+        <td style="${cellBorder} ${cellPad}">&nbsp;</td>
+        <td style="${cellBorder} ${cellPad}">&nbsp;</td>
+      </tr>`
+    }
 
-      const cellBorder = 'border: 1px solid #000;'
-      const cellPad = 'padding: 4px 6px;'
-      const centerText = 'text-align: center;'
-
-      // Build weld data rows
-      const dataRows = welds.map((w) => {
-        const date = w.weld_date ? formatDate(w.weld_date) : ''
-        const visual = w.visual_inspection === 'ok' ? 'OK' : 'Not OK'
-        const rt = w.ndt_rt ? '&#10003;' : '&#10007;'
-        const pt = w.ndt_pt ? '&#10003;' : '&#10007;'
-        const mt = w.ndt_mt ? '&#10003;' : '&#10007;'
-        const vt = w.ndt_vt ? '&#10003;' : '&#10007;'
-        const accepted = w.ndt_accepted === 'accepted' ? 'Acc.' : (w.ndt_accepted === 'rejected' ? 'Rej.' : '')
-        return `<tr>
-          <td style="${cellBorder} ${cellPad} ${centerText}">${w.weld_no || ''}</td>
-          <td style="${cellBorder} ${cellPad} ${centerText}">${w.welder_id || ''}</td>
-          <td style="${cellBorder} ${cellPad} ${centerText}">${w.wps_name || ''}</td>
-          <td style="${cellBorder} ${cellPad} ${centerText}">${date}</td>
-          <td style="${cellBorder} ${cellPad} ${centerText}">${visual}</td>
-          <td style="${cellBorder} ${cellPad} ${centerText}">${rt}</td>
-          <td style="${cellBorder} ${cellPad} ${centerText}">${pt}</td>
-          <td style="${cellBorder} ${cellPad} ${centerText}">${mt}</td>
-          <td style="${cellBorder} ${cellPad} ${centerText}">${vt}</td>
-          <td style="${cellBorder} ${cellPad} ${centerText}">${accepted}</td>
-        </tr>`
-      }).join('')
-
-      // Fill remaining empty rows to fit one page (~18 total rows for landscape A4)
-      const totalRows = Math.max(18, welds.length)
-      const emptyCount = totalRows - welds.length
-      let emptyRows = ''
-      for (let i = 0; i < emptyCount; i++) {
-        emptyRows += `<tr>
-          <td style="${cellBorder} ${cellPad}">&nbsp;</td>
-          <td style="${cellBorder} ${cellPad}">&nbsp;</td>
-          <td style="${cellBorder} ${cellPad}">&nbsp;</td>
-          <td style="${cellBorder} ${cellPad}">&nbsp;</td>
-          <td style="${cellBorder} ${cellPad}">&nbsp;</td>
-          <td style="${cellBorder} ${cellPad}">&nbsp;</td>
-          <td style="${cellBorder} ${cellPad}">&nbsp;</td>
-          <td style="${cellBorder} ${cellPad}">&nbsp;</td>
-          <td style="${cellBorder} ${cellPad}">&nbsp;</td>
-          <td style="${cellBorder} ${cellPad}">&nbsp;</td>
-        </tr>`
-      }
-
-      const customerName = wl.customer_name || ''
-      const projectNo = wl.project_no && wl.project_name ? wl.project_no + ' - ' + wl.project_name : (wl.project_no || wl.project_name || '')
-      const drawingNo = wl.drawing_no || ''
+    const buildPageHtml = ({ logoHtml, customerName, projectNo, drawingNo, cellBorder, pageNum, totalPages, dataRows, emptyCount, cellPad }) => {
+      const emptyRows = Array(emptyCount).fill(buildEmptyRow(cellBorder, cellPad)).join('')
 
       return `
-        <div style="font-family: Arial, sans-serif; font-size: 11px; padding: 10px;">
-          <!-- Header table: Logo + Customer/Project/Drawing info -->
+        <div style="font-family: Arial, sans-serif; font-size: 11px; padding: 10px; page-break-after: always;">
+          <!-- Header table: Logo + Customer/Project/Drawing info + Page number -->
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000;">
             <tr>
               <td rowspan="3" style="width: 40%; border: 1px solid #000; text-align: center; vertical-align: middle; padding: 8px;">
@@ -345,20 +324,22 @@ export default {
               </td>
               <td style="border: 1px solid #000; padding: 4px 8px; font-weight: bold; width: 15%;">Customer:</td>
               <td style="border: 1px solid #000; padding: 4px 8px;">${customerName}</td>
+              <td style="width: 12%; border: 1px solid #000; text-align: center; vertical-align: middle; padding: 4px; font-weight: bold;">
+                Page ${pageNum} of ${totalPages}
+              </td>
             </tr>
             <tr>
               <td style="border: 1px solid #000; padding: 4px 8px; font-weight: bold;">Project No.:</td>
-              <td style="border: 1px solid #000; padding: 4px 8px;">${projectNo}</td>
+              <td colspan="2" style="border: 1px solid #000; padding: 4px 8px;">${projectNo}</td>
             </tr>
             <tr>
               <td style="border: 1px solid #000; padding: 4px 8px; font-weight: bold;">Drawing No.:</td>
-              <td style="border: 1px solid #000; padding: 4px 8px;">${drawingNo}</td>
+              <td colspan="2" style="border: 1px solid #000; padding: 4px 8px;">${drawingNo}</td>
             </tr>
           </table>
 
           <!-- Data table -->
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; margin-top: -2px;">
-            <!-- Sub-header: Welder control | 3. parts control -->
             <colgroup>
               <col style="width: 8%;">
               <col style="width: 9%;">
@@ -376,7 +357,6 @@ export default {
               <td colspan="2" style="border: 1px solid #000; text-align: center; font-weight: bold; padding: 4px;">Welder control</td>
               <td colspan="5" style="border: 1px solid #000; text-align: center; font-weight: bold; padding: 4px;">3. parts control</td>
             </tr>
-            <!-- Column headers -->
             <tr style="font-weight: bold; text-align: center;">
               <td style="${cellBorder} padding: 6px;">Weld No.</td>
               <td style="${cellBorder} padding: 6px;">Welder ID</td>
@@ -389,13 +369,58 @@ export default {
               <td style="${cellBorder} padding: 6px;">VT</td>
               <td style="${cellBorder} padding: 6px;">Accepted / rejected</td>
             </tr>
-            <!-- Data rows -->
             ${dataRows}
-            <!-- Empty rows -->
             ${emptyRows}
           </table>
-        </div>
-      `
+        </div>`
+    }
+
+    const generatePdfHtml = () => {
+      const wl = props.weldLog
+      if (!wl) return ''
+
+      const welds = [...(wl.welds || [])].sort((a, b) => (parseInt(a.weld_no) || 0) - (parseInt(b.weld_no) || 0))
+
+      const logoHtml = companyInfo.value && companyInfo.value.logo_url
+        ? `<img src="${companyInfo.value.logo_url}" style="max-height: 60px; max-width: 200px;" crossorigin="anonymous" />`
+        : `<span style="font-size: 14px; font-weight: bold;">${appName}</span>`
+
+      const cellBorder = 'border: 1px solid #000;'
+      const cellPad = 'padding: 4px 6px;'
+      const centerText = 'text-align: center;'
+
+      const customerName = wl.customer_name || ''
+      const projectNo = wl.project_no && wl.project_name ? wl.project_no + ' - ' + wl.project_name : (wl.project_no || wl.project_name || '')
+      const drawingNo = wl.drawing_no || ''
+
+      // Split welds into pages
+      const pages = []
+      for (let i = 0; i < welds.length; i += ROWS_PER_PAGE) {
+        pages.push(welds.slice(i, i + ROWS_PER_PAGE))
+      }
+      if (pages.length === 0) pages.push([])
+
+      const totalPages = pages.length
+
+      const pagesHtml = pages.map((pageWelds, idx) => {
+        const dataRows = pageWelds.map((w) => buildWeldRow(w, cellBorder, cellPad, centerText)).join('')
+        const emptyCount = ROWS_PER_PAGE - pageWelds.length
+
+        return buildPageHtml({
+          logoHtml,
+          customerName,
+          projectNo,
+          drawingNo,
+          cellBorder,
+          cellPad,
+          pageNum: idx + 1,
+          totalPages,
+          dataRows,
+          emptyCount,
+        })
+      }).join('')
+
+      return `<div>${pagesHtml}</div>`
     }
 
     const handleExportPdf = () => {
@@ -406,6 +431,7 @@ export default {
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+        pagebreak: { mode: ['css'] },
       }
       html2pdf().set(opt).from(htmlContent).save()
     }

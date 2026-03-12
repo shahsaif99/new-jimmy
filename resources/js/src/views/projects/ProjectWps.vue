@@ -6,6 +6,7 @@
       :wps-details="currentWps"
       :loading="apiHelpers.loading"
       @edit="onEditFromSidebar"
+      @download="downloadDetail"
     />
 
     <b-card no-body class="p-2">
@@ -66,6 +67,16 @@
               />
             </b-form-group>
           </b-col>
+          <b-col md="3">
+            <b-form-group label="Joint Type" label-size="sm">
+              <b-form-select
+                v-model="jointFilter"
+                :options="jointTypeOpts"
+                size="sm"
+                @change="onFilterChange"
+              />
+            </b-form-group>
+          </b-col>
         </b-row>
       </b-collapse>
 
@@ -81,6 +92,7 @@
           :fields="tableFields"
           responsive
           hover
+          small
           class="mb-0"
           tbody-tr-class="cursor-pointer"
           @row-clicked="onRowClicked"
@@ -155,6 +167,7 @@ import {
   BCollapse,
 } from 'bootstrap-vue'
 import { ref, computed, onMounted, watch } from '@vue/composition-api'
+import { utils, writeFile } from 'xlsx'
 import useWps, {
   weldingProcessOptions,
   materialGroupOptions,
@@ -203,9 +216,15 @@ export default {
     const searchQuery = ref('')
     const processFilter = ref('')
     const materialFilter = ref('')
+    const jointFilter = ref('')
 
     const weldingProcessOpts = weldingProcessOptions
     const materialGroupOpts = materialGroupOptions
+    const jointTypeOpts = [
+      { value: '', text: 'All' },
+      { value: 'BW', text: 'BW' },
+      { value: 'FW', text: 'FW' },
+    ]
 
     const tableFields = [
       { key: 'name', label: 'Name', sortable: true },
@@ -232,6 +251,9 @@ export default {
       }
       if (materialFilter.value) {
         list = list.filter((w) => w.material_group === materialFilter.value)
+      }
+      if (jointFilter.value) {
+        list = list.filter((w) => (w.joint_type || []).includes(jointFilter.value))
       }
       return list
     })
@@ -271,25 +293,50 @@ export default {
       if (success) fetchWps(props.projectId)
     }
 
+    const formatSides = (sides) => {
+      if (sides === 'bs') return 'Both Sides'
+      if (sides === 'ss') return 'Single Side'
+      return sides || '-'
+    }
+
+    const downloadDetail = (wps) => {
+      if (!wps) return
+      const data = [{
+        'Name': wps.name || '-',
+        'Welding Process': wps.welding_process || '-',
+        'WPQR Number': wps.wpqr || '-',
+        'Thickness': wps.thickness || '-',
+        'Diameter': wps.diameter || '-',
+        'Joint Type': (wps.joint_type || []).join(', ') || '-',
+        'Material Group': wps.material_group || '-',
+        'Welding Position': (wps.welding_position || []).join(', ') || '-',
+        'Layer': wps.layer || '-',
+        'Side': formatSides(wps.sides),
+        'Standard': (wps.standard || []).join(', ') || '-',
+        'Ref. Standard': (wps.ref_spec || []).join(', ') || '-',
+        'Prepared Date': wps.prepared_date || '-',
+        'Prepared By': wps.prepared_by_name || '-',
+      }]
+      const ws = utils.json_to_sheet(data)
+      const wb = utils.book_new()
+      utils.book_append_sheet(wb, ws, 'WPS Detail')
+      writeFile(wb, `wps-${wps.name || 'detail'}.xlsx`)
+    }
+
     const downloadOverview = () => {
-      const headers = ['Name', 'Process', 'Joint', 'Group', 'Thickness', 'Diameter', 'Standard']
-      const rows = filteredWps.value.map((w) => [
-        w.name,
-        w.welding_process,
-        (w.joint_type || []).join(' / '),
-        w.material_group,
-        w.thickness || '',
-        w.diameter || '',
-        (w.standard || []).join(', '),
-      ])
-      const csv = [headers.join(','), ...rows.map((r) => r.map((c) => `"${c || ''}"`).join(','))].join('\n')
-      const blob = new Blob([csv], { type: 'text/csv' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'wps-project-overview.csv'
-      a.click()
-      URL.revokeObjectURL(url)
+      const data = filteredWps.value.map((w) => ({
+        Name: w.name || '',
+        'Welding Process': w.welding_process || '',
+        'Joint Type': (w.joint_type || []).join(', '),
+        'Material Group': w.material_group || '',
+        Thickness: w.thickness || '',
+        Diameter: w.diameter || '',
+        Standard: (w.standard || []).join(', '),
+      }))
+      const ws = utils.json_to_sheet(data)
+      const wb = utils.book_new()
+      utils.book_append_sheet(wb, ws, 'WPS Overview')
+      writeFile(wb, 'wps-project-overview.xlsx')
     }
 
     onMounted(() => {
@@ -316,8 +363,10 @@ export default {
       searchQuery,
       processFilter,
       materialFilter,
+      jointFilter,
       weldingProcessOpts,
       materialGroupOpts,
+      jointTypeOpts,
       tableFields,
       filteredWps,
       onFilterChange,
@@ -327,6 +376,7 @@ export default {
       closeFormModal,
       onFormSaved,
       handleRemoveFromProject,
+      downloadDetail,
       downloadOverview,
     }
   },
