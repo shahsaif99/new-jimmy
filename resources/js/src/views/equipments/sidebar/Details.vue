@@ -191,13 +191,49 @@
                                 <b-col class="d-flex justify-content-between align-items-center border rounded"
                                     cols="12" md="12">
                                     <span class="p-1">Start Checklist</span>
-                                    <b-button variant="outline-primary" class="d-flex align-items-center">
-                                        Start
+                                    <b-button
+                                        variant="outline-primary"
+                                        class="d-flex align-items-center"
+                                        :disabled="startingChecklist"
+                                        @click="startEquipmentChecklist"
+                                    >
+                                        {{ startingChecklist ? 'Starting...' : 'Start' }}
                                     </b-button>
                                 </b-col>
                             </b-row>
 
-                            <h2 class="section-title">{{ t("Previous Checklists") }}</h2>
+                            <h2 class="section-title mt-2">{{ t("Previous Checklists") }}</h2>
+                            <div v-if="loadingPrevious" class="text-center text-muted py-2">Loading...</div>
+                            <div v-else-if="!previousChecklists.length" class="text-muted py-2">
+                                No previous checklists for this equipment yet.
+                            </div>
+                            <div v-else>
+                                <div
+                                    v-for="row in previousChecklists"
+                                    :key="row.id"
+                                    class="d-flex align-items-center justify-content-between py-1 border-bottom previous-row"
+                                >
+                                    <div class="d-flex align-items-center" style="gap: 8px; min-width: 0">
+                                        <i
+                                            v-if="row.template"
+                                            :class="row.template.icon"
+                                            :style="{ background: row.template.color }"
+                                            class="title-icon-sm"
+                                        ></i>
+                                        <span class="text-truncate" style="max-width: 180px">
+                                            {{ row.template ? row.template.name : row.title }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted text-nowrap">{{ row.date }}</small>
+                                    <small class="text-muted text-nowrap" style="max-width: 120px"
+                                        :title="row.submitted_assigned_label">
+                                        {{ row.submitted_assigned_label || '—' }}
+                                    </small>
+                                    <a class="cursor-pointer" @click="viewChecklist(row)">
+                                        <i class="bi bi-eye text-primary" style="font-size: 1.2rem"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </b-tab>
                         <b-tab title="Lending">
                             <div class="lending-info">
@@ -287,6 +323,9 @@
 <script>
 import { onMounted, computed, watch, ref } from "@vue/composition-api";
 import { useUtils as useI18nUtils } from "@core/libs/i18n";
+import axios from "@axios";
+import route from "ziggy-js";
+import toaster from "@/composables/toaster";
 import Qrcode from "../Qrcode.vue";
 import AddLoan from "../../lending/Create.vue"
 import useLendings from '@/composables/lendings'
@@ -340,11 +379,15 @@ export default {
     },
     setup(props, { emit }) {
         const { t } = useI18nUtils();
+        const toast = toaster();
         const currentTab = ref(0);
         const isQrcodeActive = ref(false);
-        const tabsOptions = ["Details", "Checklist", "Ledning"];
+        const tabsOptions = ["Details", "Checklist", "Lending"];
         const isAddLendingActive = ref(false)
         const selectedTab = ref(0)
+        const previousChecklists = ref([])
+        const loadingPrevious = ref(false)
+        const startingChecklist = ref(false)
 
         const {
             busy,
@@ -424,11 +467,49 @@ export default {
             }
         };
 
+        async function fetchPreviousChecklists() {
+            if (!props.equipment?.id) return
+            try {
+                loadingPrevious.value = true
+                const res = await axios.get(route("submitted-checklists.index"), {
+                    params: { scope: "all", equipment_id: props.equipment.id, perPage: 50 },
+                })
+                if (res.status === 200) previousChecklists.value = res.data.data || []
+            } catch (e) {
+                previousChecklists.value = []
+            } finally {
+                loadingPrevious.value = false
+            }
+        }
+
+        async function startEquipmentChecklist() {
+            if (!props.equipment?.checklist?.id) return
+            try {
+                startingChecklist.value = true
+                const res = await axios.post(route("checklist.start", props.equipment.checklist.id), {
+                    equipment_id: props.equipment.id,
+                })
+                if (res.status === 201) {
+                    toast.success(res.data.message)
+                    fetchPreviousChecklists()
+                }
+            } catch (e) {
+                toast.error(e?.response?.data?.message || "Failed to start checklist")
+            } finally {
+                startingChecklist.value = false
+            }
+        }
+
+        function viewChecklist(row) {
+            toast.info(`Detail view for ${row.code} arrives with the perform-modal feature.`)
+        }
+
         onMounted(() => {
             if (props.equipment) {
                 filters.equipmentId = props.equipment.id
             }
             fetchLendings()
+            fetchPreviousChecklists()
         })
 
         watch(() => props.equipment, () => {
@@ -436,6 +517,7 @@ export default {
                 filters.equipmentId = props.equipment.id
             }
             fetchLendings()
+            fetchPreviousChecklists()
         })
 
         const close = () => {
@@ -473,7 +555,12 @@ export default {
             tableColumns,
             returnLending,
             getStatusClass,
-            noImage
+            noImage,
+            previousChecklists,
+            loadingPrevious,
+            startingChecklist,
+            startEquipmentChecklist,
+            viewChecklist,
         };
     },
 };
@@ -561,5 +648,21 @@ export default {
 
 .status-dot.expired {
     background-color: rgba(255, 0, 0, 0.486);
+}
+
+.title-icon-sm {
+    height: 26px;
+    width: 26px;
+    border-radius: 50%;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.previous-row:last-child {
+    border-bottom: none !important;
 }
 </style>

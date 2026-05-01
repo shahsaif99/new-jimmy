@@ -108,14 +108,22 @@ class ChecklistController extends Controller
         return response()->json(['message' => 'Checklist updated successfully'], 200);
     }
 
-    public function start(Checklist $checklist)
+    public function start(Request $request, Checklist $checklist)
     {
+        $data = $request->validate([
+            'project_id' => 'nullable|exists:projects,id',
+            'equipment_id' => 'nullable|exists:equipment,id',
+        ]);
+
         $userChecklist = UserChecklist::create([
             'checklist_id' => $checklist->id,
             'title' => $checklist->name,
             'status' => UserChecklist::STATUS_IN_PROGRESS,
             'started_at' => now(),
             'assigned_by' => auth()->id(),
+            'project_id' => $data['project_id'] ?? null,
+            'equipment_id' => $data['equipment_id'] ?? null,
+            'category_id' => $checklist->category_id,
             'total_tasks' => $checklist->tasks()->count(),
         ]);
 
