@@ -111,6 +111,16 @@ class Project extends Model
         return $this->hasMany(Task::class, 'project_id');
     }
 
+    public function userChecklists()
+    {
+        return $this->hasMany(UserChecklist::class);
+    }
+
+    public function deviations()
+    {
+        return $this->hasMany(AvvikListing::class);
+    }
+
     /**
      * Ensure user can only modify their own projects.
      */
