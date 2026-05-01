@@ -1,5 +1,5 @@
 <template>
-    <div >
+    <div>
         <div
             class="add-checklist"
             @click="$router.push({ name: 'add-checklist' })"
@@ -30,56 +30,152 @@
             </div>
         </div>
         <hr />
-        <h1 v-if="checklist.length" class="py-2">Templates</h1>
-        <card :checklist="checklist" @refetch="getAllChecklist" />
+
+        <div
+            v-if="!loading && (filteredChecklist.length || hasActiveFilter)"
+            class="d-flex justify-content-between align-items-center flex-wrap py-2"
+        >
+            <h1 class="mb-0">Templates</h1>
+            <div class="d-flex align-items-center flex-wrap" style="gap: 12px">
+                <b-form-select
+                    v-model="categoryFilter"
+                    :options="categoryOptions"
+                    style="min-width: 160px"
+                />
+                <b-form-input
+                    v-model="searchQuery"
+                    placeholder="Search..."
+                    style="min-width: 220px"
+                />
+                <div class="view-toggle btn-group" role="group">
+                    <button
+                        type="button"
+                        class="btn"
+                        :class="viewMode === 'list' ? 'btn-primary' : 'btn-outline-secondary'"
+                        @click="viewMode = 'list'"
+                        title="List view"
+                    >
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <button
+                        type="button"
+                        class="btn"
+                        :class="viewMode === 'grid' ? 'btn-primary' : 'btn-outline-secondary'"
+                        @click="viewMode = 'grid'"
+                        title="Grid view"
+                    >
+                        <i class="bi bi-grid-3x3-gap-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="loading" class="text-center py-3">Loading...</div>
+
+        <List
+            v-else-if="viewMode === 'list'"
+            :checklist="filteredChecklist"
+            @refetch="getAllChecklist"
+        />
+        <card
+            v-else
+            :checklist="filteredChecklist"
+            @refetch="getAllChecklist"
+        />
+
+        <div
+            v-if="!loading && !filteredChecklist.length && hasActiveFilter"
+            class="text-center text-muted py-4"
+        >
+            No templates match your filters.
+        </div>
     </div>
 </template>
 <script>
-import { onMounted, ref, onUnmounted } from "@vue/composition-api";
+import { onMounted, ref, computed, onUnmounted } from "@vue/composition-api";
 import axios from "@axios";
 import card from "./card.vue";
+import List from "./List.vue";
 import route from "ziggy-js";
 import useTasks from "@/composables/tasks";
 
 export default {
-    // omponents: {
-    //   BRow,
-    //   BCol,
-    //   InformationBoard,
-    //   Equipments,
-    // },c
-    // directives: {
-    //   'b-tooltip': VBTooltip,
-    // },
-    components: {
-        card,
-    },
+    components: { card, List },
     setup() {
         const checklist = ref([]);
+        const categories = ref([]);
+        const searchQuery = ref("");
+        const categoryFilter = ref(null);
+        const viewMode = ref("list");
+        const loading = ref(false);
         const { assign, dialog } = useTasks();
 
+        const categoryOptions = computed(() => [
+            { value: null, text: "All categories" },
+            ...categories.value.map((c) => ({ value: c.id, text: c.name })),
+        ]);
+
+        const filteredChecklist = computed(() => {
+            const q = (searchQuery.value || "").toLowerCase().trim();
+            return checklist.value.filter((c) => {
+                if (categoryFilter.value && c.category_id !== categoryFilter.value) return false;
+                if (q && !(c.name || "").toLowerCase().includes(q)) return false;
+                return true;
+            });
+        });
+
+        const hasActiveFilter = computed(
+            () => !!searchQuery.value || categoryFilter.value !== null
+        );
+
+        async function getAllChecklist() {
+            try {
+                loading.value = true;
+                const response = await axios.get(route("checklist.index"));
+                if (response.status === 200) checklist.value = response.data;
+            } finally {
+                loading.value = false;
+            }
+        }
+
+        async function getCategories() {
+            try {
+                const response = await axios.get(route("categories.index"));
+                if (response.status === 200) {
+                    const list = Array.isArray(response.data)
+                        ? response.data
+                        : response.data?.data || [];
+                    categories.value = list.map((c) => ({
+                        id: c.id,
+                        name: c.name,
+                    }));
+                }
+            } catch (e) {
+                categories.value = [];
+            }
+        }
+
         onMounted(() => {
-            // dialog.closeDialog()
             assign.value.reset();
             assign.value.checklist.reset();
             getAllChecklist();
+            getCategories();
         });
 
-        function getAllChecklist() {
-            axios.get(route("checklist.index")).then((response) => {
-                if (response.status === 200) {
-                    checklist.value = response.data;
-                }
-            });
-        }
-
         onUnmounted(() => {
-            assign.value.reset()
+            assign.value.reset();
         });
 
         return {
             getAllChecklist,
             checklist,
+            searchQuery,
+            categoryFilter,
+            categoryOptions,
+            viewMode,
+            filteredChecklist,
+            hasActiveFilter,
+            loading,
         };
     },
 };
@@ -112,6 +208,9 @@ h1 {
     border-radius: 5px;
     max-width: 50px;
     min-width: 40px;
+}
+.view-toggle .btn {
+    padding: 6px 10px;
 }
 </style>
 <style lang="scss" scoped>

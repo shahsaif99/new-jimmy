@@ -102,12 +102,21 @@
                                 </div>
                             </div>
 
-                            <button
-                                class="btn btn-primary align-items-center section-btn"
-                                @click="openDialog(card.id)"
-                            >
-                                Assign
-                            </button>
+                            <div class="d-flex" style="gap: 6px">
+                                <button
+                                    class="btn btn-primary align-items-center section-btn"
+                                    :disabled="startingId === card.id"
+                                    @click="startTemplate(card.id)"
+                                >
+                                    {{ startingId === card.id ? '...' : 'Start' }}
+                                </button>
+                                <button
+                                    class="btn btn-outline-primary align-items-center section-btn"
+                                    @click="openDialog(card.id)"
+                                >
+                                    Assign
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="position-absolute button-div d-none">
@@ -171,6 +180,7 @@ export default defineComponent({
         const showing = ref(false);
         const toast = toaster();
         const loading = ref(false);
+        const startingId = ref(null);
         const openDialog = (id) => {
             const selectedChecklist = props.checklist.find(
                 (checklist) => checklist.id === id
@@ -199,7 +209,6 @@ export default defineComponent({
             try {
                 loading.value = true;
                 const res = await axios.get(route("user-checklist.start", id));
-                console.log(res);
                 if (res.status === 200) {
                     toast.success(res.data.message);
                     emit("refetch");
@@ -210,12 +219,28 @@ export default defineComponent({
                 loading.value = false;
             }
         };
+        const startTemplate = async (id) => {
+            try {
+                startingId.value = id;
+                const res = await axios.post(route("checklist.start", id));
+                if (res.status === 201) {
+                    toast.success(res.data.message);
+                    emit("refetch");
+                }
+            } catch (error) {
+                toast.error(error);
+            } finally {
+                startingId.value = null;
+            }
+        };
         return {
             openDialog,
             checklistId,
             showing,
             dltChecklist,
             startAssignment,
+            startTemplate,
+            startingId,
             dialog,
         };
     },
