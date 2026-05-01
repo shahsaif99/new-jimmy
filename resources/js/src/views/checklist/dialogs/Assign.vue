@@ -713,8 +713,15 @@ export default {
         const assignChecklist = () => {
             if (assign.value.assign_to.length) {
                 isAssigned.value = true;
+                const payload = {
+                    ...assign.value,
+                    checklist: assign.value.checklist?.id ?? assign.value.checklist,
+                    project_id: assign.value.project?.id ?? assign.value.project_id ?? null,
+                    equipment_id: assign.value.equipment_id ?? null,
+                };
+                delete payload.project;
                 axios
-                    .post(route("user-checklist.store"), assign.value)
+                    .post(route("user-checklist.store"), payload)
                     .then((res) => {
                         if (res.status === 201) {
                             toast.success(res.data.message);

@@ -24,7 +24,6 @@ class UserChecklistController extends Controller
     }
     public function store(Request $request)
     {
-        // Validate incoming request data
         $data = $request->validate([
             'assign_to'        => 'required|array',
             'checklist'        => 'required',
@@ -34,28 +33,41 @@ class UserChecklistController extends Controller
             'priority'         => 'nullable',
             'work_location'    => 'nullable',
             'work_order'       => 'nullable',
-
-
+            'project_id'       => 'nullable|exists:projects,id',
+            'equipment_id'     => 'nullable|exists:equipment,id',
+            'due_date'         => 'nullable|date',
         ]);
 
-        // Create a new checklist
+        $template = \App\Models\Checklist::find($data['checklist']);
+
         $checklist = UserChecklist::create([
-            'checklist_id'        => $data['checklist'],
-            'description'      => $data['description'],
-            'name'             => $data['name'],
-            'priority'         => $data['priority'],
-            'work_location'    => \json_encode($data['work_location']),
-            'work_order'       => $data['work_order'],
-
+            'checklist_id'  => $data['checklist'],
+            'description'   => $data['description'] ?? null,
+            'title'         => $data['name'] ?? $template?->name,
+            'priority'      => $data['priority'] ?? null,
+            'work_location' => isset($data['work_location']) ? \json_encode($data['work_location']) : null,
+            'work_order'    => $data['work_order'] ?? null,
+            'project_id'    => $data['project_id'] ?? null,
+            'equipment_id'  => $data['equipment_id'] ?? null,
+            'category_id'   => $template?->category_id,
+            'due_date'      => $data['due_date'] ?? null,
+            'status'        => UserChecklist::STATUS_ASSIGNED,
+            'assigned_by'   => auth()->id(),
+            'total_tasks'   => $template?->tasks()->count() ?? 0,
         ]);
-        foreach ($data['files'] as $file) {
-            $this->convertImage($file, 'attachments/user_checklist_' . \strtotime(now()) . $checklist->id . '.png');
-            UserChecklistFile::create(['user_checklist_id' => $checklist->id,'file' => 'attachments/user_checklist_' . \strtotime(now()) . $checklist->id . '.png']);
+
+        foreach ($data['files'] ?? [] as $file) {
+            $path = 'attachments/user_checklist_' . \strtotime(now()) . $checklist->id . '.png';
+            $this->convertImage($file, $path);
+            UserChecklistFile::create(['user_checklist_id' => $checklist->id, 'file' => $path]);
         }
 
         $checklist->users()->sync($data['assign_to']);
 
-        return response()->json(['message' => 'User Checklist created successfully'], 201);
+        return response()->json([
+            'message' => 'User Checklist created successfully',
+            'user_checklist_id' => $checklist->id,
+        ], 201);
     }
     public function convertImage($base_64_string, $output_file)
     {
@@ -74,7 +86,7 @@ class UserChecklistController extends Controller
         $userChecklist->delete();
         return response()->json(['message' => 'User Checklist deleted successfully'], 200);
     }
-    public function update (Request $request,UserChecklist $userChecklist)
+    public function update(Request $request, UserChecklist $userChecklist)
     {
         $data = $request->validate([
             'assign_to'        => 'required|array',
@@ -85,28 +97,32 @@ class UserChecklistController extends Controller
             'priority'         => 'nullable',
             'work_location'    => 'nullable',
             'work_order'       => 'nullable',
-
-
+            'project_id'       => 'nullable|exists:projects,id',
+            'equipment_id'     => 'nullable|exists:equipment,id',
+            'due_date'         => 'nullable|date',
         ]);
 
-        // Create a new checklist
         $userChecklist->update([
-            'checklist_id'     => $data['checklist'],
-            'description'      => $data['description'],
-            'name'             => $data['name'],
-            'priority'         => $data['priority'],
-            'work_location'    => \json_encode($data['work_location']),
-            'work_order'       => $data['work_order'],
-
+            'checklist_id'  => $data['checklist'],
+            'description'   => $data['description'] ?? null,
+            'title'         => $data['name'] ?? $userChecklist->title,
+            'priority'      => $data['priority'] ?? null,
+            'work_location' => isset($data['work_location']) ? \json_encode($data['work_location']) : null,
+            'work_order'    => $data['work_order'] ?? null,
+            'project_id'    => $data['project_id'] ?? $userChecklist->project_id,
+            'equipment_id'  => $data['equipment_id'] ?? $userChecklist->equipment_id,
+            'due_date'      => $data['due_date'] ?? $userChecklist->due_date,
         ]);
-        foreach ($data['files'] as $file) {
-            $this->convertImage($file, 'attachments/user_checklist_' . \strtotime(now()) . $userChecklist->id . '.png');
-            UserChecklistFile::create(['user_checklist_id' => $userChecklist->id,'file' => 'attachments/user_checklist_' . \strtotime(now()) . $userChecklist->id . '.png']);
+
+        foreach ($data['files'] ?? [] as $file) {
+            $path = 'attachments/user_checklist_' . \strtotime(now()) . $userChecklist->id . '.png';
+            $this->convertImage($file, $path);
+            UserChecklistFile::create(['user_checklist_id' => $userChecklist->id, 'file' => $path]);
         }
 
         $userChecklist->users()->sync($data['assign_to']);
 
-        return response()->json(['message' => 'User Checklist created successfully'], 201);
+        return response()->json(['message' => 'User Checklist updated successfully'], 200);
     }
 
     public function start(UserChecklist $userChecklist)
