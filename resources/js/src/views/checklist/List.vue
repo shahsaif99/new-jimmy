@@ -65,19 +65,27 @@
                 </template>
             </b-table>
         </div>
+
+        <Perform
+            :visible="performVisible"
+            :user-checklist-id="performId"
+            @close="closePerform"
+            @submitted="closePerform"
+        />
     </div>
 </template>
 <script>
 import { defineComponent, ref } from "@vue/composition-api";
 import { BTable, BDropdown, BDropdownItem } from "bootstrap-vue";
 import Assign from "./dialogs/Assign.vue";
+import Perform from "./Perform.vue";
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
 import useTasks from "@/composables/tasks";
 
 export default defineComponent({
-    components: { BTable, BDropdown, BDropdownItem, Assign },
+    components: { BTable, BDropdown, BDropdownItem, Assign, Perform },
     props: {
         checklist: { type: Array, required: false, default: () => [] },
     },
@@ -85,6 +93,8 @@ export default defineComponent({
         const { assign, dialog } = useTasks();
         const checklistId = ref(null);
         const startingId = ref(null);
+        const performId = ref(null);
+        const performVisible = ref(false);
         const toast = toaster();
 
         const fields = [
@@ -120,6 +130,8 @@ export default defineComponent({
                 const res = await axios.post(route("checklist.start", id));
                 if (res.status === 201) {
                     toast.success(res.data.message);
+                    performId.value = res.data.user_checklist_id;
+                    performVisible.value = true;
                     emit("refetch");
                 }
             } catch (e) {
@@ -134,6 +146,12 @@ export default defineComponent({
             emit("refetch");
         };
 
+        const closePerform = () => {
+            performVisible.value = false;
+            performId.value = null;
+            emit("refetch");
+        };
+
         return {
             fields,
             checklistId,
@@ -143,6 +161,9 @@ export default defineComponent({
             startTemplate,
             startingId,
             onAssignClose,
+            performId,
+            performVisible,
+            closePerform,
         };
     },
 });

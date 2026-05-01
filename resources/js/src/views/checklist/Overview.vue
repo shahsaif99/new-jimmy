@@ -174,6 +174,13 @@
                 />
             </div>
         </div>
+
+        <Perform
+            :visible="performVisible"
+            :user-checklist-id="performId"
+            @close="closePerform"
+            @submitted="closePerform"
+        />
     </section>
 </template>
 
@@ -185,11 +192,12 @@ import "flatpickr/dist/flatpickr.css";
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
+import Perform from "./Perform.vue";
 
 export default {
     components: {
         BTable, BFormSelect, BPagination, BOverlay, BBadge, BButton, BDropdown, BDropdownItem,
-        flatPickr,
+        flatPickr, Perform,
     },
     setup(_, { root }) {
         const toast = toaster();
@@ -366,9 +374,16 @@ export default {
             }
         }
 
+        const performId = ref(null);
+        const performVisible = ref(false);
         function onRowClicked(item) {
-            // Detail view comes with item 5 (perform modal). For now, open a placeholder.
-            toast.info(`Detail view for ${item.code} arrives with the perform-modal feature.`);
+            performId.value = item.id;
+            performVisible.value = true;
+        }
+        function closePerform() {
+            performVisible.value = false;
+            performId.value = null;
+            fetchRows();
         }
 
         watch(() => [filters.checklist_id, filters.status, filters.employee_id, dateRange.value], () => {
@@ -389,6 +404,7 @@ export default {
             datePickerConfig, fields, statusOptions, templateOptions, employeeOptions,
             setScope, statusColor, fetchRows, resetFilters, onRowClicked, confirmDelete,
             statusLabel, templateLabel, employeeLabel, dateRangeLabel,
+            performId, performVisible, closePerform,
         };
     },
 };

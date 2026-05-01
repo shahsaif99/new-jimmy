@@ -317,6 +317,12 @@
         <Qrcode :is-qrcode-active.sync="isQrcodeActive" :qrText="equipment.tool_id" v-if="isQrcodeActive" />
         <AddLoan @refetch-data="fetchLendings" :is-add-lending-active.sync="isAddLendingActive"
             v-if="isAddLendingActive" :selected="selectedTab" :equipment="equipment" />
+        <Perform
+            :visible="performVisible"
+            :user-checklist-id="performId"
+            @close="closePerform"
+            @submitted="closePerform"
+        />
     </div>
 </template>
 
@@ -330,6 +336,7 @@ import Qrcode from "../Qrcode.vue";
 import AddLoan from "../../lending/Create.vue"
 import useLendings from '@/composables/lendings'
 import noImage from "@/assets/images/no-image.png"
+import Perform from "@/views/checklist/Perform.vue"
 import {
     BSidebar,
     BTabs,
@@ -364,7 +371,8 @@ export default {
         BButtonGroup,
         AddLoan,
         BDropdown,
-        BDropdownItem
+        BDropdownItem,
+        Perform,
     },
     props: {
         equipment: {
@@ -388,6 +396,8 @@ export default {
         const previousChecklists = ref([])
         const loadingPrevious = ref(false)
         const startingChecklist = ref(false)
+        const performId = ref(null)
+        const performVisible = ref(false)
 
         const {
             busy,
@@ -492,6 +502,8 @@ export default {
                 if (res.status === 201) {
                     toast.success(res.data.message)
                     fetchPreviousChecklists()
+                    performId.value = res.data.user_checklist_id
+                    performVisible.value = true
                 }
             } catch (e) {
                 toast.error(e?.response?.data?.message || "Failed to start checklist")
@@ -501,7 +513,14 @@ export default {
         }
 
         function viewChecklist(row) {
-            toast.info(`Detail view for ${row.code} arrives with the perform-modal feature.`)
+            performId.value = row.id
+            performVisible.value = true
+        }
+
+        function closePerform() {
+            performVisible.value = false
+            performId.value = null
+            fetchPreviousChecklists()
         }
 
         onMounted(() => {
@@ -561,6 +580,9 @@ export default {
             startingChecklist,
             startEquipmentChecklist,
             viewChecklist,
+            performId,
+            performVisible,
+            closePerform,
         };
     },
 };

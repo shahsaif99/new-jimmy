@@ -151,12 +151,20 @@
                 </div>
             </div>
         </div>
+
+        <Perform
+            :visible="performVisible"
+            :user-checklist-id="performId"
+            @close="closePerform"
+            @submitted="closePerform"
+        />
     </div>
 </template>
 <script>
 import { defineComponent, ref } from "@vue/composition-api";
 import { BDropdown, BIcon, BDropdownItem } from "bootstrap-vue";
 import Assign from "./dialogs/Assign.vue";
+import Perform from "./Perform.vue";
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
@@ -168,6 +176,7 @@ export default defineComponent({
         BDropdownItem,
         BIcon,
         Assign,
+        Perform,
     },
     props: {
         checklist: {
@@ -182,6 +191,8 @@ export default defineComponent({
         const toast = toaster();
         const loading = ref(false);
         const startingId = ref(null);
+        const performId = ref(null);
+        const performVisible = ref(false);
         const openDialog = (id) => {
             const selectedChecklist = props.checklist.find(
                 (checklist) => checklist.id === id
@@ -226,6 +237,8 @@ export default defineComponent({
                 const res = await axios.post(route("checklist.start", id));
                 if (res.status === 201) {
                     toast.success(res.data.message);
+                    performId.value = res.data.user_checklist_id;
+                    performVisible.value = true;
                     emit("refetch");
                 }
             } catch (error) {
@@ -238,6 +251,11 @@ export default defineComponent({
             dialog.show = false;
             emit("refetch");
         };
+        const closePerform = () => {
+            performVisible.value = false;
+            performId.value = null;
+            emit("refetch");
+        };
         return {
             openDialog,
             checklistId,
@@ -248,6 +266,9 @@ export default defineComponent({
             startingId,
             dialog,
             onAssignClose,
+            performId,
+            performVisible,
+            closePerform,
         };
     },
 });
