@@ -192,8 +192,12 @@
                     {{ submitting ? 'Submitting...' : 'Submit' }}
                 </b-button>
             </div>
-            <div v-else class="d-flex justify-content-end mt-3">
+            <div v-else class="d-flex justify-content-between align-items-center mt-3">
                 <b-badge variant="success">Submitted on {{ data.date }}</b-badge>
+                <b-button variant="outline-primary" size="sm" @click="downloadPdf">
+                    <i class="bi bi-file-earmark-arrow-down mr-1"></i>
+                    View Report (PDF)
+                </b-button>
             </div>
         </div>
     </b-modal>
@@ -597,6 +601,27 @@ export default {
             })();
         }
 
+        async function downloadPdf() {
+            if (!data.value?.id) return;
+            try {
+                const res = await axios.get(
+                    route("submitted-checklists.export-pdf", data.value.id),
+                    { responseType: "blob" }
+                );
+                const blob = new Blob([res.data], { type: "application/pdf" });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `${data.value.code}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (e) {
+                toast.error("Failed to download PDF");
+            }
+        }
+
         function onHide() {
             emit("close");
         }
@@ -610,7 +635,7 @@ export default {
             data, loading, submitting, filter, filterOptions, readonly, show,
             description, sections, stats, attachmentsCount, failDrafts,
             visibleTasks, setAnswer, saveNote, onPhoto, canCreateDeviation, createDeviation,
-            submitChecklist, onHide,
+            submitChecklist, downloadPdf, onHide,
         };
     },
 };

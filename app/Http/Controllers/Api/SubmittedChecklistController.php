@@ -128,6 +128,23 @@ class SubmittedChecklistController extends Controller
         ]);
     }
 
+    public function exportPdf(UserChecklist $userChecklist)
+    {
+        $userChecklist->load([
+            'checklist.sections.checklistTasks',
+            'users',
+            'project',
+            'equipment',
+            'answers.deviation',
+        ]);
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('exports.checklist-rapport', ['userChecklist' => $userChecklist]);
+
+        $name = 'checklist-' . str_pad((string) (1000 + $userChecklist->id), 4, '0', STR_PAD_LEFT) . '.pdf';
+        return $pdf->download($name);
+    }
+
     public function createDeviation(Request $request, UserChecklist $userChecklist, TaskCheckListAnswer $answer)
     {
         $data = $request->validate([
