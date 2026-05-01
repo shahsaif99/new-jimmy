@@ -16,7 +16,29 @@ const routes = [
         ],
       },
     },
-    
+
+    {
+      path: 'checklist/submitted',
+      name: 'submitted-checklists',
+      component: () => import('@/views/checklist/Overview.vue'),
+      meta: {
+        pageTitle: 'Submitted Checklists',
+        layout: 'vertical',
+        resource: 'all',
+        action: 'checklist',
+        breadcrumb: [
+          {
+            text: 'Checklist',
+            to: { name: 'checklist' },
+          },
+          {
+            text: 'Submitted',
+            active: true,
+          },
+        ],
+      },
+    },
+
     {
       path: 'checklist/create/:param?',
       name: 'add-checklist',
@@ -70,8 +92,5 @@ const routes = [
       },
     },
   ]
-  
+
   export default routes
-  
-  
-  
