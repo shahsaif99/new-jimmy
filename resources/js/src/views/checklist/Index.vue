@@ -33,19 +33,20 @@
 
         <div
             v-if="!loading && (filteredChecklist.length || hasActiveFilter)"
-            class="d-flex justify-content-between align-items-center flex-wrap py-2"
+            class="d-flex justify-content-between align-items-center py-2"
+            style="gap: 12px"
         >
             <h1 class="mb-0">Templates</h1>
-            <div class="d-flex align-items-center flex-wrap" style="gap: 12px">
+            <div class="d-flex align-items-center" style="gap: 12px; flex-wrap: nowrap">
                 <b-form-select
                     v-model="categoryFilter"
                     :options="categoryOptions"
-                    style="min-width: 160px"
+                    style="width: 160px"
                 />
                 <b-form-input
                     v-model="searchQuery"
                     placeholder="Search..."
-                    style="min-width: 220px"
+                    style="width: 240px"
                 />
                 <div class="view-toggle btn-group" role="group">
                     <button
@@ -93,6 +94,7 @@
 </template>
 <script>
 import { onMounted, ref, computed, onUnmounted } from "@vue/composition-api";
+import { BFormSelect, BFormInput } from "bootstrap-vue";
 import axios from "@axios";
 import card from "./card.vue";
 import List from "./List.vue";
@@ -100,7 +102,7 @@ import route from "ziggy-js";
 import useTasks from "@/composables/tasks";
 
 export default {
-    components: { card, List },
+    components: { card, List, BFormSelect, BFormInput },
     setup() {
         const checklist = ref([]);
         const categories = ref([]);
