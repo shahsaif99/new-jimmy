@@ -323,6 +323,12 @@
             @close="closePerform"
             @submitted="closePerform"
         />
+        <SubmittedChecklistDrawer
+            :visible="drawerVisible"
+            :user-checklist-id="drawerId"
+            @close="closeDrawer"
+            @perform="openPerformFromDrawer"
+        />
     </div>
 </template>
 
@@ -337,6 +343,7 @@ import AddLoan from "../../lending/Create.vue"
 import useLendings from '@/composables/lendings'
 import noImage from "@/assets/images/no-image.png"
 import Perform from "@/views/checklist/Perform.vue"
+import SubmittedChecklistDrawer from "@/views/checklist/SubmittedChecklistDrawer.vue"
 import {
     BSidebar,
     BTabs,
@@ -373,6 +380,7 @@ export default {
         BDropdown,
         BDropdownItem,
         Perform,
+        SubmittedChecklistDrawer,
     },
     props: {
         equipment: {
@@ -398,6 +406,8 @@ export default {
         const startingChecklist = ref(false)
         const performId = ref(null)
         const performVisible = ref(false)
+        const drawerId = ref(null)
+        const drawerVisible = ref(false)
 
         const {
             busy,
@@ -513,7 +523,18 @@ export default {
         }
 
         function viewChecklist(row) {
-            performId.value = row.id
+            drawerId.value = row.id
+            drawerVisible.value = true
+        }
+
+        function closeDrawer() {
+            drawerVisible.value = false
+            drawerId.value = null
+            fetchPreviousChecklists()
+        }
+
+        function openPerformFromDrawer(id) {
+            performId.value = id
             performVisible.value = true
         }
 
@@ -583,6 +604,10 @@ export default {
             performId,
             performVisible,
             closePerform,
+            drawerId,
+            drawerVisible,
+            closeDrawer,
+            openPerformFromDrawer,
         };
     },
 };
