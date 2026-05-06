@@ -320,14 +320,10 @@
         <Perform
             :visible="performVisible"
             :user-checklist-id="performId"
+            :template-id="performTemplateId"
+            :equipment-id="performEquipmentId"
             @close="closePerform"
             @submitted="closePerform"
-        />
-        <SubmittedChecklistDrawer
-            :visible="drawerVisible"
-            :user-checklist-id="drawerId"
-            @close="closeDrawer"
-            @perform="openPerformFromDrawer"
         />
     </div>
 </template>
@@ -343,7 +339,6 @@ import AddLoan from "../../lending/Create.vue"
 import useLendings from '@/composables/lendings'
 import noImage from "@/assets/images/no-image.png"
 import Perform from "@/views/checklist/Perform.vue"
-import SubmittedChecklistDrawer from "@/views/checklist/SubmittedChecklistDrawer.vue"
 import {
     BSidebar,
     BTabs,
@@ -380,7 +375,6 @@ export default {
         BDropdown,
         BDropdownItem,
         Perform,
-        SubmittedChecklistDrawer,
     },
     props: {
         equipment: {
@@ -405,9 +399,9 @@ export default {
         const loadingPrevious = ref(false)
         const startingChecklist = ref(false)
         const performId = ref(null)
+        const performTemplateId = ref(null)
+        const performEquipmentId = ref(null)
         const performVisible = ref(false)
-        const drawerId = ref(null)
-        const drawerVisible = ref(false)
 
         const {
             busy,
@@ -502,45 +496,38 @@ export default {
             }
         }
 
-        async function startEquipmentChecklist() {
+        function startEquipmentChecklist() {
             if (!props.equipment?.checklist?.id) return
-            try {
-                startingChecklist.value = true
-                const res = await axios.post(route("checklist.start", props.equipment.checklist.id), {
-                    equipment_id: props.equipment.id,
-                })
-                if (res.status === 201) {
-                    toast.success(res.data.message)
-                    fetchPreviousChecklists()
-                    performId.value = res.data.user_checklist_id
-                    performVisible.value = true
-                }
-            } catch (e) {
-                toast.error(e?.response?.data?.message || "Failed to start checklist")
-            } finally {
-                startingChecklist.value = false
-            }
-        }
-
-        function viewChecklist(row) {
-            drawerId.value = row.id
-            drawerVisible.value = true
-        }
-
-        function closeDrawer() {
-            drawerVisible.value = false
-            drawerId.value = null
-            fetchPreviousChecklists()
-        }
-
-        function openPerformFromDrawer(id) {
-            performId.value = id
+            performTemplateId.value = props.equipment.checklist.id
+            performEquipmentId.value = props.equipment.id
             performVisible.value = true
+        }
+
+        async function viewChecklist(row) {
+            try {
+                const res = await axios.get(
+                    route("submitted-checklists.export-pdf", row.id),
+                    { responseType: "blob" }
+                )
+                const blob = new Blob([res.data], { type: "application/pdf" })
+                const url = window.URL.createObjectURL(blob)
+                const link = document.createElement("a")
+                link.href = url
+                link.download = `${row.code || row.id}.pdf`
+                document.body.appendChild(link)
+                link.click()
+                link.remove()
+                window.URL.revokeObjectURL(url)
+            } catch (e) {
+                toast.error("Report download lands on the pdf-rapport branch.")
+            }
         }
 
         function closePerform() {
             performVisible.value = false
             performId.value = null
+            performTemplateId.value = null
+            performEquipmentId.value = null
             fetchPreviousChecklists()
         }
 
@@ -602,12 +589,10 @@ export default {
             startEquipmentChecklist,
             viewChecklist,
             performId,
+            performTemplateId,
+            performEquipmentId,
             performVisible,
             closePerform,
-            drawerId,
-            drawerVisible,
-            closeDrawer,
-            openPerformFromDrawer,
         };
     },
 };

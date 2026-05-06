@@ -1,11 +1,10 @@
 <template>
     <b-modal
-        :visible="visible"
+        v-model="show"
         size="xl"
         scrollable
         hide-footer
         no-close-on-backdrop
-        @hide="onHide"
         modal-class="perform-checklist-modal"
         :title="null"
     >
@@ -212,6 +211,9 @@ export default {
     props: {
         visible: { type: Boolean, default: false },
         userChecklistId: { type: [Number, String], default: null },
+        templateId: { type: [Number, String], default: null },
+        projectId: { type: [Number, String], default: null },
+        equipmentId: { type: [Number, String], default: null },
     },
     setup(props, { emit }) {
         const toast = toaster();
@@ -220,6 +222,13 @@ export default {
         const submitting = ref(false);
         const filter = ref("all");
         const failDrafts = reactive({});
+
+        const show = computed({
+            get: () => props.visible,
+            set: (v) => {
+                if (!v) emit("close");
+            },
+        });
 
         const filterOptions = [
             { value: "all", label: "All" },
@@ -265,19 +274,74 @@ export default {
             });
         }
 
+        const isFresh = computed(() => !props.userChecklistId && !!props.templateId);
+
         async function fetchData() {
-            if (!props.userChecklistId) return;
-            try {
-                loading.value = true;
-                const res = await axios.get(route("submitted-checklists.show", props.userChecklistId));
-                if (res.status === 200) {
-                    data.value = res.data;
-                    seedDrafts();
+            if (props.userChecklistId) {
+                try {
+                    loading.value = true;
+                    const res = await axios.get(route("submitted-checklists.show", props.userChecklistId));
+                    if (res.status === 200) {
+                        data.value = res.data;
+                        seedDrafts();
+                    }
+                } catch (e) {
+                    toast.error(e?.response?.data?.message || "Failed to load");
+                } finally {
+                    loading.value = false;
                 }
-            } catch (e) {
-                toast.error(e?.response?.data?.message || "Failed to load");
-            } finally {
-                loading.value = false;
+                return;
+            }
+            if (props.templateId) {
+                try {
+                    loading.value = true;
+                    const res = await axios.get(route("checklist.show", props.templateId));
+                    if (res.status === 200) {
+                        const tpl = res.data;
+                        const taskCount = (tpl.sections || []).reduce(
+                            (acc, s) => acc + (s.tasks || s.checklistTasks || []).length, 0
+                        );
+                        data.value = {
+                            id: null,
+                            status: "in_progress",
+                            status_label: "Started",
+                            title: tpl.name,
+                            description: "",
+                            template: {
+                                id: tpl.id, name: tpl.name, icon: tpl.icon, color: tpl.color,
+                            },
+                            template_full: {
+                                id: tpl.id, name: tpl.name, icon: tpl.icon, color: tpl.color,
+                                sections: (tpl.sections || []).map((s) => ({
+                                    id: s.id,
+                                    name: s.name,
+                                    tasks: (s.tasks || s.checklistTasks || []).map((t) => ({
+                                        id: t.id,
+                                        name: t.name,
+                                        type: t.type,
+                                        param: t.param,
+                                        is_img_required: !!t.is_img_required,
+                                        img: t.img,
+                                        answer: null,
+                                    })),
+                                })),
+                            },
+                            progress: { total: taskCount, completed: 0, percent: 0 },
+                            score_percent: 0,
+                            deviation_count: 0,
+                            project: null,
+                            equipment: null,
+                            submitted_assigned_label: "",
+                            date: new Date().toLocaleDateString(),
+                            code: "draft",
+                        };
+                        seedDrafts();
+                    }
+                } catch (e) {
+                    toast.error(e?.response?.data?.message || "Failed to load template");
+                } finally {
+                    loading.value = false;
+                }
             }
         }
 
@@ -290,7 +354,18 @@ export default {
             }));
         }
 
+        function setAnswerLocal(task, value) {
+            if (!task.answer) task.answer = {};
+            task.answer.value = value;
+            task.answer.notes = task._noteDraft || task.answer.notes || null;
+        }
+
         async function setAnswer(task, value) {
+            if (isFresh.value) {
+                setAnswerLocal(task, value);
+                refreshStats();
+                return;
+            }
             try {
                 const res = await axios.post(route("task-answer.store"), {
                     checklist_task_id: task.id,
@@ -315,6 +390,11 @@ export default {
                 toast.warning("Pick Pass/Fail/N/A first");
                 return;
             }
+            if (isFresh.value) {
+                task.answer.notes = task._noteDraft || null;
+                toast.success("Note saved");
+                return;
+            }
             try {
                 const res = await axios.post(route("task-answer.store"), {
                     checklist_task_id: task.id,
@@ -331,9 +411,30 @@ export default {
             }
         }
 
+        function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const fr = new FileReader();
+                fr.onload = () => resolve(fr.result);
+                fr.onerror = reject;
+                fr.readAsDataURL(file);
+            });
+        }
+
         async function onPhoto(event, task) {
             const file = event.target.files?.[0];
             if (!file) return;
+            if (isFresh.value) {
+                try {
+                    const dataUrl = await readFileAsDataUrl(file);
+                    if (!task.answer) task.answer = {};
+                    task.answer.img = dataUrl;
+                } catch (e) {
+                    toast.error("Failed to read image");
+                } finally {
+                    event.target.value = null;
+                }
+                return;
+            }
             const form = new FormData();
             form.append("checklist_task_id", task.id);
             form.append("user_checklist_id", data.value.id);
@@ -362,6 +463,19 @@ export default {
 
         async function createDeviation(task) {
             const draft = failDrafts[task.id];
+            if (isFresh.value) {
+                if (!task.answer || task.answer.value !== "FAIL") {
+                    toast.warning("Pick Fail first");
+                    return;
+                }
+                task.answer.deviation = {
+                    type: draft.type,
+                    title: draft.title,
+                    responsible_person: draft.responsible,
+                };
+                toast.success("Deviation queued — will be created on Submit");
+                return;
+            }
             if (!task.answer?.id) {
                 toast.warning("Save the Fail status first");
                 return;
@@ -388,6 +502,51 @@ export default {
         }
 
         async function submitChecklist() {
+            if (isFresh.value) {
+                const answers = [];
+                sections.value.forEach((s) => s.tasks.forEach((task) => {
+                    if (task.answer && task.answer.value) {
+                        const a = {
+                            checklist_task_id: task.id,
+                            answer: task.answer.value,
+                            notes: task._noteDraft || task.answer.notes || null,
+                        };
+                        if (task.answer.img) a.img = task.answer.img;
+                        if (task.answer.deviation && task.answer.deviation.type && task.answer.deviation.title) {
+                            a.deviation = {
+                                type: task.answer.deviation.type,
+                                title: task.answer.deviation.title,
+                                responsible_person: task.answer.deviation.responsible_person || null,
+                            };
+                        }
+                        answers.push(a);
+                    }
+                }));
+                if (!answers.length) {
+                    toast.warning("Mark at least one task before submitting");
+                    return;
+                }
+                try {
+                    submitting.value = true;
+                    const res = await axios.post(route("checklist.perform", props.templateId), {
+                        title: data.value.title,
+                        description: data.value.description || null,
+                        project_id: props.projectId || null,
+                        equipment_id: props.equipmentId || null,
+                        answers,
+                    });
+                    if (res.status === 201) {
+                        toast.success("Checklist submitted");
+                        emit("submitted", res.data.user_checklist_id);
+                        onHide();
+                    }
+                } catch (e) {
+                    toast.error(e?.response?.data?.message || "Failed to submit");
+                } finally {
+                    submitting.value = false;
+                }
+                return;
+            }
             try {
                 submitting.value = true;
                 const res = await axios.post(route("submitted-checklists.submit", data.value.id));
@@ -405,15 +564,37 @@ export default {
             }
         }
 
-        async function refreshStats() {
-            try {
-                const res = await axios.get(route("submitted-checklists.show", data.value.id));
-                if (res.status === 200) {
-                    data.value.progress = res.data.progress;
-                    data.value.score_percent = res.data.score_percent;
-                    data.value.deviation_count = res.data.deviation_count;
-                }
-            } catch (e) { /* swallow */ }
+        function refreshStats() {
+            if (isFresh.value) {
+                let completed = 0;
+                let passed = 0;
+                let failed = 0;
+                sections.value.forEach((s) => s.tasks.forEach((task) => {
+                    const v = task.answer && task.answer.value;
+                    if (v) completed++;
+                    if (v === "PASS") passed++;
+                    if (v === "FAIL") failed++;
+                }));
+                const total = data.value.progress.total || 0;
+                data.value.progress = {
+                    total,
+                    completed,
+                    percent: total ? Math.round((completed / total) * 100) : 0,
+                };
+                const scored = passed + failed;
+                data.value.score_percent = scored ? Math.round((passed / scored) * 100) : 0;
+                return;
+            }
+            (async () => {
+                try {
+                    const res = await axios.get(route("submitted-checklists.show", data.value.id));
+                    if (res.status === 200) {
+                        data.value.progress = res.data.progress;
+                        data.value.score_percent = res.data.score_percent;
+                        data.value.deviation_count = res.data.deviation_count;
+                    }
+                } catch (e) { /* swallow */ }
+            })();
         }
 
         function onHide() {
@@ -426,7 +607,7 @@ export default {
         });
 
         return {
-            data, loading, submitting, filter, filterOptions, readonly,
+            data, loading, submitting, filter, filterOptions, readonly, show,
             description, sections, stats, attachmentsCount, failDrafts,
             visibleTasks, setAnswer, saveNote, onPhoto, canCreateDeviation, createDeviation,
             submitChecklist, onHide,

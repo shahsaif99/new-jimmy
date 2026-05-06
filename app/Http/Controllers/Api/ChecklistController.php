@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ChecklistResource;
+use App\Models\AvvikListing;
 use App\Models\Checklist;
 use App\Models\ChecklistTask;
 use App\Models\Section;
+use App\Models\TaskCheckListAnswer;
 use App\Models\UserChecklist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ChecklistController extends Controller
@@ -132,6 +135,83 @@ class ChecklistController extends Controller
 
         return response()->json([
             'message' => 'Checklist started',
+            'user_checklist_id' => $userChecklist->id,
+        ], 201);
+    }
+
+    public function perform(Request $request, Checklist $checklist)
+    {
+        $data = $request->validate([
+            'title' => 'nullable|string',
+            'description' => 'nullable|string',
+            'project_id' => 'nullable|exists:projects,id',
+            'equipment_id' => 'nullable|exists:equipment,id',
+            'answers' => 'required|array|min:1',
+            'answers.*.checklist_task_id' => 'required|integer|exists:checklist_tasks,id',
+            'answers.*.answer' => 'required|in:PASS,FAIL,NA',
+            'answers.*.notes' => 'nullable|string',
+            'answers.*.img' => 'nullable|string',
+            'answers.*.deviation' => 'nullable|array',
+            'answers.*.deviation.type' => 'required_with:answers.*.deviation|string',
+            'answers.*.deviation.title' => 'required_with:answers.*.deviation|string',
+            'answers.*.deviation.responsible_person' => 'nullable|string',
+        ]);
+
+        $userChecklist = DB::transaction(function () use ($data, $checklist) {
+            $uc = UserChecklist::create([
+                'checklist_id' => $checklist->id,
+                'title' => $data['title'] ?? $checklist->name,
+                'description' => $data['description'] ?? null,
+                'project_id' => $data['project_id'] ?? null,
+                'equipment_id' => $data['equipment_id'] ?? null,
+                'category_id' => $checklist->category_id,
+                'status' => UserChecklist::STATUS_SUBMITTED,
+                'started_at' => now(),
+                'submitted_at' => now(),
+                'assigned_by' => auth()->id(),
+                'is_started' => true,
+                'total_tasks' => $checklist->tasks()->count(),
+            ]);
+            $uc->users()->sync([auth()->id()]);
+
+            foreach ($data['answers'] as $a) {
+                $answer = TaskCheckListAnswer::create([
+                    'checklist_task_id' => $a['checklist_task_id'],
+                    'user_checklist_id' => $uc->id,
+                    'user_id' => auth()->id(),
+                    'answer' => $a['answer'],
+                    'notes' => $a['notes'] ?? null,
+                ]);
+
+                if (!empty($a['img']) && str_starts_with($a['img'], 'data:image')) {
+                    $path = 'attachments/answer_' . $uc->id . '_' . $answer->id . '_' . uniqid() . '.png';
+                    $this->convertImage($a['img'], $path);
+                    $answer->update(['img' => 'storage/' . $path]);
+                }
+
+                if ($a['answer'] === 'FAIL' && !empty($a['deviation'])) {
+                    $deviation = AvvikListing::create([
+                        'type' => $a['deviation']['type'],
+                        'title' => $a['deviation']['title'],
+                        'date' => now()->format('Y-m-d'),
+                        'responsible_person' => $a['deviation']['responsible_person'] ?? null,
+                        'project_id' => $uc->project_id,
+                        'equipment_id' => $uc->equipment_id,
+                        'description' => $a['notes'] ?? null,
+                        'registered_by' => auth()->id(),
+                        'user_id' => auth()->id(),
+                        'status' => 'open',
+                    ]);
+                    $answer->update(['avvik_listing_id' => $deviation->id]);
+                }
+            }
+
+            $uc->recalculateProgress();
+            return $uc;
+        });
+
+        return response()->json([
+            'message' => 'Checklist submitted',
             'user_checklist_id' => $userChecklist->id,
         ], 201);
     }

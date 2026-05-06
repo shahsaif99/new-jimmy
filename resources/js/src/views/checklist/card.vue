@@ -152,9 +152,17 @@
             </div>
         </div>
 
+        <ProjectSelectionDialog
+            :show="projectPickerVisible"
+            :allow-skip="true"
+            @select="onProjectPicked"
+            @close="closeProjectPicker"
+        />
+
         <Perform
             :visible="performVisible"
-            :user-checklist-id="performId"
+            :template-id="performTemplateId"
+            :project-id="performProjectId"
             @close="closePerform"
             @submitted="closePerform"
         />
@@ -164,6 +172,7 @@
 import { defineComponent, ref } from "@vue/composition-api";
 import { BDropdown, BIcon, BDropdownItem } from "bootstrap-vue";
 import Assign from "./dialogs/Assign.vue";
+import ProjectSelectionDialog from "./dialogs/ProjectSelectionDialog.vue";
 import Perform from "./Perform.vue";
 import axios from "@axios";
 import route from "ziggy-js";
@@ -176,6 +185,7 @@ export default defineComponent({
         BDropdownItem,
         BIcon,
         Assign,
+        ProjectSelectionDialog,
         Perform,
     },
     props: {
@@ -192,7 +202,11 @@ export default defineComponent({
         const loading = ref(false);
         const startingId = ref(null);
         const performId = ref(null);
+        const performTemplateId = ref(null);
+        const performProjectId = ref(null);
         const performVisible = ref(false);
+        const projectPickerVisible = ref(false);
+        const pendingTemplateId = ref(null);
         const openDialog = (id) => {
             const selectedChecklist = props.checklist.find(
                 (checklist) => checklist.id === id
@@ -231,21 +245,22 @@ export default defineComponent({
                 loading.value = false;
             }
         };
-        const startTemplate = async (id) => {
-            try {
-                startingId.value = id;
-                const res = await axios.post(route("checklist.start", id));
-                if (res.status === 201) {
-                    toast.success(res.data.message);
-                    performId.value = res.data.user_checklist_id;
-                    performVisible.value = true;
-                    emit("refetch");
-                }
-            } catch (error) {
-                toast.error(error);
-            } finally {
-                startingId.value = null;
-            }
+        const startTemplate = (id) => {
+            pendingTemplateId.value = id;
+            projectPickerVisible.value = true;
+        };
+
+        const onProjectPicked = (project) => {
+            performProjectId.value = project ? project.id : null;
+            performTemplateId.value = pendingTemplateId.value;
+            projectPickerVisible.value = false;
+            pendingTemplateId.value = null;
+            performVisible.value = true;
+        };
+
+        const closeProjectPicker = () => {
+            projectPickerVisible.value = false;
+            pendingTemplateId.value = null;
         };
         const onAssignClose = () => {
             dialog.show = false;
@@ -253,6 +268,8 @@ export default defineComponent({
         };
         const closePerform = () => {
             performVisible.value = false;
+            performTemplateId.value = null;
+            performProjectId.value = null;
             performId.value = null;
             emit("refetch");
         };
@@ -267,8 +284,13 @@ export default defineComponent({
             dialog,
             onAssignClose,
             performId,
+            performTemplateId,
+            performProjectId,
             performVisible,
             closePerform,
+            projectPickerVisible,
+            onProjectPicked,
+            closeProjectPicker,
         };
     },
 });

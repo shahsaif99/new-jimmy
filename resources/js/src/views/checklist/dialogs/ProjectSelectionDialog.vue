@@ -54,6 +54,9 @@
                 <b-button variant="outline-secondary" class="mr-2" @click="closeDialog">
                     Cancel
                 </b-button>
+                <b-button v-if="allowSkip" variant="outline-primary" class="mr-2" @click="skipSelection">
+                    Continue without project
+                </b-button>
                 <b-button variant="primary" :disabled="!selectedProjectId" @click="confirmSelection">
                     Select
                 </b-button>
@@ -91,6 +94,10 @@ export default {
         selectedId: {
             type: Number,
             default: null,
+        },
+        allowSkip: {
+            type: Boolean,
+            default: false,
         },
     },
     setup(props, { emit }) {
@@ -167,6 +174,10 @@ export default {
             }
         };
 
+        const skipSelection = () => {
+            emit("select", null);
+        };
+
         const closeDialog = () => {
             emit("close");
         };
@@ -207,6 +218,7 @@ export default {
             filteredProjects,
             selectProject,
             confirmSelection,
+            skipSelection,
             closeDialog,
             onModalHide,
         };

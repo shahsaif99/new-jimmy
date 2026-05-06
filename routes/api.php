@@ -148,6 +148,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('checklist/{checklist}', [ChecklistController::class, 'destroy'])->name('checklist.destroy');
     Route::put('checklist/{checklist}', [ChecklistController::class, 'update'])->name('checklist.update');
     Route::post('checklist/{checklist}/start', [ChecklistController::class, 'start'])->name('checklist.start');
+    Route::post('checklist/{checklist}/perform', [ChecklistController::class, 'perform'])->name('checklist.perform');
 
     Route::get('submitted-checklists', [SubmittedChecklistController::class, 'index'])->name('submitted-checklists.index');
     Route::get('submitted-checklists/{userChecklist}', [SubmittedChecklistController::class, 'show'])->name('submitted-checklists.show');
