@@ -18,7 +18,7 @@
                         :style="{ background: data.template.color || '#0096fd' }"
                         class="title-icon"
                     ></i>
-                    <h4 class="mb-0">{{ data ? (data.title || data.template?.name) : 'Checklist' }}</h4>
+                    <h4 class="mb-0">{{ data ? (data.title || (data.template && data.template.name)) : 'Checklist' }}</h4>
                 </div>
                 <a class="cursor-pointer" @click="close">
                     <i class="bi bi-x-lg" style="font-size: 1.4rem"></i>
@@ -40,13 +40,13 @@
             </div>
 
             <div class="d-flex align-items-center mb-2 flex-wrap" style="gap: 12px">
-                <div class="quick-icon" :title="data.project?.name || 'No project'">
+                <div class="quick-icon" :title="(data.project && data.project.name) || 'No project'">
                     <i class="bi bi-folder"></i>
                 </div>
-                <div class="quick-icon" :title="data.equipment?.name || 'No equipment'">
+                <div class="quick-icon" :title="(data.equipment && data.equipment.name) || 'No equipment'">
                     <i class="bi bi-geo-alt"></i>
                 </div>
-                <div class="quick-icon" :title="data.template?.name">
+                <div class="quick-icon" :title="data.template && data.template.name">
                     <i class="bi bi-tools"></i>
                 </div>
                 <div class="flex-grow-1 ml-1">
@@ -98,7 +98,7 @@
                         <button
                             type="button"
                             class="ans-btn pass"
-                            :class="{ active: task.answer?.value === 'PASS' }"
+                            :class="{ active: task.answer && task.answer.value === 'PASS' }"
                             :disabled="readonly"
                             @click="setAnswer(task, 'PASS')"
                         >
@@ -107,7 +107,7 @@
                         <button
                             type="button"
                             class="ans-btn fail"
-                            :class="{ active: task.answer?.value === 'FAIL' }"
+                            :class="{ active: task.answer && task.answer.value === 'FAIL' }"
                             :disabled="readonly"
                             @click="setAnswer(task, 'FAIL')"
                         >
@@ -116,7 +116,7 @@
                         <button
                             type="button"
                             class="ans-btn na"
-                            :class="{ active: task.answer?.value === 'NA' }"
+                            :class="{ active: task.answer && task.answer.value === 'NA' }"
                             :disabled="readonly"
                             @click="setAnswer(task, 'NA')"
                         >
@@ -124,7 +124,7 @@
                         </button>
                     </div>
 
-                    <div v-if="task.answer?.value === 'FAIL' && !task.answer?.deviation" class="fail-fields">
+                    <div v-if="task.answer && task.answer.value === 'FAIL' && !task.answer.deviation" class="fail-fields">
                         <div class="row no-gutters" style="gap: 8px">
                             <div class="col">
                                 <label class="text-muted small mb-0">Type</label>
@@ -141,7 +141,7 @@
                         </div>
                     </div>
 
-                    <div v-if="task.answer?.deviation" class="deviation-pill">
+                    <div v-if="task.answer && task.answer.deviation" class="deviation-pill">
                         <i class="bi bi-exclamation-triangle"></i>
                         Deviation linked: {{ task.answer.deviation.title }}
                         <small class="text-muted ml-1">({{ task.answer.deviation.type }})</small>
@@ -167,7 +167,7 @@
                                 />
                             </label>
                             <button
-                                v-if="task.answer?.value === 'FAIL' && !task.answer?.deviation"
+                                v-if="task.answer && task.answer.value === 'FAIL' && !task.answer.deviation"
                                 type="button"
                                 class="btn btn-primary btn-sm"
                                 :disabled="!canCreateDeviation(task) || readonly"
