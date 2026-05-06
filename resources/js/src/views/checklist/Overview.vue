@@ -6,50 +6,76 @@
             <div class="m-2">
                 <div class="d-flex justify-content-between align-items-center flex-wrap" style="gap: 12px">
                     <div class="d-flex align-items-center flex-wrap" style="gap: 12px">
-                        <div class="btn-group" role="group">
+                        <div class="scope-toggle">
                             <button
                                 type="button"
-                                class="btn"
-                                :class="scope === 'mine' ? 'btn-primary' : 'btn-outline-secondary'"
+                                class="scope-btn"
+                                :class="{ active: scope === 'mine' }"
                                 @click="setScope('mine')"
                             >
                                 My checklists
                             </button>
                             <button
                                 type="button"
-                                class="btn"
-                                :class="scope === 'all' ? 'btn-primary' : 'btn-outline-secondary'"
+                                class="scope-btn"
+                                :class="{ active: scope === 'all' }"
                                 @click="setScope('all')"
                             >
                                 All checklists
                             </button>
                         </div>
 
-                        <b-form-select
-                            v-model="filters.checklist_id"
-                            :options="templateOptions"
-                            style="min-width: 180px"
-                        />
+                        <b-dropdown class="filter-pill" variant="light" no-caret>
+                            <template #button-content>
+                                <span class="text-muted mr-1">Template:</span>
+                                <span>{{ templateLabel }}</span>
+                                <i class="bi bi-chevron-down ml-1 small"></i>
+                            </template>
+                            <b-dropdown-item v-for="opt in templateOptions" :key="opt.value === null ? 'all' : opt.value" @click="filters.checklist_id = opt.value">
+                                {{ opt.label }}
+                            </b-dropdown-item>
+                        </b-dropdown>
                     </div>
 
                     <div class="d-flex align-items-center flex-wrap" style="gap: 12px">
-                        <flat-pickr
-                            v-model="dateRange"
-                            class="form-control"
-                            :config="datePickerConfig"
-                            placeholder="Date range"
-                            style="min-width: 220px"
-                        />
-                        <b-form-select
-                            v-model="filters.status"
-                            :options="statusOptions"
-                            style="min-width: 160px"
-                        />
-                        <b-form-select
-                            v-model="filters.employee_id"
-                            :options="employeeOptions"
-                            style="min-width: 180px"
-                        />
+                        <b-dropdown class="filter-pill" variant="light" no-caret menu-class="p-0">
+                            <template #button-content>
+                                <span class="text-muted mr-1">Date Range:</span>
+                                <span>{{ dateRangeLabel }}</span>
+                                <i class="bi bi-chevron-down ml-1 small"></i>
+                            </template>
+                            <div class="p-2" style="min-width: 260px">
+                                <flat-pickr
+                                    v-model="dateRange"
+                                    class="form-control"
+                                    :config="datePickerConfig"
+                                    placeholder="Date range"
+                                />
+                            </div>
+                        </b-dropdown>
+
+                        <b-dropdown class="filter-pill" variant="light" no-caret>
+                            <template #button-content>
+                                <span class="text-muted mr-1">Status:</span>
+                                <span>{{ statusLabel }}</span>
+                                <i class="bi bi-chevron-down ml-1 small"></i>
+                            </template>
+                            <b-dropdown-item v-for="opt in statusOptions" :key="opt.value === null ? 'all' : opt.value" @click="filters.status = opt.value">
+                                {{ opt.label }}
+                            </b-dropdown-item>
+                        </b-dropdown>
+
+                        <b-dropdown class="filter-pill" variant="light" no-caret>
+                            <template #button-content>
+                                <span class="text-muted mr-1">Employee:</span>
+                                <span>{{ employeeLabel }}</span>
+                                <i class="bi bi-chevron-down ml-1 small"></i>
+                            </template>
+                            <b-dropdown-item v-for="opt in employeeOptions" :key="opt.value === null ? 'all' : opt.value" @click="filters.employee_id = opt.value">
+                                {{ opt.label }}
+                            </b-dropdown-item>
+                        </b-dropdown>
+
                         <b-button variant="warning" size="sm" @click="resetFilters">Reset</b-button>
                     </div>
                 </div>
@@ -198,26 +224,38 @@ export default {
         ];
 
         const statusOptions = [
-            { value: null, text: "Status: All" },
-            { value: "draft", text: "Draft" },
-            { value: "assigned", text: "Assigned" },
-            { value: "in_progress", text: "Started" },
-            { value: "submitted", text: "Submitted" },
-            { value: "overdue", text: "Overdue" },
+            { value: null, label: "All" },
+            { value: "draft", label: "Draft" },
+            { value: "assigned", label: "Assigned" },
+            { value: "in_progress", label: "Started" },
+            { value: "submitted", label: "Submitted" },
+            { value: "overdue", label: "Overdue" },
         ];
 
         const templates = ref([]);
         const employees = ref([]);
 
         const templateOptions = computed(() => [
-            { value: null, text: "Template: All" },
-            ...templates.value.map((t) => ({ value: t.id, text: t.name })),
+            { value: null, label: "All" },
+            ...templates.value.map((t) => ({ value: t.id, label: t.name })),
         ]);
 
         const employeeOptions = computed(() => [
-            { value: null, text: "Employee: All" },
-            ...employees.value.map((e) => ({ value: e.id, text: e.name })),
+            { value: null, label: "All" },
+            ...employees.value.map((e) => ({ value: e.id, label: e.name })),
         ]);
+
+        const statusLabel = computed(() => statusOptions.find(o => o.value === filters.status)?.label || "All");
+        const templateLabel = computed(() => templateOptions.value.find(o => o.value === filters.checklist_id)?.label || "All");
+        const employeeLabel = computed(() => employeeOptions.value.find(o => o.value === filters.employee_id)?.label || "All");
+
+        const dateRangeLabel = computed(() => {
+            if (!dateRange.value) return "All time";
+            if (dateRange.value === defaultDateRange()) return "Last 30 Days";
+            const parts = dateRange.value.split(" to ");
+            if (parts.length !== 2) return dateRange.value;
+            return `${parts[0]} → ${parts[1]}`;
+        });
 
         function defaultDateRange() {
             const today = new Date();
@@ -350,6 +388,7 @@ export default {
             rows, meta, loading, page, scope, filters, dateRange,
             datePickerConfig, fields, statusOptions, templateOptions, employeeOptions,
             setScope, statusColor, fetchRows, resetFilters, onRowClicked, confirmDelete,
+            statusLabel, templateLabel, employeeLabel, dateRangeLabel,
         };
     },
 };
@@ -377,5 +416,48 @@ export default {
     border-radius: 50%;
     margin-right: 6px;
     vertical-align: middle;
+}
+.scope-toggle {
+    background: #f5f5f7;
+    border-radius: 999px;
+    padding: 3px;
+    display: inline-flex;
+    gap: 2px;
+}
+.scope-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: #555;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.scope-btn.active {
+    background: #7367f0;
+    color: #fff;
+}
+</style>
+<style lang="scss">
+.submitted-checklists .filter-pill .btn {
+    background: #f5f5f7 !important;
+    border: 1px solid #ececef !important;
+    color: #444 !important;
+    border-radius: 999px !important;
+    padding: 0.4rem 0.95rem !important;
+    font-size: 0.85rem !important;
+    box-shadow: none !important;
+    display: inline-flex;
+    align-items: center;
+}
+.submitted-checklists .filter-pill .btn:hover,
+.submitted-checklists .filter-pill .btn:focus,
+.submitted-checklists .filter-pill .btn.dropdown-toggle {
+    background: #ececef !important;
+    color: #222 !important;
+}
+.submitted-checklists .filter-pill .btn .text-muted {
+    color: #888 !important;
 }
 </style>

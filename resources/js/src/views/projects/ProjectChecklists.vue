@@ -8,18 +8,59 @@
                 </b-button>
             </div>
 
-            <div class="d-flex flex-wrap mb-2" style="gap: 12px">
-                <b-form-select v-model="filters.checklist_id" :options="templateOptions" style="min-width: 180px" />
-                <flat-pickr
-                    v-model="dateRange"
-                    class="form-control flex-grow-0"
-                    :config="datePickerConfig"
-                    placeholder="Date range"
-                    style="min-width: 220px; max-width: 260px"
-                />
-                <b-form-select v-model="filters.status" :options="statusOptions" style="min-width: 160px" />
-                <b-form-select v-model="filters.employee_id" :options="employeeOptions" style="min-width: 180px" />
-                <b-button variant="warning" size="sm" @click="resetFilters">Reset</b-button>
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap" style="gap: 12px">
+                <b-dropdown class="filter-pill" variant="light" no-caret>
+                    <template #button-content>
+                        <span class="text-muted mr-1">Template:</span>
+                        <span>{{ templateLabel }}</span>
+                        <i class="bi bi-chevron-down ml-1 small"></i>
+                    </template>
+                    <b-dropdown-item v-for="opt in templateOptions" :key="opt.value === null ? 'all' : opt.value" @click="filters.checklist_id = opt.value">
+                        {{ opt.label }}
+                    </b-dropdown-item>
+                </b-dropdown>
+
+                <div class="d-flex align-items-center flex-wrap" style="gap: 12px">
+                    <b-dropdown class="filter-pill" variant="light" no-caret menu-class="p-0">
+                        <template #button-content>
+                            <span class="text-muted mr-1">Date Range:</span>
+                            <span>{{ dateRangeLabel }}</span>
+                            <i class="bi bi-chevron-down ml-1 small"></i>
+                        </template>
+                        <div class="p-2" style="min-width: 260px">
+                            <flat-pickr
+                                v-model="dateRange"
+                                class="form-control"
+                                :config="datePickerConfig"
+                                placeholder="Date range"
+                            />
+                        </div>
+                    </b-dropdown>
+
+                    <b-dropdown class="filter-pill" variant="light" no-caret>
+                        <template #button-content>
+                            <span class="text-muted mr-1">Status:</span>
+                            <span>{{ statusLabel }}</span>
+                            <i class="bi bi-chevron-down ml-1 small"></i>
+                        </template>
+                        <b-dropdown-item v-for="opt in statusOptions" :key="opt.value === null ? 'all' : opt.value" @click="filters.status = opt.value">
+                            {{ opt.label }}
+                        </b-dropdown-item>
+                    </b-dropdown>
+
+                    <b-dropdown class="filter-pill" variant="light" no-caret>
+                        <template #button-content>
+                            <span class="text-muted mr-1">Employee:</span>
+                            <span>{{ employeeLabel }}</span>
+                            <i class="bi bi-chevron-down ml-1 small"></i>
+                        </template>
+                        <b-dropdown-item v-for="opt in employeeOptions" :key="opt.value === null ? 'all' : opt.value" @click="filters.employee_id = opt.value">
+                            {{ opt.label }}
+                        </b-dropdown-item>
+                    </b-dropdown>
+
+                    <b-button variant="warning" size="sm" @click="resetFilters">Reset</b-button>
+                </div>
             </div>
 
             <b-overlay :show="loading" rounded="sm" variant="transparent">
@@ -156,25 +197,37 @@ export default {
         ];
 
         const statusOptions = [
-            { value: null, text: "Status: All" },
-            { value: "draft", text: "Draft" },
-            { value: "assigned", text: "Assigned" },
-            { value: "in_progress", text: "Started" },
-            { value: "submitted", text: "Submitted" },
-            { value: "overdue", text: "Overdue" },
+            { value: null, label: "All" },
+            { value: "draft", label: "Draft" },
+            { value: "assigned", label: "Assigned" },
+            { value: "in_progress", label: "Started" },
+            { value: "submitted", label: "Submitted" },
+            { value: "overdue", label: "Overdue" },
         ];
 
         const templates = ref([]);
         const employees = ref([]);
 
         const templateOptions = computed(() => [
-            { value: null, text: "Template: All" },
-            ...templates.value.map((t) => ({ value: t.id, text: t.name })),
+            { value: null, label: "All" },
+            ...templates.value.map((t) => ({ value: t.id, label: t.name })),
         ]);
         const employeeOptions = computed(() => [
-            { value: null, text: "Employee: All" },
-            ...employees.value.map((e) => ({ value: e.id, text: e.name })),
+            { value: null, label: "All" },
+            ...employees.value.map((e) => ({ value: e.id, label: e.name })),
         ]);
+
+        const statusLabel = computed(() => statusOptions.find(o => o.value === filters.status)?.label || "All");
+        const templateLabel = computed(() => templateOptions.value.find(o => o.value === filters.checklist_id)?.label || "All");
+        const employeeLabel = computed(() => employeeOptions.value.find(o => o.value === filters.employee_id)?.label || "All");
+
+        const dateRangeLabel = computed(() => {
+            if (!dateRange.value) return "All time";
+            if (dateRange.value === defaultDateRange()) return "Last 30 Days";
+            const parts = dateRange.value.split(" to ");
+            if (parts.length !== 2) return dateRange.value;
+            return `${parts[0]} → ${parts[1]}`;
+        });
 
         function defaultDateRange() {
             const today = new Date();
@@ -294,6 +347,7 @@ export default {
             datePickerConfig, fields, statusOptions, templateOptions, employeeOptions,
             statusColor, resetFilters, onRowClicked, openAssign, onAssignClose,
             dialog, assignChecklistId,
+            statusLabel, templateLabel, employeeLabel, dateRangeLabel,
         };
     },
 };
@@ -317,5 +371,31 @@ export default {
     border-radius: 50%;
     margin-right: 6px;
     vertical-align: middle;
+}
+</style>
+<style lang="scss">
+.b-card .filter-pill .btn,
+.card .filter-pill .btn {
+    background: #f5f5f7 !important;
+    border: 1px solid #ececef !important;
+    color: #444 !important;
+    border-radius: 999px !important;
+    padding: 0.4rem 0.95rem !important;
+    font-size: 0.85rem !important;
+    box-shadow: none !important;
+    display: inline-flex;
+    align-items: center;
+}
+.b-card .filter-pill .btn:hover,
+.b-card .filter-pill .btn:focus,
+.b-card .filter-pill .btn.dropdown-toggle,
+.card .filter-pill .btn:hover,
+.card .filter-pill .btn:focus,
+.card .filter-pill .btn.dropdown-toggle {
+    background: #ececef !important;
+    color: #222 !important;
+}
+.filter-pill .btn .text-muted {
+    color: #888 !important;
 }
 </style>
