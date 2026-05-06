@@ -4,7 +4,8 @@
             v-if="dialog.show"
             :id="checklistId"
             :showing="dialog.show"
-            @closeDialog="dialog.toggleDialog"
+            target="user-checklist"
+            @closeDialog="onAssignClose"
         />
         <div class="card mt-1">
             <b-table
@@ -128,6 +129,11 @@ export default defineComponent({
             }
         };
 
+        const onAssignClose = () => {
+            dialog.show = false;
+            emit("refetch");
+        };
+
         return {
             fields,
             checklistId,
@@ -136,6 +142,7 @@ export default defineComponent({
             dltChecklist,
             startTemplate,
             startingId,
+            onAssignClose,
         };
     },
 });

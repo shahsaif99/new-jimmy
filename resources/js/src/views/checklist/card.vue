@@ -4,7 +4,8 @@
             v-if="dialog.show"
             :id="checklistId"
             :showing="dialog.show"
-            @closeDialog="dialog.toggleDialog"
+            target="user-checklist"
+            @closeDialog="onAssignClose"
         />
         <div class="row">
             <div
@@ -233,6 +234,10 @@ export default defineComponent({
                 startingId.value = null;
             }
         };
+        const onAssignClose = () => {
+            dialog.show = false;
+            emit("refetch");
+        };
         return {
             openDialog,
             checklistId,
@@ -242,6 +247,7 @@ export default defineComponent({
             startTemplate,
             startingId,
             dialog,
+            onAssignClose,
         };
     },
 });
