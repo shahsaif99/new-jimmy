@@ -175,6 +175,13 @@
             </div>
         </div>
 
+        <SubmittedChecklistDrawer
+            :visible="drawerVisible"
+            :user-checklist-id="drawerId"
+            @close="closeDrawer"
+            @perform="openPerformFromDrawer"
+        />
+
         <Perform
             :visible="performVisible"
             :user-checklist-id="performId"
@@ -193,11 +200,12 @@ import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
 import Perform from "./Perform.vue";
+import SubmittedChecklistDrawer from "./SubmittedChecklistDrawer.vue";
 
 export default {
     components: {
         BTable, BFormSelect, BPagination, BOverlay, BBadge, BButton, BDropdown, BDropdownItem,
-        flatPickr, Perform,
+        flatPickr, Perform, SubmittedChecklistDrawer,
     },
     setup(_, { root }) {
         const toast = toaster();
@@ -376,8 +384,20 @@ export default {
 
         const performId = ref(null);
         const performVisible = ref(false);
+        const drawerId = ref(null);
+        const drawerVisible = ref(false);
+
         function onRowClicked(item) {
-            performId.value = item.id;
+            drawerId.value = item.id;
+            drawerVisible.value = true;
+        }
+        function closeDrawer() {
+            drawerVisible.value = false;
+            drawerId.value = null;
+            fetchRows();
+        }
+        function openPerformFromDrawer(id) {
+            performId.value = id;
             performVisible.value = true;
         }
         function closePerform() {
@@ -405,6 +425,7 @@ export default {
             setScope, statusColor, fetchRows, resetFilters, onRowClicked, confirmDelete,
             statusLabel, templateLabel, employeeLabel, dateRangeLabel,
             performId, performVisible, closePerform,
+            drawerId, drawerVisible, closeDrawer, openPerformFromDrawer,
         };
     },
 };

@@ -144,6 +144,13 @@
             @closeDialog="onAssignClose"
         />
 
+        <SubmittedChecklistDrawer
+            :visible="drawerVisible"
+            :user-checklist-id="drawerId"
+            @close="closeDrawer"
+            @perform="openPerformFromDrawer"
+        />
+
         <Perform
             :visible="performVisible"
             :user-checklist-id="performId"
@@ -164,11 +171,12 @@ import toaster from "@/composables/toaster";
 import useTasks from "@/composables/tasks";
 import ChecklistAssignDialog from "@/views/checklist/dialogs/Assign.vue";
 import Perform from "@/views/checklist/Perform.vue";
+import SubmittedChecklistDrawer from "@/views/checklist/SubmittedChecklistDrawer.vue";
 
 export default {
     components: {
         BCard, BCardTitle, BButton, BTable, BFormSelect, BPagination, BOverlay, BBadge, BDropdown, BDropdownItem,
-        flatPickr, ChecklistAssignDialog, Perform,
+        flatPickr, ChecklistAssignDialog, Perform, SubmittedChecklistDrawer,
     },
     props: {
         projectId: { type: [Number, String], required: true },
@@ -316,8 +324,20 @@ export default {
 
         const performId = ref(null);
         const performVisible = ref(false);
+        const drawerId = ref(null);
+        const drawerVisible = ref(false);
+
         function onRowClicked(item) {
-            performId.value = item.id;
+            drawerId.value = item.id;
+            drawerVisible.value = true;
+        }
+        function closeDrawer() {
+            drawerVisible.value = false;
+            drawerId.value = null;
+            fetchRows();
+        }
+        function openPerformFromDrawer(id) {
+            performId.value = id;
             performVisible.value = true;
         }
         function closePerform() {
@@ -364,6 +384,7 @@ export default {
             dialog, assignChecklistId,
             statusLabel, templateLabel, employeeLabel, dateRangeLabel,
             performId, performVisible, closePerform,
+            drawerId, drawerVisible, closeDrawer, openPerformFromDrawer,
         };
     },
 };
