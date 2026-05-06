@@ -34,15 +34,6 @@
                             <i class="bi bi-file-earmark-arrow-down mr-1"></i>
                             View Report
                         </b-button>
-                        <b-button
-                            v-else
-                            variant="outline-primary"
-                            size="sm"
-                            @click="openPerform"
-                        >
-                            <i class="bi bi-pencil mr-1"></i>
-                            Continue
-                        </b-button>
                         <a class="cursor-pointer ml-1" @click="onHidden">
                             <i class="bi bi-x-lg" style="font-size: 1.2rem"></i>
                         </a>
@@ -216,11 +207,6 @@ export default {
             }
         }
 
-        function openPerform() {
-            emit("perform", data.value && data.value.id);
-            emit("close");
-        }
-
         function onHidden() {
             emit("close");
         }
@@ -233,7 +219,7 @@ export default {
         return {
             data, loading, sections, description,
             statusColor, iconClass, iconColor, pillLabel, pillClass,
-            downloadPdf, openPerform, onHidden,
+            downloadPdf, onHidden,
         };
     },
 };
