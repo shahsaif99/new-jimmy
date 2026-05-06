@@ -398,7 +398,7 @@
                         </p>
                     </div>
 
-                    <i @click="assign.project.reset" :style="{
+                    <i v-if="!projectLocked" @click="assign.project.reset" :style="{
                         fontSize: '20px',
                         cursor: 'pointer',
                     }" class="bi bi-dash-circle-fill"></i>
@@ -554,6 +554,10 @@ export default {
             type: String,
             default: "task", // "task" creates a Task; "user-checklist" creates a UserChecklist
             validator: (v) => ["task", "user-checklist"].includes(v),
+        },
+        projectLocked: {
+            type: Boolean,
+            default: false,
         },
     },
     setup(props, { emit }) {

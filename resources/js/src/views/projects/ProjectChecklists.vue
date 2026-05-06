@@ -99,6 +99,7 @@
             :id="assignChecklistId"
             :showing="dialog.show"
             target="user-checklist"
+            :project-locked="true"
             @closeDialog="onAssignClose"
         />
     </div>
@@ -122,6 +123,8 @@ export default {
     },
     props: {
         projectId: { type: [Number, String], required: true },
+        projectName: { type: String, default: "" },
+        projectNo: { type: [String, Number], default: "" },
     },
     setup(props) {
         const toast = toaster();
@@ -257,7 +260,13 @@ export default {
 
         function openAssign() {
             assign.value.reset();
-            assign.value.project.id = Number(props.projectId);
+            const id = Number(props.projectId);
+            const display = props.projectNo
+                ? `${props.projectNo} - ${props.projectName}`
+                : props.projectName;
+            assign.value.project.id = id;
+            assign.value.project.data = { id, name: display };
+            assign.value.project.temp = display;
             assignChecklistId.value = null;
             dialog.show = true;
         }

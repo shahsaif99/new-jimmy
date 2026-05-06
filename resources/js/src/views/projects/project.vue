@@ -222,6 +222,8 @@
                 <ProjectChecklists
                     v-if="projectData && projectData.id"
                     :project-id="projectData.id"
+                    :project-name="projectData.name"
+                    :project-no="projectData.project_no"
                 />
             </BTab>
 
