@@ -98,6 +98,7 @@
             v-if="dialog.show"
             :id="assignChecklistId"
             :showing="dialog.show"
+            target="user-checklist"
             @closeDialog="onAssignClose"
         />
     </div>
