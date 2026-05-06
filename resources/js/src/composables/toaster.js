@@ -36,8 +36,35 @@ export default function toaster() {
       },
     })
   }
+  const info = msg => {
+    toast({
+      component: ToastificationContent,
+      timeout: 5000,
+      props: {
+        text: msg,
+        title: 'Info',
+        icon: 'InfoIcon',
+        variant: 'info',
+      },
+    })
+  }
+  const warning = msg => {
+    toast({
+      component: ToastificationContent,
+      timeout: 5000,
+      props: {
+        text: msg,
+        title: 'Warning',
+        icon: 'AlertTriangleIcon',
+        variant: 'warning',
+      },
+    })
+  }
   return {
     success,
     error,
+    info,
+    warning,
+    warn: warning,
   }
 }
