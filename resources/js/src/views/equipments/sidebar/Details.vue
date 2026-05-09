@@ -191,13 +191,49 @@
                                 <b-col class="d-flex justify-content-between align-items-center border rounded"
                                     cols="12" md="12">
                                     <span class="p-1">Start Checklist</span>
-                                    <b-button variant="outline-primary" class="d-flex align-items-center">
-                                        Start
+                                    <b-button
+                                        variant="outline-primary"
+                                        class="d-flex align-items-center"
+                                        :disabled="startingChecklist"
+                                        @click="startEquipmentChecklist"
+                                    >
+                                        {{ startingChecklist ? 'Starting...' : 'Start' }}
                                     </b-button>
                                 </b-col>
                             </b-row>
 
-                            <h2 class="section-title">{{ t("Previous Checklists") }}</h2>
+                            <h2 class="section-title mt-2">{{ t("Previous Checklists") }}</h2>
+                            <div v-if="loadingPrevious" class="text-center text-muted py-2">Loading...</div>
+                            <div v-else-if="!previousChecklists.length" class="text-muted py-2">
+                                No previous checklists for this equipment yet.
+                            </div>
+                            <div v-else>
+                                <div
+                                    v-for="row in previousChecklists"
+                                    :key="row.id"
+                                    class="d-flex align-items-center justify-content-between py-1 border-bottom previous-row"
+                                >
+                                    <div class="d-flex align-items-center" style="gap: 8px; min-width: 0">
+                                        <i
+                                            v-if="row.template"
+                                            :class="row.template.icon"
+                                            :style="{ background: row.template.color }"
+                                            class="title-icon-sm"
+                                        ></i>
+                                        <span class="text-truncate" style="max-width: 180px">
+                                            {{ row.template ? row.template.name : row.title }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted text-nowrap">{{ row.date }}</small>
+                                    <small class="text-muted text-nowrap" style="max-width: 120px"
+                                        :title="row.submitted_assigned_label">
+                                        {{ row.submitted_assigned_label || '—' }}
+                                    </small>
+                                    <a class="cursor-pointer" @click="viewChecklist(row)">
+                                        <i class="bi bi-eye text-primary" style="font-size: 1.2rem"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </b-tab>
                         <b-tab title="Lending">
                             <div class="lending-info">
@@ -281,16 +317,28 @@
         <Qrcode :is-qrcode-active.sync="isQrcodeActive" :qrText="equipment.tool_id" v-if="isQrcodeActive" />
         <AddLoan @refetch-data="fetchLendings" :is-add-lending-active.sync="isAddLendingActive"
             v-if="isAddLendingActive" :selected="selectedTab" :equipment="equipment" />
+        <Perform
+            :visible="performVisible"
+            :user-checklist-id="performId"
+            :template-id="performTemplateId"
+            :equipment-id="performEquipmentId"
+            @close="closePerform"
+            @submitted="closePerform"
+        />
     </div>
 </template>
 
 <script>
 import { onMounted, computed, watch, ref } from "@vue/composition-api";
 import { useUtils as useI18nUtils } from "@core/libs/i18n";
+import axios from "@axios";
+import route from "ziggy-js";
+import toaster from "@/composables/toaster";
 import Qrcode from "../Qrcode.vue";
 import AddLoan from "../../lending/Create.vue"
 import useLendings from '@/composables/lendings'
 import noImage from "@/assets/images/no-image.png"
+import Perform from "@/views/checklist/Perform.vue"
 import {
     BSidebar,
     BTabs,
@@ -325,7 +373,8 @@ export default {
         BButtonGroup,
         AddLoan,
         BDropdown,
-        BDropdownItem
+        BDropdownItem,
+        Perform,
     },
     props: {
         equipment: {
@@ -340,11 +389,19 @@ export default {
     },
     setup(props, { emit }) {
         const { t } = useI18nUtils();
+        const toast = toaster();
         const currentTab = ref(0);
         const isQrcodeActive = ref(false);
-        const tabsOptions = ["Details", "Checklist", "Ledning"];
+        const tabsOptions = ["Details", "Checklist", "Lending"];
         const isAddLendingActive = ref(false)
         const selectedTab = ref(0)
+        const previousChecklists = ref([])
+        const loadingPrevious = ref(false)
+        const startingChecklist = ref(false)
+        const performId = ref(null)
+        const performTemplateId = ref(null)
+        const performEquipmentId = ref(null)
+        const performVisible = ref(false)
 
         const {
             busy,
@@ -424,11 +481,62 @@ export default {
             }
         };
 
+        async function fetchPreviousChecklists() {
+            if (!props.equipment?.id) return
+            try {
+                loadingPrevious.value = true
+                const res = await axios.get(route("submitted-checklists.index"), {
+                    params: { scope: "all", equipment_id: props.equipment.id, perPage: 50 },
+                })
+                if (res.status === 200) previousChecklists.value = res.data.data || []
+            } catch (e) {
+                previousChecklists.value = []
+            } finally {
+                loadingPrevious.value = false
+            }
+        }
+
+        function startEquipmentChecklist() {
+            if (!props.equipment?.checklist?.id) return
+            performTemplateId.value = props.equipment.checklist.id
+            performEquipmentId.value = props.equipment.id
+            performVisible.value = true
+        }
+
+        async function viewChecklist(row) {
+            try {
+                const res = await axios.get(
+                    route("submitted-checklists.export-pdf", row.id),
+                    { responseType: "blob" }
+                )
+                const blob = new Blob([res.data], { type: "application/pdf" })
+                const url = window.URL.createObjectURL(blob)
+                const link = document.createElement("a")
+                link.href = url
+                link.download = `${row.code || row.id}.pdf`
+                document.body.appendChild(link)
+                link.click()
+                link.remove()
+                window.URL.revokeObjectURL(url)
+            } catch (e) {
+                toast.error("Report download lands on the pdf-rapport branch.")
+            }
+        }
+
+        function closePerform() {
+            performVisible.value = false
+            performId.value = null
+            performTemplateId.value = null
+            performEquipmentId.value = null
+            fetchPreviousChecklists()
+        }
+
         onMounted(() => {
             if (props.equipment) {
                 filters.equipmentId = props.equipment.id
             }
             fetchLendings()
+            fetchPreviousChecklists()
         })
 
         watch(() => props.equipment, () => {
@@ -436,6 +544,7 @@ export default {
                 filters.equipmentId = props.equipment.id
             }
             fetchLendings()
+            fetchPreviousChecklists()
         })
 
         const close = () => {
@@ -473,7 +582,17 @@ export default {
             tableColumns,
             returnLending,
             getStatusClass,
-            noImage
+            noImage,
+            previousChecklists,
+            loadingPrevious,
+            startingChecklist,
+            startEquipmentChecklist,
+            viewChecklist,
+            performId,
+            performTemplateId,
+            performEquipmentId,
+            performVisible,
+            closePerform,
         };
     },
 };
@@ -561,5 +680,21 @@ export default {
 
 .status-dot.expired {
     background-color: rgba(255, 0, 0, 0.486);
+}
+
+.title-icon-sm {
+    height: 26px;
+    width: 26px;
+    border-radius: 50%;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.previous-row:last-child {
+    border-bottom: none !important;
 }
 </style>

@@ -2,72 +2,89 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChecklistTask;
 use App\Models\Task;
 use App\Models\TaskCheckListAnswer;
+use App\Models\UserChecklist;
 use Illuminate\Http\Request;
 
 class TaskCheckListAnswerController extends Controller
 {
-
     public function store(Request $request)
     {
         $data = $request->validate([
             'checklist_task_id' => 'required|exists:checklist_tasks,id',
-            'main_task_id' => 'required|exists:tasks,id', // I added this line to validate the main task id
-            'answer' => 'required_without:img',
+            'main_task_id' => 'nullable|exists:tasks,id',
+            'user_checklist_id' => 'nullable|exists:user_checklists,id',
+            'answer' => 'required_without:img|string|in:PASS,FAIL,NA',
             'img' => 'required_without:answer',
             'attachment' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
-        $task_answer = TaskCheckListAnswer::where('checklist_task_id', $data['checklist_task_id'])->where('main_task_id',$data['main_task_id'])->first();
-        if(!$task_answer){
-            $task_answer = new TaskCheckListAnswer();
-            $task_answer->checklist_task_id = $data['checklist_task_id'];
-            $task_answer->main_task_id = $data['main_task_id'];
+
+        if (empty($data['main_task_id']) && empty($data['user_checklist_id'])) {
+            return response()->json(['message' => 'Either main_task_id or user_checklist_id is required'], 422);
         }
+
+        $query = TaskCheckListAnswer::where('checklist_task_id', $data['checklist_task_id']);
+        if (!empty($data['user_checklist_id'])) {
+            $query->where('user_checklist_id', $data['user_checklist_id']);
+        }
+        if (!empty($data['main_task_id'])) {
+            $query->where('main_task_id', $data['main_task_id']);
+        }
+        $answer = $query->first() ?? new TaskCheckListAnswer();
+
+        $answer->checklist_task_id = $data['checklist_task_id'];
+        if (!empty($data['main_task_id'])) {
+            $answer->main_task_id = $data['main_task_id'];
+        }
+        if (!empty($data['user_checklist_id'])) {
+            $answer->user_checklist_id = $data['user_checklist_id'];
+        }
+        $answer->user_id = auth()->id();
+        if (isset($data['answer'])) {
+            $answer->answer = $data['answer'];
+        }
+        if (array_key_exists('notes', $data)) {
+            $answer->notes = $data['notes'];
+        }
+
         if ($request->hasFile('img') && $request->file('img')->isValid()) {
-            // Generating a unique file name based on the current timestamp and file extension
-            $imageName = time() . '.' . $request->img->extension();
-
-            // Moving the image to a permanent location (e.g., 'public/images')
+            $imageName = time() . '_' . uniqid() . '.' . $request->img->extension();
             $request->img->move(public_path('images'), $imageName);
-
-            // Creating the storage path that will be saved in the database
-            $storagePath = 'images/' . $imageName;
-
-            // Assuming you have a model where this data should be stored
-            $task_answer->img = $storagePath;
-            // Set other properties as needed
-
-            // Additional handling or response
+            $answer->img = 'images/' . $imageName;
         }
 
         if ($request->hasFile('attachment') && $request->file('attachment')->isValid()) {
-            // Generating a unique file name based on the current timestamp and file extension
-            $imageName = time() . '.' . $request->attachment->extension();
-
-            // Moving the image to a permanent location (e.g., 'public/images')
-            $request->attachment->move(public_path('images'), $imageName);
-
-            // Creating the storage path that will be saved in the database
-            $storagePath = 'images/' . $imageName;
-
-            // Assuming you have a model where this data should be stored
-            $task_answer->attachment = $storagePath;
-            // Set other properties as needed
+            $attName = time() . '_att_' . uniqid() . '.' . $request->attachment->extension();
+            $request->attachment->move(public_path('images'), $attName);
+            $answer->attachment = 'images/' . $attName;
         }
-        $task_answer->answer = $data['answer'] ?? '';
-        $task_answer->save();
 
-        $main_task = Task::find($data['main_task_id']);
-        $checklist = count($main_task->checklist->tasks);
-        $user_answered = TaskCheckListAnswer::where('main_task_id',$data['main_task_id'])->count();
-        if($user_answered >= $checklist){
-            $main_task->status = 'completed';
-            $main_task->save();
+        $answer->save();
+
+        if (!empty($data['main_task_id'])) {
+            $main_task = Task::find($data['main_task_id']);
+            if ($main_task && $main_task->checklist) {
+                $totalTasks = count($main_task->checklist->tasks);
+                $userAnswered = TaskCheckListAnswer::where('main_task_id', $data['main_task_id'])->count();
+                if ($userAnswered >= $totalTasks) {
+                    $main_task->status = 'completed';
+                    $main_task->save();
+                }
+            }
         }
-        // $task->checklists()->attach($checklist, ['answer' => $request->answer]);
 
-        return response()->json(['message' => 'Answer added successfully']);
+        if (!empty($data['user_checklist_id'])) {
+            $uc = UserChecklist::find($data['user_checklist_id']);
+            if ($uc && $uc->status === UserChecklist::STATUS_DRAFT) {
+                $uc->update(['status' => UserChecklist::STATUS_IN_PROGRESS, 'started_at' => $uc->started_at ?? now()]);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Answer saved',
+            'answer' => $answer->fresh(),
+        ]);
     }
 }

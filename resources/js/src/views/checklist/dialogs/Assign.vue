@@ -398,7 +398,7 @@
                         </p>
                     </div>
 
-                    <i @click="assign.project.reset" :style="{
+                    <i v-if="!projectLocked" @click="assign.project.reset" :style="{
                         fontSize: '20px',
                         cursor: 'pointer',
                     }" class="bi bi-dash-circle-fill"></i>
@@ -435,14 +435,14 @@
                 </div>
             </div>
 
-            <button v-if="!isAddTask" class="btn btn-primary d-flex align-items-center ml-auto mt-1" @click="addTask"
+            <button v-if="!isAddTask" class="btn btn-primary d-flex align-items-center ml-auto mt-1" @click="onCreate"
                 :disabled="apiHelpers.loading">
                 <div v-if="apiHelpers.loading" class="spinner-border text-light" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
                 <div class="d-flex align-items-center">
                     <i class="bi bi-check2-circle mr-1" style="font-size: x-large"></i>
-                    Create
+                    {{ target === 'user-checklist' ? 'Assign' : 'Create' }}
                 </div>
             </button>
             <button v-else-if="editTask.id" class="btn btn-primary d-flex align-items-center ml-auto mt-1"
@@ -455,14 +455,14 @@
                     Update Task
                 </div>
             </button>
-            <button v-else class="btn btn-primary d-flex align-items-center ml-auto mt-1" @click="addTask"
+            <button v-else class="btn btn-primary d-flex align-items-center ml-auto mt-1" @click="onCreate"
                 :disabled="apiHelpers.loading">
                 <div v-if="apiHelpers.loading" class="spinner-border text-light" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
                 <div class="d-flex align-items-center">
                     <i class="bi bi-check2-circle mr-1" style="font-size: x-large"></i>
-                    Create
+                    {{ target === 'user-checklist' ? 'Assign' : 'Create' }}
                 </div>
             </button>
         </template>
@@ -550,8 +550,17 @@ export default {
             type: Boolean,
             default: false,
         },
+        target: {
+            type: String,
+            default: "task", // "task" creates a Task; "user-checklist" creates a UserChecklist
+            validator: (v) => ["task", "user-checklist"].includes(v),
+        },
+        projectLocked: {
+            type: Boolean,
+            default: false,
+        },
     },
-    setup(props) {
+    setup(props, { emit }) {
         const { assign, addTask, editTask, updateTask, apiHelpers } =
             useTasks();
         const { getCategories, categories } = useCategories();
@@ -710,20 +719,51 @@ export default {
             assign.value.file = event.target.files[0];
             event.target.value = null;
         };
-        const assignChecklist = () => {
-            if (assign.value.assign_to.length) {
-                isAssigned.value = true;
-                axios
-                    .post(route("user-checklist.store"), assign.value)
-                    .then((res) => {
-                        if (res.status === 201) {
-                            toast.success(res.data.message);
-                        } else {
-                            toast.error(res.error);
-                        }
-                    });
-            } else {
+        const assignChecklist = async () => {
+            if (!assign.value.assign_to.length) {
                 isAssigned.value = false;
+                toast.error("Pick at least one assignee");
+                return;
+            }
+            if (!(assign.value.checklist?.id || assign.value.checklist)) {
+                toast.error("Pick a checklist template");
+                return;
+            }
+
+            const payload = {
+                assign_to: assign.value.assign_to,
+                checklist: assign.value.checklist?.id ?? assign.value.checklist,
+                description: assign.value.description || null,
+                name: assign.value.name || null,
+                priority: assign.value.priority || null,
+                work_location: assign.value.work_location || null,
+                work_order: assign.value.work_order?.name || null,
+                project_id: assign.value.project?.id ?? assign.value.project_id ?? null,
+                equipment_id: assign.value.equipment_id ?? null,
+                due_date: assign.value.due_date || null,
+                files: [],
+            };
+
+            try {
+                apiHelpers.loading = true;
+                const res = await axios.post(route("user-checklist.store"), payload);
+                if (res.status === 201) {
+                    toast.success(res.data.message);
+                    assign.value.reset();
+                    emit("closeDialog");
+                }
+            } catch (e) {
+                toast.error(e?.response?.data?.message || "Failed to assign");
+            } finally {
+                apiHelpers.loading = false;
+            }
+        };
+
+        const onCreate = () => {
+            if (props.target === "user-checklist") {
+                assignChecklist();
+            } else {
+                addTask();
             }
         };
 
@@ -769,6 +809,7 @@ export default {
             openProjectDialog,
             closeProjectDialog,
             handleProjectSelection,
+            onCreate,
         };
     },
 };

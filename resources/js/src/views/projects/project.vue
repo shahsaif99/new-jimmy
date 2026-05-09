@@ -219,10 +219,12 @@
             </BTab>
 
             <BTab title="Checklists">
-                <BCard no-body class="p-2">
-                    <BCardTitle>Checklists</BCardTitle>
-                    <BCardText>Checklist content goes here</BCardText>
-                </BCard>
+                <ProjectChecklists
+                    v-if="projectData && projectData.id"
+                    :project-id="projectData.id"
+                    :project-name="projectData.name"
+                    :project-no="projectData.project_no"
+                />
             </BTab>
 
             <BTab title="Safe Job Analysis">
@@ -278,6 +280,7 @@ import Tasks from "@/views/tasks/index.vue";
 import ProjectDeviations from "./ProjectDeviations.vue";
 import ProjectWps from "./ProjectWps.vue";
 import ProjectWeldLog from "./ProjectWeldLog.vue";
+import ProjectChecklists from "./ProjectChecklists.vue";
 import {
     BTabs,
     BTab,
@@ -310,6 +313,7 @@ export default {
         ProjectDeviations,
         ProjectWps,
         ProjectWeldLog,
+        ProjectChecklists,
     },
 
     setup() {

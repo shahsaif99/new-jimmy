@@ -42,7 +42,22 @@ export default [
     icon: 'CheckCircleIcon',
     action: 'checklist',
     resource: 'all',
-    route: 'checklist',
+    children: [
+      {
+        title: 'Templates',
+        route: 'checklist',
+        icon: 'FolderIcon',
+        action: 'checklist',
+        resource: 'all',
+      },
+      {
+        title: 'Submitted',
+        route: 'submitted-checklists',
+        icon: 'CheckSquareIcon',
+        action: 'checklist',
+        resource: 'all',
+      },
+    ],
   },
   {
     title: 'Tasks',

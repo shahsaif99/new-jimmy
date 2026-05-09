@@ -4,7 +4,8 @@
             v-if="dialog.show"
             :id="checklistId"
             :showing="dialog.show"
-            @closeDialog="dialog.toggleDialog"
+            target="user-checklist"
+            @closeDialog="onAssignClose"
         />
         <div class="row">
             <div
@@ -102,12 +103,21 @@
                                 </div>
                             </div>
 
-                            <button
-                                class="btn btn-primary align-items-center section-btn"
-                                @click="openDialog(card.id)"
-                            >
-                                Assign
-                            </button>
+                            <div class="d-flex" style="gap: 6px">
+                                <button
+                                    class="btn btn-primary align-items-center section-btn"
+                                    :disabled="startingId === card.id"
+                                    @click="startTemplate(card.id)"
+                                >
+                                    {{ startingId === card.id ? '...' : 'Start' }}
+                                </button>
+                                <button
+                                    class="btn btn-outline-primary align-items-center section-btn"
+                                    @click="openDialog(card.id)"
+                                >
+                                    Assign
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="position-absolute button-div d-none">
@@ -141,12 +151,29 @@
                 </div>
             </div>
         </div>
+
+        <ProjectSelectionDialog
+            :show="projectPickerVisible"
+            :allow-skip="true"
+            @select="onProjectPicked"
+            @close="closeProjectPicker"
+        />
+
+        <Perform
+            :visible="performVisible"
+            :template-id="performTemplateId"
+            :project-id="performProjectId"
+            @close="closePerform"
+            @submitted="closePerform"
+        />
     </div>
 </template>
 <script>
 import { defineComponent, ref } from "@vue/composition-api";
 import { BDropdown, BIcon, BDropdownItem } from "bootstrap-vue";
 import Assign from "./dialogs/Assign.vue";
+import ProjectSelectionDialog from "./dialogs/ProjectSelectionDialog.vue";
+import Perform from "./Perform.vue";
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
@@ -158,6 +185,8 @@ export default defineComponent({
         BDropdownItem,
         BIcon,
         Assign,
+        ProjectSelectionDialog,
+        Perform,
     },
     props: {
         checklist: {
@@ -171,6 +200,13 @@ export default defineComponent({
         const showing = ref(false);
         const toast = toaster();
         const loading = ref(false);
+        const startingId = ref(null);
+        const performId = ref(null);
+        const performTemplateId = ref(null);
+        const performProjectId = ref(null);
+        const performVisible = ref(false);
+        const projectPickerVisible = ref(false);
+        const pendingTemplateId = ref(null);
         const openDialog = (id) => {
             const selectedChecklist = props.checklist.find(
                 (checklist) => checklist.id === id
@@ -199,7 +235,6 @@ export default defineComponent({
             try {
                 loading.value = true;
                 const res = await axios.get(route("user-checklist.start", id));
-                console.log(res);
                 if (res.status === 200) {
                     toast.success(res.data.message);
                     emit("refetch");
@@ -210,13 +245,52 @@ export default defineComponent({
                 loading.value = false;
             }
         };
+        const startTemplate = (id) => {
+            pendingTemplateId.value = id;
+            projectPickerVisible.value = true;
+        };
+
+        const onProjectPicked = (project) => {
+            performProjectId.value = project ? project.id : null;
+            performTemplateId.value = pendingTemplateId.value;
+            projectPickerVisible.value = false;
+            pendingTemplateId.value = null;
+            performVisible.value = true;
+        };
+
+        const closeProjectPicker = () => {
+            projectPickerVisible.value = false;
+            pendingTemplateId.value = null;
+        };
+        const onAssignClose = () => {
+            dialog.show = false;
+            emit("refetch");
+        };
+        const closePerform = () => {
+            performVisible.value = false;
+            performTemplateId.value = null;
+            performProjectId.value = null;
+            performId.value = null;
+            emit("refetch");
+        };
         return {
             openDialog,
             checklistId,
             showing,
             dltChecklist,
             startAssignment,
+            startTemplate,
+            startingId,
             dialog,
+            onAssignClose,
+            performId,
+            performTemplateId,
+            performProjectId,
+            performVisible,
+            closePerform,
+            projectPickerVisible,
+            onProjectPicked,
+            closeProjectPicker,
         };
     },
 });

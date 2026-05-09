@@ -164,6 +164,16 @@ class Equipment extends Model
         return $this->belongsTo(Document::class, 'procedure_id');
     }
 
+    public function userChecklists()
+    {
+        return $this->hasMany(UserChecklist::class);
+    }
+
+    public function deviations()
+    {
+        return $this->hasMany(AvvikListing::class);
+    }
+
     public function latestLog()
     {
         return $this->hasOne(Lending::class)->latestOfMany();

@@ -75,6 +75,21 @@
                         placeholder="Enter your checklist name"
                         required
                     />
+                    <label class="name-label mt-1">Category</label>
+                    <select
+                        class="form-control"
+                        v-model="checklist.category_id"
+                        style="max-width: 320px"
+                    >
+                        <option :value="null">— No category —</option>
+                        <option
+                            v-for="cat in categories"
+                            :key="cat.id"
+                            :value="cat.id"
+                        >
+                            {{ cat.name }}
+                        </option>
+                    </select>
 
                     <label
                         v-if="!checklist.title_img"
@@ -490,8 +505,10 @@ export default {
             title_img: null,
             icon: "bi bi-list-check",
             color: "#0096fd",
+            category_id: null,
             sections: [{ name: "", tasks: [] }],
         });
+        const categories = ref([]);
         const tasks = ref([
             {
                 type: "Procedure",
@@ -565,7 +582,24 @@ export default {
                     );
                     if (response.status === 200) {
                         checklist.value = response.data;
+                        if (checklist.value.category_id === undefined) {
+                            checklist.value.category_id = null;
+                        }
                     }
+                }
+                try {
+                    const catRes = await axios.get(route("categories.index"));
+                    if (catRes.status === 200) {
+                        const list = Array.isArray(catRes.data)
+                            ? catRes.data
+                            : catRes.data?.data || [];
+                        categories.value = list.map((c) => ({
+                            id: c.id,
+                            name: c.name,
+                        }));
+                    }
+                } catch (e) {
+                    categories.value = [];
                 }
             } catch (error) {
                 console.error(
@@ -667,6 +701,7 @@ export default {
                         color: checklist.value.color,
                         icon: checklist.value.icon,
                         title_img: checklist.value.title_img,
+                        category_id: checklist.value.category_id ?? null,
                         sections: checklist.value.sections,
                     };
                     const res = await axios.put(
@@ -746,6 +781,7 @@ export default {
 
         return {
             checklist,
+            categories,
             handleImage,
             tasks,
             addTask,

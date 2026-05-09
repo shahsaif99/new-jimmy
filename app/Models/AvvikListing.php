@@ -103,4 +103,9 @@ class AvvikListing extends Model
         return $this->belongsTo(User::class, 'closed_by_id');
     }
 
+    public function checklistAnswer()
+    {
+        return $this->hasOne(TaskCheckListAnswer::class, 'avvik_listing_id');
+    }
+
 }
