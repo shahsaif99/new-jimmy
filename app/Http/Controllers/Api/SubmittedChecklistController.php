@@ -52,7 +52,8 @@ class SubmittedChecklistController extends Controller
     public function show(UserChecklist $userChecklist)
     {
         $userChecklist->load([
-            'checklist.sections.checklistTasks',
+            'checklist:id,name,icon,color',
+            'snapshotSections.tasks',
             'users:id,first_name,last_name',
             'project:id,name,project_no',
             'equipment:id,name',
@@ -61,24 +62,32 @@ class SubmittedChecklistController extends Controller
             'answers.deviation:id,title,severity,close_date,status,type,responsible_person,project_id',
         ])->loadCount(['answers as deviation_count_cache' => fn ($q) => $q->whereNotNull('avvik_listing_id')]);
 
+        // Defensive: snapshot is created at start; backfill on the fly if missing.
+        if ($userChecklist->snapshotSections->isEmpty() && $userChecklist->checklist) {
+            $userChecklist->snapshotFromTemplate($userChecklist->checklist);
+            $userChecklist->load('snapshotSections.tasks');
+        }
+
         $resource = new SubmittedChecklistResource($userChecklist);
         $payload = $resource->toArray(request());
 
-        $answersByTask = $userChecklist->answers->keyBy('checklist_task_id');
+        $answersByTask = $userChecklist->answers->keyBy(fn ($a) => $a->user_checklist_task_id ?? 'tpl-' . $a->checklist_task_id);
 
-        $payload['template_full'] = $userChecklist->checklist ? [
-            'id' => $userChecklist->checklist->id,
-            'name' => $userChecklist->checklist->name,
-            'icon' => $userChecklist->checklist->icon,
-            'color' => $userChecklist->checklist->color,
-            'sections' => $userChecklist->checklist->sections->map(function ($section) use ($answersByTask) {
+        $payload['template_full'] = [
+            'id' => $userChecklist->checklist?->id,
+            'name' => $userChecklist->checklist?->name ?? $userChecklist->title,
+            'icon' => $userChecklist->checklist?->icon,
+            'color' => $userChecklist->checklist?->color,
+            'sections' => $userChecklist->snapshotSections->map(function ($section) use ($answersByTask) {
                 return [
                     'id' => $section->id,
                     'name' => $section->name,
-                    'tasks' => $section->checklistTasks->map(function ($task) use ($answersByTask) {
-                        $answer = $answersByTask->get($task->id);
+                    'tasks' => $section->tasks->map(function ($task) use ($answersByTask) {
+                        $answer = $answersByTask->get($task->id)
+                            ?? $answersByTask->get('tpl-' . $task->source_checklist_task_id);
                         return [
                             'id' => $task->id,
+                            'source_checklist_task_id' => $task->source_checklist_task_id,
                             'name' => $task->name,
                             'type' => $task->type,
                             'param' => $task->param,
@@ -89,6 +98,7 @@ class SubmittedChecklistController extends Controller
                                 'value' => $answer->answer,
                                 'notes' => $answer->notes,
                                 'img' => $answer->img,
+                                'answered_at' => optional($answer->updated_at)->format('d.m.Y H:i'),
                                 'avvik_listing_id' => $answer->avvik_listing_id,
                                 'deviation' => $answer->deviation ? [
                                     'id' => $answer->deviation->id,
@@ -102,7 +112,7 @@ class SubmittedChecklistController extends Controller
                     })->values(),
                 ];
             })->values(),
-        ] : null;
+        ];
 
         return response()->json($payload);
     }
@@ -131,17 +141,23 @@ class SubmittedChecklistController extends Controller
     public function exportPdf(UserChecklist $userChecklist)
     {
         $userChecklist->load([
-            'checklist.sections.checklistTasks',
+            'checklist',
+            'snapshotSections.tasks',
             'users',
             'project',
             'equipment',
             'answers.deviation',
         ]);
 
+        if ($userChecklist->snapshotSections->isEmpty() && $userChecklist->checklist) {
+            $userChecklist->snapshotFromTemplate($userChecklist->checklist);
+            $userChecklist->load('snapshotSections.tasks');
+        }
+
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('exports.checklist-rapport', ['userChecklist' => $userChecklist]);
 
-        $name = 'checklist-' . str_pad((string) (1000 + $userChecklist->id), 4, '0', STR_PAD_LEFT) . '.pdf';
+        $name = 'S-' . str_pad((string) (1000 + $userChecklist->id), 4, '0', STR_PAD_LEFT) . '.pdf';
         return $pdf->download($name);
     }
 

@@ -372,7 +372,7 @@ export default {
             }
             try {
                 const res = await axios.post(route("task-answer.store"), {
-                    checklist_task_id: task.id,
+                    user_checklist_task_id: task.id,
                     user_checklist_id: data.value.id,
                     answer: value,
                     notes: task._noteDraft || null,
@@ -401,7 +401,7 @@ export default {
             }
             try {
                 const res = await axios.post(route("task-answer.store"), {
-                    checklist_task_id: task.id,
+                    user_checklist_task_id: task.id,
                     user_checklist_id: data.value.id,
                     answer: task.answer.value,
                     notes: task._noteDraft || null,
@@ -440,7 +440,7 @@ export default {
                 return;
             }
             const form = new FormData();
-            form.append("checklist_task_id", task.id);
+            form.append("user_checklist_task_id", task.id);
             form.append("user_checklist_id", data.value.id);
             if (task.answer?.value) form.append("answer", task.answer.value);
             if (task._noteDraft) form.append("notes", task._noteDraft);

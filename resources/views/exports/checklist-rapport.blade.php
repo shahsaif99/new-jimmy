@@ -76,9 +76,12 @@
         </table>
     </div>
 
-    @php $answersByTask = $userChecklist->answers->keyBy('checklist_task_id'); @endphp
+    @php
+        $answersByUctId = $userChecklist->answers->keyBy('user_checklist_task_id');
+        $answersByTplId = $userChecklist->answers->keyBy('checklist_task_id');
+    @endphp
 
-    @foreach($userChecklist->checklist?->sections ?? [] as $section)
+    @foreach($userChecklist->snapshotSections as $section)
         <h2>{{ $section->name }}</h2>
         <table class="tasks">
             <thead>
@@ -90,8 +93,8 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($section->checklistTasks as $idx => $task)
-                    @php $answer = $answersByTask->get($task->id); @endphp
+                @foreach($section->tasks as $idx => $task)
+                    @php $answer = $answersByUctId->get($task->id) ?? $answersByTplId->get($task->source_checklist_task_id); @endphp
                     <tr>
                         <td>{{ $idx + 1 }}</td>
                         <td>{{ $task->name }}</td>

@@ -56,6 +56,10 @@ class UserChecklistController extends Controller
             'total_tasks'   => $template?->tasks()->count() ?? 0,
         ]);
 
+        if ($template) {
+            $checklist->snapshotFromTemplate($template);
+        }
+
         foreach ($data['files'] ?? [] as $file) {
             $path = 'attachments/user_checklist_' . \strtotime(now()) . $checklist->id . '.png';
             $this->convertImage($file, $path);

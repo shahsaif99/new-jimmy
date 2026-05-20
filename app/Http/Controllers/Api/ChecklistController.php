@@ -130,6 +130,7 @@ class ChecklistController extends Controller
             'total_tasks' => $checklist->tasks()->count(),
         ]);
 
+        $userChecklist->snapshotFromTemplate($checklist);
         $userChecklist->users()->sync([auth()->id()]);
         $userChecklist->update(['is_started' => true]);
 
@@ -172,11 +173,16 @@ class ChecklistController extends Controller
                 'is_started' => true,
                 'total_tasks' => $checklist->tasks()->count(),
             ]);
+            $uc->snapshotFromTemplate($checklist);
             $uc->users()->sync([auth()->id()]);
 
+            $snapshotTaskMap = $uc->snapshotTasks()->get()->keyBy('source_checklist_task_id');
+
             foreach ($data['answers'] as $a) {
+                $snapshotTask = $snapshotTaskMap->get($a['checklist_task_id']);
                 $answer = TaskCheckListAnswer::create([
                     'checklist_task_id' => $a['checklist_task_id'],
+                    'user_checklist_task_id' => $snapshotTask?->id,
                     'user_checklist_id' => $uc->id,
                     'user_id' => auth()->id(),
                     'answer' => $a['answer'],
