@@ -207,15 +207,19 @@ class ChecklistController extends Controller
                 }
 
                 if ($a['answer'] === 'FAIL' && !empty($a['deviation'])) {
+                    $user = auth()->user();
                     $deviation = AvvikListing::create([
                         'type' => $a['deviation']['type'],
                         'title' => $a['deviation']['title'],
                         'date' => now()->format('Y-m-d'),
+                        'time_of_incident' => now()->format('Y-m-d H:i:s'),
+                        'department' => $checklist->name ?: 'Checklist',
+                        'event_type' => $a['deviation']['type'],
                         'responsible_person' => $a['deviation']['responsible_person'] ?? null,
                         'project_id' => $uc->project_id,
                         'equipment_id' => $uc->equipment_id,
                         'description' => $a['notes'] ?? null,
-                        'registered_by' => auth()->id(),
+                        'registered_by' => $user?->name ?? (string) auth()->id(),
                         'user_id' => auth()->id(),
                         'status' => 'open',
                     ]);

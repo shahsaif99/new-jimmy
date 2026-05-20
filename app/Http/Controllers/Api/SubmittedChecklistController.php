@@ -198,15 +198,19 @@ class SubmittedChecklistController extends Controller
         }
 
         $deviation = DB::transaction(function () use ($data, $userChecklist, $answer) {
+            $user = auth()->user();
             $deviation = AvvikListing::create([
                 'type' => $data['type'],
                 'title' => $data['title'],
                 'date' => now()->format('Y-m-d'),
+                'time_of_incident' => now()->format('Y-m-d H:i:s'),
+                'department' => $userChecklist->checklist?->name ?: 'Checklist',
+                'event_type' => $data['type'],
                 'responsible_person' => $data['responsible_person'] ?? null,
                 'project_id' => $data['project_id'] ?? $userChecklist->project_id,
                 'equipment_id' => $userChecklist->equipment_id,
                 'description' => $data['description'] ?? $answer->notes,
-                'registered_by' => auth()->id(),
+                'registered_by' => $user?->name ?? (string) auth()->id(),
                 'user_id' => auth()->id(),
                 'status' => 'open',
             ]);
