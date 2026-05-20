@@ -123,6 +123,27 @@ class SubmittedChecklistController extends Controller
         return response()->json(['message' => 'Submitted checklist deleted'], 200);
     }
 
+    public function updateMeta(Request $request, UserChecklist $userChecklist)
+    {
+        $data = $request->validate([
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'project_id' => 'nullable|exists:projects,id',
+            'equipment_id' => 'nullable|exists:equipment,id',
+            'work_location' => 'nullable',
+        ]);
+
+        if (array_key_exists('work_location', $data) && is_array($data['work_location'])) {
+            $data['work_location'] = json_encode($data['work_location']);
+        }
+
+        $userChecklist->update(array_filter($data, fn ($v) => $v !== null) + [
+            'description' => $data['description'] ?? $userChecklist->description,
+        ]);
+
+        return response()->json(['message' => 'Updated', 'user_checklist_id' => $userChecklist->id]);
+    }
+
     public function submit(UserChecklist $userChecklist)
     {
         $userChecklist->update([

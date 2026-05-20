@@ -38,19 +38,48 @@
                 </span>
             </div>
 
-            <div class="d-flex align-items-center mb-2 flex-wrap" style="gap: 12px">
-                <div class="quick-icon" :title="(data.project && data.project.name) || 'No project'">
-                    <i class="bi bi-folder"></i>
+            <div class="d-flex align-items-end flex-wrap mb-2" style="gap: 12px">
+                <div style="min-width: 200px">
+                    <label class="text-muted small mb-0">
+                        <i class="bi bi-folder"></i> Project
+                    </label>
+                    <b-form-select
+                        v-model="metaDraft.project_id"
+                        :options="projectOptions"
+                        :disabled="readonly || metaSaving"
+                        @change="saveMeta('project_id')"
+                    />
                 </div>
-                <div class="quick-icon" :title="(data.equipment && data.equipment.name) || 'No equipment'">
-                    <i class="bi bi-geo-alt"></i>
+                <div style="min-width: 200px">
+                    <label class="text-muted small mb-0">
+                        <i class="bi bi-tools"></i> Equipment
+                    </label>
+                    <b-form-select
+                        v-model="metaDraft.equipment_id"
+                        :options="equipmentOptions"
+                        :disabled="readonly || metaSaving"
+                        @change="saveMeta('equipment_id')"
+                    />
                 </div>
-                <div class="quick-icon" :title="data.template && data.template.name">
-                    <i class="bi bi-tools"></i>
+                <div style="min-width: 200px">
+                    <label class="text-muted small mb-0">
+                        <i class="bi bi-geo-alt"></i> Location
+                    </label>
+                    <b-form-input
+                        v-model="metaDraft.work_location"
+                        placeholder="Work location"
+                        :disabled="readonly || metaSaving"
+                        @blur="saveMeta('work_location')"
+                    />
                 </div>
-                <div class="flex-grow-1 ml-1">
+                <div class="flex-grow-1" style="min-width: 240px">
                     <label class="text-muted small mb-0">Description</label>
-                    <b-form-input v-model="description" placeholder="Description text" disabled />
+                    <b-form-input
+                        v-model="metaDraft.description"
+                        placeholder="Description text"
+                        :disabled="readonly || metaSaving"
+                        @blur="saveMeta('description')"
+                    />
                 </div>
             </div>
 
@@ -205,13 +234,13 @@
 
 <script>
 import { ref, reactive, computed, watch } from "@vue/composition-api";
-import { BModal, BFormInput, BButton, BBadge } from "bootstrap-vue";
+import { BModal, BFormInput, BFormSelect, BButton, BBadge } from "bootstrap-vue";
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
 
 export default {
-    components: { BModal, BFormInput, BButton, BBadge },
+    components: { BModal, BFormInput, BFormSelect, BButton, BBadge },
     props: {
         visible: { type: Boolean, default: false },
         userChecklistId: { type: [Number, String], default: null },
@@ -243,10 +272,16 @@ export default {
         ];
 
         const readonly = computed(() => data.value?.status === "submitted");
-        const description = computed({
-            get: () => data.value?.description || "",
-            set: () => {},
+
+        const metaDraft = reactive({
+            description: "",
+            project_id: null,
+            equipment_id: null,
+            work_location: "",
         });
+        const metaSaving = ref(false);
+        const projectOptions = ref([{ value: null, text: "— No project —" }]);
+        const equipmentOptions = ref([{ value: null, text: "— No equipment —" }]);
 
         const sections = computed(() => data.value?.template_full?.sections || []);
 
@@ -356,6 +391,68 @@ export default {
                     failDrafts[task.id] = { type: "", title: task.name, responsible: "" };
                 }
             }));
+            metaDraft.description = data.value?.description || "";
+            metaDraft.project_id = data.value?.project?.id || null;
+            metaDraft.equipment_id = data.value?.equipment?.id || null;
+            const wl = data.value?.work_location;
+            metaDraft.work_location = typeof wl === "string"
+                ? wl
+                : (wl && (wl.address || wl.location || wl.name)) || "";
+        }
+
+        async function loadProjectAndEquipmentOptions() {
+            try {
+                const [projRes, eqRes] = await Promise.all([
+                    axios.get(route("projects.index")),
+                    axios.get(route("equipments.index")),
+                ]);
+                const projects = projRes.data?.data || projRes.data || [];
+                const equipment = eqRes.data?.data || eqRes.data || [];
+                projectOptions.value = [
+                    { value: null, text: "— No project —" },
+                    ...projects.map((p) => ({
+                        value: p.id,
+                        text: p.project_no ? `${p.project_no} — ${p.name}` : p.name,
+                    })),
+                ];
+                equipmentOptions.value = [
+                    { value: null, text: "— No equipment —" },
+                    ...equipment.map((e) => ({ value: e.id, text: e.name })),
+                ];
+            } catch (e) {
+                /* silently leave defaults */
+            }
+        }
+
+        async function saveMeta(field) {
+            if (!data.value?.id || readonly.value) return;
+            const payload = {};
+            payload[field] = metaDraft[field] === "" ? null : metaDraft[field];
+            try {
+                metaSaving.value = true;
+                await axios.post(
+                    route("submitted-checklists.update-meta", data.value.id),
+                    payload
+                );
+                if (field === "description") data.value.description = metaDraft.description;
+                if (field === "project_id") {
+                    const opt = projectOptions.value.find((o) => o.value === metaDraft.project_id);
+                    data.value.project = metaDraft.project_id
+                        ? { id: metaDraft.project_id, name: opt?.text || "" }
+                        : null;
+                }
+                if (field === "equipment_id") {
+                    const opt = equipmentOptions.value.find((o) => o.value === metaDraft.equipment_id);
+                    data.value.equipment = metaDraft.equipment_id
+                        ? { id: metaDraft.equipment_id, name: opt?.text || "" }
+                        : null;
+                }
+                if (field === "work_location") data.value.work_location = metaDraft.work_location;
+            } catch (e) {
+                toast.error(e?.response?.data?.message || "Failed to update");
+            } finally {
+                metaSaving.value = false;
+            }
         }
 
         function setAnswerLocal(task, value) {
@@ -534,9 +631,10 @@ export default {
                     submitting.value = true;
                     const res = await axios.post(route("checklist.perform", props.templateId), {
                         title: data.value.title,
-                        description: data.value.description || null,
-                        project_id: props.projectId || null,
-                        equipment_id: props.equipmentId || null,
+                        description: metaDraft.description || data.value.description || null,
+                        project_id: metaDraft.project_id || props.projectId || null,
+                        equipment_id: metaDraft.equipment_id || props.equipmentId || null,
+                        work_location: metaDraft.work_location || null,
                         answers,
                     });
                     if (res.status === 201) {
@@ -627,13 +725,18 @@ export default {
         }
 
         watch(() => props.visible, (v) => {
-            if (v) fetchData();
-            else data.value = null;
+            if (v) {
+                fetchData();
+                loadProjectAndEquipmentOptions();
+            } else {
+                data.value = null;
+            }
         });
 
         return {
             data, loading, submitting, filter, filterOptions, readonly, show,
-            description, sections, stats, attachmentsCount, failDrafts,
+            sections, stats, attachmentsCount, failDrafts,
+            metaDraft, metaSaving, projectOptions, equipmentOptions, saveMeta,
             visibleTasks, setAnswer, saveNote, onPhoto, canCreateDeviation, createDeviation,
             submitChecklist, downloadPdf, onHide,
         };

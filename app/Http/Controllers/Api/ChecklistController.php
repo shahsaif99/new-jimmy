@@ -151,6 +151,7 @@ class ChecklistController extends Controller
             'description' => 'nullable|string',
             'project_id' => 'nullable|exists:projects,id',
             'equipment_id' => 'nullable|exists:equipment,id',
+            'work_location' => 'nullable',
             'answers' => 'required|array|min:1',
             'answers.*.checklist_task_id' => 'required|integer|exists:checklist_tasks,id',
             'answers.*.answer' => 'required|in:PASS,FAIL,NA',
@@ -169,6 +170,9 @@ class ChecklistController extends Controller
                 'description' => $data['description'] ?? null,
                 'project_id' => $data['project_id'] ?? null,
                 'equipment_id' => $data['equipment_id'] ?? null,
+                'work_location' => isset($data['work_location'])
+                    ? (is_array($data['work_location']) ? json_encode($data['work_location']) : $data['work_location'])
+                    : null,
                 'category_id' => $checklist->category_id,
                 'status' => UserChecklist::STATUS_SUBMITTED,
                 'started_at' => now(),
