@@ -168,6 +168,7 @@ class SubmittedChecklistController extends Controller
             'project',
             'equipment',
             'answers.deviation',
+            'answers.user:id,first_name,last_name',
         ]);
 
         if ($userChecklist->snapshotSections->isEmpty() && $userChecklist->checklist) {
