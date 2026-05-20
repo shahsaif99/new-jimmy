@@ -159,9 +159,9 @@
                                     Type <span class="text-danger">*</span>
                                 </label>
                                 <b-form-select
-                                    v-model="failDrafts[task.id].type"
+                                    v-model="ensureDraft(task.id).type"
                                     :options="deviationTypeOptions"
-                                    :state="failDrafts[task.id].type ? null : false"
+                                    :state="ensureDraft(task.id).type ? null : false"
                                 />
                             </div>
                             <div class="col">
@@ -169,9 +169,9 @@
                                     Title <span class="text-danger">*</span>
                                 </label>
                                 <b-form-input
-                                    v-model="failDrafts[task.id].title"
+                                    v-model="ensureDraft(task.id).title"
                                     placeholder="Title"
-                                    :state="failDrafts[task.id].title ? null : false"
+                                    :state="ensureDraft(task.id).title ? null : false"
                                 />
                             </div>
                             <div class="col">
@@ -179,9 +179,9 @@
                                     Responsible <span class="text-danger">*</span>
                                 </label>
                                 <b-form-select
-                                    v-model="failDrafts[task.id].responsible"
+                                    v-model="ensureDraft(task.id).responsible"
                                     :options="userOptions"
-                                    :state="failDrafts[task.id].responsible ? null : false"
+                                    :state="ensureDraft(task.id).responsible ? null : false"
                                 />
                             </div>
                         </div>
@@ -427,12 +427,17 @@ export default {
             }
         }
 
+        function ensureDraft(taskId, fallbackTitle = "") {
+            if (!failDrafts[taskId]) {
+                failDrafts[taskId] = { type: "", title: fallbackTitle, responsible: "" };
+            }
+            return failDrafts[taskId];
+        }
+
         function seedDrafts() {
             sections.value.forEach((s) => s.tasks.forEach((task) => {
                 task._noteDraft = task.answer?.notes || "";
-                if (!failDrafts[task.id]) {
-                    failDrafts[task.id] = { type: "", title: task.name, responsible: "" };
-                }
+                ensureDraft(task.id, task.name);
             }));
             metaDraft.description = data.value?.description || "";
             metaDraft.project_id = data.value?.project?.id || null;
@@ -662,6 +667,7 @@ export default {
         async function submitChecklist() {
             if (isFresh.value) {
                 const answers = [];
+                let missingDeviation = false;
                 sections.value.forEach((s) => s.tasks.forEach((task) => {
                     if (task.answer && task.answer.value) {
                         const a = {
@@ -670,16 +676,36 @@ export default {
                             notes: task._noteDraft || task.answer.notes || null,
                         };
                         if (task.answer.img) a.img = task.answer.img;
-                        if (task.answer.deviation && task.answer.deviation.type && task.answer.deviation.title) {
+                        // Prefer the already-queued deviation; otherwise auto-queue
+                        // from the inline Type/Title/Responsible draft if it's complete.
+                        const queued = task.answer.deviation;
+                        const draft = failDrafts[task.id];
+                        if (queued && queued.type && queued.title) {
                             a.deviation = {
-                                type: task.answer.deviation.type,
-                                title: task.answer.deviation.title,
-                                responsible_person: task.answer.deviation.responsible_person || null,
+                                type: queued.type,
+                                title: queued.title,
+                                responsible_person: queued.responsible_person || null,
                             };
+                        } else if (
+                            task.answer.value === "FAIL" &&
+                            draft && draft.type && draft.title && draft.responsible
+                        ) {
+                            a.deviation = {
+                                type: draft.type,
+                                title: draft.title,
+                                responsible_person: draft.responsible,
+                            };
+                        } else if (task.answer.value === "FAIL") {
+                            missingDeviation = true;
                         }
                         answers.push(a);
                     }
                 }));
+
+                if (missingDeviation) {
+                    toast.warning("Fill in Type / Title / Responsible on every Fail row before submitting");
+                    return;
+                }
                 if (!answers.length) {
                     toast.warning("Mark at least one task before submitting");
                     return;
@@ -800,11 +826,22 @@ export default {
                         notes: task._noteDraft || task.answer.notes || null,
                     };
                     if (task.answer.img) a.img = task.answer.img;
-                    if (task.answer.deviation && task.answer.deviation.type && task.answer.deviation.title) {
+                    const queued = task.answer.deviation;
+                    const draft = failDrafts[task.id];
+                    if (queued && queued.type && queued.title) {
                         a.deviation = {
-                            type: task.answer.deviation.type,
-                            title: task.answer.deviation.title,
-                            responsible_person: task.answer.deviation.responsible_person || null,
+                            type: queued.type,
+                            title: queued.title,
+                            responsible_person: queued.responsible_person || null,
+                        };
+                    } else if (
+                        task.answer.value === "FAIL" &&
+                        draft && draft.type && draft.title && draft.responsible
+                    ) {
+                        a.deviation = {
+                            type: draft.type,
+                            title: draft.title,
+                            responsible_person: draft.responsible,
                         };
                     }
                     answers.push(a);
@@ -851,7 +888,7 @@ export default {
 
         return {
             data, loading, submitting, savingDraft, filter, filterOptions, readonly, show,
-            sections, stats, attachmentsCount, failDrafts,
+            sections, stats, attachmentsCount, failDrafts, ensureDraft,
             metaDraft, metaSaving, projectOptions, equipmentOptions, saveMeta,
             deviationTypeOptions, userOptions,
             visibleTasks, setAnswer, saveNote, onPhoto, canCreateDeviation, createDeviation,
