@@ -161,7 +161,7 @@ class ChecklistController extends Controller
             'answers.*.deviation' => 'nullable|array',
             'answers.*.deviation.type' => 'required_with:answers.*.deviation|string',
             'answers.*.deviation.title' => 'required_with:answers.*.deviation|string',
-            'answers.*.deviation.responsible_person' => 'nullable|string',
+            'answers.*.deviation.responsible_person' => 'required_with:answers.*.deviation|string',
         ]);
 
         $saveDraft = (bool) ($data['save_draft'] ?? false);

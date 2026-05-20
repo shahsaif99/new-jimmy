@@ -155,16 +155,34 @@
                     <div v-if="task.answer && task.answer.value === 'FAIL' && !task.answer.deviation" class="fail-fields">
                         <div class="row no-gutters" style="gap: 8px">
                             <div class="col">
-                                <label class="text-muted small mb-0">Type</label>
-                                <b-form-input v-model="failDrafts[task.id].type" placeholder="Type" />
+                                <label class="text-muted small mb-0">
+                                    Type <span class="text-danger">*</span>
+                                </label>
+                                <b-form-input
+                                    v-model="failDrafts[task.id].type"
+                                    placeholder="Type"
+                                    :state="failDrafts[task.id].type ? null : false"
+                                />
                             </div>
                             <div class="col">
-                                <label class="text-muted small mb-0">Title</label>
-                                <b-form-input v-model="failDrafts[task.id].title" placeholder="Title" />
+                                <label class="text-muted small mb-0">
+                                    Title <span class="text-danger">*</span>
+                                </label>
+                                <b-form-input
+                                    v-model="failDrafts[task.id].title"
+                                    placeholder="Title"
+                                    :state="failDrafts[task.id].title ? null : false"
+                                />
                             </div>
                             <div class="col">
-                                <label class="text-muted small mb-0">Responsible</label>
-                                <b-form-input v-model="failDrafts[task.id].responsible" placeholder="Responsible" />
+                                <label class="text-muted small mb-0">
+                                    Responsible <span class="text-danger">*</span>
+                                </label>
+                                <b-form-input
+                                    v-model="failDrafts[task.id].responsible"
+                                    placeholder="Responsible"
+                                    :state="failDrafts[task.id].responsible ? null : false"
+                                />
                             </div>
                         </div>
                     </div>
@@ -566,7 +584,12 @@ export default {
 
         function canCreateDeviation(task) {
             const draft = failDrafts[task.id];
-            return draft && draft.type?.trim() && draft.title?.trim();
+            return (
+                draft &&
+                draft.type?.trim() &&
+                draft.title?.trim() &&
+                draft.responsible?.trim()
+            );
         }
 
         async function createDeviation(task) {

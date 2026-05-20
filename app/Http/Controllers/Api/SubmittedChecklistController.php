@@ -187,7 +187,7 @@ class SubmittedChecklistController extends Controller
         $data = $request->validate([
             'type' => 'required|string',
             'title' => 'required|string',
-            'responsible_person' => 'nullable|string',
+            'responsible_person' => 'required|string',
             'project_id' => 'nullable|exists:projects,id',
             'description' => 'nullable|string',
         ]);
