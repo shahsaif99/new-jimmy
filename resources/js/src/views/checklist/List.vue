@@ -98,7 +98,7 @@ export default defineComponent({
     props: {
         checklist: { type: Array, required: false, default: () => [] },
     },
-    setup(props, { emit }) {
+    setup(props, { emit, root }) {
         const { assign, dialog } = useTasks();
         const checklistId = ref(null);
         const startingId = ref(null);
@@ -126,6 +126,19 @@ export default defineComponent({
         };
 
         const dltChecklist = async (id) => {
+            const item = props.checklist.find((c) => c.id === id);
+            const name = item?.name || "this checklist template";
+            const ok = await root.$bvModal.msgBoxConfirm(
+                `Are you sure you want to delete the checklist template "${name}"? This cannot be undone.`,
+                {
+                    title: "Delete checklist template",
+                    okVariant: "danger",
+                    okTitle: "Delete",
+                    cancelTitle: "Cancel",
+                    centered: true,
+                }
+            );
+            if (!ok) return;
             try {
                 const res = await axios.delete(route("checklist.destroy", id));
                 if (res.status === 200) {
