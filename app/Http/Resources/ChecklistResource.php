@@ -20,9 +20,13 @@ class ChecklistResource extends JsonResource
         $sectionsCount = $this->sections_count ?? $this->sections->count();
         $tasksCount = $this->tasks_count ?? $this->sections->sum(fn ($s) => $s->checklistTasks->count());
 
+        $autoCode = 'SJ-' . str_pad((string) $this->id, 2, '0', STR_PAD_LEFT);
+
         return [
             'id' => $this->id,
-            'code' => 'SJ-' . str_pad((string) $this->id, 2, '0', STR_PAD_LEFT),
+            'code' => $this->checklist_no ?: $autoCode,
+            'auto_code' => $autoCode,
+            'checklist_no' => $this->checklist_no,
             'name' => $this->name,
             'icon' => $this->icon,
             'color' => $this->color,

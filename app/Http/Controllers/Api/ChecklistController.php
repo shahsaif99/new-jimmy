@@ -20,6 +20,7 @@ class ChecklistController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string',
+            'checklist_no' => 'nullable|string|max:50',
             'sections' => 'required|array',
             'title_img' => 'nullable',
             'icon' => 'nullable',
@@ -29,6 +30,7 @@ class ChecklistController extends Controller
 
         $checklist = Checklist::create([
             'name' => $data['name'],
+            'checklist_no' => $data['checklist_no'] ?? null,
             'icon' => $data['icon'] ?? null,
             'color' => $data['color'] ?? null,
             'category_id' => $data['category_id'] ?? null,
@@ -82,6 +84,7 @@ class ChecklistController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string',
+            'checklist_no' => 'nullable|string|max:50',
             'sections' => 'required',
             'title_img' => 'nullable',
             'icon' => 'nullable',
@@ -91,6 +94,7 @@ class ChecklistController extends Controller
 
         $checklist->update([
             'name' => $data['name'],
+            'checklist_no' => $data['checklist_no'] ?? null,
             'icon' => $data['icon'] ?? null,
             'color' => $data['color'] ?? null,
             'category_id' => $data['category_id'] ?? null,
