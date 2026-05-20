@@ -6,7 +6,7 @@
             <div class="m-2">
                 <div class="d-flex justify-content-between align-items-center flex-wrap" style="gap: 12px">
                     <div class="d-flex align-items-center flex-wrap" style="gap: 12px">
-                        <div class="scope-toggle">
+                        <div class="scope-toggle" v-if="canViewAll">
                             <button
                                 type="button"
                                 class="scope-btn"
@@ -201,6 +201,7 @@ import route from "ziggy-js";
 import toaster from "@/composables/toaster";
 import Perform from "./Perform.vue";
 import SubmittedChecklistDrawer from "./SubmittedChecklistDrawer.vue";
+import useAbilities from "@/composables/abilities";
 
 export default {
     components: {
@@ -209,6 +210,8 @@ export default {
     },
     setup(_, { root }) {
         const toast = toaster();
+        const { can } = useAbilities();
+        const canViewAll = computed(() => can("checklist-view-all"));
         const rows = ref([]);
         const meta = ref({ total: 0, per_page: 15, from: 0, to: 0 });
         const loading = ref(false);
@@ -420,7 +423,7 @@ export default {
         });
 
         return {
-            rows, meta, loading, page, scope, filters, dateRange,
+            rows, meta, loading, page, scope, filters, dateRange, canViewAll,
             datePickerConfig, fields, statusOptions, templateOptions, employeeOptions,
             setScope, statusColor, fetchRows, resetFilters, onRowClicked, confirmDelete,
             statusLabel, templateLabel, employeeLabel, dateRangeLabel,
