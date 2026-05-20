@@ -142,27 +142,27 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::put('/account/password', [AccountController::class, 'updateAccountPassword'])->name('account.password');
     Route::put('/account/general', [AccountController::class, 'updateAccountGeneral'])->name('account.general');
 
-    Route::post('checklist', [ChecklistController::class, 'store'])->name('checklist.store');
+    Route::post('checklist', [ChecklistController::class, 'store'])->middleware('can:checklist-create')->name('checklist.store');
     Route::get('checklist', [ChecklistController::class, 'index'])->name('checklist.index');
     Route::get('checklist/{checklist}', [ChecklistController::class, 'show'])->name('checklist.show');
-    Route::delete('checklist/{checklist}', [ChecklistController::class, 'destroy'])->name('checklist.destroy');
-    Route::put('checklist/{checklist}', [ChecklistController::class, 'update'])->name('checklist.update');
-    Route::post('checklist/{checklist}/start', [ChecklistController::class, 'start'])->name('checklist.start');
-    Route::post('checklist/{checklist}/perform', [ChecklistController::class, 'perform'])->name('checklist.perform');
+    Route::delete('checklist/{checklist}', [ChecklistController::class, 'destroy'])->middleware('can:checklist-delete')->name('checklist.destroy');
+    Route::put('checklist/{checklist}', [ChecklistController::class, 'update'])->middleware('can:checklist-edit')->name('checklist.update');
+    Route::post('checklist/{checklist}/start', [ChecklistController::class, 'start'])->middleware('can:checklist-perform')->name('checklist.start');
+    Route::post('checklist/{checklist}/perform', [ChecklistController::class, 'perform'])->middleware('can:checklist-perform')->name('checklist.perform');
 
     Route::get('submitted-checklists', [SubmittedChecklistController::class, 'index'])->name('submitted-checklists.index');
     Route::get('submitted-checklists/{userChecklist}', [SubmittedChecklistController::class, 'show'])->name('submitted-checklists.show');
-    Route::delete('submitted-checklists/{userChecklist}', [SubmittedChecklistController::class, 'destroy'])->name('submitted-checklists.destroy');
-    Route::post('submitted-checklists/{userChecklist}/submit', [SubmittedChecklistController::class, 'submit'])->name('submitted-checklists.submit');
-    Route::post('submitted-checklists/{userChecklist}/meta', [SubmittedChecklistController::class, 'updateMeta'])->name('submitted-checklists.update-meta');
-    Route::post('submitted-checklists/{userChecklist}/answers/{answer}/deviation', [SubmittedChecklistController::class, 'createDeviation'])->name('submitted-checklists.create-deviation');
-    Route::get('submitted-checklists/{userChecklist}/export-pdf', [SubmittedChecklistController::class, 'exportPdf'])->name('submitted-checklists.export-pdf');
-    Route::post('user-checklist', [UserChecklistController::class, 'store'])->name('user-checklist.store');
+    Route::delete('submitted-checklists/{userChecklist}', [SubmittedChecklistController::class, 'destroy'])->middleware('can:checklist-delete')->name('submitted-checklists.destroy');
+    Route::post('submitted-checklists/{userChecklist}/submit', [SubmittedChecklistController::class, 'submit'])->middleware('can:checklist-submit')->name('submitted-checklists.submit');
+    Route::post('submitted-checklists/{userChecklist}/meta', [SubmittedChecklistController::class, 'updateMeta'])->middleware('can:checklist-perform')->name('submitted-checklists.update-meta');
+    Route::post('submitted-checklists/{userChecklist}/answers/{answer}/deviation', [SubmittedChecklistController::class, 'createDeviation'])->middleware('can:checklist-perform')->name('submitted-checklists.create-deviation');
+    Route::get('submitted-checklists/{userChecklist}/export-pdf', [SubmittedChecklistController::class, 'exportPdf'])->middleware('can:checklist-export')->name('submitted-checklists.export-pdf');
+    Route::post('user-checklist', [UserChecklistController::class, 'store'])->middleware('can:checklist-assign')->name('user-checklist.store');
     Route::get('user-checklist/{checklist}', [UserChecklistController::class, 'index'])->name('user-checklist.index');
     Route::get('user-checklist/{userChecklist}', [UserChecklistController::class, 'show'])->name('user-checklist.show');
-    Route::delete('user-checklist/{userChecklist}', [UserChecklistController::class, 'destroy'])->name('user-checklist.destroy');
-    Route::post('user-checklist/{userChecklist}', [UserChecklistController::class, 'update'])->name('user-checklist.update');
-    Route::get('user-checklist-start/{userChecklist}', [UserChecklistController::class, 'start'])->name('user-checklist.start');
+    Route::delete('user-checklist/{userChecklist}', [UserChecklistController::class, 'destroy'])->middleware('can:checklist-delete')->name('user-checklist.destroy');
+    Route::post('user-checklist/{userChecklist}', [UserChecklistController::class, 'update'])->middleware('can:checklist-assign')->name('user-checklist.update');
+    Route::get('user-checklist-start/{userChecklist}', [UserChecklistController::class, 'start'])->middleware('can:checklist-perform')->name('user-checklist.start');
 
     Route::apiResource('wps', WpsController::class);
     Route::post('wps/{wp}/add-to-project', [WpsController::class, 'addToProject'])->name('wps.add-to-project');

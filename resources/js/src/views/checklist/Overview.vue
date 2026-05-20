@@ -152,7 +152,7 @@
                                 <feather-icon icon="EyeIcon" />
                                 <span class="align-middle ml-50">View</span>
                             </b-dropdown-item>
-                            <b-dropdown-item @click="confirmDelete(data.item)">
+                            <b-dropdown-item v-if="can('checklist-delete')" @click="confirmDelete(data.item)">
                                 <feather-icon icon="TrashIcon" />
                                 <span class="align-middle ml-50">Delete</span>
                             </b-dropdown-item>
@@ -212,6 +212,7 @@ export default {
         const toast = toaster();
         const { can } = useAbilities();
         const canViewAll = computed(() => can("checklist-view-all"));
+        const canDelete = computed(() => can("checklist-delete"));
         const rows = ref([]);
         const meta = ref({ total: 0, per_page: 15, from: 0, to: 0 });
         const loading = ref(false);
@@ -423,7 +424,7 @@ export default {
         });
 
         return {
-            rows, meta, loading, page, scope, filters, dateRange, canViewAll,
+            rows, meta, loading, page, scope, filters, dateRange, canViewAll, can,
             datePickerConfig, fields, statusOptions, templateOptions, employeeOptions,
             setScope, statusColor, fetchRows, resetFilters, onRowClicked, confirmDelete,
             statusLabel, templateLabel, employeeLabel, dateRangeLabel,

@@ -1,6 +1,7 @@
 <template>
     <div>
         <div
+            v-if="can('checklist-create')"
             class="add-checklist"
             @click="$router.push({ name: 'add-checklist' })"
         >
@@ -100,6 +101,7 @@ import card from "./card.vue";
 import List from "./List.vue";
 import route from "ziggy-js";
 import useTasks from "@/composables/tasks";
+import useAbilities from "@/composables/abilities";
 
 export default {
     components: { card, List, BFormSelect, BFormInput },
@@ -111,6 +113,7 @@ export default {
         const viewMode = ref("list");
         const loading = ref(false);
         const { assign, dialog } = useTasks();
+        const { can } = useAbilities();
 
         const categoryOptions = computed(() => [
             { value: null, text: "All categories" },
@@ -178,6 +181,7 @@ export default {
             filteredChecklist,
             hasActiveFilter,
             loading,
+            can,
         };
     },
 };

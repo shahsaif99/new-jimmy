@@ -36,6 +36,7 @@
                 <template #cell(actions)="data">
                     <div class="d-flex justify-content-end" style="gap: 8px">
                         <button
+                            v-if="can('checklist-perform')"
                             class="btn btn-primary btn-sm"
                             :disabled="startingId === data.item.id"
                             @click="startTemplate(data.item.id)"
@@ -43,21 +44,32 @@
                             {{ startingId === data.item.id ? 'Starting...' : 'Start' }}
                         </button>
                         <button
+                            v-if="can('checklist-assign')"
                             class="btn btn-outline-primary btn-sm"
                             @click="openAssign(data.item.id)"
                         >
                             Assign
                         </button>
-                        <b-dropdown variant="link" no-caret toggle-class="p-0" right>
+                        <b-dropdown
+                            v-if="can('checklist-edit') || can('checklist-delete')"
+                            variant="link"
+                            no-caret
+                            toggle-class="p-0"
+                            right
+                        >
                             <template #button-content>
                                 <i class="bi bi-three-dots-vertical text-body"></i>
                             </template>
                             <b-dropdown-item
+                                v-if="can('checklist-edit')"
                                 @click="$router.push({ name: 'add-checklist', params: { param: data.item.id } })"
                             >
                                 Edit
                             </b-dropdown-item>
-                            <b-dropdown-item @click="dltChecklist(data.item.id)">
+                            <b-dropdown-item
+                                v-if="can('checklist-delete')"
+                                @click="dltChecklist(data.item.id)"
+                            >
                                 Delete
                             </b-dropdown-item>
                         </b-dropdown>
@@ -92,6 +104,7 @@ import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
 import useTasks from "@/composables/tasks";
+import useAbilities from "@/composables/abilities";
 
 export default defineComponent({
     components: { BTable, BDropdown, BDropdownItem, Assign, ProjectSelectionDialog, Perform },
@@ -100,6 +113,7 @@ export default defineComponent({
     },
     setup(props, { emit, root }) {
         const { assign, dialog } = useTasks();
+        const { can } = useAbilities();
         const checklistId = ref(null);
         const startingId = ref(null);
         const performId = ref(null);
@@ -198,6 +212,7 @@ export default defineComponent({
             projectPickerVisible,
             onProjectPicked,
             closeProjectPicker,
+            can,
         };
     },
 });

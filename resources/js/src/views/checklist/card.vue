@@ -27,6 +27,7 @@
                                 ></i>
                             </template>
                             <b-dropdown-item
+                                v-if="can('checklist-edit')"
                                 @click="
                                     $router.push({
                                         name: 'add-checklist',
@@ -35,7 +36,9 @@
                                 "
                                 >Edit
                             </b-dropdown-item>
-                            <b-dropdown-item @click="dltChecklist(card.id)"
+                            <b-dropdown-item
+                                v-if="can('checklist-delete')"
+                                @click="dltChecklist(card.id)"
                                 >Delete</b-dropdown-item
                             >
                         </b-dropdown>
@@ -105,6 +108,7 @@
 
                             <div class="d-flex" style="gap: 6px">
                                 <button
+                                    v-if="can('checklist-perform')"
                                     class="btn btn-primary align-items-center section-btn"
                                     :disabled="startingId === card.id"
                                     @click="startTemplate(card.id)"
@@ -112,6 +116,7 @@
                                     {{ startingId === card.id ? '...' : 'Start' }}
                                 </button>
                                 <button
+                                    v-if="can('checklist-assign')"
                                     class="btn btn-outline-primary align-items-center section-btn"
                                     @click="openDialog(card.id)"
                                 >
@@ -178,6 +183,7 @@ import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
 import useTasks from "@/composables/tasks";
+import useAbilities from "@/composables/abilities";
 
 export default defineComponent({
     components: {
@@ -196,6 +202,7 @@ export default defineComponent({
     },
     setup(props, { emit, root }) {
         const { assign, dialog } = useTasks();
+        const { can } = useAbilities();
         const checklistId = ref(null);
         const showing = ref(false);
         const toast = toaster();
@@ -304,6 +311,7 @@ export default defineComponent({
             projectPickerVisible,
             onProjectPicked,
             closeProjectPicker,
+            can,
         };
     },
 });

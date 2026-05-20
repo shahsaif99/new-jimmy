@@ -247,7 +247,12 @@
             </div>
             <div v-else class="d-flex justify-content-between align-items-center mt-3">
                 <b-badge variant="success">Submitted on {{ data.date }}</b-badge>
-                <b-button variant="outline-primary" size="sm" @click="downloadPdf">
+                <b-button
+                    v-if="can('checklist-export')"
+                    variant="outline-primary"
+                    size="sm"
+                    @click="downloadPdf"
+                >
                     <i class="bi bi-file-earmark-arrow-down mr-1"></i>
                     View Report (PDF)
                 </b-button>
@@ -262,6 +267,7 @@ import { BModal, BFormInput, BFormSelect, BButton, BBadge } from "bootstrap-vue"
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
+import useAbilities from "@/composables/abilities";
 
 export default {
     components: { BModal, BFormInput, BFormSelect, BButton, BBadge },
@@ -274,6 +280,7 @@ export default {
     },
     setup(props, { emit }) {
         const toast = toaster();
+        const { can } = useAbilities();
         const data = ref(null);
         const loading = ref(false);
         const submitting = ref(false);
@@ -827,7 +834,7 @@ export default {
             sections, stats, attachmentsCount, failDrafts,
             metaDraft, metaSaving, projectOptions, equipmentOptions, saveMeta,
             visibleTasks, setAnswer, saveNote, onPhoto, canCreateDeviation, createDeviation,
-            submitChecklist, saveAndClose, downloadPdf, onHide,
+            submitChecklist, saveAndClose, downloadPdf, onHide, can,
         };
     },
 };
