@@ -152,6 +152,7 @@ class ChecklistController extends Controller
             'project_id' => 'nullable|exists:projects,id',
             'equipment_id' => 'nullable|exists:equipment,id',
             'work_location' => 'nullable',
+            'save_draft' => 'nullable|boolean',
             'answers' => 'required|array|min:1',
             'answers.*.checklist_task_id' => 'required|integer|exists:checklist_tasks,id',
             'answers.*.answer' => 'required|in:PASS,FAIL,NA',
@@ -163,7 +164,9 @@ class ChecklistController extends Controller
             'answers.*.deviation.responsible_person' => 'nullable|string',
         ]);
 
-        $userChecklist = DB::transaction(function () use ($data, $checklist) {
+        $saveDraft = (bool) ($data['save_draft'] ?? false);
+
+        $userChecklist = DB::transaction(function () use ($data, $checklist, $saveDraft) {
             $uc = UserChecklist::create([
                 'checklist_id' => $checklist->id,
                 'title' => $data['title'] ?? $checklist->name,
@@ -174,9 +177,9 @@ class ChecklistController extends Controller
                     ? (is_array($data['work_location']) ? json_encode($data['work_location']) : $data['work_location'])
                     : null,
                 'category_id' => $checklist->category_id,
-                'status' => UserChecklist::STATUS_SUBMITTED,
+                'status' => $saveDraft ? UserChecklist::STATUS_IN_PROGRESS : UserChecklist::STATUS_SUBMITTED,
                 'started_at' => now(),
-                'submitted_at' => now(),
+                'submitted_at' => $saveDraft ? null : now(),
                 'assigned_by' => auth()->id(),
                 'is_started' => true,
                 'total_tasks' => $checklist->tasks()->count(),
@@ -225,7 +228,7 @@ class ChecklistController extends Controller
         });
 
         return response()->json([
-            'message' => 'Checklist submitted',
+            'message' => $saveDraft ? 'Checklist saved' : 'Checklist submitted',
             'user_checklist_id' => $userChecklist->id,
         ], 201);
     }

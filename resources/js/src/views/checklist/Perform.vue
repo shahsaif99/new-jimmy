@@ -212,10 +212,16 @@
             </div>
 
             <div class="d-flex justify-content-end mt-3" style="gap: 8px" v-if="!readonly">
-                <b-button variant="outline-secondary" @click="onHide">Save & close</b-button>
+                <b-button
+                    variant="outline-secondary"
+                    :disabled="savingDraft || submitting"
+                    @click="saveAndClose"
+                >
+                    {{ savingDraft ? 'Saving...' : 'Save & close' }}
+                </b-button>
                 <b-button
                     variant="primary"
-                    :disabled="submitting || stats.completed === 0"
+                    :disabled="submitting || savingDraft || stats.completed === 0"
                     @click="submitChecklist"
                 >
                     {{ submitting ? 'Submitting...' : 'Submit' }}
@@ -253,6 +259,7 @@ export default {
         const data = ref(null);
         const loading = ref(false);
         const submitting = ref(false);
+        const savingDraft = ref(false);
         const filter = ref("all");
         const failDrafts = reactive({});
 
@@ -724,6 +731,65 @@ export default {
             emit("close");
         }
 
+        async function saveAndClose() {
+            // Existing UserChecklist: answers + meta are already auto-saved on each
+            // interaction, so we just close without re-posting.
+            if (!isFresh.value) {
+                onHide();
+                return;
+            }
+
+            // Fresh template-only flow: capture whatever the user has typed/clicked
+            // so far as an in-progress UserChecklist they can resume later.
+            const answers = [];
+            sections.value.forEach((s) => s.tasks.forEach((task) => {
+                if (task.answer && task.answer.value) {
+                    const a = {
+                        checklist_task_id: task.id,
+                        answer: task.answer.value,
+                        notes: task._noteDraft || task.answer.notes || null,
+                    };
+                    if (task.answer.img) a.img = task.answer.img;
+                    if (task.answer.deviation && task.answer.deviation.type && task.answer.deviation.title) {
+                        a.deviation = {
+                            type: task.answer.deviation.type,
+                            title: task.answer.deviation.title,
+                            responsible_person: task.answer.deviation.responsible_person || null,
+                        };
+                    }
+                    answers.push(a);
+                }
+            }));
+
+            if (!answers.length) {
+                // Nothing to persist; just close.
+                onHide();
+                return;
+            }
+
+            try {
+                savingDraft.value = true;
+                const res = await axios.post(route("checklist.perform", props.templateId), {
+                    title: data.value.title,
+                    description: metaDraft.description || data.value.description || null,
+                    project_id: metaDraft.project_id || props.projectId || null,
+                    equipment_id: metaDraft.equipment_id || props.equipmentId || null,
+                    work_location: metaDraft.work_location || null,
+                    save_draft: true,
+                    answers,
+                });
+                if (res.status === 201) {
+                    toast.success("Saved — you can resume later");
+                    emit("saved-draft", res.data.user_checklist_id);
+                    onHide();
+                }
+            } catch (e) {
+                toast.error(e?.response?.data?.message || "Failed to save");
+            } finally {
+                savingDraft.value = false;
+            }
+        }
+
         watch(() => props.visible, (v) => {
             if (v) {
                 fetchData();
@@ -734,11 +800,11 @@ export default {
         });
 
         return {
-            data, loading, submitting, filter, filterOptions, readonly, show,
+            data, loading, submitting, savingDraft, filter, filterOptions, readonly, show,
             sections, stats, attachmentsCount, failDrafts,
             metaDraft, metaSaving, projectOptions, equipmentOptions, saveMeta,
             visibleTasks, setAnswer, saveNote, onPhoto, canCreateDeviation, createDeviation,
-            submitChecklist, downloadPdf, onHide,
+            submitChecklist, saveAndClose, downloadPdf, onHide,
         };
     },
 };
