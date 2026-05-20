@@ -158,9 +158,9 @@
                                 <label class="text-muted small mb-0">
                                     Type <span class="text-danger">*</span>
                                 </label>
-                                <b-form-input
+                                <b-form-select
                                     v-model="failDrafts[task.id].type"
-                                    placeholder="Type"
+                                    :options="deviationTypeOptions"
                                     :state="failDrafts[task.id].type ? null : false"
                                 />
                             </div>
@@ -178,9 +178,9 @@
                                 <label class="text-muted small mb-0">
                                     Responsible <span class="text-danger">*</span>
                                 </label>
-                                <b-form-input
+                                <b-form-select
                                     v-model="failDrafts[task.id].responsible"
-                                    placeholder="Responsible"
+                                    :options="userOptions"
                                     :state="failDrafts[task.id].responsible ? null : false"
                                 />
                             </div>
@@ -314,6 +314,17 @@ export default {
         const metaSaving = ref(false);
         const projectOptions = ref([{ value: null, text: "— No project —" }]);
         const equipmentOptions = ref([{ value: null, text: "— No equipment —" }]);
+        const userOptions = ref([{ value: "", text: "— Select responsible —" }]);
+
+        const deviationTypeOptions = [
+            { value: "", text: "— Select type —" },
+            { value: "Undesired Event", text: "Undesired Event" },
+            { value: "HSE Deviation", text: "HSE Deviation" },
+            { value: "Quality Deviation", text: "Quality Deviation" },
+            { value: "Environmental Deviation", text: "Environmental Deviation" },
+            { value: "Supplier Deviation", text: "Supplier Deviation" },
+            { value: "Improvement Suggestion", text: "Improvement Suggestion" },
+        ];
 
         const sections = computed(() => data.value?.template_full?.sections || []);
 
@@ -434,12 +445,14 @@ export default {
 
         async function loadProjectAndEquipmentOptions() {
             try {
-                const [projRes, eqRes] = await Promise.all([
+                const [projRes, eqRes, usrRes] = await Promise.all([
                     axios.get(route("projects.index")),
                     axios.get(route("equipments.index")),
+                    axios.get(route("users.index")),
                 ]);
                 const projects = projRes.data?.data || projRes.data || [];
                 const equipment = eqRes.data?.data || eqRes.data || [];
+                const users = usrRes.data?.data || usrRes.data || [];
                 projectOptions.value = [
                     { value: null, text: "— No project —" },
                     ...projects.map((p) => ({
@@ -450,6 +463,13 @@ export default {
                 equipmentOptions.value = [
                     { value: null, text: "— No equipment —" },
                     ...equipment.map((e) => ({ value: e.id, text: e.name })),
+                ];
+                userOptions.value = [
+                    { value: "", text: "— Select responsible —" },
+                    ...users.map((u) => {
+                        const name = u.name || `${u.first_name || ""} ${u.last_name || ""}`.trim();
+                        return { value: name, text: name };
+                    }),
                 ];
             } catch (e) {
                 /* silently leave defaults */
@@ -833,6 +853,7 @@ export default {
             data, loading, submitting, savingDraft, filter, filterOptions, readonly, show,
             sections, stats, attachmentsCount, failDrafts,
             metaDraft, metaSaving, projectOptions, equipmentOptions, saveMeta,
+            deviationTypeOptions, userOptions,
             visibleTasks, setAnswer, saveNote, onPhoto, canCreateDeviation, createDeviation,
             submitChecklist, saveAndClose, downloadPdf, onHide, can,
         };
