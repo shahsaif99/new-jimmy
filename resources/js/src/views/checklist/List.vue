@@ -78,13 +78,6 @@
             </b-table>
         </div>
 
-        <ProjectSelectionDialog
-            :show="projectPickerVisible"
-            :allow-skip="true"
-            @select="onProjectPicked"
-            @close="closeProjectPicker"
-        />
-
         <Perform
             :visible="performVisible"
             :template-id="performTemplateId"
@@ -98,7 +91,6 @@
 import { defineComponent, ref } from "@vue/composition-api";
 import { BTable, BDropdown, BDropdownItem } from "bootstrap-vue";
 import Assign from "./dialogs/Assign.vue";
-import ProjectSelectionDialog from "./dialogs/ProjectSelectionDialog.vue";
 import Perform from "./Perform.vue";
 import axios from "@axios";
 import route from "ziggy-js";
@@ -107,7 +99,7 @@ import useTasks from "@/composables/tasks";
 import useAbilities from "@/composables/abilities";
 
 export default defineComponent({
-    components: { BTable, BDropdown, BDropdownItem, Assign, ProjectSelectionDialog, Perform },
+    components: { BTable, BDropdown, BDropdownItem, Assign, Perform },
     props: {
         checklist: { type: Array, required: false, default: () => [] },
     },
@@ -120,8 +112,6 @@ export default defineComponent({
         const performTemplateId = ref(null);
         const performProjectId = ref(null);
         const performVisible = ref(false);
-        const projectPickerVisible = ref(false);
-        const pendingTemplateId = ref(null);
         const toast = toaster();
 
         const fields = [
@@ -165,21 +155,9 @@ export default defineComponent({
         };
 
         const startTemplate = (id) => {
-            pendingTemplateId.value = id;
-            projectPickerVisible.value = true;
-        };
-
-        const onProjectPicked = (project) => {
-            performProjectId.value = project ? project.id : null;
-            performTemplateId.value = pendingTemplateId.value;
-            projectPickerVisible.value = false;
-            pendingTemplateId.value = null;
+            performTemplateId.value = id;
+            performProjectId.value = null;
             performVisible.value = true;
-        };
-
-        const closeProjectPicker = () => {
-            projectPickerVisible.value = false;
-            pendingTemplateId.value = null;
         };
 
         const onAssignClose = () => {
@@ -209,9 +187,6 @@ export default defineComponent({
             performProjectId,
             performVisible,
             closePerform,
-            projectPickerVisible,
-            onProjectPicked,
-            closeProjectPicker,
             can,
         };
     },
