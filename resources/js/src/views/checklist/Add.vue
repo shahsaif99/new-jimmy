@@ -75,44 +75,53 @@
                         placeholder="Enter your checklist name"
                         required
                     />
-                    <label class="name-label mt-1">Category</label>
-                    <select
-                        class="form-control"
-                        v-model="checklist.category_id"
-                        style="max-width: 320px"
-                    >
-                        <option :value="null">— No category —</option>
-                        <option
-                            v-for="cat in categories"
-                            :key="cat.id"
-                            :value="cat.id"
+                    <div class="d-flex flex-wrap align-items-end mt-2" style="gap: 16px">
+                        <label
+                            v-if="!checklist.title_img"
+                            class="attachment-label mb-0"
+                            for="header-img"
+                            style="white-space: nowrap"
                         >
-                            {{ cat.name }}
-                        </option>
-                    </select>
-
-                    <label
-                        v-if="!checklist.title_img"
-                        class="attachment-label"
-                        for="header-img"
-                        ><svg
-                            class="attachment"
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 448 512"
-                        >
-                            <path
-                                d="M364.2 83.8c-24.4-24.4-64-24.4-88.4 0l-184 184c-42.1 42.1-42.1 110.3 0 152.4s110.3 42.1 152.4 0l152-152c10.9-10.9 28.7-10.9 39.6 0s10.9 28.7 0 39.6l-152 152c-64 64-167.6 64-231.6 0s-64-167.6 0-231.6l184-184c46.3-46.3 121.3-46.3 167.6 0s46.3 121.3 0 167.6l-176 176c-28.6 28.6-75 28.6-103.6 0s-28.6-75 0-103.6l144-144c10.9-10.9 28.7-10.9 39.6 0s10.9 28.7 0 39.6l-144 144c-6.7 6.7-6.7 17.7 0 24.4s17.7 6.7 24.4 0l176-176c24.4-24.4 24.4-64 0-88.4z"
+                            <svg
+                                class="attachment"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 448 512"
+                            >
+                                <path
+                                    d="M364.2 83.8c-24.4-24.4-64-24.4-88.4 0l-184 184c-42.1 42.1-42.1 110.3 0 152.4s110.3 42.1 152.4 0l152-152c10.9-10.9 28.7-10.9 39.6 0s10.9 28.7 0 39.6l-152 152c-64 64-167.6 64-231.6 0s-64-167.6 0-231.6l184-184c46.3-46.3 121.3-46.3 167.6 0s46.3 121.3 0 167.6l-176 176c-28.6 28.6-75 28.6-103.6 0s-28.6-75 0-103.6l144-144c10.9-10.9 28.7-10.9 39.6 0s10.9 28.7 0 39.6l-144 144c-6.7 6.7-6.7 17.7 0 24.4s17.7 6.7 24.4 0l176-176c24.4-24.4 24.4-64 0-88.4z"
+                                />
+                            </svg>
+                            <span class="add-attachment">Add Attachement </span>
+                            <input
+                                id="header-img"
+                                class="d-none"
+                                type="file"
+                                accept="image/*"
+                                @change="handleImage($event, 'header')"
                             />
-                        </svg>
-                        <span class="add-attachment">Add Attachement </span>
+                        </label>
+                        <select
+                            class="form-control"
+                            v-model="checklist.category_id"
+                            style="max-width: 240px"
+                        >
+                            <option :value="null">— No category —</option>
+                            <option
+                                v-for="cat in categories"
+                                :key="cat.id"
+                                :value="cat.id"
+                            >
+                                {{ cat.name }}
+                            </option>
+                        </select>
                         <input
-                            id="header-img"
-                            class="d-none"
-                            type="file"
-                            accept="image/*"
-                            @change="handleImage($event, 'header')"
+                            v-model="checklist.checklist_no"
+                            type="text"
+                            class="form-control"
+                            placeholder="Checklist No."
+                            style="max-width: 180px"
                         />
-                    </label>
+                    </div>
                 </div>
                 <div
                     v-if="checklist.title_img"
@@ -502,6 +511,7 @@ export default {
 
         const checklist = ref({
             name: "",
+            checklist_no: "",
             title_img: null,
             icon: "bi bi-list-check",
             color: "#0096fd",
@@ -698,6 +708,7 @@ export default {
                 if (router.currentRoute.params.param) {
                     let newData = {
                         name: checklist.value.name,
+                        checklist_no: checklist.value.checklist_no || null,
                         color: checklist.value.color,
                         icon: checklist.value.icon,
                         title_img: checklist.value.title_img,

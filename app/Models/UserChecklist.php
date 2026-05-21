@@ -82,6 +82,59 @@ class UserChecklist extends Model
         return $this->hasMany(TaskCheckListAnswer::class);
     }
 
+    public function snapshotSections()
+    {
+        return $this->hasMany(UserChecklistSection::class)->orderBy('position');
+    }
+
+    public function snapshotTasks()
+    {
+        return $this->hasManyThrough(
+            UserChecklistTask::class,
+            UserChecklistSection::class,
+            'user_checklist_id',
+            'user_checklist_section_id',
+            'id',
+            'id'
+        );
+    }
+
+    public function snapshotFromTemplate(?Checklist $template = null): void
+    {
+        $template = $template ?? $this->checklist;
+        if (!$template) {
+            return;
+        }
+
+        if ($this->snapshotSections()->exists()) {
+            return;
+        }
+
+        $template->load('sections.checklistTasks');
+
+        foreach ($template->sections as $sectionIdx => $section) {
+            $snapshotSection = $this->snapshotSections()->create([
+                'source_section_id' => $section->id,
+                'name' => $section->name,
+                'position' => $sectionIdx,
+            ]);
+
+            foreach ($section->checklistTasks as $taskIdx => $task) {
+                $snapshotSection->tasks()->create([
+                    'source_checklist_task_id' => $task->id,
+                    'name' => $task->name,
+                    'type' => $task->type ?? 'procedure',
+                    'param' => $task->param,
+                    'is_img_required' => (bool) $task->is_img_required,
+                    'img' => $task->img,
+                    'position' => $taskIdx,
+                ]);
+            }
+        }
+
+        $this->update(['total_tasks' => $this->snapshotTasks()->count()]);
+    }
+
     public function deviations()
     {
         return $this->hasManyThrough(
@@ -155,7 +208,11 @@ class UserChecklist extends Model
 
     public function recalculateProgress(): void
     {
-        $totalTasks = $this->checklist?->tasks()->count() ?? 0;
+        $totalTasks = $this->snapshotTasks()->count();
+        if ($totalTasks === 0) {
+            $totalTasks = $this->checklist?->tasks()->count() ?? 0;
+        }
+
         $answers = $this->answers()->get();
 
         $this->update([

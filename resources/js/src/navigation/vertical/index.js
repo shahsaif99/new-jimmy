@@ -57,6 +57,13 @@ export default [
         action: 'checklist',
         resource: 'all',
       },
+      {
+        title: 'Categories',
+        route: 'checklist-categories',
+        icon: 'TagIcon',
+        action: 'checklist',
+        resource: 'all',
+      },
     ],
   },
   {

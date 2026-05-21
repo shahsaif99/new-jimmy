@@ -15,6 +15,8 @@ class SubmittedChecklistResource extends JsonResource
             'id' => $this->id,
             'code' => 'S-' . str_pad((string) (1000 + $this->id), 4, '0', STR_PAD_LEFT),
             'title' => $this->title ?? $this->checklist?->name,
+            'description' => $this->description,
+            'work_location' => $this->work_location,
             'template' => $this->whenLoaded('checklist', fn () => $this->checklist ? [
                 'id' => $this->checklist->id,
                 'name' => $this->checklist->name,

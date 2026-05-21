@@ -220,70 +220,80 @@
                                         class="d-flex card-custom"
                                         style="max-width: 500px"
                                     >
-                                        <div class="d-flex">
-                                            <div
-                                                class="rounded"
-                                                v-if="task.data.checklist.color"
-                                                :style="{
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    width: '50px',
-                                                    height: '50px',
-                                                    background:
-                                                        task.data.checklist
-                                                            .color,
-                                                }"
-                                            >
-                                                <i
-                                                    v-if="
-                                                        task.data.checklist.icon
-                                                    "
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex">
+                                                <div
+                                                    class="rounded"
+                                                    v-if="task.data.checklist.color"
                                                     :style="{
-                                                        color: '#fff',
-                                                        fontSize: '20px',
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        width: '50px',
+                                                        height: '50px',
+                                                        background:
+                                                            task.data.checklist
+                                                                .color,
                                                     }"
-                                                    :class="
-                                                        task.data.checklist.icon
-                                                    "
-                                                ></i>
-                                            </div>
-                                            <div
-                                                style="
-                                                    display: flex;
-                                                    flex-direction: column;
-                                                    align-items: start;
-                                                "
-                                            >
-                                                <span
-                                                    style="
-                                                        font-size: 16px;
-                                                        font-weight: 600;
-                                                    "
-                                                    class="ml-2 text-capitalize text-truncate"
                                                 >
-                                                    {{
-                                                        task.data.checklist
-                                                            .name ||
-                                                        "Unnamed Checklist"
-                                                    }}
-                                                </span>
-                                                <span
-                                                    class="ml-2 text-capitalize"
-                                                >
-                                                    <strong
+                                                    <i
                                                         v-if="
-                                                            task.data.checklist
-                                                                .sections
+                                                            task.data.checklist.icon
                                                         "
-                                                        >{{
-                                                            task.data.checklist
-                                                                .sections.length
-                                                        }}</strong
+                                                        :style="{
+                                                            color: '#fff',
+                                                            fontSize: '20px',
+                                                        }"
+                                                        :class="
+                                                            task.data.checklist.icon
+                                                        "
+                                                    ></i>
+                                                </div>
+                                                <div
+                                                    style="
+                                                        display: flex;
+                                                        flex-direction: column;
+                                                        align-items: start;
+                                                    "
+                                                >
+                                                    <span
+                                                        style="
+                                                            font-size: 16px;
+                                                            font-weight: 600;
+                                                        "
+                                                        class="ml-2 text-capitalize text-truncate"
                                                     >
-                                                    Items
-                                                </span>
+                                                        {{
+                                                            task.data.checklist
+                                                                .name ||
+                                                            "Unnamed Checklist"
+                                                        }}
+                                                    </span>
+                                                    <span
+                                                        class="ml-2 text-capitalize"
+                                                    >
+                                                        <strong
+                                                            v-if="
+                                                                task.data.checklist
+                                                                    .sections
+                                                            "
+                                                            >{{
+                                                                task.data.checklist
+                                                                    .sections.length
+                                                            }}</strong
+                                                        >
+                                                        Items
+                                                    </span>
+                                                </div>
                                             </div>
+                                            <b-button
+                                                :to="`/tasks/${props.id}/perform-task`"
+                                                variant="primary"
+                                                size="sm"
+                                                class="ml-2"
+                                            >
+                                                {{ taskStarted ? 'Continue' : 'Start' }}
+                                            </b-button>
                                         </div>
                                     </b-card>
                                     <ul class="list-unstyled">
@@ -439,6 +449,11 @@ export default {
             await getTaskById(props.id);
         });
 
+        const taskStarted = computed(() => {
+            const s = task.value?.data?.status?.toLowerCase?.() || "";
+            return s === "in progress" || s === "completed";
+        });
+
         const close = () => {
             emit("close");
         };
@@ -451,6 +466,7 @@ export default {
             formatDate,
             task,
             userData,
+            taskStarted,
             avatarText,
             resolveUserRoleVariant,
             statusIcons,

@@ -20,6 +20,7 @@ class ChecklistController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string',
+            'checklist_no' => 'nullable|string|max:50',
             'sections' => 'required|array',
             'title_img' => 'nullable',
             'icon' => 'nullable',
@@ -29,6 +30,7 @@ class ChecklistController extends Controller
 
         $checklist = Checklist::create([
             'name' => $data['name'],
+            'checklist_no' => $data['checklist_no'] ?? null,
             'icon' => $data['icon'] ?? null,
             'color' => $data['color'] ?? null,
             'category_id' => $data['category_id'] ?? null,
@@ -82,6 +84,7 @@ class ChecklistController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string',
+            'checklist_no' => 'nullable|string|max:50',
             'sections' => 'required',
             'title_img' => 'nullable',
             'icon' => 'nullable',
@@ -91,6 +94,7 @@ class ChecklistController extends Controller
 
         $checklist->update([
             'name' => $data['name'],
+            'checklist_no' => $data['checklist_no'] ?? null,
             'icon' => $data['icon'] ?? null,
             'color' => $data['color'] ?? null,
             'category_id' => $data['category_id'] ?? null,
@@ -130,6 +134,7 @@ class ChecklistController extends Controller
             'total_tasks' => $checklist->tasks()->count(),
         ]);
 
+        $userChecklist->snapshotFromTemplate($checklist);
         $userChecklist->users()->sync([auth()->id()]);
         $userChecklist->update(['is_started' => true]);
 
@@ -146,6 +151,8 @@ class ChecklistController extends Controller
             'description' => 'nullable|string',
             'project_id' => 'nullable|exists:projects,id',
             'equipment_id' => 'nullable|exists:equipment,id',
+            'work_location' => 'nullable',
+            'save_draft' => 'nullable|boolean',
             'answers' => 'required|array|min:1',
             'answers.*.checklist_task_id' => 'required|integer|exists:checklist_tasks,id',
             'answers.*.answer' => 'required|in:PASS,FAIL,NA',
@@ -154,29 +161,39 @@ class ChecklistController extends Controller
             'answers.*.deviation' => 'nullable|array',
             'answers.*.deviation.type' => 'required_with:answers.*.deviation|string',
             'answers.*.deviation.title' => 'required_with:answers.*.deviation|string',
-            'answers.*.deviation.responsible_person' => 'nullable|string',
+            'answers.*.deviation.responsible_person' => 'required_with:answers.*.deviation|string',
         ]);
 
-        $userChecklist = DB::transaction(function () use ($data, $checklist) {
+        $saveDraft = (bool) ($data['save_draft'] ?? false);
+
+        $userChecklist = DB::transaction(function () use ($data, $checklist, $saveDraft) {
             $uc = UserChecklist::create([
                 'checklist_id' => $checklist->id,
                 'title' => $data['title'] ?? $checklist->name,
                 'description' => $data['description'] ?? null,
                 'project_id' => $data['project_id'] ?? null,
                 'equipment_id' => $data['equipment_id'] ?? null,
+                'work_location' => isset($data['work_location'])
+                    ? (is_array($data['work_location']) ? json_encode($data['work_location']) : $data['work_location'])
+                    : null,
                 'category_id' => $checklist->category_id,
-                'status' => UserChecklist::STATUS_SUBMITTED,
+                'status' => $saveDraft ? UserChecklist::STATUS_IN_PROGRESS : UserChecklist::STATUS_SUBMITTED,
                 'started_at' => now(),
-                'submitted_at' => now(),
+                'submitted_at' => $saveDraft ? null : now(),
                 'assigned_by' => auth()->id(),
                 'is_started' => true,
                 'total_tasks' => $checklist->tasks()->count(),
             ]);
+            $uc->snapshotFromTemplate($checklist);
             $uc->users()->sync([auth()->id()]);
 
+            $snapshotTaskMap = $uc->snapshotTasks()->get()->keyBy('source_checklist_task_id');
+
             foreach ($data['answers'] as $a) {
+                $snapshotTask = $snapshotTaskMap->get($a['checklist_task_id']);
                 $answer = TaskCheckListAnswer::create([
                     'checklist_task_id' => $a['checklist_task_id'],
+                    'user_checklist_task_id' => $snapshotTask?->id,
                     'user_checklist_id' => $uc->id,
                     'user_id' => auth()->id(),
                     'answer' => $a['answer'],
@@ -190,15 +207,19 @@ class ChecklistController extends Controller
                 }
 
                 if ($a['answer'] === 'FAIL' && !empty($a['deviation'])) {
+                    $user = auth()->user();
                     $deviation = AvvikListing::create([
                         'type' => $a['deviation']['type'],
                         'title' => $a['deviation']['title'],
                         'date' => now()->format('Y-m-d'),
+                        'time_of_incident' => now()->format('Y-m-d H:i:s'),
+                        'department' => $checklist->name ?: 'Checklist',
+                        'event_type' => $a['deviation']['type'],
                         'responsible_person' => $a['deviation']['responsible_person'] ?? null,
                         'project_id' => $uc->project_id,
                         'equipment_id' => $uc->equipment_id,
                         'description' => $a['notes'] ?? null,
-                        'registered_by' => auth()->id(),
+                        'registered_by' => $user?->name ?? (string) auth()->id(),
                         'user_id' => auth()->id(),
                         'status' => 'open',
                     ]);
@@ -211,7 +232,7 @@ class ChecklistController extends Controller
         });
 
         return response()->json([
-            'message' => 'Checklist submitted',
+            'message' => $saveDraft ? 'Checklist saved' : 'Checklist submitted',
             'user_checklist_id' => $userChecklist->id,
         ], 201);
     }

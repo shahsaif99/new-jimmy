@@ -146,8 +146,13 @@
                                 <b-col class="d-flex justify-content-between align-items-center border rounded"
                                     cols="12" md="12">
                                     <span class="p-1">Start Checklist</span>
-                                    <b-button variant="outline-primary" class="d-flex align-items-center">
-                                        Start
+                                    <b-button
+                                        variant="outline-primary"
+                                        class="d-flex align-items-center"
+                                        :disabled="startingChecklist"
+                                        @click="startEquipmentChecklist"
+                                    >
+                                        {{ startingChecklist ? 'Starting...' : 'Start' }}
                                     </b-button>
                                 </b-col>
                             </b-row>
@@ -519,7 +524,7 @@ export default {
                 link.remove()
                 window.URL.revokeObjectURL(url)
             } catch (e) {
-                toast.error("Report download lands on the pdf-rapport branch.")
+                toast.error("Failed to download report")
             }
         }
 

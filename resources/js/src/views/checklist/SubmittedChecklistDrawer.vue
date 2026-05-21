@@ -85,28 +85,45 @@
                     <div
                         v-for="task in section.tasks"
                         :key="task.id"
-                        class="task-row d-flex justify-content-between align-items-start"
+                        class="task-row"
                     >
-                        <div class="d-flex align-items-start" style="gap: 8px; min-width: 0">
-                            <i
-                                class="task-icon"
-                                :class="iconClass(task.answer)"
-                                :style="{ color: iconColor(task.answer) }"
-                            ></i>
-                            <div style="min-width: 0">
-                                <div class="task-name">{{ task.name }}</div>
-                                <small v-if="task.answer && task.answer.notes" class="text-muted d-block">
-                                    {{ task.answer.notes }}
-                                </small>
-                                <small v-if="task.answer && task.answer.deviation" class="d-block deviation-link">
-                                    <i class="bi bi-exclamation-triangle"></i>
-                                    {{ task.answer.deviation.title }}
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex align-items-start" style="gap: 8px; min-width: 0; flex: 1">
+                                <i
+                                    class="task-icon"
+                                    :class="iconClass(task.answer)"
+                                    :style="{ color: iconColor(task.answer) }"
+                                ></i>
+                                <div style="min-width: 0; flex: 1">
+                                    <div class="task-name">{{ task.name }}</div>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column align-items-end" style="gap: 4px">
+                                <span class="status-pill" :class="pillClass(task.answer)">
+                                    {{ pillLabel(task.answer) }}
+                                </span>
+                                <small v-if="task.answer && task.answer.answered_at" class="text-muted answered-at">
+                                    {{ task.answer.answered_at }}
                                 </small>
                             </div>
                         </div>
-                        <span class="status-pill" :class="pillClass(task.answer)">
-                            {{ pillLabel(task.answer) }}
-                        </span>
+
+                        <div
+                            v-if="task.answer && task.answer.notes"
+                            class="answer-comment"
+                            :class="{ 'comment-fail': task.answer.value === 'FAIL' }"
+                        >
+                            {{ task.answer.notes }}
+                        </div>
+
+                        <div v-if="task.answer && task.answer.img" class="answer-photo">
+                            <img :src="resolveAsset(task.answer.img)" alt="Attached photo" />
+                        </div>
+
+                        <small v-if="task.answer && task.answer.deviation" class="d-block deviation-link mt-1">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            {{ task.answer.deviation.title }}
+                        </small>
                     </div>
                 </div>
             </div>
@@ -173,6 +190,12 @@ export default {
             return "pill-na";
         }
 
+        function resolveAsset(path) {
+            if (!path) return "";
+            if (/^https?:/.test(path) || path.startsWith("data:")) return path;
+            return `/${path.replace(/^\/+/, "")}`;
+        }
+
         async function fetchData() {
             if (!props.userChecklistId) return;
             try {
@@ -203,7 +226,7 @@ export default {
                 link.remove();
                 window.URL.revokeObjectURL(url);
             } catch (e) {
-                toast.error("Report download lands on the pdf-rapport branch.");
+                toast.error("Failed to download report");
             }
         }
 
@@ -218,7 +241,7 @@ export default {
 
         return {
             data, loading, sections, description,
-            statusColor, iconClass, iconColor, pillLabel, pillClass,
+            statusColor, iconClass, iconColor, pillLabel, pillClass, resolveAsset,
             downloadPdf, onHidden,
         };
     },
@@ -294,4 +317,30 @@ export default {
 .pill-fail { background: #f8d7da; color: #721c24; }
 .pill-na { background: #d1ecf1; color: #0c5460; }
 .pill-empty { background: #f1f1f1; color: #888; }
+.answered-at {
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+.answer-comment {
+    font-size: 0.8rem;
+    margin-top: 6px;
+    padding: 4px 8px;
+    background: #f8f9fa;
+    border-left: 2px solid #ccc;
+    border-radius: 2px;
+}
+.answer-comment.comment-fail {
+    color: #c0392b;
+    border-left-color: #c0392b;
+    background: #fdecea;
+}
+.answer-photo {
+    margin-top: 6px;
+}
+.answer-photo img {
+    max-width: 100%;
+    max-height: 180px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
 </style>

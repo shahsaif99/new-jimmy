@@ -38,19 +38,48 @@
                 </span>
             </div>
 
-            <div class="d-flex align-items-center mb-2 flex-wrap" style="gap: 12px">
-                <div class="quick-icon" :title="(data.project && data.project.name) || 'No project'">
-                    <i class="bi bi-folder"></i>
+            <div class="d-flex align-items-end flex-wrap mb-2" style="gap: 12px">
+                <div style="min-width: 200px">
+                    <label class="text-muted small mb-0">
+                        <i class="bi bi-folder"></i> Project
+                    </label>
+                    <b-form-select
+                        v-model="metaDraft.project_id"
+                        :options="projectOptions"
+                        :disabled="readonly || metaSaving"
+                        @change="saveMeta('project_id')"
+                    />
                 </div>
-                <div class="quick-icon" :title="(data.equipment && data.equipment.name) || 'No equipment'">
-                    <i class="bi bi-geo-alt"></i>
+                <div style="min-width: 200px">
+                    <label class="text-muted small mb-0">
+                        <i class="bi bi-tools"></i> Equipment
+                    </label>
+                    <b-form-select
+                        v-model="metaDraft.equipment_id"
+                        :options="equipmentOptions"
+                        :disabled="readonly || metaSaving"
+                        @change="saveMeta('equipment_id')"
+                    />
                 </div>
-                <div class="quick-icon" :title="data.template && data.template.name">
-                    <i class="bi bi-tools"></i>
+                <div style="min-width: 200px">
+                    <label class="text-muted small mb-0">
+                        <i class="bi bi-geo-alt"></i> Location
+                    </label>
+                    <b-form-input
+                        v-model="metaDraft.work_location"
+                        placeholder="Work location"
+                        :disabled="readonly || metaSaving"
+                        @blur="saveMeta('work_location')"
+                    />
                 </div>
-                <div class="flex-grow-1 ml-1">
+                <div class="flex-grow-1" style="min-width: 240px">
                     <label class="text-muted small mb-0">Description</label>
-                    <b-form-input v-model="description" placeholder="Description text" disabled />
+                    <b-form-input
+                        v-model="metaDraft.description"
+                        placeholder="Description text"
+                        :disabled="readonly || metaSaving"
+                        @blur="saveMeta('description')"
+                    />
                 </div>
             </div>
 
@@ -126,16 +155,34 @@
                     <div v-if="task.answer && task.answer.value === 'FAIL' && !task.answer.deviation" class="fail-fields">
                         <div class="row no-gutters" style="gap: 8px">
                             <div class="col">
-                                <label class="text-muted small mb-0">Type</label>
-                                <b-form-input v-model="failDrafts[task.id].type" placeholder="Type" />
+                                <label class="text-muted small mb-0">
+                                    Type <span class="text-danger">*</span>
+                                </label>
+                                <b-form-select
+                                    v-model="ensureDraft(task.id).type"
+                                    :options="deviationTypeOptions"
+                                    :state="ensureDraft(task.id).type ? null : false"
+                                />
                             </div>
                             <div class="col">
-                                <label class="text-muted small mb-0">Title</label>
-                                <b-form-input v-model="failDrafts[task.id].title" placeholder="Title" />
+                                <label class="text-muted small mb-0">
+                                    Title <span class="text-danger">*</span>
+                                </label>
+                                <b-form-input
+                                    v-model="ensureDraft(task.id).title"
+                                    placeholder="Title"
+                                    :state="ensureDraft(task.id).title ? null : false"
+                                />
                             </div>
                             <div class="col">
-                                <label class="text-muted small mb-0">Responsible</label>
-                                <b-form-input v-model="failDrafts[task.id].responsible" placeholder="Responsible" />
+                                <label class="text-muted small mb-0">
+                                    Responsible <span class="text-danger">*</span>
+                                </label>
+                                <b-form-select
+                                    v-model="ensureDraft(task.id).responsible"
+                                    :options="userOptions"
+                                    :state="ensureDraft(task.id).responsible ? null : false"
+                                />
                             </div>
                         </div>
                     </div>
@@ -183,10 +230,16 @@
             </div>
 
             <div class="d-flex justify-content-end mt-3" style="gap: 8px" v-if="!readonly">
-                <b-button variant="outline-secondary" @click="onHide">Save & close</b-button>
+                <b-button
+                    variant="outline-secondary"
+                    :disabled="savingDraft || submitting"
+                    @click="saveAndClose"
+                >
+                    {{ savingDraft ? 'Saving...' : 'Save & close' }}
+                </b-button>
                 <b-button
                     variant="primary"
-                    :disabled="submitting || stats.completed === 0"
+                    :disabled="submitting || savingDraft || stats.completed === 0"
                     @click="submitChecklist"
                 >
                     {{ submitting ? 'Submitting...' : 'Submit' }}
@@ -194,7 +247,12 @@
             </div>
             <div v-else class="d-flex justify-content-between align-items-center mt-3">
                 <b-badge variant="success">Submitted on {{ data.date }}</b-badge>
-                <b-button variant="outline-primary" size="sm" @click="downloadPdf">
+                <b-button
+                    v-if="can('checklist-export')"
+                    variant="outline-primary"
+                    size="sm"
+                    @click="downloadPdf"
+                >
                     <i class="bi bi-file-earmark-arrow-down mr-1"></i>
                     View Report (PDF)
                 </b-button>
@@ -205,13 +263,14 @@
 
 <script>
 import { ref, reactive, computed, watch } from "@vue/composition-api";
-import { BModal, BFormInput, BButton, BBadge } from "bootstrap-vue";
+import { BModal, BFormInput, BFormSelect, BButton, BBadge } from "bootstrap-vue";
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
+import useAbilities from "@/composables/abilities";
 
 export default {
-    components: { BModal, BFormInput, BButton, BBadge },
+    components: { BModal, BFormInput, BFormSelect, BButton, BBadge },
     props: {
         visible: { type: Boolean, default: false },
         userChecklistId: { type: [Number, String], default: null },
@@ -221,9 +280,11 @@ export default {
     },
     setup(props, { emit }) {
         const toast = toaster();
+        const { can } = useAbilities();
         const data = ref(null);
         const loading = ref(false);
         const submitting = ref(false);
+        const savingDraft = ref(false);
         const filter = ref("all");
         const failDrafts = reactive({});
 
@@ -243,10 +304,27 @@ export default {
         ];
 
         const readonly = computed(() => data.value?.status === "submitted");
-        const description = computed({
-            get: () => data.value?.description || "",
-            set: () => {},
+
+        const metaDraft = reactive({
+            description: "",
+            project_id: null,
+            equipment_id: null,
+            work_location: "",
         });
+        const metaSaving = ref(false);
+        const projectOptions = ref([{ value: null, text: "— No project —" }]);
+        const equipmentOptions = ref([{ value: null, text: "— No equipment —" }]);
+        const userOptions = ref([{ value: "", text: "— Select responsible —" }]);
+
+        const deviationTypeOptions = [
+            { value: "", text: "— Select type —" },
+            { value: "Undesired Event", text: "Undesired Event" },
+            { value: "HSE Deviation", text: "HSE Deviation" },
+            { value: "Quality Deviation", text: "Quality Deviation" },
+            { value: "Environmental Deviation", text: "Environmental Deviation" },
+            { value: "Supplier Deviation", text: "Supplier Deviation" },
+            { value: "Improvement Suggestion", text: "Improvement Suggestion" },
+        ];
 
         const sections = computed(() => data.value?.template_full?.sections || []);
 
@@ -349,13 +427,89 @@ export default {
             }
         }
 
+        function ensureDraft(taskId, fallbackTitle = "") {
+            if (!failDrafts[taskId]) {
+                failDrafts[taskId] = { type: "", title: fallbackTitle, responsible: "" };
+            }
+            return failDrafts[taskId];
+        }
+
         function seedDrafts() {
             sections.value.forEach((s) => s.tasks.forEach((task) => {
                 task._noteDraft = task.answer?.notes || "";
-                if (!failDrafts[task.id]) {
-                    failDrafts[task.id] = { type: "", title: task.name, responsible: "" };
-                }
+                ensureDraft(task.id, task.name);
             }));
+            metaDraft.description = data.value?.description || "";
+            metaDraft.project_id = data.value?.project?.id || null;
+            metaDraft.equipment_id = data.value?.equipment?.id || null;
+            const wl = data.value?.work_location;
+            metaDraft.work_location = typeof wl === "string"
+                ? wl
+                : (wl && (wl.address || wl.location || wl.name)) || "";
+        }
+
+        async function loadProjectAndEquipmentOptions() {
+            try {
+                const [projRes, eqRes, usrRes] = await Promise.all([
+                    axios.get(route("projects.index")),
+                    axios.get(route("equipments.index")),
+                    axios.get(route("users.index")),
+                ]);
+                const projects = projRes.data?.data || projRes.data || [];
+                const equipment = eqRes.data?.data || eqRes.data || [];
+                const users = usrRes.data?.data || usrRes.data || [];
+                projectOptions.value = [
+                    { value: null, text: "— No project —" },
+                    ...projects.map((p) => ({
+                        value: p.id,
+                        text: p.project_no ? `${p.project_no} — ${p.name}` : p.name,
+                    })),
+                ];
+                equipmentOptions.value = [
+                    { value: null, text: "— No equipment —" },
+                    ...equipment.map((e) => ({ value: e.id, text: e.name })),
+                ];
+                userOptions.value = [
+                    { value: "", text: "— Select responsible —" },
+                    ...users.map((u) => {
+                        const name = u.name || `${u.first_name || ""} ${u.last_name || ""}`.trim();
+                        return { value: name, text: name };
+                    }),
+                ];
+            } catch (e) {
+                /* silently leave defaults */
+            }
+        }
+
+        async function saveMeta(field) {
+            if (!data.value?.id || readonly.value) return;
+            const payload = {};
+            payload[field] = metaDraft[field] === "" ? null : metaDraft[field];
+            try {
+                metaSaving.value = true;
+                await axios.post(
+                    route("submitted-checklists.update-meta", data.value.id),
+                    payload
+                );
+                if (field === "description") data.value.description = metaDraft.description;
+                if (field === "project_id") {
+                    const opt = projectOptions.value.find((o) => o.value === metaDraft.project_id);
+                    data.value.project = metaDraft.project_id
+                        ? { id: metaDraft.project_id, name: opt?.text || "" }
+                        : null;
+                }
+                if (field === "equipment_id") {
+                    const opt = equipmentOptions.value.find((o) => o.value === metaDraft.equipment_id);
+                    data.value.equipment = metaDraft.equipment_id
+                        ? { id: metaDraft.equipment_id, name: opt?.text || "" }
+                        : null;
+                }
+                if (field === "work_location") data.value.work_location = metaDraft.work_location;
+            } catch (e) {
+                toast.error(e?.response?.data?.message || "Failed to update");
+            } finally {
+                metaSaving.value = false;
+            }
         }
 
         function setAnswerLocal(task, value) {
@@ -372,7 +526,7 @@ export default {
             }
             try {
                 const res = await axios.post(route("task-answer.store"), {
-                    checklist_task_id: task.id,
+                    user_checklist_task_id: task.id,
                     user_checklist_id: data.value.id,
                     answer: value,
                     notes: task._noteDraft || null,
@@ -401,7 +555,7 @@ export default {
             }
             try {
                 const res = await axios.post(route("task-answer.store"), {
-                    checklist_task_id: task.id,
+                    user_checklist_task_id: task.id,
                     user_checklist_id: data.value.id,
                     answer: task.answer.value,
                     notes: task._noteDraft || null,
@@ -440,7 +594,7 @@ export default {
                 return;
             }
             const form = new FormData();
-            form.append("checklist_task_id", task.id);
+            form.append("user_checklist_task_id", task.id);
             form.append("user_checklist_id", data.value.id);
             if (task.answer?.value) form.append("answer", task.answer.value);
             if (task._noteDraft) form.append("notes", task._noteDraft);
@@ -462,7 +616,12 @@ export default {
 
         function canCreateDeviation(task) {
             const draft = failDrafts[task.id];
-            return draft && draft.type?.trim() && draft.title?.trim();
+            return (
+                draft &&
+                draft.type?.trim() &&
+                draft.title?.trim() &&
+                draft.responsible?.trim()
+            );
         }
 
         async function createDeviation(task) {
@@ -508,6 +667,7 @@ export default {
         async function submitChecklist() {
             if (isFresh.value) {
                 const answers = [];
+                let missingDeviation = false;
                 sections.value.forEach((s) => s.tasks.forEach((task) => {
                     if (task.answer && task.answer.value) {
                         const a = {
@@ -516,16 +676,36 @@ export default {
                             notes: task._noteDraft || task.answer.notes || null,
                         };
                         if (task.answer.img) a.img = task.answer.img;
-                        if (task.answer.deviation && task.answer.deviation.type && task.answer.deviation.title) {
+                        // Prefer the already-queued deviation; otherwise auto-queue
+                        // from the inline Type/Title/Responsible draft if it's complete.
+                        const queued = task.answer.deviation;
+                        const draft = failDrafts[task.id];
+                        if (queued && queued.type && queued.title) {
                             a.deviation = {
-                                type: task.answer.deviation.type,
-                                title: task.answer.deviation.title,
-                                responsible_person: task.answer.deviation.responsible_person || null,
+                                type: queued.type,
+                                title: queued.title,
+                                responsible_person: queued.responsible_person || null,
                             };
+                        } else if (
+                            task.answer.value === "FAIL" &&
+                            draft && draft.type && draft.title && draft.responsible
+                        ) {
+                            a.deviation = {
+                                type: draft.type,
+                                title: draft.title,
+                                responsible_person: draft.responsible,
+                            };
+                        } else if (task.answer.value === "FAIL") {
+                            missingDeviation = true;
                         }
                         answers.push(a);
                     }
                 }));
+
+                if (missingDeviation) {
+                    toast.warning("Fill in Type / Title / Responsible on every Fail row before submitting");
+                    return;
+                }
                 if (!answers.length) {
                     toast.warning("Mark at least one task before submitting");
                     return;
@@ -534,9 +714,10 @@ export default {
                     submitting.value = true;
                     const res = await axios.post(route("checklist.perform", props.templateId), {
                         title: data.value.title,
-                        description: data.value.description || null,
-                        project_id: props.projectId || null,
-                        equipment_id: props.equipmentId || null,
+                        description: metaDraft.description || data.value.description || null,
+                        project_id: metaDraft.project_id || props.projectId || null,
+                        equipment_id: metaDraft.equipment_id || props.equipmentId || null,
+                        work_location: metaDraft.work_location || null,
                         answers,
                     });
                     if (res.status === 201) {
@@ -626,16 +807,92 @@ export default {
             emit("close");
         }
 
+        async function saveAndClose() {
+            // Existing UserChecklist: answers + meta are already auto-saved on each
+            // interaction, so we just close without re-posting.
+            if (!isFresh.value) {
+                onHide();
+                return;
+            }
+
+            // Fresh template-only flow: capture whatever the user has typed/clicked
+            // so far as an in-progress UserChecklist they can resume later.
+            const answers = [];
+            sections.value.forEach((s) => s.tasks.forEach((task) => {
+                if (task.answer && task.answer.value) {
+                    const a = {
+                        checklist_task_id: task.id,
+                        answer: task.answer.value,
+                        notes: task._noteDraft || task.answer.notes || null,
+                    };
+                    if (task.answer.img) a.img = task.answer.img;
+                    const queued = task.answer.deviation;
+                    const draft = failDrafts[task.id];
+                    if (queued && queued.type && queued.title) {
+                        a.deviation = {
+                            type: queued.type,
+                            title: queued.title,
+                            responsible_person: queued.responsible_person || null,
+                        };
+                    } else if (
+                        task.answer.value === "FAIL" &&
+                        draft && draft.type && draft.title && draft.responsible
+                    ) {
+                        a.deviation = {
+                            type: draft.type,
+                            title: draft.title,
+                            responsible_person: draft.responsible,
+                        };
+                    }
+                    answers.push(a);
+                }
+            }));
+
+            if (!answers.length) {
+                // Nothing to persist; just close.
+                onHide();
+                return;
+            }
+
+            try {
+                savingDraft.value = true;
+                const res = await axios.post(route("checklist.perform", props.templateId), {
+                    title: data.value.title,
+                    description: metaDraft.description || data.value.description || null,
+                    project_id: metaDraft.project_id || props.projectId || null,
+                    equipment_id: metaDraft.equipment_id || props.equipmentId || null,
+                    work_location: metaDraft.work_location || null,
+                    save_draft: true,
+                    answers,
+                });
+                if (res.status === 201) {
+                    toast.success("Saved — you can resume later");
+                    emit("saved-draft", res.data.user_checklist_id);
+                    onHide();
+                }
+            } catch (e) {
+                toast.error(e?.response?.data?.message || "Failed to save");
+            } finally {
+                savingDraft.value = false;
+            }
+        }
+
         watch(() => props.visible, (v) => {
-            if (v) fetchData();
-            else data.value = null;
+            if (v) {
+                fetchData();
+                loadProjectAndEquipmentOptions();
+            } else {
+                data.value = null;
+            }
         });
 
         return {
-            data, loading, submitting, filter, filterOptions, readonly, show,
-            description, sections, stats, attachmentsCount, failDrafts,
+            data, loading, submitting, savingDraft, filter, filterOptions, readonly, show,
+            sections, stats, attachmentsCount, failDrafts, ensureDraft,
+            metaDraft, metaSaving, projectOptions, equipmentOptions, saveMeta,
+            deviationTypeOptions, userOptions,
             visibleTasks, setAnswer, saveNote, onPhoto, canCreateDeviation, createDeviation,
-            submitChecklist, downloadPdf, onHide,
+            submitChecklist, saveAndClose, downloadPdf, onHide, can,
         };
     },
 };

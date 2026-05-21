@@ -40,6 +40,28 @@ const routes = [
     },
 
     {
+      path: 'checklist/categories',
+      name: 'checklist-categories',
+      component: () => import('@/views/checklist/Categories.vue'),
+      meta: {
+        pageTitle: 'Checklist categories',
+        layout: 'vertical',
+        resource: 'all',
+        action: 'checklist',
+        breadcrumb: [
+          {
+            text: 'Checklist',
+            to: { name: 'checklist' },
+          },
+          {
+            text: 'Categories',
+            active: true,
+          },
+        ],
+      },
+    },
+
+    {
       path: 'checklist/create/:param?',
       name: 'add-checklist',
       component: () => import('@/views/checklist/Add.vue'),

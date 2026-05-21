@@ -36,6 +36,7 @@
                 <template #cell(actions)="data">
                     <div class="d-flex justify-content-end" style="gap: 8px">
                         <button
+                            v-if="can('checklist-perform')"
                             class="btn btn-primary btn-sm"
                             :disabled="startingId === data.item.id"
                             @click="startTemplate(data.item.id)"
@@ -43,21 +44,32 @@
                             {{ startingId === data.item.id ? 'Starting...' : 'Start' }}
                         </button>
                         <button
+                            v-if="can('checklist-assign')"
                             class="btn btn-outline-primary btn-sm"
                             @click="openAssign(data.item.id)"
                         >
                             Assign
                         </button>
-                        <b-dropdown variant="link" no-caret toggle-class="p-0" right>
+                        <b-dropdown
+                            v-if="can('checklist-edit') || can('checklist-delete')"
+                            variant="link"
+                            no-caret
+                            toggle-class="p-0"
+                            right
+                        >
                             <template #button-content>
                                 <i class="bi bi-three-dots-vertical text-body"></i>
                             </template>
                             <b-dropdown-item
+                                v-if="can('checklist-edit')"
                                 @click="$router.push({ name: 'add-checklist', params: { param: data.item.id } })"
                             >
                                 Edit
                             </b-dropdown-item>
-                            <b-dropdown-item @click="dltChecklist(data.item.id)">
+                            <b-dropdown-item
+                                v-if="can('checklist-delete')"
+                                @click="dltChecklist(data.item.id)"
+                            >
                                 Delete
                             </b-dropdown-item>
                         </b-dropdown>
@@ -65,13 +77,6 @@
                 </template>
             </b-table>
         </div>
-
-        <ProjectSelectionDialog
-            :show="projectPickerVisible"
-            :allow-skip="true"
-            @select="onProjectPicked"
-            @close="closeProjectPicker"
-        />
 
         <Perform
             :visible="performVisible"
@@ -86,28 +91,27 @@
 import { defineComponent, ref } from "@vue/composition-api";
 import { BTable, BDropdown, BDropdownItem } from "bootstrap-vue";
 import Assign from "./dialogs/Assign.vue";
-import ProjectSelectionDialog from "./dialogs/ProjectSelectionDialog.vue";
 import Perform from "./Perform.vue";
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
 import useTasks from "@/composables/tasks";
+import useAbilities from "@/composables/abilities";
 
 export default defineComponent({
-    components: { BTable, BDropdown, BDropdownItem, Assign, ProjectSelectionDialog, Perform },
+    components: { BTable, BDropdown, BDropdownItem, Assign, Perform },
     props: {
         checklist: { type: Array, required: false, default: () => [] },
     },
-    setup(props, { emit }) {
+    setup(props, { emit, root }) {
         const { assign, dialog } = useTasks();
+        const { can } = useAbilities();
         const checklistId = ref(null);
         const startingId = ref(null);
         const performId = ref(null);
         const performTemplateId = ref(null);
         const performProjectId = ref(null);
         const performVisible = ref(false);
-        const projectPickerVisible = ref(false);
-        const pendingTemplateId = ref(null);
         const toast = toaster();
 
         const fields = [
@@ -126,6 +130,19 @@ export default defineComponent({
         };
 
         const dltChecklist = async (id) => {
+            const item = props.checklist.find((c) => c.id === id);
+            const name = item?.name || "this checklist template";
+            const ok = await root.$bvModal.msgBoxConfirm(
+                `Are you sure you want to delete the checklist template "${name}"? This cannot be undone.`,
+                {
+                    title: "Delete checklist template",
+                    okVariant: "danger",
+                    okTitle: "Delete",
+                    cancelTitle: "Cancel",
+                    centered: true,
+                }
+            );
+            if (!ok) return;
             try {
                 const res = await axios.delete(route("checklist.destroy", id));
                 if (res.status === 200) {
@@ -138,21 +155,9 @@ export default defineComponent({
         };
 
         const startTemplate = (id) => {
-            pendingTemplateId.value = id;
-            projectPickerVisible.value = true;
-        };
-
-        const onProjectPicked = (project) => {
-            performProjectId.value = project ? project.id : null;
-            performTemplateId.value = pendingTemplateId.value;
-            projectPickerVisible.value = false;
-            pendingTemplateId.value = null;
+            performTemplateId.value = id;
+            performProjectId.value = null;
             performVisible.value = true;
-        };
-
-        const closeProjectPicker = () => {
-            projectPickerVisible.value = false;
-            pendingTemplateId.value = null;
         };
 
         const onAssignClose = () => {
@@ -182,9 +187,7 @@ export default defineComponent({
             performProjectId,
             performVisible,
             closePerform,
-            projectPickerVisible,
-            onProjectPicked,
-            closeProjectPicker,
+            can,
         };
     },
 });

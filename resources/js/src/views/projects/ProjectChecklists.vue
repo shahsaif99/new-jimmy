@@ -9,16 +9,37 @@
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap" style="gap: 12px">
-                <b-dropdown class="filter-pill" variant="light" no-caret>
-                    <template #button-content>
-                        <span class="text-muted mr-1">Template:</span>
-                        <span>{{ templateLabel }}</span>
-                        <i class="bi bi-chevron-down ml-1 small"></i>
-                    </template>
-                    <b-dropdown-item v-for="opt in templateOptions" :key="opt.value === null ? 'all' : opt.value" @click="filters.checklist_id = opt.value">
-                        {{ opt.label }}
-                    </b-dropdown-item>
-                </b-dropdown>
+                <div class="d-flex align-items-center flex-wrap" style="gap: 12px">
+                    <div class="scope-toggle" v-if="canViewAll">
+                        <button
+                            type="button"
+                            class="scope-btn"
+                            :class="{ active: scope === 'mine' }"
+                            @click="setScope('mine')"
+                        >
+                            My checklists
+                        </button>
+                        <button
+                            type="button"
+                            class="scope-btn"
+                            :class="{ active: scope === 'all' }"
+                            @click="setScope('all')"
+                        >
+                            All checklists
+                        </button>
+                    </div>
+
+                    <b-dropdown class="filter-pill" variant="light" no-caret>
+                        <template #button-content>
+                            <span class="text-muted mr-1">Template:</span>
+                            <span>{{ templateLabel }}</span>
+                            <i class="bi bi-chevron-down ml-1 small"></i>
+                        </template>
+                        <b-dropdown-item v-for="opt in templateOptions" :key="opt.value === null ? 'all' : opt.value" @click="filters.checklist_id = opt.value">
+                            {{ opt.label }}
+                        </b-dropdown-item>
+                    </b-dropdown>
+                </div>
 
                 <div class="d-flex align-items-center flex-wrap" style="gap: 12px">
                     <b-dropdown class="filter-pill" variant="light" no-caret menu-class="p-0">
@@ -172,6 +193,7 @@ import useTasks from "@/composables/tasks";
 import ChecklistAssignDialog from "@/views/checklist/dialogs/Assign.vue";
 import Perform from "@/views/checklist/Perform.vue";
 import SubmittedChecklistDrawer from "@/views/checklist/SubmittedChecklistDrawer.vue";
+import useAbilities from "@/composables/abilities";
 
 export default {
     components: {
@@ -186,6 +208,9 @@ export default {
     setup(props) {
         const toast = toaster();
         const { assign, dialog } = useTasks();
+        const { can } = useAbilities();
+        const canViewAll = computed(() => can("checklist-view-all"));
+        const scope = ref("mine");
         const rows = ref([]);
         const meta = ref({ total: 0, per_page: 15, from: 0, to: 0 });
         const loading = ref(false);
@@ -289,7 +314,7 @@ export default {
             try {
                 loading.value = true;
                 const params = {
-                    scope: "all",
+                    scope: scope.value,
                     page: page.value,
                     project_id: props.projectId,
                 };
@@ -371,6 +396,13 @@ export default {
 
         watch(page, fetchRows);
 
+        function setScope(value) {
+            if (scope.value === value) return;
+            scope.value = value;
+            page.value = 1;
+            fetchRows();
+        }
+
         onMounted(() => {
             fetchTemplates();
             fetchEmployees();
@@ -385,6 +417,7 @@ export default {
             statusLabel, templateLabel, employeeLabel, dateRangeLabel,
             performId, performVisible, closePerform,
             drawerId, drawerVisible, closeDrawer, openPerformFromDrawer,
+            scope, setScope, canViewAll, can,
         };
     },
 };
@@ -408,6 +441,27 @@ export default {
     border-radius: 50%;
     margin-right: 6px;
     vertical-align: middle;
+}
+.scope-toggle {
+    background: #f5f5f7;
+    border-radius: 999px;
+    padding: 3px;
+    display: inline-flex;
+    gap: 2px;
+}
+.scope-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: #555;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.scope-btn.active {
+    background: #7367f0;
+    color: #fff;
 }
 </style>
 <style lang="scss">

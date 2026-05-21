@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\TaskCheckListAnswer;
 use App\Models\UserChecklist;
+use App\Models\UserChecklistTask;
 use Illuminate\Http\Request;
 
 class TaskCheckListAnswerController extends Controller
@@ -12,7 +13,8 @@ class TaskCheckListAnswerController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'checklist_task_id' => 'required|exists:checklist_tasks,id',
+            'checklist_task_id' => 'nullable|exists:checklist_tasks,id',
+            'user_checklist_task_id' => 'nullable|exists:user_checklist_tasks,id',
             'main_task_id' => 'nullable|exists:tasks,id',
             'user_checklist_id' => 'nullable|exists:user_checklists,id',
             'answer' => 'required_without:img|string|in:PASS,FAIL,NA',
@@ -25,7 +27,18 @@ class TaskCheckListAnswerController extends Controller
             return response()->json(['message' => 'Either main_task_id or user_checklist_id is required'], 422);
         }
 
-        $query = TaskCheckListAnswer::where('checklist_task_id', $data['checklist_task_id']);
+        $snapshotTask = null;
+        if (!empty($data['user_checklist_task_id'])) {
+            $snapshotTask = UserChecklistTask::find($data['user_checklist_task_id']);
+        }
+
+        // Locate the existing answer to upsert. Prefer the snapshot-task key when present.
+        $query = TaskCheckListAnswer::query();
+        if ($snapshotTask) {
+            $query->where('user_checklist_task_id', $snapshotTask->id);
+        } elseif (!empty($data['checklist_task_id'])) {
+            $query->where('checklist_task_id', $data['checklist_task_id']);
+        }
         if (!empty($data['user_checklist_id'])) {
             $query->where('user_checklist_id', $data['user_checklist_id']);
         }
@@ -34,7 +47,12 @@ class TaskCheckListAnswerController extends Controller
         }
         $answer = $query->first() ?? new TaskCheckListAnswer();
 
-        $answer->checklist_task_id = $data['checklist_task_id'];
+        if ($snapshotTask) {
+            $answer->user_checklist_task_id = $snapshotTask->id;
+            $answer->checklist_task_id = $data['checklist_task_id'] ?? $snapshotTask->source_checklist_task_id;
+        } elseif (!empty($data['checklist_task_id'])) {
+            $answer->checklist_task_id = $data['checklist_task_id'];
+        }
         if (!empty($data['main_task_id'])) {
             $answer->main_task_id = $data['main_task_id'];
         }
