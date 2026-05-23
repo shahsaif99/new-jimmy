@@ -125,18 +125,42 @@
                             {{ task.answer.notes }}
                         </div>
 
-                        <div v-if="task.answer && task.answer.img" class="answer-photo">
-                            <img :src="resolveAsset(task.answer.img)" alt="Attached photo" />
-                            <a
-                                class="answer-photo-download"
-                                :href="resolveAsset(task.answer.img)"
-                                :download="imageDownloadName(task)"
-                                target="_blank"
-                                @click.stop
-                            >
-                                <i class="bi bi-download mr-1"></i>
-                                Download
-                            </a>
+                        <div v-if="task.answer && task.answer.img" class="attachment-card">
+                            <div class="attachment-header">
+                                <i class="bi bi-record-circle"></i>
+                                Attachments (1)
+                            </div>
+                            <div class="attachment-body">
+                                <div class="attachment-thumb">
+                                    <img :src="resolveAsset(task.answer.img)" alt="Attached photo" />
+                                </div>
+                                <div class="attachment-actions">
+                                    <a
+                                        class="attachment-btn"
+                                        :href="resolveAsset(task.answer.img)"
+                                        :download="imageDownloadName(task)"
+                                        target="_blank"
+                                        @click.stop
+                                    >
+                                        <i class="bi bi-download"></i>
+                                        Download
+                                    </a>
+                                    <a
+                                        class="attachment-btn"
+                                        :href="resolveAsset(task.answer.img)"
+                                        target="_blank"
+                                        @click.stop
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                        View full size
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="attachment-pager">
+                                <i class="bi bi-chevron-left text-muted"></i>
+                                <span class="mx-1">1 of 1</span>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </div>
                         </div>
 
                         <div
@@ -496,36 +520,81 @@ export default {
     border-left-color: #c0392b;
     background: #fdecea;
 }
-.answer-photo {
-    margin-top: 6px;
-    position: relative;
-    display: inline-block;
+.attachment-card {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border: 1px solid #ececef;
+    border-radius: 8px;
+    background: #fafafb;
 }
-.answer-photo img {
-    max-width: 100%;
-    max-height: 180px;
-    border-radius: 4px;
+.attachment-header {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 8px;
+}
+.attachment-header i {
+    color: #7367f0;
+    margin-right: 4px;
+}
+.attachment-body {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.attachment-thumb {
+    flex: 0 0 auto;
+    width: 110px;
+    height: 110px;
+    border-radius: 8px;
+    overflow: hidden;
     border: 1px solid #eee;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.answer-photo-download {
+.attachment-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+.attachment-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.attachment-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: #555;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid #ddd;
-    padding: 2px 8px;
-    border-radius: 4px;
-    position: absolute;
-    right: 6px;
-    bottom: 6px;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 8px 18px;
+    border: 1px solid #d8d6f1;
+    border-radius: 8px;
+    background: #fff;
+    color: #7367f0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    min-width: 170px;
+}
+.attachment-btn:hover {
+    background: #f0eefc;
+    color: #5e50ee;
+    border-color: #7367f0;
     text-decoration: none;
 }
-.answer-photo-download:hover {
-    background: #fff;
-    color: #1a90ff;
-    border-color: #1a90ff;
+.attachment-btn i {
+    font-size: 1rem;
+}
+.attachment-pager {
+    margin-top: 8px;
+    text-align: right;
+    font-size: 0.8rem;
+    color: #888;
+}
+.attachment-pager i {
+    font-size: 0.9rem;
 }
 </style>
