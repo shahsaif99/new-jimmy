@@ -163,15 +163,26 @@
 
             <div class="mx-2 my-1 d-flex justify-content-between align-items-center flex-wrap" style="gap: 12px">
                 <small class="text-muted">
-                    Showing {{ meta.from || 0 }} to {{ meta.to || 0 }} of {{ meta.total || 0 }} entries
+                    Showing {{ meta.from || 0 }}–{{ meta.to || 0 }} of {{ meta.total || 0 }} entries
                 </small>
-                <b-pagination
-                    v-model="page"
-                    :total-rows="meta.total"
-                    :per-page="meta.per_page"
-                    first-number
-                    last-number
-                />
+                <div class="d-flex align-items-center" style="gap: 10px">
+                    <small class="text-muted">Show</small>
+                    <b-form-select
+                        v-model="perPage"
+                        :options="perPageOptions"
+                        size="sm"
+                        style="width: 80px"
+                    />
+                    <small class="text-muted">entries</small>
+                    <b-pagination
+                        v-model="page"
+                        :total-rows="meta.total"
+                        :per-page="perPage"
+                        first-number
+                        last-number
+                        class="mb-0"
+                    />
+                </div>
             </div>
         </div>
 
@@ -214,9 +225,16 @@ export default {
         const canViewAll = computed(() => can("checklist-view-all"));
         const canDelete = computed(() => can("checklist-delete"));
         const rows = ref([]);
-        const meta = ref({ total: 0, per_page: 15, from: 0, to: 0 });
+        const meta = ref({ total: 0, per_page: 10, from: 0, to: 0 });
         const loading = ref(false);
         const page = ref(1);
+        const perPage = ref(10);
+        const perPageOptions = [
+            { value: 10, text: "10" },
+            { value: 25, text: "25" },
+            { value: 50, text: "50" },
+            { value: 100, text: "100" },
+        ];
         const scope = ref("mine");
         const filters = reactive({
             checklist_id: null,
@@ -339,6 +357,7 @@ export default {
                 const params = {
                     scope: scope.value,
                     page: page.value,
+                    perPage: perPage.value,
                 };
                 if (filters.checklist_id) params.checklist_id = filters.checklist_id;
                 if (filters.status) params.status = filters.status;
@@ -418,6 +437,10 @@ export default {
         });
 
         watch(page, fetchRows);
+        watch(perPage, () => {
+            page.value = 1;
+            fetchRows();
+        });
 
         onMounted(() => {
             fetchTemplates();
@@ -426,7 +449,7 @@ export default {
         });
 
         return {
-            rows, meta, loading, page, scope, filters, dateRange, canViewAll, can,
+            rows, meta, loading, page, perPage, perPageOptions, scope, filters, dateRange, canViewAll, can,
             datePickerConfig, fields, statusOptions, templateOptions, employeeOptions,
             setScope, statusColor, fetchRows, resetFilters, onRowClicked, confirmDelete,
             statusLabel, templateLabel, employeeLabel, dateRangeLabel,

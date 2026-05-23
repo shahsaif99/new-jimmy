@@ -76,12 +76,12 @@
 
         <List
             v-else-if="viewMode === 'list'"
-            :checklist="filteredChecklist"
+            :checklist="pagedChecklist"
             @refetch="getAllChecklist"
         />
         <card
             v-else
-            :checklist="filteredChecklist"
+            :checklist="pagedChecklist"
             @refetch="getAllChecklist"
         />
 
@@ -91,11 +91,39 @@
         >
             No templates match your filters.
         </div>
+
+        <div
+            v-if="!loading && filteredChecklist.length"
+            class="d-flex justify-content-between align-items-center flex-wrap mt-2"
+            style="gap: 12px"
+        >
+            <small class="text-muted">
+                Showing {{ pageStart }}–{{ pageEnd }} of {{ filteredChecklist.length }} entries
+            </small>
+            <div class="d-flex align-items-center" style="gap: 10px">
+                <small class="text-muted">Show</small>
+                <b-form-select
+                    v-model="perPage"
+                    :options="perPageOptions"
+                    size="sm"
+                    style="width: 80px"
+                />
+                <small class="text-muted">entries</small>
+                <b-pagination
+                    v-model="page"
+                    :total-rows="filteredChecklist.length"
+                    :per-page="perPage"
+                    first-number
+                    last-number
+                    class="mb-0"
+                />
+            </div>
+        </div>
     </div>
 </template>
 <script>
-import { onMounted, ref, computed, onUnmounted } from "@vue/composition-api";
-import { BFormSelect, BFormInput } from "bootstrap-vue";
+import { onMounted, ref, computed, onUnmounted, watch } from "@vue/composition-api";
+import { BFormSelect, BFormInput, BPagination } from "bootstrap-vue";
 import axios from "@axios";
 import card from "./card.vue";
 import List from "./List.vue";
@@ -104,7 +132,7 @@ import useTasks from "@/composables/tasks";
 import useAbilities from "@/composables/abilities";
 
 export default {
-    components: { card, List, BFormSelect, BFormInput },
+    components: { card, List, BFormSelect, BFormInput, BPagination },
     setup() {
         const checklist = ref([]);
         const categories = ref([]);
@@ -132,6 +160,30 @@ export default {
         const hasActiveFilter = computed(
             () => !!searchQuery.value || categoryFilter.value !== null
         );
+
+        const page = ref(1);
+        const perPage = ref(10);
+        const perPageOptions = [
+            { value: 10, text: "10" },
+            { value: 25, text: "25" },
+            { value: 50, text: "50" },
+            { value: 100, text: "100" },
+        ];
+
+        const pagedChecklist = computed(() => {
+            const start = (page.value - 1) * perPage.value;
+            return filteredChecklist.value.slice(start, start + perPage.value);
+        });
+        const pageStart = computed(() =>
+            filteredChecklist.value.length ? (page.value - 1) * perPage.value + 1 : 0
+        );
+        const pageEnd = computed(() =>
+            Math.min(page.value * perPage.value, filteredChecklist.value.length)
+        );
+
+        watch([searchQuery, categoryFilter, perPage], () => {
+            page.value = 1;
+        });
 
         async function getAllChecklist() {
             try {
@@ -179,6 +231,8 @@ export default {
             categoryOptions,
             viewMode,
             filteredChecklist,
+            pagedChecklist,
+            page, perPage, perPageOptions, pageStart, pageEnd,
             hasActiveFilter,
             loading,
             can,
