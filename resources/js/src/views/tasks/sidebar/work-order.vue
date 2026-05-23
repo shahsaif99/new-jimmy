@@ -460,7 +460,7 @@ export default {
         });
 
         const taskStarted = computed(() => {
-            const s = task.value?.data?.status?.toLowerCase?.() || "";
+            const s = task?.data?.status?.toLowerCase?.() || "";
             return s === "in progress" || s === "completed";
         });
 
@@ -468,7 +468,7 @@ export default {
         const performTemplateId = ref(null);
 
         function startChecklistFromTask() {
-            const templateId = task.value?.data?.checklist?.id;
+            const templateId = task?.data?.checklist?.id;
             if (!templateId) return;
             performTemplateId.value = templateId;
             performVisible.value = true;
