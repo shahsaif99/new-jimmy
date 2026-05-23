@@ -26,6 +26,15 @@
                     </div>
                     <div class="d-flex align-items-center" style="gap: 6px">
                         <b-button
+                            v-if="can('checklist-perform')"
+                            variant="outline-primary"
+                            size="sm"
+                            @click="onEdit"
+                        >
+                            <i class="bi bi-pencil mr-1"></i>
+                            {{ editButtonLabel }}
+                        </b-button>
+                        <b-button
                             v-if="data.status === 'submitted'"
                             variant="primary"
                             size="sm"
@@ -137,6 +146,7 @@ import { BSidebar, BButton } from "bootstrap-vue";
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
+import useAbilities from "@/composables/abilities";
 
 export default {
     components: { BSidebar, BButton },
@@ -146,11 +156,13 @@ export default {
     },
     setup(props, { emit }) {
         const toast = toaster();
+        const { can } = useAbilities();
         const data = ref(null);
         const loading = ref(false);
 
         const sections = computed(() => (data.value && data.value.template_full && data.value.template_full.sections) || []);
         const description = computed(() => (data.value && data.value.description) || "");
+        const editButtonLabel = computed(() => (data.value && data.value.status === "submitted" ? "Edit" : "Continue"));
 
         function statusColor(status) {
             return {
@@ -234,15 +246,20 @@ export default {
             emit("close");
         }
 
+        function onEdit() {
+            if (!data.value || !data.value.id) return;
+            emit("perform", data.value.id);
+        }
+
         watch(() => props.visible, (v) => {
             if (v) fetchData();
             else data.value = null;
         });
 
         return {
-            data, loading, sections, description,
+            data, loading, sections, description, editButtonLabel, can,
             statusColor, iconClass, iconColor, pillLabel, pillClass, resolveAsset,
-            downloadPdf, onHidden,
+            downloadPdf, onHidden, onEdit,
         };
     },
 };

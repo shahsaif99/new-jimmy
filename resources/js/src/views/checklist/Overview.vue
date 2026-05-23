@@ -401,6 +401,8 @@ export default {
             fetchRows();
         }
         function openPerformFromDrawer(id) {
+            drawerVisible.value = false;
+            drawerId.value = null;
             performId.value = id;
             performVisible.value = true;
         }
