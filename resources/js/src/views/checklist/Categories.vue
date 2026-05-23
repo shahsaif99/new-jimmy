@@ -34,14 +34,18 @@
         <div class="card mt-1">
             <div class="d-flex justify-content-between align-items-center m-2">
                 <h5 class="mb-0">Checklist categories</h5>
-                <b-button variant="primary" @click="openCreate">
+                <b-button v-if="canManage" variant="primary" @click="openCreate">
                     <i class="bi bi-plus mr-1"></i>
                     New category
                 </b-button>
             </div>
+            <div v-if="!canManage" class="mx-2 mb-2 text-muted small">
+                <i class="bi bi-info-circle mr-1"></i>
+                Only administrators can create, edit, or delete checklist categories.
+            </div>
             <b-table
                 :items="categories"
-                :fields="fields"
+                :fields="visibleFields"
                 responsive
                 show-empty
                 empty-text="No categories yet"
@@ -69,7 +73,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from "@vue/composition-api";
+import { ref, reactive, computed, onMounted } from "@vue/composition-api";
 import {
     BModal,
     BButton,
@@ -80,11 +84,14 @@ import {
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
+import useAbilities from "@/composables/abilities";
 
 export default {
     components: { BModal, BButton, BFormGroup, BFormInput, BTable },
     setup(_, { root }) {
         const toast = toaster();
+        const { can } = useAbilities();
+        const canManage = computed(() => can("checklist-edit"));
         const categories = ref([]);
         const saving = ref(false);
 
@@ -100,6 +107,10 @@ export default {
             { key: "name", label: "Name" },
             { key: "actions", label: "", thStyle: { width: "180px" } },
         ];
+
+        const visibleFields = computed(() =>
+            canManage.value ? fields : fields.filter((f) => f.key !== "actions")
+        );
 
         async function load() {
             try {
@@ -134,6 +145,10 @@ export default {
         }
 
         async function save() {
+            if (!canManage.value) {
+                toast.warning("Only administrators can manage categories");
+                return;
+            }
             try {
                 saving.value = true;
                 const body = {
@@ -158,6 +173,10 @@ export default {
         }
 
         function confirmDelete(item) {
+            if (!canManage.value) {
+                toast.warning("Only administrators can manage categories");
+                return;
+            }
             root.$bvModal
                 .msgBoxConfirm(
                     `Delete category "${item.name}"? Checklists using this category will fall back to no category.`,
@@ -186,6 +205,8 @@ export default {
         return {
             categories,
             fields,
+            visibleFields,
+            canManage,
             dialog,
             saving,
             openCreate,
