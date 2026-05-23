@@ -129,10 +129,66 @@
                             <img :src="resolveAsset(task.answer.img)" alt="Attached photo" />
                         </div>
 
-                        <small v-if="task.answer && task.answer.deviation" class="d-block deviation-link mt-1">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            {{ task.answer.deviation.title }}
-                        </small>
+                        <div
+                            v-if="task.answer && task.answer.deviation"
+                            class="deviation-card mt-1"
+                            :class="deviationClosed(task.answer.deviation) ? 'deviation-closed' : 'deviation-open'"
+                        >
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="deviation-id">
+                                    <i :class="deviationClosed(task.answer.deviation) ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'"></i>
+                                    DEVIATION {{ task.answer.deviation.code }}
+                                </span>
+                                <span class="deviation-pill">
+                                    {{ deviationClosed(task.answer.deviation) ? 'CLOSED' : 'OPEN' }}
+                                </span>
+                            </div>
+                            <div class="deviation-row">
+                                <span class="deviation-label">Status:</span>
+                                <span>{{ deviationClosed(task.answer.deviation) ? 'Closed' : 'Open' }}</span>
+                            </div>
+                            <div class="deviation-row" v-if="task.answer.deviation.created_at">
+                                <span class="deviation-label">Created:</span>
+                                <span>{{ task.answer.deviation.created_at }}</span>
+                            </div>
+                            <div class="deviation-row" v-if="!deviationClosed(task.answer.deviation) && task.answer.deviation.closing_deadline">
+                                <span class="deviation-label">Due date:</span>
+                                <span>{{ task.answer.deviation.closing_deadline }}</span>
+                            </div>
+                            <div class="deviation-row" v-if="deviationClosed(task.answer.deviation) && task.answer.deviation.close_date">
+                                <span class="deviation-label">Closed:</span>
+                                <span>{{ task.answer.deviation.close_date }}</span>
+                            </div>
+                            <div class="deviation-row mt-1" v-if="task.answer.deviation.description">
+                                <span class="deviation-label">Root Cause / Description:</span>
+                            </div>
+                            <div v-if="task.answer.deviation.description" class="deviation-body">
+                                {{ task.answer.deviation.description }}
+                            </div>
+                            <div class="deviation-row mt-1" v-if="task.answer.deviation.corrective_actions">
+                                <span class="deviation-label">Corrective Action:</span>
+                            </div>
+                            <div v-if="task.answer.deviation.corrective_actions" class="deviation-body">
+                                {{ task.answer.deviation.corrective_actions }}
+                            </div>
+                            <div class="deviation-row mt-1" v-if="deviationClosed(task.answer.deviation) && task.answer.deviation.closed_by">
+                                <span class="deviation-label">Closed by:</span>
+                                <span>{{ task.answer.deviation.closed_by }}</span>
+                            </div>
+                            <div class="deviation-row" v-else-if="task.answer.deviation.responsible_person">
+                                <span class="deviation-label">Assigned to:</span>
+                                <span>{{ task.answer.deviation.responsible_person }}</span>
+                            </div>
+                            <a
+                                v-if="!deviationClosed(task.answer.deviation)"
+                                class="d-inline-block mt-1 deviation-link-action"
+                                :href="`/avvik-listings/${task.answer.deviation.id}`"
+                                target="_blank"
+                            >
+                                <i class="bi bi-box-arrow-up-right"></i>
+                                Open deviation
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -202,6 +258,12 @@ export default {
             return "pill-na";
         }
 
+        function deviationClosed(deviation) {
+            if (!deviation) return false;
+            const status = (deviation.status || "").toString().toLowerCase();
+            return status === "closed" || !!deviation.close_date;
+        }
+
         function resolveAsset(path) {
             if (!path) return "";
             if (/^https?:/.test(path) || path.startsWith("data:")) return path;
@@ -259,6 +321,7 @@ export default {
         return {
             data, loading, sections, description, editButtonLabel, can,
             statusColor, iconClass, iconColor, pillLabel, pillClass, resolveAsset,
+            deviationClosed,
             downloadPdf, onHidden, onEdit,
         };
     },
@@ -320,8 +383,66 @@ export default {
 .task-name {
     font-size: 0.9rem;
 }
-.deviation-link {
-    color: #ff9f43;
+.deviation-card {
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    margin-top: 6px;
+}
+.deviation-card.deviation-open {
+    background: #fff7e1;
+    border: 1px solid #f6c343;
+    color: #856404;
+}
+.deviation-card.deviation-closed {
+    background: #e8f6ec;
+    border: 1px solid #6dbf85;
+    color: #155724;
+}
+.deviation-id {
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+}
+.deviation-pill {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.08);
+    letter-spacing: 0.04em;
+}
+.deviation-open .deviation-pill {
+    background: #f6c343;
+    color: #5a3a06;
+}
+.deviation-closed .deviation-pill {
+    background: #6dbf85;
+    color: #0c3915;
+}
+.deviation-row {
+    display: flex;
+    gap: 6px;
+    line-height: 1.5;
+}
+.deviation-label {
+    font-weight: 600;
+    min-width: 110px;
+}
+.deviation-body {
+    padding-left: 0;
+    line-height: 1.4;
+}
+.deviation-link-action {
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-decoration: underline;
+}
+.deviation-open .deviation-link-action {
+    color: #b27a00;
+}
+.deviation-closed .deviation-link-action {
+    color: #155724;
 }
 .status-pill {
     font-size: 0.7rem;
