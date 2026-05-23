@@ -35,7 +35,7 @@ const routes = [
     },
     {
         path: "tasks/:id/perform-task",
-        name: "overview",
+        name: "task-perform",
         component: () => import("@/views/tasks/attempt/inspection.vue"),
         meta: {
             pageTitle: "Tasks Inspection",
