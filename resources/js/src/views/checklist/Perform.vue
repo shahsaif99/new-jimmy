@@ -46,7 +46,7 @@
                     <b-form-select
                         v-model="metaDraft.project_id"
                         :options="projectOptions"
-                        :disabled="readonly || metaSaving"
+                        :disabled="metaSaving"
                         @change="saveMeta('project_id')"
                     />
                 </div>
@@ -57,7 +57,7 @@
                     <b-form-select
                         v-model="metaDraft.equipment_id"
                         :options="equipmentOptions"
-                        :disabled="readonly || metaSaving"
+                        :disabled="metaSaving"
                         @change="saveMeta('equipment_id')"
                     />
                 </div>
@@ -68,7 +68,7 @@
                     <b-form-input
                         v-model="metaDraft.work_location"
                         placeholder="Work location"
-                        :disabled="readonly || metaSaving"
+                        :disabled="metaSaving"
                         @blur="saveMeta('work_location')"
                     />
                 </div>
@@ -77,7 +77,7 @@
                     <b-form-input
                         v-model="metaDraft.description"
                         placeholder="Description text"
-                        :disabled="readonly || metaSaving"
+                        :disabled="metaSaving"
                         @blur="saveMeta('description')"
                     />
                 </div>
@@ -127,7 +127,6 @@
                             type="button"
                             class="ans-btn pass"
                             :class="{ active: task.answer && task.answer.value === 'PASS' }"
-                            :disabled="readonly"
                             @click="setAnswer(task, 'PASS')"
                         >
                             Pass
@@ -136,7 +135,6 @@
                             type="button"
                             class="ans-btn fail"
                             :class="{ active: task.answer && task.answer.value === 'FAIL' }"
-                            :disabled="readonly"
                             @click="setAnswer(task, 'FAIL')"
                         >
                             Fail
@@ -145,7 +143,6 @@
                             type="button"
                             class="ans-btn na"
                             :class="{ active: task.answer && task.answer.value === 'NA' }"
-                            :disabled="readonly"
                             @click="setAnswer(task, 'NA')"
                         >
                             N/A
@@ -199,16 +196,14 @@
                             <b-form-input
                                 v-model="task._noteDraft"
                                 placeholder="Add notes"
-                                :disabled="readonly"
                                 class="flex-grow-1"
                             />
-                            <label class="cursor-pointer mb-0" :class="readonly ? 'text-muted' : 'text-primary'">
+                            <label class="cursor-pointer mb-0 text-primary">
                                 <i class="bi bi-camera"></i>
                                 <input
                                     type="file"
                                     accept="image/*"
                                     class="d-none"
-                                    :disabled="readonly"
                                     @change="onPhoto($event, task)"
                                 />
                             </label>
@@ -216,12 +211,12 @@
                                 v-if="task.answer && task.answer.value === 'FAIL' && !task.answer.deviation"
                                 type="button"
                                 class="btn btn-primary btn-sm"
-                                :disabled="!canCreateDeviation(task) || readonly"
+                                :disabled="!canCreateDeviation(task)"
                                 @click="createDeviation(task)"
                             >
                                 Create
                             </button>
-                            <a v-else class="cursor-pointer" :class="readonly ? 'text-muted' : 'text-primary'" @click="saveNote(task)">
+                            <a v-else class="cursor-pointer text-primary" @click="saveNote(task)">
                                 <i class="bi bi-send"></i>
                             </a>
                         </div>
@@ -229,33 +224,38 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end mt-3" style="gap: 8px" v-if="!readonly">
-                <b-button
-                    variant="outline-secondary"
-                    :disabled="savingDraft || submitting"
-                    @click="saveAndClose"
-                >
-                    {{ savingDraft ? 'Saving...' : 'Save & close' }}
-                </b-button>
-                <b-button
-                    variant="primary"
-                    :disabled="submitting || savingDraft || stats.completed === 0"
-                    @click="submitChecklist"
-                >
-                    {{ submitting ? 'Submitting...' : 'Submit' }}
-                </b-button>
-            </div>
-            <div v-else class="d-flex justify-content-between align-items-center mt-3">
-                <b-badge variant="success">Submitted on {{ data.date }}</b-badge>
-                <b-button
-                    v-if="can('checklist-export')"
-                    variant="outline-primary"
-                    size="sm"
-                    @click="downloadPdf"
-                >
-                    <i class="bi bi-file-earmark-arrow-down mr-1"></i>
-                    View Report (PDF)
-                </b-button>
+            <div class="d-flex justify-content-between align-items-center mt-3" style="gap: 8px">
+                <div>
+                    <b-badge v-if="isSubmitted" variant="success">
+                        Submitted on {{ data.date }}
+                    </b-badge>
+                </div>
+                <div class="d-flex align-items-center" style="gap: 8px">
+                    <b-button
+                        v-if="isSubmitted && can('checklist-export')"
+                        variant="outline-primary"
+                        size="sm"
+                        @click="downloadPdf"
+                    >
+                        <i class="bi bi-file-earmark-arrow-down mr-1"></i>
+                        View Report (PDF)
+                    </b-button>
+                    <b-button
+                        variant="outline-secondary"
+                        :disabled="savingDraft || submitting"
+                        @click="saveAndClose"
+                    >
+                        {{ savingDraft ? 'Saving...' : 'Save & close' }}
+                    </b-button>
+                    <b-button
+                        v-if="!isSubmitted"
+                        variant="primary"
+                        :disabled="submitting || savingDraft || stats.completed === 0"
+                        @click="submitChecklist"
+                    >
+                        {{ submitting ? 'Submitting...' : 'Submit' }}
+                    </b-button>
+                </div>
             </div>
         </div>
     </b-modal>
@@ -303,7 +303,7 @@ export default {
             { value: "remaining", label: "Remaining" },
         ];
 
-        const readonly = computed(() => data.value?.status === "submitted");
+        const isSubmitted = computed(() => data.value?.status === "submitted");
 
         const metaDraft = reactive({
             description: "",
@@ -482,7 +482,7 @@ export default {
         }
 
         async function saveMeta(field) {
-            if (!data.value?.id || readonly.value) return;
+            if (!data.value?.id) return;
             const payload = {};
             payload[field] = metaDraft[field] === "" ? null : metaDraft[field];
             try {
@@ -887,7 +887,7 @@ export default {
         });
 
         return {
-            data, loading, submitting, savingDraft, filter, filterOptions, readonly, show,
+            data, loading, submitting, savingDraft, filter, filterOptions, isSubmitted, show,
             sections, stats, attachmentsCount, failDrafts, ensureDraft,
             metaDraft, metaSaving, projectOptions, equipmentOptions, saveMeta,
             deviationTypeOptions, userOptions,

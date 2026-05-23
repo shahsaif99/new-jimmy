@@ -532,6 +532,11 @@ export default {
     onMounted(async () => {
     //   await fetchAvvikStatistics()
       await fetchAvvikListings()
+
+      const detailId = parseInt(root.$route.query?.detail, 10)
+      if (detailId) {
+        onRowClicked({ id: detailId })
+      }
     })
 
     // watch(avvikStatistics, () => {

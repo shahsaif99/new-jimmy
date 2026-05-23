@@ -26,6 +26,15 @@
                     </div>
                     <div class="d-flex align-items-center" style="gap: 6px">
                         <b-button
+                            v-if="can('checklist-perform')"
+                            variant="outline-primary"
+                            size="sm"
+                            @click="onEdit"
+                        >
+                            <i class="bi bi-pencil mr-1"></i>
+                            {{ editButtonLabel }}
+                        </b-button>
+                        <b-button
                             v-if="data.status === 'submitted'"
                             variant="primary"
                             size="sm"
@@ -116,14 +125,103 @@
                             {{ task.answer.notes }}
                         </div>
 
-                        <div v-if="task.answer && task.answer.img" class="answer-photo">
-                            <img :src="resolveAsset(task.answer.img)" alt="Attached photo" />
+                        <div v-if="task.answer && task.answer.img" class="attachment-card">
+                            <div class="attachment-header">
+                                <i class="bi bi-record-circle"></i>
+                                Attachments (1)
+                            </div>
+                            <div class="attachment-body">
+                                <div class="attachment-thumb">
+                                    <img :src="resolveAsset(task.answer.img)" alt="Attached photo" />
+                                </div>
+                                <div class="attachment-actions">
+                                    <a
+                                        class="attachment-btn"
+                                        :href="resolveAsset(task.answer.img)"
+                                        :download="imageDownloadName(task)"
+                                        target="_blank"
+                                        @click.stop
+                                    >
+                                        <i class="bi bi-download"></i>
+                                        Download
+                                    </a>
+                                    <a
+                                        class="attachment-btn"
+                                        :href="resolveAsset(task.answer.img)"
+                                        target="_blank"
+                                        @click.stop
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                        View full size
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="attachment-pager">
+                                <i class="bi bi-chevron-left text-muted"></i>
+                                <span class="mx-1">1 of 1</span>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </div>
                         </div>
 
-                        <small v-if="task.answer && task.answer.deviation" class="d-block deviation-link mt-1">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            {{ task.answer.deviation.title }}
-                        </small>
+                        <div
+                            v-if="task.answer && task.answer.deviation"
+                            class="deviation-card mt-1"
+                            :class="deviationClosed(task.answer.deviation) ? 'deviation-closed' : 'deviation-open'"
+                        >
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="deviation-id">
+                                    <i :class="deviationClosed(task.answer.deviation) ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'"></i>
+                                    DEVIATION {{ task.answer.deviation.code }}
+                                </span>
+                                <span class="deviation-pill">
+                                    {{ deviationClosed(task.answer.deviation) ? 'CLOSED' : 'OPEN' }}
+                                </span>
+                            </div>
+                            <div class="deviation-row">
+                                <span class="deviation-label">Status:</span>
+                                <span>{{ deviationClosed(task.answer.deviation) ? 'Closed' : 'Open' }}</span>
+                            </div>
+                            <div class="deviation-row" v-if="task.answer.deviation.created_at">
+                                <span class="deviation-label">Created:</span>
+                                <span>{{ task.answer.deviation.created_at }}</span>
+                            </div>
+                            <div class="deviation-row" v-if="!deviationClosed(task.answer.deviation) && task.answer.deviation.closing_deadline">
+                                <span class="deviation-label">Due date:</span>
+                                <span>{{ task.answer.deviation.closing_deadline }}</span>
+                            </div>
+                            <div class="deviation-row" v-if="deviationClosed(task.answer.deviation) && task.answer.deviation.close_date">
+                                <span class="deviation-label">Closed:</span>
+                                <span>{{ task.answer.deviation.close_date }}</span>
+                            </div>
+                            <div class="deviation-row mt-1" v-if="task.answer.deviation.description">
+                                <span class="deviation-label">Root Cause / Description:</span>
+                            </div>
+                            <div v-if="task.answer.deviation.description" class="deviation-body">
+                                {{ task.answer.deviation.description }}
+                            </div>
+                            <div class="deviation-row mt-1" v-if="task.answer.deviation.corrective_actions">
+                                <span class="deviation-label">Corrective Action:</span>
+                            </div>
+                            <div v-if="task.answer.deviation.corrective_actions" class="deviation-body">
+                                {{ task.answer.deviation.corrective_actions }}
+                            </div>
+                            <div class="deviation-row mt-1" v-if="deviationClosed(task.answer.deviation) && task.answer.deviation.closed_by">
+                                <span class="deviation-label">Closed by:</span>
+                                <span>{{ task.answer.deviation.closed_by }}</span>
+                            </div>
+                            <div class="deviation-row" v-else-if="task.answer.deviation.responsible_person">
+                                <span class="deviation-label">Assigned to:</span>
+                                <span>{{ task.answer.deviation.responsible_person }}</span>
+                            </div>
+                            <a
+                                class="d-inline-block mt-1 deviation-link-action"
+                                href="#"
+                                @click.prevent="openDeviation(task.answer.deviation)"
+                            >
+                                <i class="bi bi-box-arrow-up-right"></i>
+                                Open deviation
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -137,6 +235,7 @@ import { BSidebar, BButton } from "bootstrap-vue";
 import axios from "@axios";
 import route from "ziggy-js";
 import toaster from "@/composables/toaster";
+import useAbilities from "@/composables/abilities";
 
 export default {
     components: { BSidebar, BButton },
@@ -144,13 +243,15 @@ export default {
         visible: { type: Boolean, default: false },
         userChecklistId: { type: [Number, String], default: null },
     },
-    setup(props, { emit }) {
+    setup(props, { emit, root }) {
         const toast = toaster();
+        const { can } = useAbilities();
         const data = ref(null);
         const loading = ref(false);
 
         const sections = computed(() => (data.value && data.value.template_full && data.value.template_full.sections) || []);
         const description = computed(() => (data.value && data.value.description) || "");
+        const editButtonLabel = computed(() => (data.value && data.value.status === "submitted" ? "Edit" : "Continue"));
 
         function statusColor(status) {
             return {
@@ -188,6 +289,20 @@ export default {
             if (answer.value === "PASS") return "pill-pass";
             if (answer.value === "FAIL") return "pill-fail";
             return "pill-na";
+        }
+
+        function deviationClosed(deviation) {
+            if (!deviation) return false;
+            const status = (deviation.status || "").toString().toLowerCase();
+            return status === "closed" || !!deviation.close_date;
+        }
+
+        function imageDownloadName(task) {
+            const raw = task?.answer?.img || "";
+            const baseName = raw.split("/").pop() || "attachment";
+            const safeTask = (task?.name || "image").replace(/[^a-z0-9-_]+/gi, "_").slice(0, 40);
+            const ext = (baseName.match(/\.[a-z0-9]+$/i) || [".png"])[0];
+            return `${safeTask || "image"}_${baseName.replace(ext, "")}${ext}`;
         }
 
         function resolveAsset(path) {
@@ -234,15 +349,28 @@ export default {
             emit("close");
         }
 
+        function onEdit() {
+            if (!data.value || !data.value.id) return;
+            emit("perform", data.value.id);
+        }
+
+        function openDeviation(deviation) {
+            if (!deviation || !deviation.id) return;
+            root.$router
+                .push({ name: "avvik-listings", query: { detail: deviation.id } })
+                .catch(() => {});
+        }
+
         watch(() => props.visible, (v) => {
             if (v) fetchData();
             else data.value = null;
         });
 
         return {
-            data, loading, sections, description,
+            data, loading, sections, description, editButtonLabel, can,
             statusColor, iconClass, iconColor, pillLabel, pillClass, resolveAsset,
-            downloadPdf, onHidden,
+            deviationClosed, imageDownloadName,
+            downloadPdf, onHidden, onEdit, openDeviation,
         };
     },
 };
@@ -303,8 +431,66 @@ export default {
 .task-name {
     font-size: 0.9rem;
 }
-.deviation-link {
-    color: #ff9f43;
+.deviation-card {
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    margin-top: 6px;
+}
+.deviation-card.deviation-open {
+    background: #fff7e1;
+    border: 1px solid #f6c343;
+    color: #856404;
+}
+.deviation-card.deviation-closed {
+    background: #e8f6ec;
+    border: 1px solid #6dbf85;
+    color: #155724;
+}
+.deviation-id {
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+}
+.deviation-pill {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.08);
+    letter-spacing: 0.04em;
+}
+.deviation-open .deviation-pill {
+    background: #f6c343;
+    color: #5a3a06;
+}
+.deviation-closed .deviation-pill {
+    background: #6dbf85;
+    color: #0c3915;
+}
+.deviation-row {
+    display: flex;
+    gap: 6px;
+    line-height: 1.5;
+}
+.deviation-label {
+    font-weight: 600;
+    min-width: 110px;
+}
+.deviation-body {
+    padding-left: 0;
+    line-height: 1.4;
+}
+.deviation-link-action {
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-decoration: underline;
+}
+.deviation-open .deviation-link-action {
+    color: #b27a00;
+}
+.deviation-closed .deviation-link-action {
+    color: #155724;
 }
 .status-pill {
     font-size: 0.7rem;
@@ -334,13 +520,81 @@ export default {
     border-left-color: #c0392b;
     background: #fdecea;
 }
-.answer-photo {
-    margin-top: 6px;
+.attachment-card {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border: 1px solid #ececef;
+    border-radius: 8px;
+    background: #fafafb;
 }
-.answer-photo img {
-    max-width: 100%;
-    max-height: 180px;
-    border-radius: 4px;
+.attachment-header {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 8px;
+}
+.attachment-header i {
+    color: #7367f0;
+    margin-right: 4px;
+}
+.attachment-body {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.attachment-thumb {
+    flex: 0 0 auto;
+    width: 110px;
+    height: 110px;
+    border-radius: 8px;
+    overflow: hidden;
     border: 1px solid #eee;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.attachment-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+.attachment-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.attachment-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 8px 18px;
+    border: 1px solid #d8d6f1;
+    border-radius: 8px;
+    background: #fff;
+    color: #7367f0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    min-width: 170px;
+}
+.attachment-btn:hover {
+    background: #f0eefc;
+    color: #5e50ee;
+    border-color: #7367f0;
+    text-decoration: none;
+}
+.attachment-btn i {
+    font-size: 1rem;
+}
+.attachment-pager {
+    margin-top: 8px;
+    text-align: right;
+    font-size: 0.8rem;
+    color: #888;
+}
+.attachment-pager i {
+    font-size: 0.9rem;
 }
 </style>

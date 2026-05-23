@@ -287,10 +287,10 @@
                                                 </div>
                                             </div>
                                             <b-button
-                                                :to="`/tasks/${props.id}/perform-task`"
                                                 variant="primary"
                                                 size="sm"
                                                 class="ml-2"
+                                                @click="startChecklistFromTask"
                                             >
                                                 {{ taskStarted ? 'Continue' : 'Start' }}
                                             </b-button>
@@ -347,6 +347,14 @@
                 </div>
             </template>
         </b-sidebar>
+
+        <Perform
+            :visible="performVisible"
+            :template-id="performTemplateId"
+            @close="closePerform"
+            @submitted="closePerform"
+            @saved-draft="closePerform"
+        />
     </div>
 </template>
 
@@ -358,6 +366,7 @@ import useUsers from "@/composables/users";
 import { avatarText } from "@core/utils/filter";
 import useJwt from "@/auth/jwt/useJwt";
 import Comments from "./comments.vue";
+import Perform from "@/views/checklist/Perform.vue";
 
 import {
     BSidebar,
@@ -401,6 +410,7 @@ export default {
         BLink,
         BMedia,
         Comments,
+        Perform,
     },
     props: {
         isOpen: {
@@ -450,9 +460,25 @@ export default {
         });
 
         const taskStarted = computed(() => {
-            const s = task.value?.data?.status?.toLowerCase?.() || "";
+            const s = task?.data?.status?.toLowerCase?.() || "";
             return s === "in progress" || s === "completed";
         });
+
+        const performVisible = ref(false);
+        const performTemplateId = ref(null);
+
+        function startChecklistFromTask() {
+            const templateId = task?.data?.checklist?.id;
+            if (!templateId) return;
+            performTemplateId.value = templateId;
+            performVisible.value = true;
+        }
+
+        function closePerform() {
+            performVisible.value = false;
+            performTemplateId.value = null;
+            getTaskById(props.id);
+        }
 
         const close = () => {
             emit("close");
@@ -473,6 +499,10 @@ export default {
             priorityIcons,
             updateTaskStatus,
             props,
+            performVisible,
+            performTemplateId,
+            startChecklistFromTask,
+            closePerform,
         };
     },
 };

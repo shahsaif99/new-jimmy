@@ -59,7 +59,8 @@ class SubmittedChecklistController extends Controller
             'equipment:id,name',
             'category:id,name',
             'assigner:id,first_name,last_name',
-            'answers.deviation:id,title,severity,close_date,status,type,responsible_person,project_id',
+            'answers.deviation:id,title,severity,close_date,status,type,responsible_person,project_id,date,closing_deadline,description,corrective_actions,registered_by,closed_by_id,created_at',
+            'answers.deviation.closedBy:id,first_name,last_name',
         ])->loadCount(['answers as deviation_count_cache' => fn ($q) => $q->whereNotNull('avvik_listing_id')]);
 
         // Defensive: snapshot is created at start; backfill on the fly if missing.
@@ -102,10 +103,22 @@ class SubmittedChecklistController extends Controller
                                 'avvik_listing_id' => $answer->avvik_listing_id,
                                 'deviation' => $answer->deviation ? [
                                     'id' => $answer->deviation->id,
+                                    'code' => 'DV-' . str_pad((string) $answer->deviation->id, 4, '0', STR_PAD_LEFT),
                                     'title' => $answer->deviation->title,
                                     'type' => $answer->deviation->type,
                                     'severity' => $answer->deviation->severity,
-                                    'status' => $answer->deviation->status,
+                                    'status' => $answer->deviation->close_date ? 'closed' : ($answer->deviation->status ?: 'open'),
+                                    'created_at' => optional($answer->deviation->created_at)->format('d.m.Y H:i'),
+                                    'date' => $answer->deviation->date,
+                                    'closing_deadline' => $answer->deviation->closing_deadline,
+                                    'close_date' => $answer->deviation->close_date,
+                                    'description' => $answer->deviation->description,
+                                    'corrective_actions' => $answer->deviation->corrective_actions,
+                                    'responsible_person' => $answer->deviation->responsible_person,
+                                    'registered_by' => $answer->deviation->registered_by,
+                                    'closed_by' => $answer->deviation->closedBy
+                                        ? trim(($answer->deviation->closedBy->first_name ?? '') . ' ' . ($answer->deviation->closedBy->last_name ?? ''))
+                                        : null,
                                 ] : null,
                             ] : null,
                         ];
@@ -168,6 +181,7 @@ class SubmittedChecklistController extends Controller
             'project',
             'equipment',
             'answers.deviation',
+            'answers.deviation.closedBy:id,first_name,last_name',
             'answers.user:id,first_name,last_name',
         ]);
 
