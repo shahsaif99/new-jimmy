@@ -190,10 +190,9 @@
                                 <span>{{ task.answer.deviation.responsible_person }}</span>
                             </div>
                             <a
-                                v-if="!deviationClosed(task.answer.deviation)"
                                 class="d-inline-block mt-1 deviation-link-action"
-                                :href="`/avvik-listings/${task.answer.deviation.id}`"
-                                target="_blank"
+                                href="#"
+                                @click.prevent="openDeviation(task.answer.deviation)"
                             >
                                 <i class="bi bi-box-arrow-up-right"></i>
                                 Open deviation
@@ -220,7 +219,7 @@ export default {
         visible: { type: Boolean, default: false },
         userChecklistId: { type: [Number, String], default: null },
     },
-    setup(props, { emit }) {
+    setup(props, { emit, root }) {
         const toast = toaster();
         const { can } = useAbilities();
         const data = ref(null);
@@ -331,6 +330,13 @@ export default {
             emit("perform", data.value.id);
         }
 
+        function openDeviation(deviation) {
+            if (!deviation || !deviation.id) return;
+            root.$router
+                .push({ name: "avvik-listings", query: { detail: deviation.id } })
+                .catch(() => {});
+        }
+
         watch(() => props.visible, (v) => {
             if (v) fetchData();
             else data.value = null;
@@ -340,7 +346,7 @@ export default {
             data, loading, sections, description, editButtonLabel, can,
             statusColor, iconClass, iconColor, pillLabel, pillClass, resolveAsset,
             deviationClosed, imageDownloadName,
-            downloadPdf, onHidden, onEdit,
+            downloadPdf, onHidden, onEdit, openDeviation,
         };
     },
 };
