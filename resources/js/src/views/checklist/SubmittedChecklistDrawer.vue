@@ -127,6 +127,16 @@
 
                         <div v-if="task.answer && task.answer.img" class="answer-photo">
                             <img :src="resolveAsset(task.answer.img)" alt="Attached photo" />
+                            <a
+                                class="answer-photo-download"
+                                :href="resolveAsset(task.answer.img)"
+                                :download="imageDownloadName(task)"
+                                target="_blank"
+                                @click.stop
+                            >
+                                <i class="bi bi-download mr-1"></i>
+                                Download
+                            </a>
                         </div>
 
                         <div
@@ -264,6 +274,14 @@ export default {
             return status === "closed" || !!deviation.close_date;
         }
 
+        function imageDownloadName(task) {
+            const raw = task?.answer?.img || "";
+            const baseName = raw.split("/").pop() || "attachment";
+            const safeTask = (task?.name || "image").replace(/[^a-z0-9-_]+/gi, "_").slice(0, 40);
+            const ext = (baseName.match(/\.[a-z0-9]+$/i) || [".png"])[0];
+            return `${safeTask || "image"}_${baseName.replace(ext, "")}${ext}`;
+        }
+
         function resolveAsset(path) {
             if (!path) return "";
             if (/^https?:/.test(path) || path.startsWith("data:")) return path;
@@ -321,7 +339,7 @@ export default {
         return {
             data, loading, sections, description, editButtonLabel, can,
             statusColor, iconClass, iconColor, pillLabel, pillClass, resolveAsset,
-            deviationClosed,
+            deviationClosed, imageDownloadName,
             downloadPdf, onHidden, onEdit,
         };
     },
@@ -474,11 +492,34 @@ export default {
 }
 .answer-photo {
     margin-top: 6px;
+    position: relative;
+    display: inline-block;
 }
 .answer-photo img {
     max-width: 100%;
     max-height: 180px;
     border-radius: 4px;
     border: 1px solid #eee;
+}
+.answer-photo-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #555;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #ddd;
+    padding: 2px 8px;
+    border-radius: 4px;
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    text-decoration: none;
+}
+.answer-photo-download:hover {
+    background: #fff;
+    color: #1a90ff;
+    border-color: #1a90ff;
 }
 </style>
