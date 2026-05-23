@@ -23,6 +23,37 @@
         .badge-fail { background: #f8d7da; color: #721c24; }
         .badge-na { background: #d1ecf1; color: #0c5460; }
         .badge-empty { background: #eee; color: #777; }
+        .header-row { width: 100%; margin-bottom: 8px; }
+        .header-row td { vertical-align: middle; padding: 0; }
+        .header-row .title-cell h1 { margin: 0; }
+        .header-row .logo-cell { text-align: right; width: 160px; }
+        .header-row .logo-cell img { max-height: 42px; max-width: 150px; }
+        .deviation-summary { margin: 8px 0 14px 0; padding: 10px 12px; border: 1px solid #b8e0c2; background: #f1faf3; font-size: 12px; }
+        .deviation-summary .label-icon { color: #2e7d4a; font-weight: 700; margin-right: 6px; }
+        .deviation-summary table { width: 100%; }
+        .deviation-summary td { padding: 2px 8px; }
+        .deviation-summary .ds-title { font-weight: 700; color: #2e7d4a; }
+        .deviation-summary .ds-stat { font-weight: 700; }
+        .deviation-summary .ds-total { color: #333; }
+        .deviation-summary .ds-open { color: #c9a227; }
+        .deviation-summary .ds-closed { color: #2e7d4a; }
+        .deviation-card {
+            margin-top: 6px;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        .deviation-card.open { background: #fff7e1; border: 1px solid #f6c343; color: #6a4d00; }
+        .deviation-card.closed { background: #e8f6ec; border: 1px solid #6dbf85; color: #14532b; }
+        .deviation-card .dc-head { width: 100%; }
+        .deviation-card .dc-head td { padding: 0; vertical-align: middle; }
+        .deviation-card .dc-id { font-weight: 700; font-size: 11px; letter-spacing: 0.02em; }
+        .deviation-card .dc-pill { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 999px; letter-spacing: 0.04em; }
+        .deviation-card.open .dc-pill { background: #f6c343; color: #5a3a06; }
+        .deviation-card.closed .dc-pill { background: #6dbf85; color: #0c3915; }
+        .deviation-card .dc-row { padding: 1px 0; line-height: 1.5; }
+        .deviation-card .dc-label { font-weight: 700; }
+        .deviation-card .dc-body { line-height: 1.45; padding: 1px 0 2px; }
         .deviation { margin-top: 4px; padding: 4px 8px; background: #fff7e6; border-left: 3px solid #ff9f43; font-size: 11px; }
         .attachments-page { page-break-before: always; }
         .attachment-card {
@@ -56,10 +87,25 @@
         $imageAnswers = $userChecklist->answers
             ->filter(fn ($a) => !empty($a->img))
             ->values();
+        $deviations = $userChecklist->answers->pluck('deviation')->filter()->values();
+        $deviationsClosed = $deviations->filter(fn ($d) => !empty($d->close_date) || strtolower((string) $d->status) === 'closed')->count();
+        $deviationsOpen = $deviations->count() - $deviationsClosed;
+        $logoPath = public_path('images/logo/logo.png');
     @endphp
 
-    <h1>Checklist Rapport</h1>
-    <div class="submission-code">{{ $code }} &nbsp; {{ $userChecklist->title ?? $userChecklist->checklist?->name }}</div>
+    <table class="header-row">
+        <tr>
+            <td class="title-cell">
+                <h1>Checklist Rapport</h1>
+                <div class="submission-code">{{ $code }} &nbsp; {{ $userChecklist->title ?? $userChecklist->checklist?->name }}</div>
+            </td>
+            <td class="logo-cell">
+                @if(file_exists($logoPath))
+                    <img src="{{ $logoPath }}" alt="Logo">
+                @endif
+            </td>
+        </tr>
+    </table>
 
     <table class="meta-table">
         <tr>
@@ -105,6 +151,33 @@
         </table>
     </div>
 
+    @if($deviations->isNotEmpty())
+        <div class="deviation-summary">
+            <table>
+                <tr>
+                    <td style="width: 38%">
+                        <span class="ds-title">Deviation Summary</span>
+                        <div style="font-size: 11px; color: #555; margin-top: 2px;">
+                            See details for the failed item(s) below.
+                        </div>
+                    </td>
+                    <td>
+                        <span class="ds-stat ds-total">Total deviations:</span>
+                        <span class="ds-stat ds-total">{{ $deviations->count() }}</span>
+                    </td>
+                    <td>
+                        <span class="ds-stat ds-open">Open deviations:</span>
+                        <span class="ds-stat ds-open">{{ $deviationsOpen }}</span>
+                    </td>
+                    <td>
+                        <span class="ds-stat ds-closed">Closed deviations:</span>
+                        <span class="ds-stat ds-closed">{{ $deviationsClosed }}</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    @endif
+
     @foreach($userChecklist->snapshotSections as $sIdx => $section)
         <h2>{{ ($sIdx + 1) . '. ' . $section->name }}</h2>
         <table class="tasks">
@@ -140,11 +213,44 @@
                         <td>
                             {{ $answer?->notes ?? '' }}
                             @if($answer?->deviation)
-                                <div class="deviation">
-                                    <strong>Deviation:</strong>
-                                    {{ $answer->deviation->title }}
-                                    @if($answer->deviation->type) ({{ $answer->deviation->type }}) @endif
-                                    @if($answer->deviation->responsible_person) — {{ $answer->deviation->responsible_person }} @endif
+                                @php
+                                    $dev = $answer->deviation;
+                                    $devClosed = !empty($dev->close_date) || strtolower((string) $dev->status) === 'closed';
+                                    $devCode = 'DV-' . str_pad((string) $dev->id, 4, '0', STR_PAD_LEFT);
+                                    $devCreated = $dev->created_at ? $dev->created_at->format('d.m.Y H:i') : '';
+                                    $devClosedAt = $dev->close_date ? \Illuminate\Support\Carbon::parse($dev->close_date)->format('d.m.Y H:i') : '';
+                                    $devDue = $dev->closing_deadline ? \Illuminate\Support\Carbon::parse($dev->closing_deadline)->format('d.m.Y') : '';
+                                    $devClosedBy = $dev->closedBy ? trim(($dev->closedBy->first_name ?? '') . ' ' . ($dev->closedBy->last_name ?? '')) : '';
+                                @endphp
+                                <div class="deviation-card {{ $devClosed ? 'closed' : 'open' }}">
+                                    <table class="dc-head">
+                                        <tr>
+                                            <td><span class="dc-id">DEVIATION {{ $devCode }}</span></td>
+                                            <td style="text-align: right;"><span class="dc-pill">{{ $devClosed ? 'CLOSED' : 'OPEN' }}</span></td>
+                                        </tr>
+                                    </table>
+                                    <div class="dc-row"><span class="dc-label">Status:</span> {{ $devClosed ? 'Closed' : 'Open' }}</div>
+                                    @if($devCreated)
+                                        <div class="dc-row"><span class="dc-label">Created:</span> {{ $devCreated }}</div>
+                                    @endif
+                                    @if($devClosed && $devClosedAt)
+                                        <div class="dc-row"><span class="dc-label">Closed:</span> {{ $devClosedAt }}</div>
+                                    @elseif(!$devClosed && $devDue)
+                                        <div class="dc-row"><span class="dc-label">Due date:</span> {{ $devDue }}</div>
+                                    @endif
+                                    @if($dev->description)
+                                        <div class="dc-row"><span class="dc-label">Root Cause / Description:</span></div>
+                                        <div class="dc-body">{{ $dev->description }}</div>
+                                    @endif
+                                    @if($dev->corrective_actions)
+                                        <div class="dc-row"><span class="dc-label">Corrective Action:</span></div>
+                                        <div class="dc-body">{{ $dev->corrective_actions }}</div>
+                                    @endif
+                                    @if($devClosed && $devClosedBy)
+                                        <div class="dc-row"><span class="dc-label">Closed by:</span> {{ $devClosedBy }}</div>
+                                    @elseif(!$devClosed && $dev->responsible_person)
+                                        <div class="dc-row"><span class="dc-label">Assigned to:</span> {{ $dev->responsible_person }}</div>
+                                    @endif
                                 </div>
                             @endif
                         </td>

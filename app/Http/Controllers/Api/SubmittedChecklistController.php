@@ -181,6 +181,7 @@ class SubmittedChecklistController extends Controller
             'project',
             'equipment',
             'answers.deviation',
+            'answers.deviation.closedBy:id,first_name,last_name',
             'answers.user:id,first_name,last_name',
         ]);
 
