@@ -90,7 +90,7 @@
         $deviations = $userChecklist->answers->pluck('deviation')->filter()->values();
         $deviationsClosed = $deviations->filter(fn ($d) => !empty($d->close_date) || strtolower((string) $d->status) === 'closed')->count();
         $deviationsOpen = $deviations->count() - $deviationsClosed;
-        $logoPath = public_path('images/logo/logo.png');
+        $logoPath = $logoPath ?? public_path('images/logo/logo.png');
     @endphp
 
     <table class="header-row">
@@ -239,7 +239,7 @@
                                         <div class="dc-row"><span class="dc-label">Due date:</span> {{ $devDue }}</div>
                                     @endif
                                     @if($dev->description)
-                                        <div class="dc-row"><span class="dc-label">Root Cause / Description:</span></div>
+                                        <div class="dc-row"><span class="dc-label">Corrective actions:</span></div>
                                         <div class="dc-body">{{ $dev->description }}</div>
                                     @endif
                                     @if($dev->corrective_actions)
