@@ -193,14 +193,8 @@
                                 <span class="deviation-label">Closed:</span>
                                 <span>{{ task.answer.deviation.close_date }}</span>
                             </div>
-                            <div class="deviation-row mt-1" v-if="task.answer.deviation.description">
-                                <span class="deviation-label">Corrective actions:</span>
-                            </div>
-                            <div v-if="task.answer.deviation.description" class="deviation-body">
-                                {{ task.answer.deviation.description }}
-                            </div>
                             <div class="deviation-row mt-1" v-if="task.answer.deviation.corrective_actions">
-                                <span class="deviation-label">Corrective Action:</span>
+                                <span class="deviation-label">Corrective actions:</span>
                             </div>
                             <div v-if="task.answer.deviation.corrective_actions" class="deviation-body">
                                 {{ task.answer.deviation.corrective_actions }}

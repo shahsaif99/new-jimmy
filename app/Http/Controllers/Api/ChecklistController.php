@@ -219,6 +219,8 @@ class ChecklistController extends Controller
                         'project_id' => $uc->project_id,
                         'equipment_id' => $uc->equipment_id,
                         'description' => $a['notes'] ?? null,
+                        // Seed the corrective-actions field from the same note for checklist-created deviations.
+                        'corrective_actions' => $a['notes'] ?? null,
                         'registered_by' => $user?->name ?? (string) auth()->id(),
                         'user_id' => auth()->id(),
                         'status' => 'open',
