@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SubmittedChecklistResource;
 use App\Models\AvvikListing;
+use App\Models\CompanyInformation;
 use App\Models\TaskCheckListAnswer;
 use App\Models\UserChecklist;
 use Illuminate\Http\Request;
@@ -190,8 +191,21 @@ class SubmittedChecklistController extends Controller
             $userChecklist->load('snapshotSections.tasks');
         }
 
+        // Prefer the logo configured under Company > Company Information; fall back to the bundled asset.
+        $company = CompanyInformation::first();
+        $logoPath = $company && $company->logo
+            ? storage_path('app/public/company/' . $company->logo)
+            : public_path('images/logo/logo.png');
+
+        if (!file_exists($logoPath)) {
+            $logoPath = public_path('images/logo/logo.png');
+        }
+
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('exports.checklist-rapport', ['userChecklist' => $userChecklist]);
+        $pdf->loadView('exports.checklist-rapport', [
+            'userChecklist' => $userChecklist,
+            'logoPath' => $logoPath,
+        ]);
 
         $name = 'S-' . str_pad((string) (1000 + $userChecklist->id), 4, '0', STR_PAD_LEFT) . '.pdf';
         return $pdf->download($name);
