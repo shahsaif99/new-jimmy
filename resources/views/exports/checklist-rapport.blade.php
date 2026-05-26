@@ -238,12 +238,8 @@
                                     @elseif(!$devClosed && $devDue)
                                         <div class="dc-row"><span class="dc-label">Due date:</span> {{ $devDue }}</div>
                                     @endif
-                                    @if($dev->description)
-                                        <div class="dc-row"><span class="dc-label">Corrective actions:</span></div>
-                                        <div class="dc-body">{{ $dev->description }}</div>
-                                    @endif
                                     @if($dev->corrective_actions)
-                                        <div class="dc-row"><span class="dc-label">Corrective Action:</span></div>
+                                        <div class="dc-row"><span class="dc-label">Corrective actions:</span></div>
                                         <div class="dc-body">{{ $dev->corrective_actions }}</div>
                                     @endif
                                     @if($devClosed && $devClosedBy)

@@ -238,6 +238,8 @@ class SubmittedChecklistController extends Controller
                 'project_id' => $data['project_id'] ?? $userChecklist->project_id,
                 'equipment_id' => $userChecklist->equipment_id,
                 'description' => $data['description'] ?? $answer->notes,
+                // Seed the corrective-actions field from the same note for checklist-created deviations.
+                'corrective_actions' => $data['description'] ?? $answer->notes,
                 'registered_by' => $user?->name ?? (string) auth()->id(),
                 'user_id' => auth()->id(),
                 'status' => 'open',
