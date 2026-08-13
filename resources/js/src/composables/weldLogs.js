@@ -17,6 +17,9 @@ const weldLogInitialState = {
 const weldInitialState = {
     weld_log_id: null,
     weld_no: "",
+    type: "weld",
+    original_weld_id: null,
+    repair_reason: null,
     wps_id: null,
     welder_id: "",
     weld_date: "",
@@ -26,7 +29,22 @@ const weldInitialState = {
     ndt_pt: false,
     ndt_vt: false,
     ndt_accepted: null,
+    ndt_rt_result: null,
+    ndt_mt_result: null,
+    ndt_pt_result: null,
+    ndt_vt_result: null,
 };
+
+export const REPAIR_REASONS = [
+    { value: "porosity", text: "Porosity" },
+    { value: "lack_of_fusion", text: "Lack of Fusion / Penetration" },
+    { value: "undercut", text: "Undercut" },
+    { value: "slag_inclusion", text: "Slag Inclusion" },
+    { value: "crack", text: "Crack" },
+    { value: "edge_defect", text: "Edge Defect" },
+    { value: "weld_profile", text: "Weld Profile" },
+    { value: "spatter", text: "Spatter" },
+];
 
 const weldLogForm = reactive({
     ...weldLogInitialState,
@@ -57,9 +75,8 @@ const weldForm = reactive({
     ...weldInitialState,
 
     getData() {
-        return {
-            weld_log_id: this.weld_log_id,
-            weld_no: this.weld_no,
+        const data = {
+            type: this.type,
             wps_id: this.wps_id,
             welder_id: this.welder_id,
             weld_date: this.weld_date,
@@ -69,7 +86,23 @@ const weldForm = reactive({
             ndt_pt: this.ndt_pt,
             ndt_vt: this.ndt_vt,
             ndt_accepted: this.ndt_accepted,
+            ndt_rt_result: this.ndt_rt_result,
+            ndt_mt_result: this.ndt_mt_result,
+            ndt_pt_result: this.ndt_pt_result,
+            ndt_vt_result: this.ndt_vt_result,
         };
+
+        // A repair takes its weld log and weld number from the weld it repairs,
+        // so the server derives them rather than trusting the form.
+        if (this.type === "repair") {
+            data.original_weld_id = this.original_weld_id;
+            data.repair_reason = this.repair_reason;
+        } else {
+            data.weld_log_id = this.weld_log_id;
+            data.weld_no = this.weld_no;
+        }
+
+        return data;
     },
 
     set(data) {
@@ -300,10 +333,10 @@ export default function useWeldLogs() {
     const storeWeld = async () => {
         try {
             apiHelpers.loading = true;
-            await axios.post(route("welds.store"), weldForm.getData());
+            const response = await axios.post(route("welds.store"), weldForm.getData());
             dialog.toggleDialog("weld", "add");
             weldForm.reset();
-            toast.success("Weld successfully registered.");
+            toast.success(response.data?.message || "Weld successfully registered.");
             return true;
         } catch (error) {
             errorHandler(error);
