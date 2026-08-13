@@ -16,6 +16,10 @@
       <b-tab :title="t('Improvements')">
         <improvements-tab />
       </b-tab>
+
+      <b-tab :title="t('Weld & NDT')" lazy>
+        <weld-ndt-tab />
+      </b-tab>
     </b-tabs>
   </div>
 </template>
@@ -28,6 +32,7 @@ import { useRouter } from '@core/utils/utils'
 import DeviationsTab from './tabs/DeviationsTab.vue'
 import SuppliersTab from './tabs/SuppliersTab.vue'
 import ImprovementsTab from './tabs/ImprovementsTab.vue'
+import WeldNdtTab from './tabs/WeldNdtTab.vue'
 
 export default {
   name: 'ReportsIndex',
@@ -37,6 +42,7 @@ export default {
     DeviationsTab,
     SuppliersTab,
     ImprovementsTab,
+    WeldNdtTab,
   },
   setup() {
     const { t } = useI18nUtils()
@@ -46,9 +52,10 @@ export default {
       deviations: 0,
       suppliers: 1,
       improvements: 2,
+      'weld-ndt': 3,
     }
 
-    const tabNames = ['deviations', 'suppliers', 'improvements']
+    const tabNames = ['deviations', 'suppliers', 'improvements', 'weld-ndt']
 
     // Read query parameter immediately (not in onMounted)
     const tabParam = route.value.query.tab

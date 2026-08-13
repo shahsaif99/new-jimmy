@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\TaskCommentController;
 use App\Http\Controllers\Api\WpsController;
 use App\Http\Controllers\Api\WeldLogController;
 use App\Http\Controllers\Api\WeldController;
+use App\Http\Controllers\Api\WeldReportController;
 use Illuminate\Http\Request;
 
 /*
@@ -171,6 +172,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('welds', WeldController::class)->only(['store', 'update', 'destroy']);
     Route::get('weld-logs/{weldLog}/export-pdf', [WeldLogController::class, 'exportPdf'])->name('weld-logs.export-pdf');
     Route::get('weld-logs/{weldLog}/export-xlsx', [WeldLogController::class, 'exportXlsx'])->name('weld-logs.export-xlsx');
+    Route::get('weld-report', [WeldReportController::class, 'index'])->name('weld-report.index');
 
     Route::apiResource('task', TaskController::class);
     Route::put('task-update-status/{id}', [TaskController::class, 'updateStatus'])->name('task.update.status');
