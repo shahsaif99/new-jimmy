@@ -225,6 +225,15 @@
                 </b-badge>
                 <span v-else class="text-muted">-</span>
               </template>
+              <template #cell(method_result)="data">
+                <b-badge
+                  v-if="data.item.method_result"
+                  :variant="data.item.method_result === 'accepted' ? 'light-success' : 'light-danger'"
+                >
+                  {{ data.item.method_result }}
+                </b-badge>
+                <span v-else class="text-muted">-</span>
+              </template>
             </b-table>
             <p v-else-if="!detailLoading" class="text-muted mb-0">
               {{ t('Nothing to show for this figure') }}
@@ -388,6 +397,22 @@ export default {
 
     // ---- drill-downs -----------------------------------------------------
 
+    // t() resolves through getCurrentInstance(), which is null once setup has
+    // returned — so it throws inside event handlers and after an await. These
+    // are translated here, while the instance still exists, and read later.
+    const LABEL = {
+      weld: t('weld'),
+      welds: t('welds'),
+      showingFirst: t('Showing the first'),
+      of: t('of'),
+      loadFailed: t('Could not load these welds'),
+      weldsByProject: t('Welds by project'),
+      ndtByMethod: t('NDT by method'),
+      projectsWithWelds: t('projects with welds in'),
+      testsWithResult: t('tests with a recorded result in'),
+      noTests: t('No tests'),
+    }
+
     const showDetails = ref(false)
     const detailLoading = ref(false)
     const detailView = ref('welds')
@@ -395,7 +420,9 @@ export default {
     const detailSubtitle = ref('')
     const detailRows = ref([])
 
-    const weldDetailFields = [
+    const detailMethod = ref(null)
+
+    const weldDetailBaseFields = [
       { key: 'weld_label', label: t('Weld No.') },
       { key: 'type', label: t('Type') },
       { key: 'project_name', label: t('Project') },
@@ -405,8 +432,19 @@ export default {
       { key: 'wps_name', label: t('WPS') },
       { key: 'visual_inspection', label: t('Visual') },
       { key: 'repair_reason_label', label: t('Repair Reason') },
-      { key: 'ndt_accepted', label: t('NDT Result') },
     ]
+
+    const ndtResultLabel = t('NDT Result')
+    const resultLabel = t('Result')
+
+    // Drilling into one method shows that method's verdict; everywhere else the
+    // whole-weld verdict is the honest column.
+    const weldDetailFields = computed(() => [
+      ...weldDetailBaseFields,
+      detailMethod.value
+        ? { key: 'method_result', label: `${detailMethod.value} ${resultLabel}` }
+        : { key: 'ndt_accepted', label: ndtResultLabel },
+    ])
 
     const projectDetailFields = [
       { key: 'project_no', label: t('Project No.') },
@@ -438,19 +476,21 @@ export default {
       showDetails.value = false
       detailRows.value = []
       detailSubtitle.value = ''
+      detailMethod.value = null
     }
 
     const openTable = view => {
       detailView.value = view
-      detailTitle.value = view === 'projects' ? t('Welds by project') : t('NDT by method')
+      detailTitle.value = view === 'projects' ? LABEL.weldsByProject : LABEL.ndtByMethod
       detailSubtitle.value = view === 'projects'
-        ? `${projects.value.length} ${t('projects with welds in')} ${yearValue()}`
-        : `${formatNumber(totalNdtTests.value)} ${t('tests with a recorded result in')} ${yearValue()}`
+        ? `${projects.value.length} ${LABEL.projectsWithWelds} ${yearValue()}`
+        : `${formatNumber(totalNdtTests.value)} ${LABEL.testsWithResult} ${yearValue()}`
       showDetails.value = true
     }
 
     const openWeldDetails = async card => {
       detailView.value = 'welds'
+      detailMethod.value = null
       detailTitle.value = card.detailTitle || card.title
       detailSubtitle.value = ''
       detailRows.value = []
@@ -462,13 +502,14 @@ export default {
           params: { year: yearValue(), metric: card.metric },
         })
         const data = response.data.data || {}
+        detailMethod.value = data.method || null
         detailRows.value = data.rows || []
         detailSubtitle.value = data.truncated
-          ? `${t('Showing the first')} ${data.shown} ${t('of')} ${formatNumber(data.total)}`
-          : `${formatNumber(data.total)} ${data.total === 1 ? t('weld') : t('welds')}`
+          ? `${LABEL.showingFirst} ${data.shown} ${LABEL.of} ${formatNumber(data.total)}`
+          : `${formatNumber(data.total)} ${data.total === 1 ? LABEL.weld : LABEL.welds}`
       } catch (error) {
         console.error('Error fetching weld report details:', error)
-        detailSubtitle.value = t('Could not load these welds')
+        detailSubtitle.value = LABEL.loadFailed
       } finally {
         detailLoading.value = false
       }
@@ -567,7 +608,8 @@ export default {
           labels: { formatter: value => (value == null ? '' : `${Number(value).toFixed(0)}%`) },
         },
         tooltip: {
-          y: { formatter: value => (value == null ? t('No tests') : `${Number(value).toFixed(1)}%`) },
+          // ApexCharts calls this on hover, long after setup — hence LABEL.
+          y: { formatter: value => (value == null ? LABEL.noTests : `${Number(value).toFixed(1)}%`) },
         },
         legend: { position: 'bottom' },
         dataLabels: { enabled: false },

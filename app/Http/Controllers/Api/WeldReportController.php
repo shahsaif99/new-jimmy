@@ -66,15 +66,21 @@ class WeldReportController extends Controller
         $query = $this->query($year, $validated['project_id'] ?? null)
             ->with(['wps', 'weldLog.project']);
 
+        // When drilling into one method, that method's own verdict is what the
+        // reader is looking at — the whole-weld verdict would show "rejected"
+        // on a weld whose MT passed but whose VT did not.
+        $method = null;
+        if (preg_match('/^(' . implode('|', Weld::NDT_METHODS) . ')_(failed|tested)$/', $metric, $m)) {
+            $method = $m[1];
+        }
+
         if ($metric === 'repairs') {
             $query->where('type', Weld::TYPE_REPAIR);
         } elseif ($metric === 'visual_failed') {
             $query->where('visual_inspection', 'not_ok');
         } elseif (str_ends_with($metric, '_failed')) {
-            $method = str_replace('_failed', '', $metric);
             $query->where("ndt_{$method}", true)->where("ndt_{$method}_result", 'rejected');
         } elseif (str_ends_with($metric, '_tested')) {
-            $method = str_replace('_tested', '', $metric);
             $query->where("ndt_{$method}", true)->whereNotNull("ndt_{$method}_result");
         }
 
@@ -91,10 +97,13 @@ class WeldReportController extends Controller
             'message' => 'Weld report details retrieved successfully.',
             'data' => [
                 'metric' => $metric,
+                'method' => $method ? strtoupper($method) : null,
                 'total' => $total,
                 'shown' => $welds->count(),
                 'truncated' => $total > $welds->count(),
-                'rows' => $welds->map(fn (Weld $weld) => [
+                'rows' => $welds->map(fn (Weld $weld) => array_merge($method ? [
+                    'method_result' => $weld->{"ndt_{$method}_result"},
+                ] : [], [
                     'id' => $weld->id,
                     'weld_label' => $weld->weld_label,
                     'type' => $weld->type,
@@ -106,7 +115,7 @@ class WeldReportController extends Controller
                     'visual_inspection' => $weld->visual_inspection,
                     'repair_reason_label' => $weld->repair_reason_label,
                     'ndt_accepted' => $weld->ndt_accepted,
-                ])->all(),
+                ]))->all(),
             ],
         ]);
     }
