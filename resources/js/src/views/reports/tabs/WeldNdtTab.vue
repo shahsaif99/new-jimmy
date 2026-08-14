@@ -604,8 +604,12 @@ export default {
         markers: { size: 4 },
         xaxis: { categories },
         yaxis: {
+          // Both ends are pinned: with every series null the axis has nothing to
+          // scale from and ApexCharts falls back to an infinite range.
+          min: 0,
           max: 100,
-          labels: { formatter: value => (value == null ? '' : `${Number(value).toFixed(0)}%`) },
+          tickAmount: 5,
+          labels: { formatter: value => (Number.isFinite(value) ? `${Number(value).toFixed(0)}%` : '') },
         },
         tooltip: {
           // ApexCharts calls this on hover, long after setup — hence LABEL.
