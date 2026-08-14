@@ -12,28 +12,24 @@
         />
       </div>
 
-      <!-- KPI cards -->
-      <b-row class="mb-2">
-        <b-col
+      <!-- KPI cards: the mockup runs all seven across a single row on a wide screen -->
+      <div class="kpi-grid mb-2">
+        <b-card
           v-for="card in statCards"
           :key="card.key"
-          cols="12"
-          sm="6"
-          lg="3"
-          class="mb-1"
+          class="mb-0"
+          body-class="pb-1"
         >
-          <b-card class="h-100 mb-0" body-class="pb-1">
-            <div class="d-flex align-items-center mb-1">
-              <b-avatar rounded :variant="card.variant" class="mr-1">
-                <feather-icon :icon="card.icon" size="18" />
-              </b-avatar>
-              <h6 class="font-weight-bold mb-0">{{ t(card.title) }}</h6>
-            </div>
-            <h2 class="mb-25">{{ card.value }}</h2>
-            <small :class="card.subClass">{{ card.sub }}</small>
-          </b-card>
-        </b-col>
-      </b-row>
+          <div class="d-flex align-items-start mb-1">
+            <b-avatar rounded :variant="card.variant" size="34" class="mr-75 flex-shrink-0">
+              <feather-icon :icon="card.icon" size="16" />
+            </b-avatar>
+            <h6 class="font-weight-bold mb-0 kpi-title">{{ t(card.title) }}</h6>
+          </div>
+          <h2 class="mb-25 kpi-value">{{ card.value }}</h2>
+          <small :class="card.subClass">{{ card.sub }}</small>
+        </b-card>
+      </div>
 
       <b-row class="mb-2">
         <!-- Welds by project -->
@@ -350,6 +346,7 @@ export default {
         markers: { size: 4 },
         xaxis: { categories },
         yaxis: {
+          max: 100,
           labels: { formatter: value => (value == null ? '' : `${Number(value).toFixed(0)}%`) },
         },
         tooltip: {
@@ -386,3 +383,29 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+.kpi-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+// Only once there is room for readable cards do all seven share a row.
+@media (min-width: 1400px) {
+  .kpi-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+
+.kpi-title {
+  font-size: 0.85rem;
+  line-height: 1.25;
+}
+
+.kpi-value {
+  font-size: 1.6rem;
+}
+</style>

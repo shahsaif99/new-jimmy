@@ -341,8 +341,9 @@ const NdtCell = {
       ? 'text-danger'
       : (this.result === 'accepted' ? 'text-success' : 'text-secondary')
 
+    // FeatherIcon types `size` as a String — a number here throws in its render.
     return h('feather-icon', {
-      props: { icon: this.result === 'rejected' ? 'XIcon' : 'CheckIcon', size: 16 },
+      props: { icon: this.result === 'rejected' ? 'XIcon' : 'CheckIcon', size: '16' },
       class: variant,
     })
   },
