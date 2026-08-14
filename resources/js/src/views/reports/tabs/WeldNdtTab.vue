@@ -28,6 +28,12 @@
           </div>
           <h2 class="mb-25 kpi-value">{{ card.value }}</h2>
           <small :class="card.subClass">{{ card.sub }}</small>
+          <div class="mt-1">
+            <span class="cursor-pointer text-primary kpi-link" @click="openWeldDetails(card)">
+              <feather-icon icon="ChevronRightIcon" size="14" />
+              {{ t('View details') }}
+            </span>
+          </div>
         </b-card>
       </div>
 
@@ -54,6 +60,12 @@
               </template>
             </b-table>
             <p v-else class="text-muted mb-0">{{ t('No welds registered for this year') }}</p>
+            <div v-if="projects.length" class="text-right mt-1">
+              <span class="cursor-pointer text-primary" @click="openTable('projects')">
+                <feather-icon icon="ChevronRightIcon" size="14" />
+                {{ t('View all projects') }}
+              </span>
+            </div>
           </b-card>
         </b-col>
 
@@ -77,6 +89,12 @@
               </template>
             </b-table>
             <p v-else class="text-muted mb-0">{{ t('No NDT results recorded for this year') }}</p>
+            <div v-if="totalNdtTests" class="text-right mt-1">
+              <span class="cursor-pointer text-primary" @click="openTable('methods')">
+                <feather-icon icon="ChevronRightIcon" size="14" />
+                {{ t('View all methods') }}
+              </span>
+            </div>
           </b-card>
         </b-col>
 
@@ -95,6 +113,12 @@
               :series="donutSeries"
             />
             <p v-else class="text-muted mb-0">{{ t('No NDT results recorded for this year') }}</p>
+            <div v-if="totalNdtTests" class="text-right mt-1">
+              <span class="cursor-pointer text-primary" @click="openTable('methods')">
+                <feather-icon icon="ChevronRightIcon" size="14" />
+                {{ t('View details') }}
+              </span>
+            </div>
           </b-card>
         </b-col>
       </b-row>
@@ -118,6 +142,96 @@
           :series="trendSeries"
         />
       </b-card>
+
+      <!-- Drill-down -->
+      <b-modal
+        :visible="showDetails"
+        :title="detailTitle"
+        size="xl"
+        centered
+        hide-footer
+        @hidden="closeDetails"
+      >
+        <b-overlay :show="detailLoading" rounded="sm">
+          <p v-if="detailSubtitle" class="text-muted">{{ detailSubtitle }}</p>
+
+          <!-- Full project breakdown -->
+          <b-table
+            v-if="detailView === 'projects'"
+            :items="projects"
+            :fields="projectDetailFields"
+            responsive
+            small
+            class="mb-0"
+          >
+            <template #cell(repair_rate)="data">
+              <span :class="repairRateClass(data.item.repair_rate)">
+                {{ formatPercent(data.item.repair_rate) }}
+              </span>
+            </template>
+          </b-table>
+
+          <!-- Full method breakdown -->
+          <b-table
+            v-else-if="detailView === 'methods'"
+            :items="methodDetailRows"
+            :fields="methodDetailFields"
+            responsive
+            small
+            class="mb-0"
+          >
+            <template #cell(pass_rate)="data">
+              <span :class="data.item.failed ? 'text-warning' : 'text-success'">
+                {{ formatPercent(data.item.pass_rate) }}
+              </span>
+            </template>
+          </b-table>
+
+          <!-- The welds behind a KPI card -->
+          <template v-else>
+            <b-table
+              v-if="detailRows.length"
+              :items="detailRows"
+              :fields="weldDetailFields"
+              responsive
+              small
+              class="mb-0"
+            >
+              <template #cell(weld_label)="data">
+                <span :class="data.item.type === 'repair' ? 'text-primary font-weight-bold' : ''">
+                  {{ data.item.weld_label }}
+                </span>
+              </template>
+              <template #cell(type)="data">
+                <b-badge :variant="data.item.type === 'repair' ? 'light-primary' : 'light-success'">
+                  {{ data.item.type === 'repair' ? t('Repair') : t('Weld') }}
+                </b-badge>
+              </template>
+              <template #cell(visual_inspection)="data">
+                <b-badge :variant="data.item.visual_inspection === 'ok' ? 'light-success' : 'light-danger'">
+                  {{ data.item.visual_inspection === 'ok' ? 'OK' : 'Not OK' }}
+                </b-badge>
+              </template>
+              <template #cell(repair_reason_label)="data">
+                <span v-if="data.item.repair_reason_label">{{ data.item.repair_reason_label }}</span>
+                <span v-else class="text-muted">-</span>
+              </template>
+              <template #cell(ndt_accepted)="data">
+                <b-badge
+                  v-if="data.item.ndt_accepted"
+                  :variant="data.item.ndt_accepted === 'accepted' ? 'light-success' : 'light-danger'"
+                >
+                  {{ data.item.ndt_accepted }}
+                </b-badge>
+                <span v-else class="text-muted">-</span>
+              </template>
+            </b-table>
+            <p v-else-if="!detailLoading" class="text-muted mb-0">
+              {{ t('Nothing to show for this figure') }}
+            </p>
+          </template>
+        </b-overlay>
+      </b-modal>
     </div>
   </b-overlay>
 </template>
@@ -125,7 +239,7 @@
 <script>
 import { ref, computed, onMounted } from '@vue/composition-api'
 import {
-  BCard, BRow, BCol, BOverlay, BTable, BAvatar, BFormSelect,
+  BCard, BRow, BCol, BOverlay, BTable, BAvatar, BFormSelect, BModal, BBadge,
 } from 'bootstrap-vue'
 import VueApexCharts from 'vue-apexcharts'
 import DatePicker from 'vue2-datepicker'
@@ -156,6 +270,8 @@ export default {
     BTable,
     BAvatar,
     BFormSelect,
+    BModal,
+    BBadge,
     VueApexCharts,
     DatePicker,
   },
@@ -210,8 +326,11 @@ export default {
 
     const totalNdtTests = computed(() => methodRows.value.reduce((sum, m) => sum + (m.tests || 0), 0))
 
+    // A card drills into the welds that explain it: a pass rate opens the tests
+    // that failed, since those are what a reader wants to chase.
     const passRateCard = (method, icon, variant) => {
       const row = methodBy(method)
+      const failed = (row.tests || 0) - (row.passed || 0)
       return {
         key: method,
         title: `${method} pass rate`,
@@ -220,6 +339,10 @@ export default {
         value: formatPercent(row.pass_rate),
         sub: `${formatNumber(row.passed)} / ${formatNumber(row.tests)}`,
         subClass: 'text-success',
+        metric: failed > 0 ? `${method.toLowerCase()}_failed` : `${method.toLowerCase()}_tested`,
+        detailTitle: failed > 0
+          ? `${method} — ${t('rejected tests')}`
+          : `${method} — ${t('all tests')}`,
       }
     }
 
@@ -232,6 +355,8 @@ export default {
         value: formatNumber(totals.value.total_welds),
         sub: t('This year'),
         subClass: 'text-muted',
+        metric: 'all',
+        detailTitle: t('All welds'),
       },
       {
         key: 'repair',
@@ -241,6 +366,8 @@ export default {
         value: formatPercent(totals.value.repair_rate),
         sub: `${formatNumber(totals.value.repairs)} / ${formatNumber(totals.value.total_welds)}`,
         subClass: 'text-warning',
+        metric: 'repairs',
+        detailTitle: t('Repair welds'),
       },
       {
         key: 'visual',
@@ -250,12 +377,102 @@ export default {
         value: formatPercent(totals.value.visual_pass_rate),
         sub: `${formatNumber(totals.value.visual_passed)} / ${formatNumber(totals.value.visual_tested)}`,
         subClass: 'text-success',
+        metric: 'visual_failed',
+        detailTitle: t('Welds that failed visual inspection'),
       },
       passRateCard('VT', 'ShieldIcon', 'light-success'),
       passRateCard('RT', 'RadioIcon', 'light-primary'),
       passRateCard('MT', 'MagnetIcon', 'light-info'),
       passRateCard('PT', 'DropletIcon', 'light-warning'),
     ])
+
+    // ---- drill-downs -----------------------------------------------------
+
+    const showDetails = ref(false)
+    const detailLoading = ref(false)
+    const detailView = ref('welds')
+    const detailTitle = ref('')
+    const detailSubtitle = ref('')
+    const detailRows = ref([])
+
+    const weldDetailFields = [
+      { key: 'weld_label', label: t('Weld No.') },
+      { key: 'type', label: t('Type') },
+      { key: 'project_name', label: t('Project') },
+      { key: 'drawing_no', label: t('Drawing No.') },
+      { key: 'weld_date', label: t('Date') },
+      { key: 'welder_id', label: t('Welder') },
+      { key: 'wps_name', label: t('WPS') },
+      { key: 'visual_inspection', label: t('Visual') },
+      { key: 'repair_reason_label', label: t('Repair Reason') },
+      { key: 'ndt_accepted', label: t('NDT Result') },
+    ]
+
+    const projectDetailFields = [
+      { key: 'project_no', label: t('Project No.') },
+      { key: 'project_name', label: t('Project') },
+      { key: 'welds', label: t('Welds'), thClass: 'text-center', tdClass: 'text-center' },
+      { key: 'repairs', label: t('Repairs'), thClass: 'text-center', tdClass: 'text-center' },
+      { key: 'repair_rate', label: t('Repair rate'), thClass: 'text-right', tdClass: 'text-right' },
+    ]
+
+    const methodDetailFields = [
+      { key: 'method', label: t('Method') },
+      { key: 'requested', label: t('Requested'), thClass: 'text-center', tdClass: 'text-center' },
+      { key: 'tests', label: t('With a result'), thClass: 'text-center', tdClass: 'text-center' },
+      { key: 'passed', label: t('Accepted'), thClass: 'text-center', tdClass: 'text-center' },
+      { key: 'failed', label: t('Rejected'), thClass: 'text-center', tdClass: 'text-center' },
+      { key: 'awaiting', label: t('Awaiting result'), thClass: 'text-center', tdClass: 'text-center' },
+      { key: 'pass_rate', label: t('Pass rate'), thClass: 'text-right', tdClass: 'text-right' },
+    ]
+
+    // The summary table shows the headline; the drill-down splits it into the
+    // parts a reader has to guess at otherwise.
+    const methodDetailRows = computed(() => methodRows.value.map(m => ({
+      ...m,
+      failed: (m.tests || 0) - (m.passed || 0),
+      awaiting: (m.requested || 0) - (m.tests || 0),
+    })))
+
+    const closeDetails = () => {
+      showDetails.value = false
+      detailRows.value = []
+      detailSubtitle.value = ''
+    }
+
+    const openTable = view => {
+      detailView.value = view
+      detailTitle.value = view === 'projects' ? t('Welds by project') : t('NDT by method')
+      detailSubtitle.value = view === 'projects'
+        ? `${projects.value.length} ${t('projects with welds in')} ${yearValue()}`
+        : `${formatNumber(totalNdtTests.value)} ${t('tests with a recorded result in')} ${yearValue()}`
+      showDetails.value = true
+    }
+
+    const openWeldDetails = async card => {
+      detailView.value = 'welds'
+      detailTitle.value = card.detailTitle || card.title
+      detailSubtitle.value = ''
+      detailRows.value = []
+      showDetails.value = true
+      detailLoading.value = true
+
+      try {
+        const response = await axios.get(route('weld-report.details'), {
+          params: { year: yearValue(), metric: card.metric },
+        })
+        const data = response.data.data || {}
+        detailRows.value = data.rows || []
+        detailSubtitle.value = data.truncated
+          ? `${t('Showing the first')} ${data.shown} ${t('of')} ${formatNumber(data.total)}`
+          : `${formatNumber(data.total)} ${data.total === 1 ? t('weld') : t('welds')}`
+      } catch (error) {
+        console.error('Error fetching weld report details:', error)
+        detailSubtitle.value = t('Could not load these welds')
+      } finally {
+        detailLoading.value = false
+      }
+    }
 
     const projectFields = [
       { key: 'project_name', label: t('Project') },
@@ -379,6 +596,19 @@ export default {
       showVolume,
       trendSeries,
       trendChartOptions,
+      showDetails,
+      detailLoading,
+      detailView,
+      detailTitle,
+      detailSubtitle,
+      detailRows,
+      weldDetailFields,
+      projectDetailFields,
+      methodDetailFields,
+      methodDetailRows,
+      openWeldDetails,
+      openTable,
+      closeDetails,
     }
   },
 }
@@ -407,5 +637,10 @@ export default {
 
 .kpi-value {
   font-size: 1.6rem;
+}
+
+.kpi-link {
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 </style>

@@ -6,9 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Weld;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class WeldReportController extends Controller
 {
+    /**
+     * A drill-down is a list to scan, not a data export; anything longer than
+     * this is reported as a count with the first rows shown.
+     */
+    private const DETAIL_LIMIT = 250;
+
     /**
      * Aggregated Weld & NDT figures for the Reports > Weld & NDT tab.
      * Every figure is derived from the weld logs.
@@ -32,6 +39,74 @@ class WeldReportController extends Controller
                 'projects' => $this->projectBreakdown($year, $projectId),
                 'trend' => $this->monthlyTrend($year, $projectId),
                 'available_years' => $this->availableYears(),
+            ],
+        ]);
+    }
+
+    /**
+     * The welds sitting behind a single figure on the report, for the
+     * "View details" drill-downs. Every metric is a filter over the same
+     * population the headline number was counted from.
+     */
+    public function details(Request $request)
+    {
+        $validated = $request->validate([
+            'year' => ['nullable', 'integer', 'min:2000', 'max:2100'],
+            'project_id' => ['nullable', 'exists:projects,id'],
+            'metric' => ['required', Rule::in(array_merge(
+                ['all', 'repairs', 'visual_failed'],
+                array_map(fn ($m) => "{$m}_failed", Weld::NDT_METHODS),
+                array_map(fn ($m) => "{$m}_tested", Weld::NDT_METHODS),
+            ))],
+        ]);
+
+        $year = $validated['year'] ?? (int) now()->format('Y');
+        $metric = $validated['metric'];
+
+        $query = $this->query($year, $validated['project_id'] ?? null)
+            ->with(['wps', 'weldLog.project']);
+
+        if ($metric === 'repairs') {
+            $query->where('type', Weld::TYPE_REPAIR);
+        } elseif ($metric === 'visual_failed') {
+            $query->where('visual_inspection', 'not_ok');
+        } elseif (str_ends_with($metric, '_failed')) {
+            $method = str_replace('_failed', '', $metric);
+            $query->where("ndt_{$method}", true)->where("ndt_{$method}_result", 'rejected');
+        } elseif (str_ends_with($metric, '_tested')) {
+            $method = str_replace('_tested', '', $metric);
+            $query->where("ndt_{$method}", true)->whereNotNull("ndt_{$method}_result");
+        }
+
+        $total = (clone $query)->count();
+
+        $welds = $query
+            ->orderBy('welds.weld_date')
+            ->orderBy('welds.weld_no')
+            ->orderBy('welds.repair_no')
+            ->limit(self::DETAIL_LIMIT)
+            ->get();
+
+        return response()->json([
+            'message' => 'Weld report details retrieved successfully.',
+            'data' => [
+                'metric' => $metric,
+                'total' => $total,
+                'shown' => $welds->count(),
+                'truncated' => $total > $welds->count(),
+                'rows' => $welds->map(fn (Weld $weld) => [
+                    'id' => $weld->id,
+                    'weld_label' => $weld->weld_label,
+                    'type' => $weld->type,
+                    'project_name' => $weld->weldLog?->project?->name,
+                    'drawing_no' => $weld->weldLog?->drawing_no,
+                    'weld_date' => $weld->weld_date?->format('Y-m-d'),
+                    'welder_id' => $weld->welder_id,
+                    'wps_name' => $weld->wps?->name,
+                    'visual_inspection' => $weld->visual_inspection,
+                    'repair_reason_label' => $weld->repair_reason_label,
+                    'ndt_accepted' => $weld->ndt_accepted,
+                ])->all(),
             ],
         ]);
     }

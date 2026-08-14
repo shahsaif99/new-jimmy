@@ -173,6 +173,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('weld-logs/{weldLog}/export-pdf', [WeldLogController::class, 'exportPdf'])->name('weld-logs.export-pdf');
     Route::get('weld-logs/{weldLog}/export-xlsx', [WeldLogController::class, 'exportXlsx'])->name('weld-logs.export-xlsx');
     Route::get('weld-report', [WeldReportController::class, 'index'])->name('weld-report.index');
+    Route::get('weld-report-details', [WeldReportController::class, 'details'])->name('weld-report.details');
 
     Route::apiResource('task', TaskController::class);
     Route::put('task-update-status/{id}', [TaskController::class, 'updateStatus'])->name('task.update.status');
