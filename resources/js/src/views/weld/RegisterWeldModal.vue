@@ -99,12 +99,16 @@
         </b-col>
       </b-row>
 
-      <b-row v-if="weldForm.ndt_rt || weldForm.ndt_mt || weldForm.ndt_pt || weldForm.ndt_vt" class="mt-2">
-        <b-col md="6">
-          <b-form-group label="NDT Result" label-for="w-ndt-result">
+      <b-row v-if="selectedMethods.length" class="mt-2">
+        <b-col
+          v-for="method in selectedMethods"
+          :key="method.key"
+          md="3"
+        >
+          <b-form-group :label="`${method.label} Result`" :label-for="`w-ndt-${method.key}-result`">
             <b-form-select
-              id="w-ndt-result"
-              v-model="weldForm.ndt_accepted"
+              :id="`w-ndt-${method.key}-result`"
+              v-model="weldForm[`ndt_${method.key}_result`]"
               :options="ndtResultOptions"
             />
           </b-form-group>
@@ -189,12 +193,24 @@ export default {
       { value: 'rejected', text: 'Rejected' },
     ]
 
+    const NDT_METHODS = [
+      { key: 'rt', label: 'RT' },
+      { key: 'mt', label: 'MT' },
+      { key: 'pt', label: 'PT' },
+      { key: 'vt', label: 'VT' },
+    ]
+
+    // A result is only asked for on the methods actually being run.
+    const selectedMethods = computed(() => NDT_METHODS.filter(m => weldForm[`ndt_${m.key}`]))
+
     const isDuplicateWeldNo = computed(() => {
       const welds = props.weldLog?.welds || []
       const currentNo = weldForm.weld_no
       if (!currentNo) return false
       return welds.some((w) => {
         if (props.editWeld && w.id === props.editWeld.id) return false
+        // Repairs share their original's weld number, so they never clash.
+        if (w.type === 'repair') return false
         return Number(w.weld_no) === Number(currentNo)
       })
     })
@@ -240,6 +256,9 @@ export default {
             weldForm.set({
               weld_log_id: props.editWeld.weld_log_id,
               weld_no: props.editWeld.weld_no,
+              type: props.editWeld.type || 'weld',
+              original_weld_id: props.editWeld.original_weld_id,
+              repair_reason: props.editWeld.repair_reason,
               wps_id: props.editWeld.wps_id,
               welder_id: props.editWeld.welder_id,
               weld_date: props.editWeld.weld_date,
@@ -249,6 +268,10 @@ export default {
               ndt_pt: props.editWeld.ndt_pt,
               ndt_vt: props.editWeld.ndt_vt,
               ndt_accepted: props.editWeld.ndt_accepted,
+              ndt_rt_result: props.editWeld.ndt_rt_result,
+              ndt_mt_result: props.editWeld.ndt_mt_result,
+              ndt_pt_result: props.editWeld.ndt_pt_result,
+              ndt_vt_result: props.editWeld.ndt_vt_result,
             })
           } else if (props.weldLog) {
             weldForm.reset()
@@ -263,6 +286,7 @@ export default {
       weldForm,
       apiHelpers,
       isDuplicateWeldNo,
+      selectedMethods,
       wpsOptions,
       visualOptions,
       ndtResultOptions,
