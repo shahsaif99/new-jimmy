@@ -620,11 +620,11 @@ export default {
       const mt = w.ndt_mt ? '&#10003;' : ''
       const vt = w.ndt_vt ? '&#10003;' : ''
       const accepted = w.ndt_accepted === 'accepted' ? 'Acc.' : (w.ndt_accepted === 'rejected' ? 'Rej.' : '')
-      const type = w.type === 'repair' ? 'Repair' : 'Weld'
+      // No Type column here by client request; a repair is still identifiable
+      // because its weld number reads "5 R1".
       const weldNo = w.weld_label || w.weld_no || ''
       return `<tr>
         <td style="${cellBorder} ${cellPad} ${centerText}">${weldNo}</td>
-        <td style="${cellBorder} ${cellPad} ${centerText}">${type}</td>
         <td style="${cellBorder} ${cellPad} ${centerText}">${w.welder_id || ''}</td>
         <td style="${cellBorder} ${cellPad} ${centerText}">${w.wps_name || ''}</td>
         <td style="${cellBorder} ${cellPad} ${centerText}">${date}</td>
@@ -638,7 +638,7 @@ export default {
     }
 
     const buildEmptyRow = (cellBorder, cellPad) => {
-      const cells = Array(11).fill(`<td style="${cellBorder} ${cellPad}">&nbsp;</td>`).join('')
+      const cells = Array(10).fill(`<td style="${cellBorder} ${cellPad}">&nbsp;</td>`).join('')
       return `<tr>${cells}</tr>`
     }
 
@@ -673,25 +673,23 @@ export default {
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; margin-top: -2px;">
             <colgroup>
               <col style="width: 8%;">
-              <col style="width: 7%;">
+              <col style="width: 9%;">
+              <col style="width: 9%;">
+              <col style="width: 12%;">
+              <col style="width: 9%;">
               <col style="width: 8%;">
-              <col style="width: 9%;">
-              <col style="width: 11%;">
-              <col style="width: 9%;">
-              <col style="width: 7%;">
-              <col style="width: 7%;">
-              <col style="width: 7%;">
-              <col style="width: 7%;">
-              <col style="width: 13%;">
+              <col style="width: 8%;">
+              <col style="width: 8%;">
+              <col style="width: 8%;">
+              <col style="width: 14%;">
             </colgroup>
             <tr>
-              <td colspan="4" style="border: 1px solid #000; padding: 4px;">&nbsp;</td>
+              <td colspan="3" style="border: 1px solid #000; padding: 4px;">&nbsp;</td>
               <td colspan="2" style="border: 1px solid #000; text-align: center; font-weight: bold; padding: 4px;">Welder control</td>
               <td colspan="5" style="border: 1px solid #000; text-align: center; font-weight: bold; padding: 4px;">3. parts control</td>
             </tr>
             <tr style="font-weight: bold; text-align: center;">
               <td style="${cellBorder} padding: 6px;">Weld No.</td>
-              <td style="${cellBorder} padding: 6px;">Type</td>
               <td style="${cellBorder} padding: 6px;">Welder ID</td>
               <td style="${cellBorder} padding: 6px;">WPS No.</td>
               <td style="${cellBorder} padding: 6px;">End weld</td>

@@ -150,12 +150,23 @@
         </div>
       </b-overlay>
 
-      <!-- Pagination -->
-      <div v-if="pagination.total > pagination.per_page" class="d-flex justify-content-end mt-2">
+      <!-- Pagination: shown whenever there are rows, so the page-size control is
+           reachable even when everything fits on one page. -->
+      <div v-if="pagination.total" class="d-flex justify-content-end align-items-center mt-2">
+        <span class="text-muted mr-50">Show</span>
+        <b-form-select
+          v-model="pagination.per_page"
+          :options="perPageOptions"
+          size="sm"
+          style="width: 5rem"
+          @change="onPerPageChange"
+        />
+        <span class="text-muted ml-50 mr-1">entries</span>
         <b-pagination
           v-model="pagination.current_page"
           :total-rows="pagination.total"
           :per-page="pagination.per_page"
+          class="mb-0"
           @change="onPageChange"
         />
       </div>
@@ -334,6 +345,16 @@ export default {
       fetchWps()
     }
 
+    const perPageOptions = [10, 25, 50, 100]
+
+    // Changing the page size while deep in the list would land on a page that
+    // no longer exists, so go back to the first.
+    const onPerPageChange = (size) => {
+      pagination.per_page = size
+      pagination.current_page = 1
+      fetchWps()
+    }
+
     const downloadOverview = () => {
       const data = wpsList.value.map((w) => ({
         Name: w.name || '',
@@ -412,6 +433,8 @@ export default {
       openAddToProject,
       onProjectSelected,
       onPageChange,
+      perPageOptions,
+      onPerPageChange,
       downloadOverview,
       onDownload,
     }
