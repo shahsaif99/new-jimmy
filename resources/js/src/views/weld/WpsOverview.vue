@@ -276,7 +276,9 @@ export default {
       { key: 'material_group', label: 'Group', sortable: true, thClass: 'text-center', tdClass: 'text-center' },
       { key: 'thickness', label: 'Thickness', sortable: false, thClass: 'text-center', tdClass: 'text-center' },
       { key: 'diameter', label: 'Diameter', sortable: false, thClass: 'text-center', tdClass: 'text-center' },
-      { key: 'standard', label: 'Standard', sortable: false, formatter: (val) => (val && val.length ? val.join(', ') : '-') },
+      // A b-table formatter that throws blanks the whole grid, not just its own
+      // cell, so a standard stored as a bare string is tolerated here.
+      { key: 'standard', label: 'Standard', sortable: false, formatter: (val) => { if (!val || !val.length) return '-'; return Array.isArray(val) ? val.join(', ') : String(val) } },
       { key: 'actions', label: '', sortable: false, thStyle: { width: '50px' }, tdClass: 'text-center' },
     ]
 
