@@ -150,12 +150,23 @@
         </div>
       </b-overlay>
 
-      <!-- Pagination -->
-      <div v-if="pagination.total > pagination.per_page" class="d-flex justify-content-end mt-2">
+      <!-- Pagination: shown whenever there are rows, so the page-size control is
+           reachable even when everything fits on one page. -->
+      <div v-if="pagination.total" class="d-flex justify-content-end align-items-center mt-2">
+        <span class="text-muted mr-50">Show</span>
+        <b-form-select
+          v-model="pagination.per_page"
+          :options="perPageOptions"
+          size="sm"
+          style="width: 5rem"
+          @change="onPerPageChange"
+        />
+        <span class="text-muted ml-50 mr-1">entries</span>
         <b-pagination
           v-model="pagination.current_page"
           :total-rows="pagination.total"
           :per-page="pagination.per_page"
+          class="mb-0"
           @change="onPageChange"
         />
       </div>
@@ -265,7 +276,9 @@ export default {
       { key: 'material_group', label: 'Group', sortable: true, thClass: 'text-center', tdClass: 'text-center' },
       { key: 'thickness', label: 'Thickness', sortable: false, thClass: 'text-center', tdClass: 'text-center' },
       { key: 'diameter', label: 'Diameter', sortable: false, thClass: 'text-center', tdClass: 'text-center' },
-      { key: 'standard', label: 'Standard', sortable: false, formatter: (val) => (val && val.length ? val.join(', ') : '-') },
+      // A b-table formatter that throws blanks the whole grid, not just its own
+      // cell, so a standard stored as a bare string is tolerated here.
+      { key: 'standard', label: 'Standard', sortable: false, formatter: (val) => { if (!val || !val.length) return '-'; return Array.isArray(val) ? val.join(', ') : String(val) } },
       { key: 'actions', label: '', sortable: false, thStyle: { width: '50px' }, tdClass: 'text-center' },
     ]
 
@@ -331,6 +344,16 @@ export default {
 
     const onPageChange = (page) => {
       pagination.current_page = page
+      fetchWps()
+    }
+
+    const perPageOptions = [10, 25, 50, 100]
+
+    // Changing the page size while deep in the list would land on a page that
+    // no longer exists, so go back to the first.
+    const onPerPageChange = (size) => {
+      pagination.per_page = size
+      pagination.current_page = 1
       fetchWps()
     }
 
@@ -412,6 +435,8 @@ export default {
       openAddToProject,
       onProjectSelected,
       onPageChange,
+      perPageOptions,
+      onPerPageChange,
       downloadOverview,
       onDownload,
     }

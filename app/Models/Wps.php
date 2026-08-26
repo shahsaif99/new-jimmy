@@ -55,7 +55,9 @@ class Wps extends Model
             ->when($request->project_id, fn($q, $projectId) => $q->where('project_id', $projectId))
             ->when($request->welding_process, fn($q, $val) => $q->where('welding_process', $val))
             ->when($request->material_group, fn($q, $val) => $q->where('material_group', $val))
-            ->latest('id');
+            // Welders look a WPS up by its number, so the list reads A-Z rather
+            // than newest-first.
+            ->orderBy('name');
     }
 
     public function project(): BelongsTo
