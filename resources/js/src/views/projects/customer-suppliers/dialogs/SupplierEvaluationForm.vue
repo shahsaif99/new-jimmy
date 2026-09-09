@@ -62,6 +62,7 @@
                     min="0"
                     max="100"
                     size="sm"
+                    required
                     class="cs-score-input"
                   />
                 </b-td>
@@ -173,6 +174,7 @@ export default {
     ]
 
     const totalScore = computed(() => computeScore(evaluationForm.scores || {}))
+
 
     const meetsRequirements = computed(() => {
       if (resultChoice.value) return resultChoice.value === 'meets_requirements'
