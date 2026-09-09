@@ -265,8 +265,10 @@ export default {
       const meetsRequirements = evaluations.value.filter(
         d => d.status === 'meets_requirements'
       ).length
+      // The column was renamed to not_meet_requirements back in Feb 2025, so
+      // this had been counting a value the enum can no longer hold.
       const notMeetsRequirements = evaluations.value.filter(
-        d => d.status === 'does_not_meet_requirements'
+        d => d.status === 'not_meet_requirements'
       ).length
       return [meetsRequirements, notMeetsRequirements]
     })
