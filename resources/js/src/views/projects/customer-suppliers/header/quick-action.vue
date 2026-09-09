@@ -1,231 +1,157 @@
 <template>
-    <div id="task-headers" style="gap: 10px" class="mb-2 d-flex flex-wrap justify-content-between">
-        <div style="gap: 10px" class="d-flex  align-items-center">
-            <b-dropdown id="filters" toggle-class="text-decoration-none" no-caret variant="outline-primary">
-                <template #button-content>
-                    <div class="flex gap-1">
-                        <feather-icon icon="SlidersIcon" size="16" />
-                        <span>Filters</span>
-                    </div>
-                </template>
-                <div class="filter-menu">
-                    <div class="d-flex justify-content-between px-2 py-1 align-items-center">
-                        <h3 class="">Filters</h3>
-                        <span @click="filters.toggleExpand" class="cursor-pointer">{{
-                            filters.expandAll
-                                ? "Collapse All"
-                                : "Expand All"
-                        }}</span>
-                    </div>
-                    <div class="card-accordion" v-for="(item, index) in filters.accordion" :key="index">
-                        <div class="card-accordion-header" @click="toggleExpand(item)">
-                            <span class="px-1 text-capitalize">{{ item.label }}
-                            </span>
-                            <div class="icon">
-                                <feather-icon v-if="!item.isExpand" icon="ChevronDownIcon" size="16" />
-                                <feather-icon v-else icon="ChevronUpIcon" size="16" />
-                            </div>
-                        </div>
+  <div class="cs-toolbar mb-2">
+    <b-input-group class="input-group-merge cs-search">
+      <b-input-group-prepend is-text>
+        <feather-icon icon="SearchIcon" size="14" />
+      </b-input-group-prepend>
+      <b-form-input
+        v-model="filters.search"
+        debounce="400"
+        :placeholder="t('Search by name, organization number, email, contact person...')"
+      />
+    </b-input-group>
 
+    <b-form-group :label="t('Type / Role')" class="mb-0 cs-select">
+      <b-form-select v-model="filters.type" :options="typeFilterOptions" />
+    </b-form-group>
 
-                        <div class="card-accordion-body" :ref="'content' + item.id" :style="[
-                            item.isExpand
-                                ? { height: item.computedHeight }
-                                : {},
-                        ]">
-                            <div class="card-accordion-content px-1">
-                                <div>
-                                    <b-form-group v-slot="{ ariaDescribedby }">
-                                        <b-form-checkbox v-for="(
-                                                option, index
-                                            ) in item.options" :value="option" class="mt-1 text-capitalize"
-                                            v-model="item.model" :key="index">
-                                            {{ option.replaceAll('_', " ") }}
-                                        </b-form-checkbox>
-                                    </b-form-group>
-                                </div>
+    <b-form-group :label="t('Status (Suppliers only)')" class="mb-0 cs-select">
+      <b-form-select v-model="filters.evaluation_status" :options="evaluationStatusOptions" />
+    </b-form-group>
 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </b-dropdown>
-            <div>
-                <date-picker v-model="filters.date" :shortcuts="filters.dateShortcuts" type="date" range
-                    placeholder="Select date range" style="width: 180px !important"></date-picker>
-            </div>
-            <b-form-input variant="outline-primary" debounce="500" v-model="filters.search" 
-            placeholder="Search..." />
+    <b-dropdown variant="outline-primary" no-caret right class="cs-action">
+      <template #button-content>
+        <feather-icon icon="FilterIcon" size="14" class="mr-50" />
+        {{ t('Filters') }}
+        <b-badge v-if="activeFilters" variant="primary" class="ml-50">{{ activeFilters }}</b-badge>
+      </template>
+      <div class="px-1 py-50 cs-filter-panel">
+        <b-form-group :label="t('Record status')" class="mb-1">
+          <b-form-select v-model="filters.is_active" :options="activeFilterOptions" size="sm" />
+        </b-form-group>
+        <b-form-group :label="t('Management system')" class="mb-1">
+          <b-form-select v-model="filters.system" :options="systemFilterOptions" size="sm" />
+        </b-form-group>
+        <b-form-group :label="t('Supplier of')" class="mb-0">
+          <b-form-select v-model="filters.supplier_of" :options="supplierOfFilterOptions" size="sm" />
+        </b-form-group>
+      </div>
+    </b-dropdown>
 
-         
-        </div>
-        <div class="d-flex flex-wrap align-items-center">
-            <b-dropdown id="showColumn" toggle-class="text-decoration-none" no-caret variant="outline-white" size="sm">
-                <template #button-content>
-                    <feather-icon class="text-primary" icon="ListIcon" size="20" />
-                </template>
-                <div id="list-dropdown">
-                    <div class="cursor-pointer hide-column__item" v-for="(col, key, index) in columns.slice(1, columns.length)" :key="key">
-                        <div class="d-flex align-items-center justify-content-between ">
-                            <span class="px-1" style="margin-top: 2px;"> {{ col.label }} </span>
+    <b-button variant="outline-secondary" class="cs-action" @click="onClear">
+      <feather-icon icon="RefreshCcwIcon" size="14" class="mr-50" />
+      {{ t('Clear') }}
+    </b-button>
 
-                            <b-form-checkbox style="margin-bottom: 4px;" v-model="col.visible" name="check-button"
-                                size="lg" switch>
+    <b-button variant="outline-secondary" class="cs-action" @click="$emit('export')">
+      <feather-icon icon="DownloadIcon" size="14" class="mr-50" />
+      {{ t('Export') }}
+    </b-button>
 
-                            </b-form-checkbox>
-                        </div>
-                    </div>
-                </div>
-            </b-dropdown>
-
-
-            <div style="gap: 10px" class="d-flex mx-2">
-                <b-button @click="dialog.toggleDialog('customerSupplier', 'add')" variant="primary" size="sm">
-                    <feather-icon icon="PlusIcon" size="16" /> Add Customer/Supplier
-                </b-button>
-            </div>
-        </div>
-    </div>
+    <b-button variant="primary" class="cs-action" @click="$emit('add')">
+      <feather-icon icon="PlusIcon" size="14" class="mr-50" />
+      {{ t('Add') }}
+    </b-button>
+  </div>
 </template>
 
 <script>
-import { onMounted, getCurrentInstance } from "@vue/composition-api";
-import DatePicker from "vue2-datepicker";
-import "vue2-datepicker/scss/index.scss";
-import useCustomerSupplier from "@/composables/customer-suppliers";
-
-
 import {
-    BButton,
-    BDropdown,
-    BDropdownItem,
-    BOverlay,
-    BFormDatepicker,
-    BListGroup,
-    BListGroupItem,
-    BCard,
-    BCardHeader,
-    BCollapse,
-    BFormCheckboxGroup,
-    BFormCheckbox,
-    BFormGroup,
-    BAvatar,
-    BLink,
-    BMedia,
-    BFormInput
-} from "bootstrap-vue";
+  BButton,
+  BDropdown,
+  BFormGroup,
+  BFormInput,
+  BFormSelect,
+  BInputGroup,
+  BInputGroupPrepend,
+  BBadge,
+} from 'bootstrap-vue'
+import { computed } from '@vue/composition-api'
+import { useUtils as useI18nUtils } from '@core/libs/i18n'
+import useCustomerSupplier, {
+  typeFilterOptions,
+  evaluationStatusOptions,
+  managementSystems,
+  supplierOfOptions,
+} from '@/composables/customer-suppliers'
 
 export default {
-    components: {
-        BButton,
-        BDropdown,
-        BDropdownItem,
-        BOverlay,
-        BFormDatepicker,
-        BListGroup,
-        BListGroupItem,
-        BCard,
-        BCardHeader,
-        BCollapse,
-        DatePicker,
-        BFormCheckboxGroup,
-        BFormCheckbox,
-        BFormGroup,
-        BAvatar,
-        BLink,
-        BMedia,
-        BFormInput
-    },
+  name: 'CustomerSupplierToolbar',
+  components: {
+    BButton,
+    BDropdown,
+    BFormGroup,
+    BFormInput,
+    BFormSelect,
+    BInputGroup,
+    BInputGroupPrepend,
+    BBadge,
+  },
+  setup() {
+    const { t } = useI18nUtils()
+    const { filters } = useCustomerSupplier()
 
-    setup() {
-        const {
-            filters,
-            columns,
-            dialog
-        } = useCustomerSupplier();
+    const activeFilterOptions = [
+      { value: '', text: 'All' },
+      { value: true, text: 'Active' },
+      { value: false, text: 'Deactivated' },
+    ]
 
-        const getComputedHeight = () => {
-            filters.accordion.forEach((item) => {
-                const content =
-                    getCurrentInstance().refs["content" + item.id][0];
+    const systemFilterOptions = [
+      { value: '', text: 'All' },
+      ...managementSystems,
+    ]
 
-                content.style.height = "auto";
-                content.style.position = "absolute";
-                content.style.visibility = "hidden";
-                content.style.display = "block";
+    const supplierOfFilterOptions = [
+      { value: '', text: 'All' },
+      ...supplierOfOptions,
+    ]
 
-                const height = getComputedStyle(content).height;
-                item.computedHeight = height;
+    const activeFilters = computed(() => filters.activeCount())
 
-                content.style.height = 0;
-                content.style.position = null;
-                content.style.visibility = null;
-                content.style.display = null;
-            });
-        };
+    const onClear = () => {
+      filters.reset()
+    }
 
-        const toggleExpand = (item) => {
-            item.isExpand = !item.isExpand;
-        };
-
-        onMounted(async () => {
-            getComputedHeight();
-        });
-
-        return {
-            dialog,
-            filters,
-            columns,
-            toggleExpand,
-        };
-    },
-};
+    return {
+      t,
+      filters,
+      typeFilterOptions,
+      evaluationStatusOptions,
+      activeFilterOptions,
+      systemFilterOptions,
+      supplierOfFilterOptions,
+      activeFilters,
+      onClear,
+    }
+  },
+}
 </script>
 
-<style lang="scss">
-.card-accordion {
-    height: auto;
-    display: block;
-    position: relative;
-    margin: 0px;
-    padding: 0 10px;
-    border-top: 1px solid #d8d8d8;
+<style scoped lang="scss">
+.cs-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
 }
 
-.card-accordion-header {
-    padding: 15px 0;
+.cs-search {
+  flex: 1 1 18rem;
+  min-width: 14rem;
 }
 
-.card-accordion-header {
-    cursor: pointer;
+.cs-select {
+  flex: 0 1 14rem;
+  min-width: 11rem;
 }
 
-.card-accordion-header span {
-    font-weight: 600;
+// Buttons sit on the input baseline rather than the label baseline.
+.cs-action {
+  margin-bottom: 1px;
 }
 
-.card-accordion-body {
-    height: 0;
-    overflow: hidden;
-    transition: 0.3s;
-}
-
-.icon {
-    float: right;
-}
-
-#task-headers .dropdown-menu {
-    min-width: 250px;
-}
-
-.filter-menu {
-    max-height: 600px;
-    overflow: auto;
-}
-
-.hide-column__item {
-    .custom-switch .custom-control-label {
-        padding-left: 0px !important;
-    }
+.cs-filter-panel {
+  min-width: 15rem;
 }
 </style>

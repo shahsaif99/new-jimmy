@@ -45,6 +45,33 @@ const routes = [
     },
   },
   {
+    path: 'customer-supplier/:id',
+    name: 'customer-supplier-detail',
+    component: () => import('@/views/projects/customer-suppliers/detail.vue'),
+    meta: {
+      pageTitle: 'Customer/Supplier',
+      layout: 'vertical',
+      resource: 'all',
+      action: 'projects-listings',
+      breadcrumb: [
+        {
+          text: 'Projects',
+          active: false,
+          to: { name: 'projects' },
+        },
+        {
+          text: 'Customer/Supplier',
+          active: false,
+          to: { name: 'customer-supplier' },
+        },
+        {
+          text: 'Details',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
     path: 'project/:id',
     name: 'project',
     component: () => import('@/views/projects/project.vue'),
