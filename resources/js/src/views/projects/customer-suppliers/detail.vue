@@ -437,8 +437,9 @@ export default {
 
     const formatSize = (bytes) => {
       if (!bytes) return ''
+      if (bytes < 1024) return `${bytes} B`
       const mb = bytes / (1024 * 1024)
-      return mb >= 1 ? `${mb.toFixed(2)} MB` : `${(bytes / 1024).toFixed(0)} KB`
+      return mb >= 1 ? `${mb.toFixed(2)} MB` : `${(bytes / 1024).toFixed(1)} KB`
     }
 
     const systemLabel = (value) =>
