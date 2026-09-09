@@ -108,8 +108,12 @@ class SupplierEvaluationController extends Controller
             'status' => ['nullable', Rule::in(array_keys(SupplierEvaluation::STATUSES))],
         ];
 
+        // Every criterion carries a fixed weight toward a score out of 100, so a
+        // blank one is not "unknown" — it is arithmetically a zero. Half a sheet
+        // filled in would quietly score low and mark the supplier Not
+        // Acceptable, so an evaluation has to be complete to be recorded.
         foreach (SupplierEvaluationCriteria::keys() as $key) {
-            $rules["scores.{$key}"] = ['nullable', 'numeric', 'min:0', 'max:100'];
+            $rules["scores.{$key}"] = ['required', 'numeric', 'min:0', 'max:100'];
         }
 
         $validated = $request->validate($rules);

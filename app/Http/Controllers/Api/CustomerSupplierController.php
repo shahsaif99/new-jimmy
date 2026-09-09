@@ -373,8 +373,14 @@ class CustomerSupplierController extends Controller
         }
 
         foreach ($request->file('documents') as $file) {
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('customer_supplier_documents', $fileName, 'public');
+            // The stored name used to be time() plus the original filename, so
+            // two files uploaded in the same second under one name resolved to
+            // the same path: the second silently overwrote the first, and
+            // deleting either removed the file the other still pointed at.
+            // Laravel's own hashed name is unique per file, and keeps a
+            // caller-supplied filename out of the path entirely. The name the
+            // user sees is preserved separately.
+            $filePath = $file->store('customer_supplier_documents', 'public');
 
             $customerSupplier->documents()->create([
                 'file_name' => $file->getClientOriginalName(),
