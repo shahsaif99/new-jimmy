@@ -429,6 +429,12 @@ export default {
 
     const formatDate = (date) => (date ? moment(date).format('L') : '')
 
+    // Translated during setup: t() needs the current instance, which is gone
+    // by the time a click handler runs.
+    const CONFIRM_DELETE_EVALUATION = t('Delete this evaluation?')
+    const CONFIRM_DELETE_DOCUMENT = t('Delete this document?')
+    const CONFIRM_DELETE_RECORD = t('Delete this record and all of its evaluations and documents?')
+
     const formatSize = (bytes) => {
       if (!bytes) return ''
       const mb = bytes / (1024 * 1024)
@@ -475,14 +481,14 @@ export default {
 
     const removeEvaluation = async (evaluation) => {
       // eslint-disable-next-line no-alert
-      if (!confirm(t('Delete this evaluation?'))) return
+      if (!confirm(CONFIRM_DELETE_EVALUATION)) return
       const ok = await deleteEvaluation(evaluation.id)
       if (ok) await load()
     }
 
     const removeDocument = async (document) => {
       // eslint-disable-next-line no-alert
-      if (!confirm(t('Delete this document?'))) return
+      if (!confirm(CONFIRM_DELETE_DOCUMENT)) return
       const ok = await deleteDocument(document.id)
       if (ok) await load()
     }
@@ -493,7 +499,7 @@ export default {
 
     const confirmDelete = async () => {
       // eslint-disable-next-line no-alert
-      if (!confirm(t('Delete this record and all of its evaluations and documents?'))) return
+      if (!confirm(CONFIRM_DELETE_RECORD)) return
       const ok = await deleteCustomerSupplier(record.value.id)
       if (ok) goBack()
     }

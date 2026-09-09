@@ -218,6 +218,10 @@ export default {
 
     const formatDate = (date) => (date ? moment(date).format('ll') : '')
 
+    // t() resolves through getCurrentInstance(), which is null once setup has
+    // returned, so anything said from an event handler is translated up front.
+    const CONFIRM_DELETE_RECORD = t('Delete this record and all of its evaluations and documents?')
+
     const dataMeta = computed(() => {
       const from = pagination.total === 0 ? 0 : (pagination.current_page - 1) * pagination.per_page + 1
       const to = Math.min(pagination.total, pagination.current_page * pagination.per_page)
@@ -265,7 +269,7 @@ export default {
 
     const confirmDelete = async (item) => {
       // eslint-disable-next-line no-alert
-      if (!confirm(t('Delete this record and all of its evaluations and documents?'))) return
+      if (!confirm(CONFIRM_DELETE_RECORD)) return
       const ok = await deleteCustomerSupplier(item.id)
       if (ok) fetchCustomerSuppliers()
     }

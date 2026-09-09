@@ -342,6 +342,9 @@ export default {
 
     const formatDate = (date) => (date ? moment(date).format('L') : '')
 
+    // Translated during setup; t() throws once the instance is no longer current.
+    const CONFIRM_DELETE_EVALUATION = t('Delete this evaluation?')
+
     const searchUsers = (query) => {
       currentPage.value = 1
       searchQuery.value = query
@@ -391,7 +394,7 @@ export default {
 
     const removeEvaluation = async (evaluation) => {
       // eslint-disable-next-line no-alert
-      if (!confirm(t('Delete this evaluation?'))) return
+      if (!confirm(CONFIRM_DELETE_EVALUATION)) return
       const ok = await deleteEvaluation(evaluation.id)
       if (ok && props.record) await fetchEvaluations(props.record.id)
     }
