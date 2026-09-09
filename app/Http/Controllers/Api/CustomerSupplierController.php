@@ -3,20 +3,31 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CustomerSupplier\StoreCustomerSupplierRequest;
+use App\Http\Resources\CustomerSupplierResource;
 use App\Models\CustomerSupplier;
 use App\Models\CustomerSupplierDocument;
 use App\Models\SupplierEvaluation;
-use App\Http\Requests\CustomerSupplier\StoreCustomerSupplierRequest;
-use App\Http\Requests\StoreSupplierEvaluationRequest;
-use App\Http\Resources\CustomerSupplierResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CustomerSupplierController extends Controller
 {
-    // Store a new CustomerSupplier with multiple SupplierEvaluations
+    /** Columns the overview may be sorted by, mapped to their SQL expression. */
+    private const SORTABLE = [
+        'name' => 'customer_suppliers.name',
+        'type' => 'customer_suppliers.type',
+        'organization_number' => 'customer_suppliers.organization_number',
+        'contact_person' => 'customer_suppliers.contact_person',
+        'email' => 'customer_suppliers.email',
+        'evaluation_status' => 'evaluation_status_sql',
+        'latest_score' => 'latest_eval.total_score',
+        'latest_evaluation_date' => 'latest_eval.evaluation_date',
+        'created_at' => 'customer_suppliers.created_at',
+    ];
+
     public function store(StoreCustomerSupplierRequest $request)
     {
         $validated = $request->validated();
@@ -25,37 +36,27 @@ class CustomerSupplierController extends Controller
             unset($validated['status']);
         }
 
-
         return DB::transaction(function () use ($validated, $request) {
-            // Create CustomerSupplier
-            $customerSupplier = CustomerSupplier::create($validated);
+            $customerSupplier = CustomerSupplier::create($this->normalise($validated));
 
-            // Extract and insert SupplierEvaluations if provided
-            $supplierEvaluationsData = $request->input('supplier_evaluation', []);
-            if (!empty($supplierEvaluationsData)) {
-                $customerSupplier->evaluations()->createMany($supplierEvaluationsData);
+            // Evaluations staged in the create form, before the supplier had an id.
+            $staged = $this->stagedEvaluations($request);
+            if (!empty($staged)) {
+                $customerSupplier->evaluations()->createMany($staged);
             }
 
-            // Handle document uploads
-            if ($request->hasFile('documents')) {
-                foreach ($request->file('documents') as $file) {
-                    $fileName = time() . '_' . $file->getClientOriginalName();
-                    $filePath = $file->storeAs('customer_supplier_documents', $fileName, 'public');
+            $this->storeDocuments($request, $customerSupplier);
+            $customerSupplier->recomputeNextEvaluationDate();
 
-                    $customerSupplier->documents()->create([
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_path' => $filePath,
-                        'file_type' => $file->getClientMimeType(),
-                        'file_size' => $file->getSize(),
-                    ]);
-                }
-            }
-
-            return response()->json($customerSupplier->load(['evaluations', 'documents']), 201);
+            return response()->json([
+                'message' => 'Customer/Supplier successfully created.',
+                'data' => new CustomerSupplierResource(
+                    $customerSupplier->load(['evaluations.performedByUser', 'documents', 'customerManager', 'latestEvaluation'])
+                ),
+            ], 201);
         });
     }
 
-    // Update an existing CustomerSupplier along with its SupplierEvaluations
     public function update(StoreCustomerSupplierRequest $request, $id)
     {
         $validated = $request->validated();
@@ -64,101 +65,49 @@ class CustomerSupplierController extends Controller
             unset($validated['status']);
         }
 
-
-        // Find the CustomerSupplier with evaluations
-        $customerSupplier = CustomerSupplier::with('evaluations')->findOrFail($id);
+        $customerSupplier = CustomerSupplier::findOrFail($id);
 
         DB::transaction(function () use ($customerSupplier, $validated, $request) {
-            // Update the CustomerSupplier
-            $customerSupplier->update($validated);
+            $customerSupplier->update($this->normalise($validated));
 
-            // Delete old evaluations
-            $customerSupplier->evaluations()->delete();
+            // Evaluations are their own records with their own endpoints. This
+            // used to delete and recreate them on every save, which threw away
+            // the history the evaluation status is derived from.
+            $this->storeDocuments($request, $customerSupplier);
 
-            // Create new evaluations if data is provided
-            $supplierEvaluationsData = $request->input('supplier_evaluation', []);
-            if (!empty($supplierEvaluationsData)) {
-                $customerSupplier->evaluations()->createMany($supplierEvaluationsData);
-            }
-
-            // Handle document uploads
-            if ($request->hasFile('documents')) {
-                foreach ($request->file('documents') as $file) {
-                    $fileName = time() . '_' . $file->getClientOriginalName();
-                    $filePath = $file->storeAs('customer_supplier_documents', $fileName, 'public');
-
-                    $customerSupplier->documents()->create([
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_path' => $filePath,
-                        'file_type' => $file->getClientMimeType(),
-                        'file_size' => $file->getSize(),
-                    ]);
-                }
-            }
+            // Switching the evaluate flag or the interval moves the due date.
+            $customerSupplier->recomputeNextEvaluationDate();
         });
 
-        return response()->json($customerSupplier->load(['evaluations', 'documents']), 200);
+        return response()->json([
+            'message' => 'Customer/Supplier successfully updated.',
+            'data' => new CustomerSupplierResource(
+                $customerSupplier->fresh()->load(['evaluations.performedByUser', 'documents', 'customerManager', 'latestEvaluation'])
+            ),
+        ]);
     }
 
-    // Show a specific CustomerSupplier with its evaluations
     public function show($id)
     {
-        $customerSupplier = CustomerSupplier::with(['evaluations', 'documents'])->findOrFail($id);
+        $customerSupplier = CustomerSupplier::with([
+            'evaluations' => fn ($q) => $q->with('performedByUser')->orderByDesc('evaluation_date')->orderByDesc('id'),
+            'documents',
+            'customerManager',
+            'latestEvaluation',
+        ])->findOrFail($id);
 
-        return response()->json($customerSupplier);
+        return response()->json([
+            'message' => 'Customer/Supplier retrieved successfully.',
+            'data' => new CustomerSupplierResource($customerSupplier),
+        ]);
     }
 
-    // Get a list of all CustomerSuppliers
     public function index(Request $request)
     {
-        $query = CustomerSupplier::with('documents');
+        $query = $this->filtered($request);
 
-        // Apply filters based on request parameters
-        if ($request->has('type')) {
-            $query->where('type', $request->type);
-        }
-
-        if ($request->has('date')) {
-            $date = $request->input('date');
-
-            // Ensure the date array exists and has valid start & end values
-            if (is_array($date) && count($date) === 2 && strtotime($date[0]) && strtotime($date[1])) {
-                $startDate = $date[0] . ' 00:00:00'; // Start of the day
-                $endDate = $date[1] . ' 23:59:59';   // End of the day
-
-                $query->whereBetween('created_at', [$startDate, $endDate]);
-            }
-        }
-
-        if ($request->has('evaluation')) {
-            $query->where('total_evaluation', $request->evaluation);
-        }
-
-        if ($request->has('system')) {
-            $query->whereJsonContains('management_systems', $request->system);
-        }
-
-        if ($request->has('supplier_of')) {
-            $query->whereJsonContains('supplier_of', $request->supplier_of);
-        }
-
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where('name', 'like', "%$search%");
-        }
-
-        if ($request->has('sortBy')) {
-            $sortBy = $request->input('sortBy');
-            $sortDesc = $request->input('sortDesc') === 'true' ? 'desc' : 'asc';
-
-            $query->orderBy($sortBy, $sortDesc);
-        } else {
-            $query->orderBy('id', 'desc'); // Default sorting
-        }
-
-
-        // Fetch filtered results
-        $customerSuppliers = $query->paginate(10);
+        $perPage = (int) $request->input('perPage', 10);
+        $customerSuppliers = $query->paginate($perPage > 0 ? $perPage : 10);
 
         return response()->json([
             'customerSuppliers' => CustomerSupplierResource::collection($customerSuppliers),
@@ -169,50 +118,95 @@ class CustomerSupplierController extends Controller
                 'current_page' => $customerSuppliers->currentPage(),
                 'total_pages' => $customerSuppliers->lastPage(),
                 'has_more_pages' => $customerSuppliers->hasMorePages(),
-            ]
+            ],
         ]);
     }
 
-    // Delete a specific CustomerSupplier and its SupplierEvaluations
+    /**
+     * The overview as a CSV. Exports everything the current filters match,
+     * not just the page on screen.
+     */
+    public function export(Request $request): StreamedResponse
+    {
+        $rows = $this->filtered($request)->limit(5000)->get();
+        $filename = 'customers-suppliers-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+
+            // Excel opens UTF-8 correctly only when the file announces itself;
+            // without this the Norwegian characters in company names break.
+            fwrite($out, "\xEF\xBB\xBF");
+
+            fputcsv($out, [
+                'Name', 'Type / Role', 'Status', 'Organization Number', 'Contact Person',
+                'Email', 'Telephone', 'Address', 'Postal Code', 'Place',
+                'Customer Manager', 'Evaluation Status', 'Score', 'Latest Evaluation',
+                'Next Evaluation', 'Evaluation Interval (months)', 'Management Systems', 'Supplier Of',
+            ]);
+
+            foreach ($rows as $row) {
+                $status = $row->evaluation_status_sql ?? $row->evaluation_status;
+
+                fputcsv($out, [
+                    $row->name,
+                    $this->typeLabel($row->type),
+                    $row->is_active ? 'Active' : 'Deactivated',
+                    $row->organization_number,
+                    $row->contact_person,
+                    $row->email,
+                    $row->telephone_number,
+                    $row->address,
+                    $row->postal_code,
+                    $row->place,
+                    optional($row->customerManager)->name,
+                    CustomerSupplier::EVALUATION_STATUSES[$status] ?? '',
+                    $row->latest_score,
+                    $row->latest_evaluation_date,
+                    optional($row->next_evaluation_date)->toDateString(),
+                    $row->evaluation_interval_months,
+                    implode(', ', $row->management_systems ?? []),
+                    implode(', ', array_map([$this, 'supplierOfLabel'], $row->supplier_of ?? [])),
+                ]);
+            }
+
+            fclose($out);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
     public function destroy($id)
     {
         $customerSupplier = CustomerSupplier::with('documents')->findOrFail($id);
 
-        // Delete associated document files from storage
         foreach ($customerSupplier->documents as $document) {
             if (Storage::disk('public')->exists($document->file_path)) {
                 Storage::disk('public')->delete($document->file_path);
             }
         }
 
-        // Delete associated documents
         $customerSupplier->documents()->delete();
-
-        // Delete associated evaluations
         $customerSupplier->evaluations()->delete();
-
-        // Delete the CustomerSupplier
         $customerSupplier->delete();
 
         return response()->json(null, 204);
     }
 
-    // Get all supplier evaluations for reports
+    /**
+     * Unchanged shape for the Suppliers report tab, which reads this endpoint.
+     */
     public function getSupplierEvaluations(Request $request)
     {
         $query = SupplierEvaluation::with(['supplier', 'performedByUser']);
 
-        // Filter by year if provided
         if ($request->has('year')) {
-            $year = $request->input('year');
-            $query->whereYear('evaluation_date', $year);
+            $query->whereYear('evaluation_date', $request->input('year'));
         }
 
         $evaluations = $query->orderBy('evaluation_date', 'desc')->get();
 
-        // Get all suppliers (type = 'supplier') for management systems and supplier_of charts
-        // These are not dependent on evaluations
-        $allSuppliers = CustomerSupplier::where('type', 'supplier')->orWhere('type','both')->get();
+        $allSuppliers = CustomerSupplier::where('type', 'supplier')->orWhere('type', 'both')->get();
 
         return response()->json([
             'evaluations' => $evaluations->map(function ($evaluation) {
@@ -249,19 +243,145 @@ class CustomerSupplierController extends Controller
         ]);
     }
 
-    // Delete a specific document
     public function deleteDocument($id)
     {
         $document = CustomerSupplierDocument::findOrFail($id);
 
-        // Delete the file from storage
         if (Storage::disk('public')->exists($document->file_path)) {
             Storage::disk('public')->delete($document->file_path);
         }
 
-        // Delete the document record
         $document->delete();
 
         return response()->json(['message' => 'Document deleted successfully'], 200);
+    }
+
+    /**
+     * Shared by the overview and the export so both honour the same filters.
+     */
+    private function filtered(Request $request)
+    {
+        $query = CustomerSupplier::withEvaluationStatus()->with(['customerManager', 'documents']);
+
+        // "Supplier" means anything that supplies, so records typed as both
+        // belong in either list rather than only under "Customer & Supplier".
+        if ($type = $request->input('type')) {
+            if ($type === CustomerSupplier::TYPE_CUSTOMER) {
+                $query->whereIn('customer_suppliers.type', [CustomerSupplier::TYPE_CUSTOMER, CustomerSupplier::TYPE_BOTH]);
+            } elseif ($type === CustomerSupplier::TYPE_SUPPLIER) {
+                $query->whereIn('customer_suppliers.type', [CustomerSupplier::TYPE_SUPPLIER, CustomerSupplier::TYPE_BOTH]);
+            } else {
+                $query->where('customer_suppliers.type', $type);
+            }
+        }
+
+        if ($status = $request->input('evaluation_status')) {
+            // The derived status is an expression, not a column, so the filter
+            // has to repeat it rather than reference the select alias.
+            $query->whereRaw('(' . CustomerSupplier::evaluationStatusSql() . ') = ?', [$status]);
+        }
+
+        if (!is_null($request->input('is_active')) && $request->input('is_active') !== '') {
+            $query->where('customer_suppliers.is_active', filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN));
+        }
+
+        if ($system = $request->input('system')) {
+            $query->whereJsonContains('management_systems', $system);
+        }
+
+        if ($supplierOf = $request->input('supplier_of')) {
+            $query->whereJsonContains('supplier_of', $supplierOf);
+        }
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_suppliers.name', 'like', "%{$search}%")
+                    ->orWhere('customer_suppliers.organization_number', 'like', "%{$search}%")
+                    ->orWhere('customer_suppliers.email', 'like', "%{$search}%")
+                    ->orWhere('customer_suppliers.contact_person', 'like', "%{$search}%");
+            });
+        }
+
+        $date = $request->input('date');
+        if (is_array($date) && count($date) === 2 && strtotime($date[0]) && strtotime($date[1])) {
+            $query->whereBetween('customer_suppliers.created_at', [$date[0] . ' 00:00:00', $date[1] . ' 23:59:59']);
+        }
+
+        $sortBy = $request->input('sortBy', 'name');
+        $column = self::SORTABLE[$sortBy] ?? self::SORTABLE['name'];
+        $direction = $request->input('sortDesc') === 'true' ? 'desc' : 'asc';
+
+        return $query->orderByRaw("{$column} {$direction}");
+    }
+
+    /**
+     * Evaluation settings only mean something for suppliers, and an interval
+     * without the flag set would silently drive the due date.
+     */
+    private function normalise(array $validated): array
+    {
+        $type = $validated['type'] ?? null;
+        $isSupplier = in_array($type, [CustomerSupplier::TYPE_SUPPLIER, CustomerSupplier::TYPE_BOTH], true);
+
+        if (!$isSupplier) {
+            $validated['should_be_evaluated'] = false;
+            $validated['evaluation_interval_months'] = null;
+        } elseif (empty($validated['should_be_evaluated'])) {
+            $validated['should_be_evaluated'] = false;
+            $validated['evaluation_interval_months'] = null;
+        }
+
+        return $validated;
+    }
+
+    /** The stored slug is not something to put in front of a reader. */
+    private function supplierOfLabel(string $value): string
+    {
+        return [
+            'comprehensive_service' => 'Comprehensive service',
+            'hiring_of_personnel' => 'Hiring of personnel',
+            'subcontractors' => 'Subcontractors',
+            'delivery_of_non_critical_goods' => 'Delivery of non-critical goods',
+            'delivery_of_critical_goods_components' => 'Delivery of critical goods/components',
+        ][$value] ?? $value;
+    }
+
+    private function typeLabel(?string $type): string
+    {
+        return [
+            CustomerSupplier::TYPE_CUSTOMER => 'Customer',
+            CustomerSupplier::TYPE_SUPPLIER => 'Supplier',
+            CustomerSupplier::TYPE_BOTH => 'Customer & Supplier',
+        ][$type] ?? (string) $type;
+    }
+
+    private function stagedEvaluations(Request $request): array
+    {
+        $staged = $request->input('supplier_evaluation', []);
+
+        if (is_string($staged)) {
+            $staged = json_decode($staged, true) ?: [];
+        }
+
+        return is_array($staged) ? $staged : [];
+    }
+
+    private function storeDocuments(Request $request, CustomerSupplier $customerSupplier): void
+    {
+        if (!$request->hasFile('documents')) {
+            return;
+        }
+
+        foreach ($request->file('documents') as $file) {
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('customer_supplier_documents', $fileName, 'public');
+
+            $customerSupplier->documents()->create([
+                'file_name' => $file->getClientOriginalName(),
+                'file_path' => $filePath,
+                'file_type' => $file->getClientMimeType(),
+                'file_size' => $file->getSize(),
+            ]);
+        }
     }
 }

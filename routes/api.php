@@ -37,6 +37,7 @@ use App\Http\Controllers\UserChecklistController;
 use App\Http\Controllers\Api\EquipmentCategoryController;
 use App\Http\Controllers\Api\StorageLocationController;
 use App\Http\Controllers\Api\CustomerSupplierController;
+use App\Http\Controllers\Api\SupplierEvaluationController;
 use App\Http\Controllers\Api\CompanyInformationController;
 use App\Http\Controllers\Api\CompanyLocationController;
 use App\Http\Controllers\Api\TaskCommentController;
@@ -114,7 +115,17 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     ]);
 
     Route::delete('/customer-supplier-documents/{id}', [CustomerSupplierController::class, 'deleteDocument'])->name('customer-supplier-documents.destroy');
+    Route::get('/customers-suppliers-export', [CustomerSupplierController::class, 'export'])->name('customers-suppliers.export');
+
+    // Kept for the Suppliers report tab, which reads the aggregate shape.
     Route::get('/supplier-evaluations', [CustomerSupplierController::class, 'getSupplierEvaluations'])->name('supplier-evaluations.index');
+
+    Route::get('/supplier-evaluation-criteria', [SupplierEvaluationController::class, 'criteria'])->name('supplier-evaluations.criteria');
+    Route::get('/supplier-evaluation', [SupplierEvaluationController::class, 'index'])->name('supplier-evaluation.index');
+    Route::post('/supplier-evaluation', [SupplierEvaluationController::class, 'store'])->name('supplier-evaluation.store');
+    Route::get('/supplier-evaluation/{supplierEvaluation}', [SupplierEvaluationController::class, 'show'])->name('supplier-evaluation.show');
+    Route::put('/supplier-evaluation/{supplierEvaluation}', [SupplierEvaluationController::class, 'update'])->name('supplier-evaluation.update');
+    Route::delete('/supplier-evaluation/{supplierEvaluation}', [SupplierEvaluationController::class, 'destroy'])->name('supplier-evaluation.destroy');
 
     // Company Information routes
     Route::get('/company-information', [CompanyInformationController::class, 'show'])->name('company-information.show');
