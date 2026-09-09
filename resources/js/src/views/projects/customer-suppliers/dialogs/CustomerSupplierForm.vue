@@ -91,6 +91,12 @@
               <b-form-input v-model="form.address" :placeholder="t('Enter address')" />
             </b-form-group>
 
+            <!-- Not on the client's mockup, but it existed on the old form and
+                 the record still stores and displays it. -->
+            <b-form-group :label="t('Website')">
+              <b-form-input v-model="form.website" :placeholder="t('Enter website')" />
+            </b-form-group>
+
             <b-row>
               <b-col cols="6">
                 <b-form-group :label="t('Postal code')">
