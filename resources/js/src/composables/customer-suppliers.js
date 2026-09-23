@@ -340,6 +340,13 @@ const errorHandler = (error) => {
     apiHelpers.toast.error("An unexpected error occurred.");
 };
 
+// The project dialogs page this list with an infinite-scroll select and need
+// to know whether another page exists.
+const isNextPageAvailable = computed(() => {
+    const totalPages = Math.ceil(pagination.total / pagination.per_page);
+    return pagination.current_page < totalPages;
+});
+
 export default function useCustomerSupplier() {
     const reset = () => {
         form.reset();
@@ -572,6 +579,7 @@ export default function useCustomerSupplier() {
     return {
         // state
         customerSuppliers,
+        isNextPageAvailable,
         current,
         evaluations,
         criteriaGroups,
