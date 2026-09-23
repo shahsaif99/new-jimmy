@@ -221,7 +221,7 @@ export default {
       return Array.from(customerMap.values());
     });
 
-    watch(() => customerSuppliers.data, (newVal) => {
+    watch(customerSuppliers, (newVal) => {
       tempCustomers.value = [...tempCustomers.value, ...newVal];
     }, { deep: true });
 

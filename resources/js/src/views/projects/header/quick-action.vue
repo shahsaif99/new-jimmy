@@ -188,7 +188,7 @@ export default {
             fetchCustomerSuppliers();
         };
 
-        watch(() => customerSuppliers.data, (newVal) => {
+        watch(customerSuppliers, (newVal) => {
             tempCustomers.value = [...tempCustomers.value, ...newVal];
         }, { deep: true });
 
