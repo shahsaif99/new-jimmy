@@ -183,6 +183,13 @@ export default [
     route: 'lending-history',
   },
   {
+    title: 'JSA',
+    icon: 'ShieldIcon',
+    action: 'jsa-overview',
+    resource: 'all',
+    route: 'jsa-overview',
+  },
+  {
     title: 'Weld',
     icon: 'ToolIcon',
     resource: 'all',

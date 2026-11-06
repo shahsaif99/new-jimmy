@@ -42,6 +42,7 @@ use App\Http\Controllers\Api\CompanyInformationController;
 use App\Http\Controllers\Api\CompanyLocationController;
 use App\Http\Controllers\Api\TaskCommentController;
 use App\Http\Controllers\Api\WpsController;
+use App\Http\Controllers\Api\JobSafetyAnalysisController;
 use App\Http\Controllers\Api\WeldLogController;
 use App\Http\Controllers\Api\WeldController;
 use App\Http\Controllers\Api\WeldReportController;
@@ -183,6 +184,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('welds', WeldController::class)->only(['store', 'update', 'destroy']);
     Route::get('weld-logs/{weldLog}/export-pdf', [WeldLogController::class, 'exportPdf'])->name('weld-logs.export-pdf');
     Route::get('weld-logs/{weldLog}/export-xlsx', [WeldLogController::class, 'exportXlsx'])->name('weld-logs.export-xlsx');
+    // Job Safety Analysis (JSA / SJA)
+    Route::apiResource('job-safety-analyses', JobSafetyAnalysisController::class);
+    Route::put('job-safety-analyses/{job_safety_analysis}/status', [JobSafetyAnalysisController::class, 'updateStatus'])->name('job-safety-analyses.status');
+    Route::post('job-safety-analyses/{job_safety_analysis}/sign', [JobSafetyAnalysisController::class, 'sign'])->name('job-safety-analyses.sign');
+    Route::put('job-safety-analyses/{job_safety_analysis}/participants/{participant}/signature', [JobSafetyAnalysisController::class, 'recordSignature'])->name('job-safety-analyses.record-signature');
+    Route::get('job-safety-analyses/{job_safety_analysis}/export-pdf', [JobSafetyAnalysisController::class, 'exportPdf'])->name('job-safety-analyses.export-pdf');
+
     Route::get('weld-report', [WeldReportController::class, 'index'])->name('weld-report.index');
     Route::get('weld-report-details', [WeldReportController::class, 'details'])->name('weld-report.details');
 
