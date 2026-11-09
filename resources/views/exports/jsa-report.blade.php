@@ -13,7 +13,13 @@
 
     // Keep the printed form useful: always leave a few empty lines to write on.
     $hazardBlankRows = max(4, 10 - $hazards->count());
-    $participantBlankRows = max(4, 12 - $participants->count());
+
+    // The signature table grows with the crew instead of being padded out to a
+    // fixed height: one row per participant, plus a few spare lines for anyone
+    // who joins the job after the JSA was printed. A long crew is allowed to
+    // run onto a second page.
+    $participantSpareRows = 3;
+    $participantBlankRows = $participantSpareRows;
 
     $fmtDate = fn ($date) => $date ? $date->format('d.m.Y') : '';
 @endphp
